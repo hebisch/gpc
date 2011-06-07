@@ -1,0 +1,117 @@
+#!/bin/sh
+
+# Create the GPC WWW home page. This is a very special-purpose
+# script. It is called from GPC's makefile.
+#
+# Copyright (C) 2000-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+if [ $# != 3 ]; then
+  echo "Usage: `basename "$0"` src-dir dest-dir lang" >&2
+  exit 1
+fi
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/find-sed`" || exit 1
+
+srcdir="$1"
+destdir="$2"
+lang="$3"
+langsrcdir="$srcdir/$lang"
+progname="`basename "$0" | "$sed" -e 's,.*/,,'`"
+q='"'
+
+# Read in language-dependent texts
+. "$langsrcdir/homepage.def"
+
+header()
+{
+cat << EOF
+<!-- Generated automatically by $progname
+     DO NOT CHANGE THIS FILE MANUALLY! -->
+<body background="images/gradient.png" bgcolor="#ffcf7f" text="#000000" link="#cf0000" vlink="#7f0000" alink="#ff0000">
+<table align=right><tr><td bgcolor="#ffffff">
+<form method="post" action="/cgi-bin/htsearch-gpc">
+<input type="hidden" name="config" value="htdig">
+<input type="text" size="30" name="words" value="">
+<input type="submit" value="Search">
+</form>
+</td><td width=16>&nbsp;</td><td>
+EOF
+# Language links
+sed -e '/^#/d;s/^-//' "$srcdir/languages" | while read lang_dir2 lang2 message2; do
+  if [ x"$lang2" != x"$lang" ]; then
+    imgfile="$srcdir/images/$lang2.png"
+    if [ ! -e "$imgfile" ]; then
+      echo "$progname: $imgfile not found" >&2
+      exit 1
+    fi
+    size="`identify -ping "$imgfile" | sed -ne 's/.*[^0-9]\([0-9]\+\)x\([0-9]\+\).*/width=\1 height=\2/p'`"
+    if [ x"$size" = x ]; then
+      echo "$progname: cannot determine the size of $imgfile" >&2
+      echo "  (need \`identify' of ImageMagick)" >&2
+      exit 1
+    fi
+    echo "<a href=$q""h-gpcs-$lang2.html$q><img src=$q""images/$lang2.png$q border=no alt=$q`echo "$message2" | sed -e 's/ /\&nbsp;/g'`$q $size></a>"
+  fi
+done
+if [ ${PIPESTATUS[0]} -ne 0 ]; then exit 1; fi
+echo "</td></tr></table>"
+
+echo "<div align=center>"
+sed '/^#/d;s/^-//' "$srcdir/languages" | while read lang_dir2 lang2 message2; do
+  if [ x"$lang2" = x"$lang" ]; then
+    echo "<a href=$q$lang_dir2/h-index.html$q>$returntomainpage</a>"
+  fi
+done
+
+echo "<br>&nbsp;<br>"
+echo "<a href=$q""http://www.gnu-pascal.de/current/$q>$todownloadarea</a>"
+echo "&nbsp;&nbsp; - &nbsp;&nbsp; <a href=$q""http://www.gnu-pascal.de/crystal/gpc/en/$q>$mailinglistarchives</a></div>"
+echo "</div><br clear=$q""all$q><hr>"
+}
+
+while IFS="" read -r l; do
+  case "$l" in
+    *"<body>"*) echo "$l" | sed -e 's/<body>//'; header;;
+    *"</body>"*) echo "<hr>$disclaimer"; echo "$l";;
+    *) echo "$l";;
+  esac
+done < "$destdir/gpcs-$lang.html" > "$destdir/h-gpcs-$lang.html"

@@ -1,0 +1,9 @@
+This line appears only on standard output.
+This line as well.
+But this line and the following one appear both on standard output
+and in the log file, with just one `WriteLn'.
+
+Dumping the log file:
+This line appears only in the log file.
+But this line and the following one appear both on standard output
+and in the log file, with just one `WriteLn'.

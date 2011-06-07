@@ -1,0 +1,316 @@
+@c Copyright (C) 1988-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+@node Invoking GPC
+@chapter Opcije u naredbenoj liniji koje podr¾ava GNU Pascal.
+@cindex GNU Pascal opcije komandne linije
+@cindex opcije komandne linije
+@cindex opcije naredbene linije
+
+(Pozivanje GPC-a).
+
+GPC je prevodilac (engl. compiler) koji se poziva iz naredbene (komandne)
+linije tj. potrebno je pozvati @file{gpc} prosljeðujuæi mu ime datoteke koju
+¾elite da prevede, plus (eventualne) opcije.
+
+GPC podr¾ava sve opcije komandne linije (engl. command-line options) koje
+poznaje GCC prevodilac, osim velikog broja opcija za preprocesor.
+Za kompletni referentni popis i opis svih opcija
+pogledajte @ref{Invoking GCC,,GCC Command Options,gcc,the GCC Manual}.
+Ni¾e æete naæi listu dodatnih opcija koje GPC podr¾ava, kao i listu
+najva¾nijih opcija koje GPC podr¾ava (ukljuèujuæi i neke on onih koje podr¾ava
+jednako i GCC).
+
+Moguæe je mije¹ati opcije i imena datoteka u komandnoj liniji. U veæini
+sluèajeva poredak nije bitan. Poredak postaje bitan npr. kad koristite vi¹e
+opcija istog tipa; za primjer, ako navedete @samp{-L} vi¹e nego jednom,
+direktoriji (kazala) se pretra¾uju u poretku u kojem su specificirani.
+@emph{Note:} Kako mnoge opcije imaju vi¹eslovna imena, vi¹estruke jednoslovne
+opcije @emph{ne} mogu se grupirati na naèin koji je moguæ u mnogim drugim
+programima: @samp{-dr} je vrlo razlièito od @w{@samp{-d -r}}.
+
+Mnoge opcije imaju duga imena koja zapoèinju sa @samp{--} ili, potpuno
+ekvivalentno @samp{-f}. Npr. @samp{--mixed-comments} je isto ¹to i
+@samp{-fmixed-comments}. Neke opcije upuæuju GPC da daje upozorenja (engl.
+warnings) tj. dijagnostièke poruke koje izvje¹tavaju o konstrukcijama koje
+nisu same u sebi pogre¹ne, ali su riziène; ili mo¾e sugerirati da je mo¾da
+do¹lo do pogre¹ke. Te opcije zapoèinju s @samp{-W}.
+
+Veæina za GPC specifiènih opcija mogu takoðer biti promijenjene tijekom
+jedne kompilacije kori¹tenjem naredbi prevodiocu (engl. compiler directives)
+u izvornom kodu (engl. source), npr. @samp{@{$X+@}} ili
+@samp{@{$extended-syntax@}} za @samp{--extended-syntax}
+(@pxref{Compiler Directives}).
+
+GPC razumije iste varijable okoline (engl. environment variables) koje
+razumije i GCC
+(@pxref{Environment variables,,Environment Variables Affecting GCC,gcc,the GCC manual}).
+Dodatno, GPC prepoznaje @samp{GPC_EXEC_PREFIX} sa istim znaèenjem koje
+@samp{GCC_EXEC_PREFIX} ima za GCC. GPC takoðer prepoznaje
+@samp{GCC_EXEC_PREFIX}, ali @samp{GPC_EXEC_PREFIX} ima veæi prioritet.
+
+Neke od dugih opcija (npr. @samp{--unit-path}) trebaju argument (parametar).
+Ovaj je parametar odvojen jednim @samp{=} znakom, npr.
+
+@smallexample
+--unit-path=/home/foo/units
+@end smallexample
+
+@menu
+* GPC Command Line Options::    GPC opcije komandne linije osim GCC-ovih.
+* GPC Options::                 Najèe¹æe kori¹tene opcije GPC-a.
+@end menu
+
+(Napomena: naslovi poglavlja su neprevedeni zbog unakrsnih referenci iz
+neprevedenih poglavlja priruènika i prema njima.)
+
+@c ==========================================================================
+
+
+@node GPC Command Line Options
+@section GPC opcije osim GCC-ovih.
+
+Slijedeæa tablica navodi opcije komandne linije osim onih koje takoðer
+razumije i GCC.
+
+(Sadr¾aj se automatski generira na engleskom.)
+
+@include lang-options.texi
+
+
+@c ==========================================================================
+
+
+@node GPC Options
+@section Najèe¹æe kori¹tene opcije GPC-a
+
+Kao najjednostavniji primjer, pozivanje
+
+@smallexample
+gpc foo.pas
+@end smallexample
+
+ka¾e GPC-u da prevede izvorni kod u datoteci @file{foo.pas} i da proizvede
+izvr¹nu (engl. executable) datoteku sa podrazumijevanim (engl. default)
+imenom, koje je @file{foo.exe} na EMX platformi, @file{a.exe} na CygWin,
+ujedno @file{a.out} i @file{a.exe} na DJGPP, te @file{a.out} na veæini
+ostalih platformi.
+
+Korisnik blizak s BP-om (Borland Pascalom) mo¾e uoèiti da je neophodno dati
+datoteci ekstenziju (sufiks) @samp{.pas}: GPC je zajednièko suèelje (engl.
+interface) za Pascal prevodilac, ali i za C, ObjC, i C++ prevodilac,
+asembler, linker; a mo¾da i za Adu i Fortran prevodilac. Prema ekstenziji
+va¹e izvorne datoteke GPC odreðuje koji prevodilac treba pokrenuti. GPC
+prepoznaje Pascal programe prema ekstenziji @file{.pas}, @file{.p}, @file{.pp}
+ili @file{.dpr}. GPC takoðer prihvaæa izvorne kodove u drugim jezicima (npr.
+@file{.c} for C) i poziva odgovarajuæe prevoditelje za njih. Datoteke s
+ekstenzijom @file{.o} ili bez ijedne poznate se smatraju objektnim datotekama
+ili bibliotekama funkcija (engl. library) koje treba povezati (engl. link).
+
+Jo¹ jedan primjer:
+
+@smallexample
+gpc -O2 -Wall --executable-file-name --automake --unit-path=units foo.pas
+@end smallexample
+
+Ovo æe prevesti izvornu datoteku @file{foo.pas} u u izvr¹nu datoteku imena
+@file{foo} (@samp{--executable-file-name}) sa relativno dobrom optimizacijom
+(@samp{-O2}), uz upozorenja o potencijalnim problemima @samp{-Wall}. Ako
+program koristi jedinice (UNIT) ili importira module, njih æe prevodilac
+potra¾iti u direktoriju imena @file{units} (@samp{--unit-path}) i automatski
+prevesti i povezati (@samp{--automake}).
+
+Slijedeæa tablica navodi najèe¹æe kori¹tene opcije GPC-a.
+
+@table @code
+@item --automake
+Provjerava da li kori¹teni moduli/jedinice moraju biti ponovno prevedeni
+i vr¹i ponovno prevoðenje ako je to neophodno.
+
+@item --unit-path=@var{dir}[:@var{dir}@dots{}]
+Tra¾i jedinice (engl. i Pascal UNIT) i objektne datoteke u danim direktorijima.
+
+@item --object-path=@var{dir}[:@var{dir}@dots{}]
+Tra¾i objektne datoteke u navedenim direktorijima.
+
+@item --unit-destination-path=@var{dir}
+Smje¹ta prevedene jedinice (GPI i objektne datoteke) u direktorij @var{dir}.
+Podrazumna (engl. default) vrijednost u sluèaju izostavljanja opcije je
+trenutni direktorij.
+
+@item --object-destination-path=@var{dir}
+Smje¹ta prevedene objektne datoteke (npr. od C datoteka, ali ne od Pascal
+jedinica) u direktorij @var{dir}. Podrazumijevana (default) vrijednost je
+direktorij dan sa @samp{--unit-destination-path}.
+
+@item --executable-path=@var{dir}
+Smje¹ta proizvedenu izvr¹nu datoteku u direktorij @var{dir}. Podrazumna
+vrijednost je direktorij u kojem se nalazi glavna izvorna datoteka.
+
+@item -o @var{file}
+@cindex opcija ime izlazne datoteke
+Smjesti izlaz u datoteku @var{file}. Ovo vrijedi bez obzira na tip izlaza
+koji je proizveden, bio on izvr¹na datoteka, objektna datoteka, asemblerski
+listing itd.
+
+Kako samo jedna izlazna datoteka mo¾e biti navedena, nema smisla koristiti
+@samp{-o} opciju kad se prevodi vi¹e od jedne ulazne datoteke, osim ako se
+proizvodi izvr¹na datoteka kao izlaz.
+
+@item --executable-file-name[=@var{name}]
+@cindex opcija izlazna datoteka
+Proizvodi ime izvr¹ne datoteke iz imena izvorne datoteke, ili koristi
+@var{name} kao ime izvr¹ne datoteke. Razlika u odnosu na @samp{-o} opciju
+je da @samp{--executable-file-name} uzima u obzir @samp{--executable-path},
+dok @samp{-o} to ne èini i prihvaæa ime datoteke koje ukljuèuje direktorij.
+Dalje, @samp{--executable-file-name} se odnosi samo na izvr¹ne datoteke, ne
+na ostale izabrane oblike izlaznih datoteka.
+
+@item -L@var{dir}
+Tra¾i biblioteke funkcija (eng. libraries) u direktoriju @var{dir}. Mo¾e se
+navesti vi¹e puta.
+
+@item -I@var{dir}
+Tra¾i include (ukljuène) datoteke u direktoriju @var{dir}. Mo¾e se navesti
+vi¹e puta.
+
+@item -l@var{library}
+@cindex Libraries
+Potra¾i biblioteku funkcija @var{library} kod povezivanja. Ova se opcija
+mora nalaziti u komandnoj liniji @emph{iza} svih izvornih ili objektnih
+datoteka te drugih biblioteka koje referenciraju @var{library}.
+
+@item -O[@var{n}]
+Izaberi nivo optimizacije. Bez optimizacije (ili @samp{-O0} ¹to je podrazumna
+-default- vrijednost), cilj prevoditelja je da smanji vrijeme prevoðenja i
+da proces otkrivanja pogre¹aka (engl. debugging) da oèekivane rezultate.
+Naredbe su neovisne: ako zaustavite program prekidnom toèkom (engl. breakpoint)
+izmeðu naredbi, mo¾ete dodijeliti novu vrijednost nekoj varijabli ili
+promijeniti programski brojaè na bilo koju drugu naredbu u istoj rutini i
+dobiti toèno rezultate koje oèekujete od izvornog koda.
+
+S optimizacijom, prevodilac nastoji reducirati velièinu izvr¹nog koda i
+trajanje izvr¹avanja. ©to veæa vrijednost @var{n}, vi¹e æe se optimizacija
+izvesti, ali æe prevoðenje trajati dulje.
+
+Ako koristite vi¹e @samp{-O} opcija, sa ili bez @var{n}, zadnja opcija je
+ona koja je va¾eæa.
+
+@item -g
+Proizvedi informacije za debugging (ispravljanje progre¹aka) prikladne za
+@samp{gdb}. Za razliku od nekih drugih prevoditelja, GNU Pascal dozvoljava
+da koristite @samp{-g} sa @samp{-O}. Preèice poduzete od strane optimiziranog
+koda mogu povremeno proizvesti iznenaðujuæe rezultate: neke varijable koje
+ste deklarirali mogu uopæe ne postojati; tijek programa mo¾e se skokovito
+premjestiti gdje ga niste oèekivali; neke naredbe se mogu ne izvr¹iti jer
+izraèunavaju konstantnu vrijednost ili su njihove vrijednosti veæ bile pri
+ruci; neke se naredbe mogu izvr¹iti na drugim mjestima jer su pomaknute
+izvan petlji. Meðutim, pokazuje se moguæim debuggirati optimizirani izlaz.
+Ovo èini razumnim koristiti optimizer za programe jo¹ i u testnoj fazi.
+
+@item -s
+Ukloni sve simbol tablice i relokacijske informacije iz izvr¹ne datoteke.
+Primjedba: ovo nema utjecaja na performanse prevedene izvr¹ne datoteke.
+
+@item -Wall
+Daj upozorenja za izvjestan broj konstrukata koji nisu po sebi pogre¹ni ali
+su rizièni ili sugeriraj da je mo¾da uèinjena pogre¹ka u kodiranju. Postoje
+dodatne opcije upozorenja koje nisu ukljuèene sa @samp{-Wall}, vidi GCC
+opcije upozorenja (engl. warnings)
+(@pxref{Warning Options,,Options to Request or Suppress Warnings,gcc,the GCC manual}),
+dok @samp{-Wall} samo upozorava na takve konstrukte koje je lako izbjeæi
+u programima. Dakle, savjetujemo koristiti @samp{-Wall} na veæini programa.
+
+Primijetimo da neka upozorenja (npr. ona o neinicijaliziranim varijablama)
+nisu nikad dana ako se ne prevodi s optimizacijom (vidi gore), jer prevodilac
+inaèe ne analizira uzorke kori¹tenja varijabli.
+
+@item -Werror
+Pretvara sva upozorenja u pogre¹ke.
+
+@item -S
+Zaustavi se nakon prevoðenja; ne asembliraj. Izlaz je u obliku asemblerskog
+koda za svaku izvornu datoteku. Podrazumno (default), ime asemblerske datoteke
+za datu izvornu datoteku nastaje zamjenom ekstenzije sa @samp{.s}.
+
+@item -c
+Prevedi i asembliraj izvornu datoteku, ali ne povezuj. Izlaz je u obliku
+objektne datoteke za svaku izvornu datoteku. Podrazumno, ukoliko se drugaèije
+ne navede, ime objektne datoteke za izvornu datoteku nastaje zamjenom
+ekstenzije izvorne datoteke sa @samp{.o}.
+
+@item -static
+Na sistemima koji podr¾avaju dinamièko povezivanje, ovo zabranjuje povezivanje
+sa dijeljenim bibliotekama (engl. shared libraries), tj. tra¾i statièko
+povezivanje. Na ostalim sistemima ova opcija nema efekta.
+
+@item -D@var{macro}[=@var{def}]
+Definiraj makro i uvjetni simbol @var{macro} kao @var{def} (ili kao @samp{1}
+ako je @var{def} izostavljen).
+
+@item -b @var{machine}
+Parametar @var{machine} specificira ciljni stroj za prevoðenje. Ovo je korisno
+ako je GNU Pascal instaliran kao prevodilac za drugu platformu (engl. cross-
+compiler).
+
+@item -v
+Ispi¹i (na tok pogre¹ki) naredbe izvr¹avane da se pokrenu pojedini stupnjevi
+prevoðenja. Takoðer ispi¹i broj verzije pogonskog programa prevoditelja,
+preprocesora i samog prevoditelja.
+
+@item --classic-pascal-level-0
+@itemx --classic-pascal
+@itemx --extended-pascal
+@itemx --object-pascal
+@itemx --ucsd-pascal
+@itemx --borland-pascal
+@itemx --pascal-sc
+@c
+@c Mirsad: unhappy with Croatian translation for "typed constant"!!!
+@c
+GNU Pascal podr¾ava svojstva nekoliko razlièitih Pascal standarda i dijalekata.
+Inicijalno, oni su svi omoguæeni. Ovi prekidaèi upuæuju GPC da ogranièi sebe
+na svojstva specificiranog standarda; ne omoguæuju bilo kakva dodatna
+svojstva. Upozorenja o nekim opasnim konstruktima koji bi bili legalni
+za specificirani dijalekt (npr.@: operacija dodjele vrijednosti tipiziranoj
+konstanti uz @samp{--borland-pascal}) se potiskuju.
+
+Inicijalno, GNU Pascal dozvoljava redefiniciju inekih kljuènih rijeèi jezika. Svaki
+od ovih prekidaèa prouzroèuje da GNU Pascal zabrani redefiniciju kljuènih
+rijeèi specificiranog standarda.
+
+Ispravni ISO 7185 Pascal programi bi se trebali prevesti ispravno sa ili
+bez @samp{--classic-pascal}. Meðutim, bez ove opcije neka GNU pro¹irenja
+i znaèajke drugih dijalekata Pascala su takoðer podr¾ane. Sa ovom opcijom,
+ta pro¹irenja su odbijena.
+
+Ove opcije nisu tu s namjerom da budu @i{korisne}, one postoje samo da
+zadovolje pedantne koji bi inaèe tvrdili da GNU Pascal ne ispunjava ISO
+standard ili nije @i{zaista} kompatibilan sa Borland Pascalom, ili ¹to veæ.
+Mi preporuèujemo, radije, da korisnici iskoriste prednosti ekstenzija
+GNU Pascala i zanemare ogranièenja drugih prevodilaca.
+
+@item -pedantic-errors
+Proizvedi gre¹ke radije nego upozorenja za kr¹enja prenosivosti koda
+(engl. portability). Za razliku od C-a, ovo @emph{ne} implicira
+@samp{-pedantic} opciju, pa mo¾ete, na primjer, koristiti
+@samp{-pedantic-errors} bez @samp{-pedantic}, ali sa @samp{--extended-pascal}.
+
+@item --gpc-main=@var{name}
+Imenuj ulaznu toèku glavnog programa @samp{@var{name}} umjesto @samp{main}
+na nivou povezivaèa. Ovo je korisno npr. kad se radi s nekim C bibliotekama
+funkcija koje definiraju svoju vlastitu @samp{main} funkciju i tra¾e da
+se programska ulazna toèka (engl. entry point) nazove drugaèije.
+
+(Preferira se kori¹tenje ove direktive prevodiocu u jedinici ili modulu
+koji se povezuje s tom èudnom C bibliotekom, radije nego da se direktiva
+daje u naredbenoj (komandnoj) liniji.)
+
+@end table

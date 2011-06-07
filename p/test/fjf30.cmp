@@ -1,0 +1,12 @@
+#!/bin/sh
+TMPFILE=dummy.pas
+rm -f $TMPFILE
+echo '{ Automatically generated temp program. No test program. May be deleted. }' > $TMPFILE
+# Break up the word pro-gram so the Makefile with MASK=*
+# doesn't try to compile *this* file!
+echo 'pro''gram Foo; begin WriteLn (MaxInt + 1) end.' >> $TMPFILE
+$1 -Wall -Werror $TMPFILE || { echo "failed 1"; exit 1; }
+OPTIONS="-DMAXINTP1=`./$A_OUT`"
+rm -f $TMPFILE "$A_OUT"
+$1 $2 $OPTIONS 2> /dev/null && { echo "failed 2"; exit 1; }
+echo OK

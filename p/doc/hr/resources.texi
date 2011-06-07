@@ -1,0 +1,319 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+@include macros.texi
+
+@node Resursi
+@appendix Resursi za kori¹tenje s GPC-om
+@cindex Resursi
+@cindex Prilo¾eni sadr¾aji
+
+Mnogi od programa spomenutih ovdje, plus neki dodatni, mogu se
+naæi na
+@smallexample
+@uref{http://www.gnu-pascal.de/contrib/}
+@end smallexample
+
+@htmlhrule
+
+@anch{Drawing}@c
+@ifhtml
+@html
+<table align=right><tr><td>
+<a href="../images/GnuPascal.png">
+<img alt="[Gnu i Blaise Pascal]" src="../images/GnuPascal-small.png" width=123 height=99><br>
+(PNG, 10 KB)
+</a>
+</td></tr></table>
+@end html
+@end ifhtml
+@subheading GNU Pascal crte¾
+@cindex Crte¾
+@cindex Blaise Pascal
+@cindex Pascal, Blaise
+
+@iftex
+@image{GnuPascal,6cm}
+@end iftex
+@ifhtml
+Here is
+@end ifhtml
+@ifnothtml
+Na webu mo¾ete naæi
+@end ifnothtml
+na¹ GNU Pascal crte¾ kao
+@localuref{images/GnuPascal-small.png,mali PNG slika (1 KB)} i kao jedna
+@localuref{images/GnuPascal.png,velika PNG slika (10 KB)} i kao jedna
+@localuref{images/GnuPascal.eps,EPS datoteka (45 KB)} i kao jedna
+@localuref{images/GnuPascal.pdf,PDF datoteka (18 KB)}.
+
+Zbog
+@uref{http://www.gnu.org/philosophy/gif.html,patentnih problema}
+ne koristimo GIF datoteke. Sreæom
+@uref{http://www.libpng.org,PNG format}, nasljednik GIF-a, nema ovaj
+problem -- i ionako uvodi bolju kompresiju i vi¹e naprednih
+moguænosti.
+
+@c DEMO-START
+@anch{gradient}@c
+Inaèe, @localuref{images/gradient.png,kolor gradijent} sa
+pozadine na¹e web stranice je PNG datoteka od samo 632 bajtova.
+Generirana je Pascal programom prevedenim s GPC-om i @samp{pnmtopng}.
+@hrefexample{gradient.pas}
+@c DEMO-END
+
+@htmlbrclear
+
+@htmlhrule
+
+@anch{PENG}@c
+@ifhtml
+@html
+<table align=left><tr><td>
+<a href="../images/peng-screen.png">
+<img alt="[PENG screen]" src="../images/peng-screen-small.png" width=133 height=83><br>
+(PNG, 7 KB)
+</a>
+</td></tr></table>
+@end html
+@end ifhtml
+@subheading PENG
+@cindex PENG
+@cindex IDE
+@cindex Editor
+@cindex Tekst editor
+
+PENG je integrirana razvojna okolina (IDE) za GNU prevodioce
+i ostale svrhe na svakoj platformi koju podr¾ava GPC, koju je
+napisao Frank Heckenbach. Matièna stranica za PENG je
+@smallexample
+@uref{http://fjf.gnu.de/peng/}.
+@end smallexample
+
+@htmlbrclear
+
+@htmlhrule
+
+@anch{RHIDE}@c
+@ifhtml
+@html
+<table align=right><tr><td>
+<a href="../images/rhide-screen.png">
+<img alt="[RHIDE screen]" src="../images/rhide-screen-small.png" width=115 height=104><br>
+(PNG, 8 KB)
+</a>
+</td></tr></table>
+@end html
+@end ifhtml
+@subheading RHIDE
+@cindex RHIDE
+@cindex IDE
+@cindex Editor
+@cindex Tekst editor
+
+RHIDE je integrirana razvojna okolina (IDE) za GNU prevodioce
+na DOS-u (DJGPP) ili Linuxu, napisao ju je Robert Höhne.
+Matièna stranica RHIDE je
+@smallexample
+@uref{http://www.rhide.com}.
+@end smallexample
+
+@htmlbrclear
+
+@htmlhrule
+
+@anch{DevPascal}@c
+@subheading DevPascal
+@cindex DevPascal
+@cindex IDE
+@cindex Editor
+@cindex Tekst editor
+
+DevPascal je integrirana razvojna okolina (IDE) za GNU Pascal na mingw32
+platformi. Matièna stranica Devpascal-a je
+
+@smallexample
+@uref{http://www.bloodshed.net/devpascal.html}.
+@end smallexample
+
+@htmlbrclear
+
+@htmlhrule
+
+@anch{GRX}@c
+@ifhtml
+@html
+<table align=left><tr><td>
+<a href="../images/grx-screen.png">
+<img alt="[GRX demo program screen]" src="../images/grx-screen-small.png" width=96 height=72><br>
+(PNG, 38 KB)
+</a>
+</td></tr></table>
+@end html
+@end ifhtml
+@subheading GRX
+@cindex GRX
+@cindex Grafika
+
+GRX je grafièka biblioteka za C i GNU Pascal, koja ukljuèuje i uglavnom
+BP kompatibilnu @samp{Graph} jedinicu (unit). Raspolo¾iva je na
+@smallexample
+@uref{http://www.gnu.de/software/grx/}
+@end smallexample
+
+Iako je GRX potekao sa DJGPP, DOS programske platforme, prenosiva je
+na Linux s SVGAlib, na sve Unix-olike sisteme koji vrte X11 window
+system, i na MS-Windows 9x/NT.
+
+@htmlbrclear
+
+@htmlhrule
+
+@anch{Internationalization}@c
+@subheading Internacionalizacija
+@cindex Internacionalizacija
+@cindex gettext
+
+Jedinice i alati za internacionalizaciju su na raspolaganju na
+@smallexample
+@uref{http://www.gnu-pascal.de/contrib/eike/}
+@end smallexample
+
+@htmlhrule
+
+@anch{Database}@c
+@subheading Jedinice (units) za baze podataka
+@cindex Baze podataka
+@cindex MySQL
+@cindex GNU DBM
+@cindex DBM
+@cindex GDBM
+@cindex PostgreSQL
+GNU Pascal jedinice (units) za pristup MySQL, GNU DBM i PostgreSQL
+bazama podataka se mogu naæi na
+@smallexample
+@uref{http://www.gnu-pascal.de/contrib/eike/}
+@end smallexample
+
+@htmlhrule
+
+@anch{GTK}@c
+@subheading GTK jedinice
+@cindex GTK
+@cindex GUI
+
+GNU Pascal jedinice za GTK+ i GTK+ GL biblioteke se mogu naæi na
+@smallexample
+@uref{http://www.gnu-pascal.de/contrib/nicola/}
+@end smallexample
+
+@htmlhrule
+
+@anch{SysUtils}@c
+@subheading SysUtils unit
+@cindex SysUtils
+Prof.@: Abimola A.@: Olowofoyeku (``The African Chief'') je napisao
+Delphi-kompatibilnu (iako neke znaèajke jo¹ uvijek nedostaju)
+@samp{SysUtils} jedinicu. Bila je testirana pod Cygwin, mingw, Linux
+(Mandrake 7.0) i Solaris 7 platformama. Mo¾e se naæi na
+@uref{http://www.gnu-pascal.de/contrib/chief/}.
+
+@htmlhrule
+
+@anch{Crystal}@c
+@subheading Crystal, program za voðenje arhive mailing listi
+@cindex Crystal
+@cindex Arhive mailing listi
+
+Crystal je arhiva za mailing liste bazirana na webu, napisana za
+GNU Pascal i kori¹tena za arhive GPC mailing listi (@pxref{Arhive
+mailing listi}). Izvorni kod mo¾e se naæi na
+@uref{http://fjf.gnu.de/crystal/}
+
+@htmlhrule
+
+@anch{ISO}@c
+@subheading ISO standardi
+@cindex ISO 7185
+@cindex ISO 10206
+@cindex ANSI
+@cindex Classic Pascal
+@cindex Standard Pascal
+@cindex Extended Pascal
+@cindex Standardi
+@cindex Pascal standardi
+
+Specifikacije Pascal standarda su raspolo¾ive u PostScript
+formatu na
+@smallexample
+@uref{http://ftp.digital.com/pub/Digital/Pascal/}
+@end smallexample
+
+Alternativne adrese su
+@smallexample
+@uref{ftp://ftp.europe.digital.com/pub/DEC/Pascal/}
+@end smallexample
+@smallexample
+@uref{ftp://ftp.digital.com/pub/DEC/Pascal/}
+@end smallexample
+
+Postoje takoðer i kopije na
+@smallexample
+@uref{http://www.moorecad.com/standardpascal/iso7185.ps}
+(ISO 7185 Pascal)
+@end smallexample
+@smallexample
+@uref{http://www.moorecad.com/standardpascal/iso10206.ps}
+(ISO 10206 Extended Pascal)
+@end smallexample
+
+PRIMJEDBA: Ovi dokumenti su pone¹to te¾i za pregledavanje (npr.
+u ghostview-u), jer im nedostaju tzv. ``document structuring
+comments'' (DSC). GPC distribucija izvornog koda sadr¾i malu
+skriptu @file{ps2dsc} koja dodaje DSC ponovno i èini dokumente
+lak¹im za pregledavanje i navigaciju. Primijetite da zbog
+copyright problema æete vjerojatno to moæi uèiniti samo za sebe
+i neæete moæi distribuirati modificirane datoteke.
+
+Mo¾ete naæi lak za èitanje uvod u Extended Pascal od Prospero
+Software-a na
+@smallexample
+@uref{http://www.prosperosoftware.com/epintro.html}
+@end smallexample
+
+Molimo vas primijetite da Standard Pascal @strong{nije} isto ¹to i
+Borland Pascal niti njegov podskup. Pogledati poglavlje @ref{Naglasci} za
+primjere moguænosti Standard Pascala koje nedostaju u Borland Pascalu.
+
+@uref{http://www.moorecad.com/standardpascal/ansiiso.faq,ANSI-ISO Pascal FAQ (132 KB)}
+od Scott A. Moore-a obja¹njava razlike izmeðu dva dijalekta u
+detalje.
+
+Draft standard ``Objektno-orijentirana pro¹irenja Pascala'' mogu se naæi na
+@smallexample
+@uref{http://pascal-central.com/OOE-stds.html}
+@end smallexample
+
+@htmlhrule
+
+@subheading Za¹titite svoju slobodu!
+@cindex Sloboda
+
+Programerske aktivnosti malih kompanija i pojedinaca su ugro¾ene
+software-skim patentima. Ako ste programer, vi ste u opasnosti,
+takoðer! Va¹ poslodavac ili vi mo¾ete biti tu¾eni od strane velike
+kompanije koja dr¾i patent na neke @emph{ideje} koje vi koristite
+u svojim programima. (Nije potrebno da koristite tuði kod da biste
+postali podlo¾ni tim tu¾bama.)
+
+Za daljnje informacije pogledajte
+@smallexample
+@uref{http://lpf.ai.mit.edu/}
+@end smallexample

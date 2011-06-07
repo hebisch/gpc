@@ -1,0 +1,66 @@
+#!/bin/sh
+
+# Produce lang.opt as required by the backend
+#
+# Copyright (C) 2004-2006 Free Software Foundation, Inc.
+#
+# Authors: Waldek Hebisch <hebisch@math.uni.wroc.pl>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+{
+cat << EOF
+; This file was generated automatically by `basename "$0"`.
+; DO NOT CHANGE THIS FILE MANUALLY!
+;
+; Options for the Pascal front end.
+; Copyright (C) 2004-2006 Free Software Foundation, Inc.
+;
+; This file is part of GNU Pascal.
+;
+; GNU Pascal is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3, or (at your option)
+; any later version.
+;
+; GNU Pascal is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with GNU Pascal; see the file COPYING.  If not, write to the
+; Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+; 02111-1307, USA.
+
+; See c.opt for a description of this file's format.
+
+; Please try to keep this file in ASCII collating order.
+
+Language
+Pascal
+
+EOF
+
+# Note: Only the first two `:'s must be turned into line breaks,
+#       possible further ones are part of the description.
+sort -k1,1 -t: "$1" | sed 's/:/:Pascal /;s/ :/:/;s/:/|/;s/:/|/;s/$/|/' | tr '|' '\n'
+
+echo "; This comment is to ensure we retain the blank line above."
+} > "$2" || { rm -f "$2"; false; }

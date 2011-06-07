@@ -1,0 +1,30 @@
+Main start
+Recursive start 10 True
+Recursive start 9 True
+Recursive start 8 True
+Recursive start 7 True
+Recursive start 6 True
+Recursive start 5 True
+Recursive start 4 True
+Recursive start 3 True
+Recursive start 2 False
+Recursive start 1 False
+Recursive start 0 False
+DoGoto 3 True
+OK
+Recursive end 3 True
+Recursive before goto 4 True
+Recursive end 4 True
+Recursive before goto 5 True
+Recursive end 5 True
+Recursive before goto 6 True
+Recursive end 6 True
+Recursive before goto 7 True
+Recursive end 7 True
+Recursive before goto 8 True
+Recursive end 8 True
+Recursive before goto 9 True
+Recursive end 9 True
+Recursive before goto 10 True
+Recursive end 10 True
+Main end

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+check()
+{
+  cat << EOF > dummy.c
+#include <stdlib.h>
+#include <locale.h>
+#include <libintl.h>
+#include <limits.h>
+
+int main ()
+{
+  textdomain (NULL);
+  return 0;
+}
+EOF
+  gcc dummy.c "$@" > /dev/null 2>&1
+}
+
+FLAGS=""
+if check || check "-lintl" || check "-lintl" "-liconv"; then
+  rm -f "$A_OUT" dummy.c
+  $1 $2
+  if [ -r "$A_OUT" ] ; then
+    exec 4>&2 2> /dev/null
+    LANG=de_DE LC_ALL=de_DE LC_MESSAGES=de_DE
+    exec 2>&4
+    export LANG LC_ALL LC_MESSAGES
+    ./"$A_OUT"
+  else
+    echo "failed"
+  fi
+else
+  rm -f dummy.c
+  echo "SKIPPED: libintl not installed"
+fi

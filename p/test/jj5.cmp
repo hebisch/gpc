@@ -1,0 +1,18 @@
+#!/bin/sh
+TMPFILE=dummy.pas
+rm -f $TMPFILE
+echo '{ Automatically generated temp program. No test program. May be deleted. }' > $TMPFILE
+# Break up the word pro-gram so the Makefile with MASK=*
+# doesn't try to compile *this* file!
+echo 'pro''gram Foo; procedure Bar; attribute (stdcall); begin end; begin end.' >> $TMPFILE
+OPTIONS=""
+if $1 -Wall -Werror $TMPFILE 2>/dev/null; then
+  OPTIONS="-DHAVE_STDCALL"
+fi
+rm -f $TMPFILE "$A_OUT"
+$1 $2 $OPTIONS
+if [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

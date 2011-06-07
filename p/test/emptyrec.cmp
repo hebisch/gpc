@@ -1,0 +1,10 @@
+#!/bin/sh
+rm -f "$A_OUT"
+if $PC_WITHOUT_GP -S "$2" -o emptyrec.s &&
+   $PC_WITHOUT_GP -o "$A_OUT" emptyrec.s > /dev/null 2>&1 &&  # some assemblers warn about the size 0 variable
+   [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi
+rm -f emptyrec.s

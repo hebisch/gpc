@@ -1,0 +1,5 @@
+in main: eoln = False   eof = False   ch = a
+in main: eoln = False   eof = False   ch = b
+in main: eoln = True   eof = False   ch = c
+in eolncode: eoln = False   eof = False   ch =  
+in main: eoln = True   eof = True   ch = 	

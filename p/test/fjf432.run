@@ -1,0 +1,2 @@
+#!/bin/sh
+if [ -r "$A_OUT" ]; then ./"$A_OUT" --gpc-rts -i foo bar; else echo failed; fi

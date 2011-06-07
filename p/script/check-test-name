@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Check GNU Pascal test program names if they conform to naming
+# convention (not all existing test programs do, sometimes for valid
+# reasons such as testing `uses ... in', sometimes just so).
+# Generally it's recommeded to stick to the convention.
+#
+# Copyright (C) 2003-2006 Free Software Foundation, Inc.
+#
+# Author: Mirsad Todorovac <mtodorov_69@yahoo.com>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+if [ $# = 0 ]; then
+  echo "Usage: `basename $0` [-v] program.pas" >&2
+  echo "  -v: verbose" >&2
+  exit 1
+fi
+
+verb=0
+if [ x"$1" = x"-v" ]; then
+  verb=1
+  shift
+else
+  verb=0
+fi
+
+for test do
+  progline=`egrep -i "(program|unit|module) .*;" "$test"`
+  progname=`echo "$progline" | awk '{print $2}' | cut -d';' -f1 | cut -d'(' -f1 | tr A-Z a-z`
+  testname=`echo "$test" | cut -d'.' -f1`
+  if [ x"$progname" = x"$testname" ]; then
+    if [ x"$verb" = x"1" ]; then
+      echo "$test: OK"
+    fi
+  else
+    echo "$test: $progline"
+  fi
+done

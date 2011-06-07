@@ -1,0 +1,410 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+@include macros.texi
+
+@node Highlights
+@chapter Some of GPC's most interesting features.
+@cindex highlights
+
+The GNU Pascal Compiler (GPC) is, as the name says, the Pascal
+compiler of the GNU family (@uref{http://www.gnu.org/software/gcc/}).
+This means:
+
+@itemize @bullet
+
+@item GPC is a 32/64 bit compiler,
+
+@item does not have limits like the 64 kB or 640 kB limit known from
+certain operating systems -- even on those systems --,
+
+@item runs on all operating systems supported by GNU C, including
+
+@itemize @minus
+@item @uref{http://www.gnu.org/software/hurd/,GNU Hurd},
+@item @uref{http://www.linux.org,Linux} on Intel, AMD64, Sparc,
+Alpha, S390, and all other supported types of hardware,
+@item the BSD family: @uref{http://www.freebsd.org,FreeBSD},
+@uref{http://www.netbsd.org,NetBSD},
+@uref{http://www.openbsd.org,OpenBSD},
+@item DOS with 32 bits, using
+@uref{http://www.delorie.com/djgpp/,DJGPP} or EMX,
+@item MS-Windows 9x/NT, using
+@uref{http://cygwin.com,CygWin} or
+@uref{http://www.mingw.org,mingw} or
+@uref{http://www.mingw.org/msys.shtml,MSYS},
+@item OS/2 with EMX,
+@item Mac OS X,
+@item MIPS-SGI-IRIX,
+@item Alpha-DEC-OSF,
+@item Sparc-Sun-Solaris,
+@item HP/UX,
+@end itemize
+
+@noindent and more (note: the runtime system only supports ASCII
+based systems; that includes almost all of today's systems, but a
+few IBM machines still use EBCDIC; on those, the compiler might run,
+but the runtime support might need major changes),
+
+@item can act as a native or as a cross compiler between all
+supported systems,
+
+@item produces highly optimized code for all these systems,
+
+@item is
+@uref{http://www.gnu.org/philosophy/free-sw.html,Free Software}
+(@uref{http://www.opensource.org,Open-Source Software})
+according to the
+@uref{http://www.gnu.org/copyleft/gpl.html,@strong{GNU General Public License}},
+
+@item is compatible to other GNU languages and tools such as GNU C
+and the GNU debugger.
+@end itemize
+
+@anch{lang}@c
+The compiler supports the following language standards
+and quasi-standards:
+
+@itemize @bullet
+@item ISO 7185 Pascal (@pxref{Resources}),
+@item most of ISO 10206 Extended Pascal,
+@item Borland Pascal 7.0,
+@item parts of Borland Delphi, Mac Pascal and Pascal-SC (PXSC).
+@end itemize
+
+@anch{pro}@c
+Some highlights:
+
+@c DEMO-START
+
+@itemize @bullet
+
+@item From Standard Pascal: Many popular Pascal compilers claim to
+extend Standard Pascal but miss these important features.
+
+@itemize @minus
+@item
+@anch{conformantdemo}@c
+Conformant array parameters -- the standardized and comfortable way
+to pass arrays of varying size to procedures and functions.
+@hrefexample{conformantdemo.pas}
+@item
+@anch{iteratordemo}@c
+Passing local procedures as procedural parameters -- with full
+access to all variables of the ``parent'' procedure.
+@hrefexample{iteratordemo.pas}
+@item
+@anch{filebuf1demo}@c
+@anch{filebuf2demo}@c
+Automatic file buffers and standard @samp{Get} and @samp{Put}
+procedures. Read ahead from files without temporary variables.
+@hrefexample{filebuf1demo.pas} This allows you, for instance, to
+validate numeric input from text files before reading without
+conversion through strings. @hrefexample{filebuf2demo.pas}
+@item
+@anch{packdemo}@c
+True packed records and arrays. Pack 8 Booleans into 1 byte.
+@hrefexample{packdemo.pas}
+@item
+@anch{intfiledemo}@c
+Internal files. You don't have to worry about creating temporary
+file names and erasing the files later.
+@hrefexample{intfiledemo.pas}
+@item
+Global @samp{goto}. (Yes, @samp{goto} has its place when it is not
+restricted to the current routine.) @hrefexample{parserdemo.pas}
+@item
+@anch{variantdemo}@c
+Automatically set discriminants of variant records in @samp{New}.
+@hrefexample{variantdemo.pas}
+@item
+@anch{bigsetsdemo}@c
+Sets of arbitrary size. @hrefexample{bigsetsdemo.pas}
+@end itemize
+
+@item From Extended Pascal:
+
+@itemize @minus
+@item
+@anch{stringschemademo}@c
+Strings of arbitrary length. @hrefexample{stringschemademo.pas}
+@item
+@anch{rwstringdemo}@c
+@samp{ReadStr} and @samp{WriteStr}. Read from and write to strings
+with the full comfort of @samp{ReadLn}/@samp{WriteLn}.
+@hrefexample{rwstringdemo.pas}
+@item
+@anch{datetimedemo}@c
+System-independent date/time routines.
+@hrefexample{datetimedemo.pas}
+@item
+Set member iteration:
+@samp{@w{for Ch in ['A' .. 'Z', 'a' .. 'z'] do @dots{}}}
+@hrefexample{bigsetsdemo.pas}
+@item Set extensions (symmetric difference, @samp{Card})
+@item Generalized @samp{Succ} and @samp{Pred} functions
+(@code{@w{foo := Succ (bar, 5);}}).
+@item
+@anch{mandelbrot}@c
+@anch{parserdemo}@c
+Complex numbers. @hrefexample{mandelbrot.pas}
+@hrefexample{parserdemo.pas}
+@item Exponentiation operators (@samp{pow} and @samp{**}) for real
+and complex numbers.
+@item
+@anch{initvardemo}@c
+Initialized variables. @hrefexample{initvardemo.pas}
+@item Structured value constructors -- build array or record values
+without using temporary variables.
+@item Functions can return array or record values.
+@item
+@anch{resultvardemo}@c
+Result variables. @hrefexample{resultvardemo.pas}
+@item Modules.
+@item Non-decimal numbers in base 2 through 36: @samp{base#number}.
+@item @samp{MinReal}, @samp{MaxReal}, @samp{EpsReal}, @samp{MaxChar}
+constants.
+@item
+@anch{schemademo}@c
+Schemata -- the Pascal way to get dynamic arrays without dirty
+tricks. @hrefexample{schemademo.pas}
+@item
+@anch{dynamicarraydemo}@c
+Local variables may have dynamic size.
+@hrefexample{dynamicarraydemo.pas}
+@item
+@anch{arrayslicedemo}@c
+Array Slice Access -- access parts of an array as a smaller array,
+even on the left side of an assignment
+@hrefexample{arrayslicedemo.pas}
+@end itemize
+
+@item Compatible to Borland Pascal 7.0 with objects (BP):
+
+@itemize @minus
+@item
+@anch{absdemo}@c
+Supports units, objects, @dots{}, and makes even things like
+@samp{absolute} variables portable. @hrefexample{absdemo.pas}
+@item Comes with portable versions of the BP standard units with
+full source.
+@item
+@ifhtml
+@html
+<table align=right><tr><td>
+<a href="../images/crtdemo.png">
+<img alt="[CRTDemo screen]" src="../images/crtdemo-small.png" width=133 height=138>
+<br>
+(PNG, 21 kB)
+</a>
+</td></tr></table>
+@end html
+@end ifhtml
+@anch{crtdemo}@c
+True network-transparent CRT unit: You can run your CRT applications
+locally or while being logged in remotely, without any need to worry
+about different terminal types. Compatible to BP's unit, but with
+many extensions, such as overlapping windows.
+@hrefexample{crtdemo.pas}
+@item
+Fully functional GUI (X11) version of CRT (also completely
+network transparent).
+@htmlbrclear
+@item The @samp{Random} function can produce the same sequence of
+pseudo-random numbers as BP does -- if you need that instead of the
+much more elaborate default algorithm.
+@item
+@anch{procvardemo}@c
+Supports BP style procedural variables as well as Standard Pascal's
+procedural parameters. @hrefexample{procvardemo.pas}
+@item
+@anch{portdemo}@c
+A @samp{Ports} unit lets you access CPU I/O ports on systems where
+this makes sense. @hrefexample{portdemo.pas}
+@item
+@anch{bigmemdemo}@c
+Special compatibility features to help migrating from BP to GPC,
+like a @samp{GPC for BP} unit which provides some of GPC's features
+for BP, and some routines to access sets of large memory blocks in a
+uniform way under GPC and BP (even in real mode).
+@hrefexample{bigmemdemo.pas}
+@item
+@anch{binobjdemo}@c
+Comes with a BP compatible @samp{binobj} utility.
+@hrefexample{binobjdemo.pas}
+@end itemize
+
+@item From Borland Delphi:
+
+@itemize @minus
+@item @samp{abstract} object types and methods
+@item classes
+@item @samp{is} and @samp{as} operators to test object type
+membership
+@item Comments with @samp{//}
+@item Empty parameter lists with @samp{()}
+@item Assertions
+@item A @samp{SetLength} procedure for strings makes it unnecessary
+to use dirty tricks like assignments to the ``zeroth character''.
+@item @samp{Initialize} and @samp{Finalize} for low-level handling
+of variables.
+@item @samp{initialization} and @samp{finalization} for units.
+@end itemize
+
+@item From Pascal-SC (PXSC):
+
+@itemize @minus
+@item User-definable operators. Add your vectors with @samp{+}.
+@end itemize
+
+@item Carefully designed GNU extensions help you to make your
+real-world programs portable:
+
+@itemize @minus
+@item 64-bit signed and unsigned integer types.
+@item
+@anch{c_gpc}@c
+Special types guarantee compatibility to other GNU languages such as
+GNU C. Directives like @samp{@w{@{$L foo.c@}}} make it easy to
+maintain projects written in multiple languages, e.g., including
+code written in other languages into Pascal programs
+@xhrefexample{c_gpc.pas,Example (Pascal part)}
+@xhrefexample{c_gpc_c.c,Example (C part)},
+@item
+@anch{gpc_c_pas}@c
+@anch{gpc_c_unit}@c
+or including Pascal code into programs written in other languages.
+@xhrefexample{gpc_c_pas.pas,Example (Pascal part)}
+@xhrefexample{gpc_c_unit.pas,Example (Pascal unit)}
+@xhrefexample{gpc_c_c.c,Example (C part)}
+@item
+@anch{endiandemo}@c
+Extensions like @samp{BitSizeOf} and @samp{ConvertFromBigEndian}
+help you to deal with different data sizes and endianesses.
+@hrefexample{endiandemo.pas}
+@item Little somethings like @samp{DirSeparator},
+@samp{PathSeparator}, @samp{GetTempDirectory} help you to write
+programs that look and feel ``at home'' on all operating systems.
+@item
+@anch{pexecutedemo}@c
+@anch{pexec2demo}@c
+The @samp{PExecute} routine lets you execute child processes in a
+portable way that takes full advantage of multitasking environments.
+@hrefexample{pexecutedemo.pas}
+@hrefexample{pexec2demo.pas}
+@item
+@anch{getoptdemo}@c
+The GNU GetOpt routines give you comfortable access to Unix-style
+short and long command-line options with and without arguments.
+@hrefexample{getoptdemo.pas}
+@item
+@anch{fexpanddemo}@c
+Routines like @samp{FSplit} or @samp{FSearch} or @samp{FExpand} know
+about the specifics of the various different operating systems.
+@hrefexample{fexpanddemo.pas}
+@item
+@anch{formattimedemo}@c
+The @samp{FormatTime} function lets you format date and time values,
+according to various formatting rules.
+@hrefexample{formattimedemo.pas}
+@end itemize
+
+@item Useful and portable GNU standard units:
+
+@itemize @minus
+@item
+@anch{pipedemo}@c
+@anch{demoproc}@c
+A @samp{Pipes} unit gives you inter-process communication even under
+plain DOS. @hrefexample{pipedemo.pas}
+@xhrefexample{demoproc.pas,Demo process for the example}
+@item
+@anch{regexdemo}@c
+With the @samp{RegEx} unit you can do searches with @dfn{regular
+expressions}. @hrefexample{regexdemo.pas}
+@item
+@anch{factorial}@c
+@anch{fibonacci}@c
+@anch{power}@c
+@anch{realpower}@c
+@anch{pi}@c
+The GNU MultiPrecision (@samp{GMP}) unit allows you to do
+arithmetics with integer, real, and rational numbers of arbitrary
+precision.
+@xhrefexample{factorial.pas,Example: factorial}
+@xhrefexample{fibonacci.pas,Example: fibonacci}
+@xhrefexample{power.pas,Example: power}
+@xhrefexample{realpower.pas,Example: real power}
+@xhrefexample{pi.pas,Example: pi}
+@item
+@anch{readdirdemo}@c
+@anch{statfsdemo}@c
+@anch{filelockdemo}@c
+Posix functions like @samp{ReadDir}, @samp{StatFS} or
+@samp{FileLock} provide an efficient, easy-to-use and portable
+interface to the operating system. @hrefexample{readdirdemo.pas}
+@hrefexample{statfsdemo.pas} @hrefexample{filelockdemo.pas}
+@item
+@anch{dosunixdemo}@c
+A @samp{DosUnix} unit compensates for some of the incompatibilities
+between two families of operating systems.
+@hrefexample{dosunixdemo.pas}
+@item
+@anch{md5demo}@c
+An @samp{MD5} unit to compute MD5 message digests, according to RFC
+1321. @hrefexample{md5demo.pas}
+@item
+@anch{findfilesdemo}@c
+A @samp{FileUtils} unit which provides some higher-level file and
+directory handling routines. @hrefexample{findfilesdemo.pas}
+@item
+@anch{stringhashdemo}@c
+A @samp{StringUtils} unit which provides some higher-level string
+handling routines. @hrefexample{stringhashdemo.pas}
+@item
+@anch{gettextdemo}@c
+@anch{localedemo}@c
+An @samp{Intl} unit for internationalization.
+@hrefexample{gettextdemo.pas} @hrefexample{localedemo.pas}
+@item
+@anch{trapdemo}@c
+A @samp{Trap} unit to trap runtime errors and handle them within
+your program. @hrefexample{trapdemo.pas}
+@item
+@anch{tfdddemo}@c
+A @samp{TFDD} unit that provides some tricks with text files, e.g. a
+``tee'' file which causes everything written to it to be written to
+two other files. @hrefexample{tfdddemo.pas}
+@item A @samp{HeapMon} unit to help you find memory leaks in your
+programs.
+@end itemize
+@end itemize
+
+The demo programs mentioned above are available both on the WWW and
+in GPC source and binary distributions.
+
+@c DEMO-END
+
+@anch{contra}@c
+Disadvantages:
+
+@itemize @bullet
+@item The GNU debugger (GDB) still has some problems with Pascal
+debug info.
+
+@item Compilation with GPC takes quite long.
+@end itemize
+
+@strong{Co-workers welcome!}
+
+Able, committed programmers are always welcome in the GNU Pascal
+team. If you want to be independent of companies that you have to
+pay in order to get a compiler with more restrictive licensing
+conditions that only runs on @emph{one} operating system, be invited
+to join the development team, @ref{Acknowledgments}.

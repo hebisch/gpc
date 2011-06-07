@@ -1,0 +1,25 @@
+Starting in the C `main'.
+Initializing the Pascal RTS.
+Calling the Pascal initializers.
+Initializer of Pascal unit called.
+PascalUnitVariable is now 42.
+Back in C `main'.
+Incrementing pascal_unit_variable.
+Calling pascal_unit_routine.
+Routine in Pascal unit called from C code.
+PascalUnitVariable is now 43.
+Back in C `main'.
+c_variable is 42.
+Setting pascal_program_variable to 12345.
+Calling pascal_program_routine.
+Routine in Pascal program called from C code.
+PascalProgramVariable is now 12345.
+Decrementing CVariable.
+Calling CRoutine.
+C routine called from Pascal code.
+c_variable is now 41.
+Back in Pascal program's routine
+Back in C `main'.
+Calling the Pascal finalizer.
+Finalizer of Pascal unit called.
+Done.

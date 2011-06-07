@@ -1,0 +1,2260 @@
+\input texinfo
+@setfilename gpcs.info
+@settitle GNU Pascal Coding Standards
+@documentencoding iso-8859-1
+
+@c Copyright (C) 2001-2006 Free Software Foundation, Inc.
+@c
+@c Authors: Frank Heckenbach <frank@pascal.gnu.de>
+@c          Peter Gerwinski <peter@gerwinski.de>
+@c          Nicola Girardi <nicola@g-n-u.de>
+@c
+@c Remember to update this when you save:
+@set lastupdate 2006-02-02
+
+@direntry
+* Pascal Coding Standards: (gpcs).      GNU Pascal Coding Standards.
+@end direntry
+
+@setchapternewpage odd
+
+@c Put everything in one index (arbitrarily chosen to be the concept index).
+@syncodeindex fn cp
+@syncodeindex ky cp
+@syncodeindex pg cp
+@syncodeindex vr cp
+
+@ifnottex
+GNU Pascal Coding Standards
+
+Copyright (C) 2001-2006 Free Software Foundation, Inc.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this
+paragraph (this paragraph not being relevant to the printed manual).
+@end ignore
+
+Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that
+the entire resulting derived work is distributed under the terms of
+a permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for
+modified versions, except that this permission notice may be stated
+in a translation approved by the copyright holders.
+@end ifnottex
+
+@titlepage
+@title GNU Pascal Coding Standards
+@author Nicola Girardi
+@author last updated @value{lastupdate}
+@page
+
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2001-2006 Free Software Foundation, Inc.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the copyright holders.
+@end titlepage
+
+@ifnottex
+@node Top
+@top Version
+
+Last updated @value{lastupdate}.
+@end ifnottex
+
+@menu
+* Preface::                 About the GNU Pascal Coding Standards
+* Legal Issues::            Keeping Free Software Free
+* Design Advice::           General Program Design
+* Program Behavior::        Program Behavior for All Programs
+* Writing Pascal::          Making The Best Use of Pascal
+* Documentation::           Documenting Programs
+* Managing Releases::       The Release Process
+* Glossary::                Glossary of words used throughout this text
+* Index::
+@end menu
+
+@node Preface
+@chapter About the GNU Pascal Coding Standards
+
+The GNU Pascal Coding Standards were designed by a group of GNU
+Pascal project volunteers. The aim of this document is extending the
+GNU Coding Standards with specific information relating Pascal
+programming. As a matter of fact, the information contained in the
+GNU Coding Standards mainly pertains to programs written in the C
+language. On the other hand, they also explain many of the rules and
+principles that are useful for writing portable, robust and reliable
+programs. Most of those general topics could be shared with this
+document with just a few specific notes, thus cross references are
+provided which will lead you to the more extensive information
+contained in the GNU Coding Standards.
+
+This release of the GNU Pascal Coding Standards was last updated
+@value{lastupdate}.
+
+@cindex where to obtain the GPCS
+@cindex downloading the coding standards
+
+The GNU Pascal Coding Standards are available as part of the GPC
+distribution -- in binary distributions as info files, in source
+distributions also as Texinfo files from which further formats such
+as HTML, PostScript and PDF can be generated. An HTML version is
+also available on GPC's home page, @uref{http://www.gnu-pascal.de}.
+
+@cindex feedback
+@cindex contributions to this manual
+
+Corrections or suggestions for this document should be sent to the GNU
+Pascal Compiler Documentation mailing list, @email{gpc-doc@@gnu.de}. If
+you make a suggestion, please include a suggested new wording for it;
+our time is limited. A context diff to the ``source'' Texinfo file
+would be very appreciated, if at all possible. If you can't provide the
+context diff, please feel free to mail your suggestion anyway.
+
+These people are the tyrants who are imposing their coding style to the
+community so far: Peter Gerwinski @samp{peter(at)gerwinski.de}, Frank
+Heckenbach @samp{frank(at)pascal.gnu.de}, Markus Gerwinski
+@samp{markus(at)gerwinski.de}, Dominik Freche
+@samp{dominik.freche(at)gmx.net}, Nicola Girardi
+@samp{nicola(at)g-n-u.de}.
+
+@node Legal Issues
+@chapter Keeping Free Software Free
+@cindex legal aspects
+
+This chapter from the GNU Coding Standards discusses how you can make
+sure that GNU software avoids legal difficulties, and other related
+issues. @xref{Intellectual Property, , , standards}.
+
+@node Design Advice
+@chapter General Program Design
+@cindex program design
+
+This chapter discusses some of the issues you should take into account
+when designing your program.
+
+@menu
+* Source Language::             Which language to use
+* Pascal and C::                Linking to C libraries
+* Using Extensions::            Using non-standard features
+@end menu
+
+@node Source Language
+@section Which Language to Use
+@cindex programming languages
+
+We support the idea that a variety of programming languages is a good
+thing and that different languages are appropriate for different kinds
+of tasks. Unlike the GNU Coding Standards (@pxref{Source Language, , ,
+standards}), we do not try to persuade you to use C, Pascal or any
+single language for everything.
+
+If you're reading this, you have probably already decided to use Pascal
+for some project or are considering using it. This documentation will
+suggest you @emph{how} to format your Pascal code when you do so.
+
+@node Pascal and C
+@section Linking to C libraries
+@cindex Pascal and C
+@cindex linking to C libraries
+
+You can link a C library or C object code to your Pascal program or
+unit. Please note the description in the GPC manual on how to do so
+(@pxref{Other Languages, , , gpc}).
+
+@cindex wrappers
+In particular, to access C libraries, we strongly recommend using C
+wrappers. This is a portability issue. There might be changes in
+different versions of the library which might affect direct
+@samp{external} declarations in Pascal code. You should update the
+wrappers so that Pascal programs or units work with whatever version
+of the library you have.
+
+There are times when you deal with large packages and you can't easily
+retain compatibility to different versions of the packages themselves.
+In this case, you can link directly to the library you're going to work
+with, and link a supplementary C file which does nothing but the version
+check. This is an example:
+
+@smallexample
+#include <foo.h>
+#if FOO_MAJOR != 1 || FOO_MINOR != 2
+#error The GPC interface for libfoo was only written for libfoo-1.2.
+#error Please get libfoo-1.2 or check for a version of the GPC interface
+#error matching your version of libfoo.
+#endif
+@end smallexample
+
+Note the use of @samp{!=} instead of @samp{<} or @samp{>}, to
+perform a very strict version check. Please keep in mind that this
+is alright if there is only one implementation of a library, i.e.,
+you can do this with GTK, but you can't with libc, libm, curses etc.
+
+@cindex header translator
+An automatic header translator is planned which would make the C
+wrappers superfluous. This is a highly non-trivial job and it's not
+sure that it's at all possible, so it will at least take some time to be
+available.
+
+@cindex C code compilation
+You can assume the GNU C Compiler is used to compile the wrappers and,
+in general, any C code snippet you link to your Pascal code. The reason
+for such an assumption is that only GNU C Compiler is guaranteed to have
+all conventions compatible to GNU Pascal Compiler on every platform they
+run on, as they share the same backend. Also, The GNU Pascal Compiler
+is always built together with the GNU C Compiler, so @samp{gcc} can be
+assumed to be available wherever @samp{gpc} is.
+
+@node Using Extensions
+@section Using Non-standard Features
+@cindex non-standard extensions
+
+Many GNU Pascal facilities are provided which extend the standard Pascal
+language. Whether to use these extensions in implementing your program
+is a tedious question.
+
+On the one hand, using the extensions can make a cleaner program. On
+the other hand, people will not be able to build the program unless the
+GNU Pascal Compiler is available. This might cause the program
+not to compile with other compilers.
+
+In general, it is best to retain compatibility to other compilers or to
+the language standards, @emph{if this compatibility is easy to achieve}.
+In general, sadly enough, to achieve compatibility you get considerable
+drawbacks. For example, you might have to add lots of
+@samp{@{$ifdef@}}s to cater for some non-standard compilers, which make
+the code harder to read, write, test and maintain. Moreover,
+@samp{@{$ifdef@}}s themselves are non-standard extensions, so you don't
+win much this way.
+
+In the end, we suggest not to bother too much about compatibility. All
+of the GNU Pascal Compiler interfaces (compiler and Run Time System) are
+open. This means they can be implemented for other compilers when
+needed or even the same sources can be used provided the license is
+preserved (read more about the GNU General Public License at
+@uref{http://www.gnu.org/copyleft/gpl.html}), rather than crippling the
+code by not using the extended features. A (limited) example of this
+strategy is in the @samp{gpc-bp} unit for Borland Pascal, distributed
+with the GNU Pascal Compiler. You might want to look at its interface
+to see what exactly it contains. It's easy to extend it by more
+compatibility features when needed, though there are features that
+cannot easily be emulated (in particular those that have a special
+syntax).
+
+Please do not use the following features, especially the ones that were
+implemented just for backward compatibility:
+
+@itemize @bullet
+@item
+the @samp{(* *)} comments for old terminals where the @samp{@{} and
+@samp{@}} characters were not available
+
+@item
+the @samp{#} directives and the @samp{//} comments, as in C/Delphi. If a
+file must also be used in C, it may use @samp{#} directives, the C syntax
+in conditionals, and @samp{//} comments. An example (as of this
+writing, might change in the future) is @file{p/rts/constants.h} in the
+GNU Pascal Compiler sources.
+
+@item
+the misuse of typed constants as variables, which is a misfeature of
+Borland Pascal.
+
+@item
+@samp{^A} character constants. Use @samp{#1} or @samp{Chr (1)},
+instead.
+
+@item
+@samp{CString}s (except for C interfaces, of course)
+
+@item
+complicated Borland Pascal code like the following instead of using
+@samp{WriteStr}:
+
+@smallexample
+Str (Foo, s);
+s := 'Hello ' + s;
+@end smallexample
+
+@item
+most cases of @samp{FillChar} and @samp{Move}, except for low-level code
+and when applied to the characters within a string. Using:
+
+@smallexample
+FillChar (s, SizeOf (s), 0);
+@end smallexample
+
+to clear a string, is wrong in GNU Pascal and inefficient even in
+Borland Pascal, since the following could be used:
+
+@smallexample
+s := '';
+@end smallexample
+
+This would only clear the length field of the string @samp{s}.
+
+@item
+most cases of @samp{GetMem} and @samp{FreeMem} -- usually they are a
+work-around for missing schemata in other compilers.
+
+@item
+many cases of untyped parameters
+
+@item
+most hand-made file name related routines. (When written in Borland
+Pascal, they're usually only applicable to DOS, while the routines in
+the @samp{GPC} unit provide portable alternatives for most stuff.)
+
+@item
+assembler code, except in very small areas for special optimization,
+surrounded by a specific @samp{@{$ifdef@}} (for example, for the
+processor type). But then, provide an equivalent plain Pascal version
+in the @samp{@{$else@}} part -- and test it!
+
+@item
+anything that requires the @samp{System} unit
+
+@item
+assumption of type-sizes
+
+@item
+assumption of endianness (some systems have higher and lower valued
+bytes in a different order than other systems; please see the
+glossary @xref{Glossary}, for an explanation)
+
+@item
+identifiers starting or ending with underscores or having several
+adjacent underscores
+
+@item
+units only written for Borland Pascal compatibility. (@pxref{GPC Units,
+, , GPC}) Note, @samp{CRT} and @samp{Printer} are not only for
+Borland Pascal compatibility, but also for general use.
+
+@end itemize
+
+The GNU Coding Standards have nice statements on this topic.
+@xref{Using Extensions, , , standards}.
+
+@node Program Behavior
+@chapter Program Behavior for All Programs
+
+This chapter from the GNU Coding Standards describes conventions for
+writing robust software. It also describes general standards for error
+messages, the command line interface, and how libraries should behave.
+We encourage you to read that part of the GNU Coding Standards.
+@xref{Program Behavior, , , standards}.
+
+Here are special notes for Pascal programming, anyway.
+
+@cindex signal functions
+The choice between signal functions, discussed in the GNU Coding
+Standards, is done in the Run Time System so you needn't care about it.
+
+@cindex error checks
+Another discrepancy with the GNU Coding Standards is the default
+behavior for error checks that detect ``impossible'' conditions. We
+don't suggest just aborting. This implies that every user can be a
+programmer, but we don't believe this is realistic. Our advice is to
+print a reasonable error message so that users can report bug
+descriptions to programmers who didn't notice the bug themselves or
+could not reproduce it.
+
+Also, the GNU Coding Standards suggest checking every system call for an
+error return. That applies to C. In Pascal, error checking is often
+automatic, thus you needn't bother with error checking. Many I/O
+routines don't return a value (for example, @samp{Reset}), but those
+that do should usually be checked.
+
+Of course you can disable automatic error checks and see to them for
+yourself. In fact, some errors might cause the program to
+automatically abort with an error message. Instead, especially in
+units or modules, you might want to report errors and give the user
+a chance to intervene and fix things up. To do so, you must use the
+@samp{@{$I-@}} compiler directive, and check the value of
+@samp{IOResult} (@pxref{IOResult, , , gpc}) or the global error
+variables such as @samp{InOutRes} (@pxref{InOutRes, , , gpc}). Note
+that I/O routines return immediately if @samp{InOutRes} is set, so
+it's not necessary to check it after each operation, so the
+following is possible:
+
+@smallexample
+@{$local I-@}
+Rewrite (f, 'bla');
+WriteLn (f, 'foo');
+WriteLn (f, 'bar');
+WriteLn (f, 'baz');
+Close (f);
+@{$endlocal@}
+if InOutRes <> 0 then
+  begin
+    WriteLn (StdErr, GetIOErrorMessage);
+    @dots{}
+  end;
+@end smallexample
+
+However in your code you might want to also check @samp{Rewrite} and
+other opening calls, which are the most likely to fail, and you will
+avoid unnecessary further calls.
+
+There is a set of routines in the GPC unit for naming temporary files,
+configuration files and many other file name related stuff. The
+advantages of using these are that they work for different kinds of
+systems (for example Unix and DOS), and that future problems can be
+corrected in one place in the Run Time System rather than in several
+different programs or units.
+
+As far as libraries are concerned, we suggest that you don't put each
+routine in a separate file. Hopefully someday the GNU Pascal Compiler
+will do this automatically on the linker level. At the moment, we
+believe that the convenience to the programmer is much more important
+than binary size. We also recommend not using a name prefix, as name
+conflicts can be resolved by qualified identifiers
+(@samp{UnitName.RoutineName}).
+
+@node Writing Pascal
+@chapter Making The Best Use of Pascal
+
+This chapter provides advice on how best to use the Pascal language when
+writing software. Of course, the rules apply to published code
+only -- if you for example want to comment things out with old style
+comments like @samp{(* this one *)}, you should do it temporarily and
+remove it before distributing your code. But since you never know if
+and when you are going to publish your code, it's a good idea to stick
+to the rules from the beginning.
+
+@menu
+* Assorted Tips::               Assorted Pascal Programming Tips
+* Consistency Checking::        Using @code{Assert} to abort if
+                                something ``impossible'' happens.
+* Formatting::                  Formatting Your Source Code
+* Comments::                    Commenting Your Work
+* Order::                       Order of Code Blocks
+* Capitalization::              Capitalization
+* Compiler Directives::         Use of Compiler Directives
+* Spacing::                     How to use spaces in your code
+* Line Breaks::                 Where to break your lines of code
+* Strings::                     Strings
+* Internationalization::        Techniques for internationalization
+* MemoryMap::                   How you can safely use @samp{MemoryMap}
+@end menu
+
+@node Assorted Tips
+@section Assorted Pascal Programming Tips
+@cindex assorted tips
+
+Pascal code file names should have the @samp{.pas} suffix. The file
+name without the suffix should usually correspond to the name of the
+program/unit/module, but all in lower case. There should be only one
+program/unit/module in a file.
+
+Code must compile with the @samp{-Wall} flag, with and without the
+@samp{-O3} flag with no warnings. (@xref{Compiler Directives}, for
+how to intentionally disable certain warnings if really necessary.)
+
+Don't use the automatic @samp{Result} variable in functions. If you
+want one, just declare it:
+
+@smallexample
+function Foo (@dots{}) = Bar: Integer;
+@end smallexample
+
+Use the declaration with @samp{=}, not without it, unless you want to be
+strictly PXSC compatible.
+
+If a function returns a @samp{Boolean} to indicate success, @samp{True}
+should mean success and @samp{False} failure, unlike some C routines
+where @samp{0} means success.
+
+Avoid @samp{goto} and similar statements, like @samp{Exit},
+@samp{Return}, @samp{Break}, @samp{Continue}. Avoid @samp{goto} at any
+price (except @emph{possibly} a non-local @samp{goto} to return from
+@emph{deeply} nested, recursive functions in case of error). Avoid the
+others if this is possible with reasonable effort. If it would require
+an additional @samp{Boolean} variable, this counts as an excuse for
+using those statements if you really want. Note that often, code
+becomes significantly @emph{simpler} by not using @samp{Break} etc. and
+instead using a better loop condition or a different kind of loop.
+
+Never modify @samp{for} loop counters, or rely on their value after the
+loop. (Well, that's not merely a coding style, that's the definition of
+Pascal. Doing such things will produce undefined results.)
+
+Never rely on undefined behavior. For example, that global variables
+seem to be initialized to @samp{0} at the start of the program, or
+perhaps sometimes newly allocated memory seems to be initialized, or
+memory after deallocation still seems to hold some values, or that
+@samp{for} loop counters seem to have a certain value after the
+loop -- none of these is guaranteed, and the behaviour may change
+when you change compiler or its version, or when you change
+platform. Undefined means undefined, and the fact that such things
+might seem to work on all systems you have checked and with 42 other
+compilers means exactly nothing.
+
+In comparisons put the ``more variable'' expression on the left side:
+
+@smallexample
+for i := 1 to 10 do
+  if a[i] = Foo then
+    for j := 1 to 10 do
+      if b[j] = a[i] then @dots{}
+@end smallexample
+
+Considering the second line of the above example, the expression on
+the left (@code{a[i]}) varies each turn, but the right side
+(@code{Foo}) does not. (In this case we assume that @code{Foo} is a
+constant or a function which doesn't depend on @code{i} or some
+other global data. Otherwise it might make sense to put @code{Foo}
+on the left, and perhaps use an extra comment to point this out.)
+
+The last line of the above example might look strange, because
+@code{b[j]} and @code{a[i]} might look as though they have the same
+level of ``variableness''. But in fact, @code{j} ranges more often
+than @code{i}, i.e. each time @code{i} changes, @code{j} has already
+changed 10 times.
+
+Avoid code duplication. It is easy to copy the code, but it becomes a
+maintenance nightmare to change several similar places. Use routines or
+subroutines, units or modules, whatever. Plan each part of the code
+so that it can be extended. Don't pull too clever tricks in places
+that will likely be changed later.
+
+Do not surround single statements with @samp{begin} and @samp{end},
+unless you have to avoid the dangling else problem or the single line
+statement forms a whole routine body! See the following examples:
+
+@smallexample
+if foo then
+  begin
+    if bar then
+      baz
+  end  @{ Avoid the dangling else problem. @}
+else
+  qux  @{ Single line statement. @}
+@end smallexample
+
+Do not write empty unit initializers. This is what @emph{not} to do:
+
+@smallexample
+@dots{}
+
+procedure Foo;
+begin
+  @dots{}
+end;
+
+begin
+end.
+@end smallexample
+
+Instead, simply:
+
+@smallexample
+@dots{}
+
+procedure Foo;
+begin
+  @dots{}
+end;
+
+end.
+@end smallexample
+
+Do not write unused declarations, unless in interfaces which are meant
+to be used by the importer.
+
+@cindex booleans
+Remember that @samp{Boolean}s are @samp{Boolean}s. Please use @samp{if
+Foo then} instead of @samp{if Foo = True then}, and @samp{if not Foo
+then} instead of @samp{if Foo = False then}. Also, use @samp{until
+False} in place of @samp{until 1 = 0} -- this looks smarter. Another
+common situation is @samp{Foo := Expression} instead of @samp{if
+Expression then Foo := True else Foo := False}.
+
+Avoid duplicate global identifiers, i.e. don't overload a built-in
+identifier, although the GNU Pascal Compiler allows this, and don't
+use the same global identifier in several units or modules. (Thanks
+to ``qualified identifiers'' such identifiers pose no problem to the
+compiler but still can confuse humans.)
+
+@cindex global variables
+We discourage the use of global variables for non-global purposes
+(e.g., the use of a variable @code{Counter} used as a counter in
+various local routines). Declare a counter variable for each routine
+that needs it, instead. In general, this also allows for better
+optimization of the code generated.
+
+@cindex infinite loops
+When you need an infinite loop (which may be left with
+@samp{Break}), we suggest you use a @code{repeat} rather than a
+@code{while} loop because it shifts your code less to the right (at
+least, if there's more than one statement in the loop). That is:
+
+@smallexample
+repeat
+  @dots{}
+until False
+@end smallexample
+
+Instead of:
+
+@smallexample
+while True do
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@node Consistency Checking
+@section Explicitly Checking Internal Consistency
+@cindex consistency checking
+@cindex assert
+
+As stated in the GNU C library documentation (@pxref{Consistency
+Checking, , , libc}), when you're writing a program, it's often a
+good idea to put in checks for violations of basic assumptions.
+Consider the following procedure in Pascal:
+
+@smallexample
+procedure DoSomethingOnAPString (StrPtr: PString);
+@end smallexample
+
+You may implicitly assume that the above procedure will never be
+called with @code{nil} as its argument, but it is safer to check for
+the ``impossible condition'', i.e. check that @samp{StrPtr} is other
+than @code{nil}, like this:
+
+@smallexample
+procedure DoSomethingOnAPString (StrPtr: PString);
+begin
+  Assert (StrPtr <> nil);
+  @dots{}
+end;
+@end smallexample
+
+When this check fails, the program produces a runtime error. You
+then may infer that the code which calls this procedure is buggy (or
+that you need to extend this particular routine), so this may indeed
+be helpful in locating the problem. In other words, checking for
+basic assumptions at the beginning of a routine body or other
+strategic places is the right way to make sure a function isn't
+being misused.
+
+The GNU C library provides the @code{assert} macro for this kind of
+checks. GNU Pascal provides a Pascal counterpart which is called
+@code{Assert}, which behaves a little differently. @code{Assert}
+won't abort your program, but rather cause a runtime error
+(@pxref{Assert, , , gpc}) which, e.g., you can catch using the
+@samp{Trap} unit (@pxref{Trap, , , gpc}).
+
+Once you think your program is debugged, you can disable the error
+checks performed by the @code{Assert} routine by recompiling with
+the @samp{--no-assertions} switch. No change to the source code is
+needed in order to disable these checks. Side-effects in the
+argument to @samp{Assert} are still evaluated (unlike in C), so it
+is alright to write:
+
+@smallexample
+Assert (MyFunction (Foo, Bar) > 0)
+@end smallexample
+
+This will always call @code{MyFunction}, but only make sure that its
+result is positive if @samp{--no-assertions} is not given.
+
+However, it is recommended that you don't disable the consistency
+checks unless you can't bear the program to run a little slower.
+
+@node Formatting
+@section Formatting Your Source Code
+@cindex formatting source code
+
+@cindex spaces
+@cindex blanks
+First of all, avoid unnecessary spaces at the end of the lines. Also
+remember not to save the file with TAB characters, as different editors
+or different configurations will interpret them with a different
+amount of spaces, thus breaking indentations. (If you use GNU Emacs,
+the @samp{untabify} function comes in handy; if you use VIM, the
+option @samp{expandtab} (@samp{:set et}); in PENG, the option
+@samp{Expand tabs} can be used.)
+
+@cindex control characters
+Please avoid the use of any control characters, except newline, of
+course. This means no form feed characters (@samp{#12}), i.e. new page
+characters. They are recommended in the GNU Coding Standards to
+separate logical parts of a file, but don't use them at least in Pascal
+code. No @samp{SUB} character (@samp{#26}) either, misused as an
+end-of-file indicator by DOS. Older DOS editors put that character at
+the end of each file for no good reason, though even the FAT file system
+knows about the end of a file by its own.
+
+@cindex line length
+We recommend a maximum line length of 68 characters, so that it can be
+printed in @TeX{} with default font on A4, or 78 characters, for
+80-column wide screens. This is not a fixed rule because breaking lines
+too often decreases readability of source code.
+
+@cindex empty lines
+Use empty lines between blocks. Blocks are long comments, @samp{type},
+@samp{const}, @samp{var}, @samp{label} sections, routine bodies,
+unit/module initializers/finalizers, @samp{program}, @samp{unit},
+@samp{interface}, @samp{implementation}, @samp{module}, @samp{export},
+@samp{uses}, @samp{import} lines, global compiler directives. As far as
+long comments that refer to the following declaration, put only an empty
+line before the comment, not between the comment and the declaration
+itself. A special exception is between blocks within the same
+routine -- do not use empty lines there. For example:
+
+@smallexample
+procedure Short;
+var
+  Foo: Integer;
+  Bar: Char;
+begin
+  @dots{}
+end;
+@end smallexample
+
+But remember to use empty lines to separate subroutines, like the
+following:
+
+@smallexample
+procedure Long;
+const
+  @dots{}
+var
+  variables used by Sub @dots{}
+
+  procedure Sub;
+  var
+    @dots{}
+  begin
+    @dots{}
+  end;
+
+var
+  variables not used by Sub @dots{}
+begin
+  @dots{}
+end;
+@end smallexample
+
+Note that you shouldn't put an empty line after the main routine
+declaration, unless a subroutine declaration immediately follows.
+Otherwise the main routine declaration would look like a forward
+declaration.
+
+Notice that in the code snippet above we separated local variables (or
+constants) before and after the subroutine -- this is not mandatory.
+
+Of course, what we said for subroutines is also valid for
+sub-subroutines at any depth.
+
+An empty line should be put between declarations of the same type, where
+appropriate, to separate them logically. In case there is a comment
+before the declaration, the empty line must be before the comment.
+Otherwise, the empty line goes before the declaration.
+
+Empty lines can be used in long comments to separate paragraphs.
+
+No empty lines at the beginning or ending of a file, only one
+newline at the ending. No multiple empty lines.
+
+@node Comments
+@section Commenting Your Work
+@cindex commenting
+
+The comments should be placed in braces like this:
+
+@smallexample
+@{ This is a nice comment. @}
+@end smallexample
+
+Do not use the old style comment between brackets and asterisks, like
+this:
+
+@smallexample
+(* This is an ugly comment. One you mustn't write. *)
+@end smallexample
+
+Also, do not use comments introduced by the double slash:
+
+@smallexample
+// Another kind of comment not to write.
+@end smallexample
+
+Although ISO Pascal explicitly allows for mixed comments, the GNU Pascal
+Compiler doesn't even accept it unless you turn it on the option with
+the appropriate compiler directive @samp{@{$mixed-comments@}} -- but you
+don't want to do it. Here are a couple of examples of mixed comments,
+which you should not follow:
+
+@smallexample
+(* This ... @}
+@{ ... and that. *)
+@end smallexample
+
+@cindex nested comments
+Also, try to avoid nested comments, like @samp{@{ @{ This one @} @}}.
+These are alright if you want to put some @TeX{} in a comment or
+something more exotic. Whatever reason you have to use nested comments,
+you need to turn on the option with the appropriate compiler switch,
+which is @samp{@{$nested-comments@}}. Do not use the
+@samp{--nested-comments} command line option. Put all such options in
+the source, so that someone else trying to compile it doesn't have to
+figure out what command line switches are needed, and because command
+line options would affect @emph{all} source files, e.g. when compiling
+a project with multiple units/modules.
+
+@cindex comments language
+Please write the comments in your program in English, because English is
+the one language that nearly all programmers in all countries can read.
+If you do not write English well, please write comments in English as
+well as you can, then ask other people to help rewrite them. If you
+can't write comments in English, please find someone to work with you
+and translate your comments into English.
+
+@cindex comments spacing
+You should adopt ``French Spacing'', i.e. only one space at the end
+of a sentence. This way, you can't use GNU Emacs @samp{M-a} and
+@samp{M-e} key combination to move through sentences. We hope that
+you can live without that. Also, please put just one space after the
+comment opening brace and before the closing brace.
+
+@cindex comments placement
+If a comment regards only one line of code, possibly write it after the
+line of code, in the same line, separated from the code with two spaces.
+This is also allowed for the interface section of a unit and for global
+variables. Most often you are likely to write this sort of comment
+beside record/object fields. In other cases, comments go in one or more
+lines of their own, like this:
+
+@smallexample
+@{ foo bar baz @}
+@end smallexample
+
+Or longer:
+
+@smallexample
+@{ foo bar
+   baz @}
+@end smallexample
+
+Or with paragraphs:
+
+@smallexample
+@{ foo bar
+   baz
+
+   qux @}
+@end smallexample
+
+The comments need to be placed before the code they describe, and they
+need to get the same indentation level. This example should make this
+clear:
+
+@smallexample
+@{ My types. @}
+type
+  @dots{}
+
+type
+  @{ My first types. @}
+  Foo = Integer;
+  @dots{}
+
+begin
+  @{ My first statement. @}
+  Bla;
+  @{ Start of loop. @}
+  repeat
+    @{ Body of loop. @}
+    @dots{}
+  @{ Finish when Something happens. @}
+  until Something
+end;
+@end smallexample
+
+Note the position for the comment to @samp{until}.
+
+Comments describing a global declaration should be on one or more
+lines of their own, immediately before the declaration. For example:
+
+@smallexample
+@{ This is Foo. It does this and that. @}
+procedure Foo;
+@end smallexample
+
+@cindex silly comments
+@cindex trivial comments
+Do not write ``trivial'' comments, like the ones listed in the examples
+above. You should avoid comments by writing clear code. Linus Torvalds
+points this out strongly in the Kernel Coding Style:
+
+@quotation
+Comments are good, but there is also a danger of over-commenting.
+@strong{Never} try to explain @strong{how} your code works in a comment:
+it's much better to write the code so that the @emph{working} is
+obvious, and it's a waste of time to explain badly written code.
+Generally, you want your comments to tell @strong{what} your code does,
+not @strong{how}.
+@end quotation
+
+(Note that we otherwise deviate quite a bit from Linus's coding style.)
+
+@cindex comments about non-obvious code
+@cindex tricky comments
+``Tricky'' code is worth being commented. We define ``tricky'' the code
+that does non-obvious things, relies on non-obvious assumptions, has
+non-obvious implications, there is anything to note when changing it, is
+not what it looks at first sight, there is a side effect, or requires
+other parts of the source file to be changed simultaneously with it.
+Tricky code should be used very sparingly.
+
+@cindex comments to external sources
+In the case that a comment refers to some other place in the
+code, either in the same file or in a different file, please refer to it
+not by line number (this will change too often) but by routine name
+or context. Also, think whether it is useful to put a comment in the
+other place pointing back. (Not always, but sometimes this has
+proved useful to us.)
+
+@cindex commenting out
+To comment out parts of code that should not be compiled, you need to
+surround it with @samp{@{$if False@} @dots{} @{$endif@}} rather than
+using a comment.
+
+@cindex comments for separating logical parts
+To separate logical parts within big modules or units, you can use a
+special comment -- we suggest this fixed pattern as it's easily
+searchable:
+
+@smallexample
+@{@@section Name of the section@}
+@{@@subsection Name of the subsection@}
+@end smallexample
+
+Note that no space follows the opening brace nor predeces the closing
+brace in this case.
+
+@cindex descriptive comments
+A module or unit or library should have a comment for each of its
+interface declarations, so that the interface part of the source file is
+a reliable source of documentation. This is optional for any
+declarations introduced only in the implementation section or in
+@samp{program}s. Of course, several related declarations (e.g.,
+groups of constants) can share a comment.
+
+@cindex comments with markup
+A utility called @samp{pas2texi} will be written to build Texinfo
+files from Pascal comments. This will allow certain kinds of markup
+within comments. They will be described in the documentation of
+@samp{pas2texi} and/or in future versions of this document.
+
+@cindex fixme comments
+You can use ``fixme'' comments, to point out things to be fixed in the
+code, or in a library (or module, or unit, or compiler used) which
+directly affect the code, requiring a work-around. These comments are
+prepended by at least two @samp{@@} -- add as many @samp{@@} as the
+urgency of the issue increases.
+
+These comments may contain more or less obscure details about the
+problem, especially if the root of the problem is elsewhere. For
+example, the comment @samp{@{ @@@@fjf226 @}} declares the following code
+a work-around to a GNU Pascal Compiler problem which is demonstrated by
+the GNU Pascal Compiler test program @samp{fjf226.pas}. (It is a file
+you can find in the GNU Pascal Compiler source package.)
+
+``Fixme'' comments should not be mixed with ordinary comments. If you
+need both kinds, use them separately, even if directly after each
+other. They can be used everywhere, even within statements, since they
+are temporary in nature. Most normally they happen to fall in the body,
+unless they influence interfaces. In particular, interfaces that are
+likely to be changed should have a @samp{@@@@} comment immediately
+before their description comment.
+
+@node Order
+@section Order of Code Blocks
+@cindex order
+
+Please start each file with a comment containing, in this order:
+
+@itemize @bullet
+@item
+a short description telling what the code in the source file does
+@item
+a long description going into detail about the code and specifying
+sources of information or code
+@item
+a copyright notification held by authors of the code
+@item
+the license -- of course you want to use the GNU General Public License
+or Lesser General Public License for your programs and units, don't you?
+@end itemize
+
+@cindex declaration blocks
+In general, you should follow this order for declaration blocks:
+
+@itemize @bullet
+@item
+@samp{const} declarations
+@item
+@samp{type} declarations
+@item
+@samp{var} declarations
+@item
+@samp{label} declarations
+@item
+routines
+@end itemize
+
+You may deviate from this order when it is necessary or makes the code
+more readable. This is an example where the order can't be respected:
+
+@smallexample
+type
+  TSomething = record
+    This, That: Integer
+  end;
+
+const
+  SomeConst = SizeOf (TSomething);
+@end smallexample
+
+The rules above apply to declaration blocks within routines, too.
+
+When there are several, more or less independent parts, especially in a
+large unit or module, you may apply this order within each part. Do not
+put, for example, constants of all parts together. You have to keep the
+code readable.
+
+@cindex variable declaration
+Variables that are used only in the main program must be declared
+globally in Pascal, although GNU Pascal offers an extension for
+declaring variables at arbitrary places in the code
+(@pxref{var, , , gpc}). In this case, in contrast to the
+previous general rule, it is often better to put their declaration just
+before the main program's @samp{begin}, after all routines etc.,
+especially when there are more than a few such variables and the size of
+the source file is not small. Thus, the variable declaration block is
+easier to see and change for the programmer when editing the main
+program, and you make sure that routines don't use them accidentally.
+
+@cindex declarations within type declarations
+When you declare a type together with its pointer type, declare the
+pointer first. It is easier to recognize especially if the type is a
+long record or object. Also, it makes possible using recursive
+structures (i.e., using pointers to a type within this type). You
+should prepend a @samp{T} to the type name and a @samp{P} to the
+associated pointer type. See the example:
+
+@smallexample
+type
+  PMyInt = ^TMyInt;
+  TMyInt = Integer;
+
+  PStrList = ^TStrList;
+  TStrList = record
+    Next: PStrList;
+    s: TString
+  end;
+@end smallexample
+
+Note that the @samp{Next} field is specified first. We suggest always
+putting it as the first field in recursive types, as it allows some
+generic list routines and may be a little more efficient to walk the
+list, i.e. no offsets.
+
+We suggest putting all pointer types within each @samp{type} declaration
+first, although we don't consider this mandatory. This is an example:
+
+@smallexample
+type
+  @{ Pointer types @}
+  PFoo = ^TFoo;
+  PBar = ^TBar;
+  PBaz = ^TBaz;
+
+  @{ Some custom integer types @}
+  TFoo = Integer attribute (Size = 16);
+  TBar = Cardinal attribute (Size = 16);
+  TBaz = Cardinal attribute (Size = 32);
+@end smallexample
+
+@cindex declarations within object types
+Within object types you can have three declaration areas. There are
+three reserved words for introducing these areas: @samp{public},
+@samp{protected}, @samp{private}. Within each of these areas follow
+this order:
+
+@itemize @bullet
+@item
+fields
+@item
+constructors
+@item
+destructor (there should be only one)
+@item
+methods
+@end itemize
+
+@cindex implementation order
+In the object implementation part, put the routine bodies in the same
+order in which they appear in the declaration in the interface. This
+also applies to units and modules, in which the implementation should
+reflect the interface declarations.
+
+Do not use the trailing @samp{;} at the end of a block, i.e. before
+@samp{end}, @samp{until}, etc. except @samp{case} -- the last branch
+before the @samp{else} branch (or the last branch if there is no
+@samp{else} branch) @emph{should} have a @samp{;}, to avoid problems
+like:
+
+@smallexample
+case @dots{}
+  Foo:
+    if Bar then  @{ later inserted @}
+      begin
+        @dots{}
+      end  @{ if there's no semicolon here @dots{} @}
+  else  @{ @dots{} this will be mistaken as the @samp{then}'s @samp{else} @}
+    @dots{}
+@end smallexample
+
+(Same if the @samp{if} was there for longer and the @samp{else} branch
+of the @samp{case} is later inserted.)
+
+In an object, it may look strange to omit the @samp{;} after the last
+item which is most often a method. Therefore we allow it, and for
+consistency also in records.
+
+@node Capitalization
+@section Capitalization
+@cindex capitalization
+
+Reserved words should be all lower case, including directives,
+i.e. words that are reserved only in some contexts, like
+@samp{protected}. If you use directives as identifiers (which is likely
+to cause you pain) outside of their contexts, write them like
+identifiers.
+
+As a special exception, you can use capitalized @samp{File} when used as
+a type of its own, i.e. an untyped file, unlike @samp{file of Char}.
+The same can't be said for @samp{procedure} as a type (Borland Pascal
+style) since @samp{File} can be a proper type, while
+@samp{procedure} is a type constructor, i.e.:
+
+@smallexample
+procedure Foo (var a: File);  @{ This works. @}
+procedure Foo (var a: procedure);  @{ This doesn't. @}
+@end smallexample
+
+@cindex identifiers capitalization
+Next issue is capitalization of identifiers. There's no difference
+between built-in and user-defined identifiers. Only the first letter
+should be capital, or, if there are concatenated words or acronyms, the
+first letter of each word should be capital -- do not use underscores.
+Acronyms that have become part of the natural language can be written
+like that. For example, @samp{Dos} or @samp{DOS}; but always
+@samp{GPC}, not @samp{Gpc}. Here are some examples of identifiers:
+@samp{Copy}, @samp{Reset}, @samp{SubStr}, @samp{BlockRead},
+@samp{IOResult}, @samp{WriteLn}, @samp{Sqr}, @samp{SqRt},
+@samp{EOF}, @samp{EOLn}.
+
+@cindex constants capitalization
+These rules apply to constants identifiers, too, unlike C macros.
+
+Also note that very small identifiers can be written lower case,
+like @samp{i} or @samp{s1} or @samp{xx}. Such short identifiers
+should be used only locally. They can be used for parameters of
+global routines, because the scope of such parameters is local as
+well, and their names in fact don't matter at all to the caller. The
+use of such identifiers in a global context should be avoided,
+especially in units or modules or libraries (because the author
+doesn't know in which contexts they will be used).
+
+Please be consistent with your capitalization. You know that Pascal
+will not hurt you if you change capitalization for an identifier
+throughout the code, but please stick to the same capitalization.
+
+@cindex enum types
+@cindex constants
+For identifiers for the values of enumeration types and for blocks
+of constants, i.e. places where you introduce a lot of identifiers,
+it can be useful to use a two-letter lower-case prefix and @samp{_},
+in contrast to the previous rules:
+
+@smallexample
+type
+  TFooBar = (fb_Foo, fb_Bar, fb_Baz, fb_Qux);
+@end smallexample
+
+@smallexample
+@{ My Foos @}
+const
+  mf_Foo = 1;
+  mf_Bar = 3;
+  mf_Baz = 42;
+@end smallexample
+
+@cindex OOP
+In object oriented code (especially in constructors), there is
+often the need to have a parameter correspond to an object field
+(e.g., to pass a value with which to initialize the field). Since
+both can't be called the same, the field should have the ``natural''
+name since it's usually used in more routines, and the parameter
+name should be ``mangled''. FIXME: We haven't found a really
+satisfactory rule for mangling yet (some use @samp{a} as a prefix), and
+if you have any good idea, let us know.
+
+@cindex macros capitalization
+As far as macros are concerned, we strongly recommend that you do not
+use them. Please, do not use macros in your programs. Try to avoid
+using macros in your programs, because they are evil. We believe you
+must not use macros in your code. Said that, if you still dare to use a
+macro, write it capitalized entirely and separate words with
+underscores. Since macros do not follow Pascal's scoping, it makes
+sense to write them differently. This applies to conditionals, too.
+
+@node Compiler Directives
+@section Use of Compiler Directives
+@cindex compiler directives
+
+We generally suggest using as few compiler directives as reasonably
+possible, because they make the code harder to understand (e.g.,
+when checking for side-effects) and to modify (e.g., when moving
+parts of code into or out of the scope of compiler directives). The
+directives should be invoked like in the example:
+
+@smallexample
+@{$your-compiler-directive@}
+@end smallexample
+
+Definitely not this way (@pxref{Comments}):
+
+@smallexample
+(*$do-not-use-such-a-compiler-directive*)
+@end smallexample
+
+Also, definitely not this way, which is dependent on line breaks, unlike
+Pascal normally is:
+
+@smallexample
+#your-compiler-directive
+@end smallexample
+
+Same goes for macro definitions:
+
+@smallexample
+@{$define @dots{}@}
+@end smallexample
+
+This also saves the ending backslash before line breaks, in contrast to
+@samp{#define}. But you will not use macros, will you?
+(@pxref{Capitalization})
+
+@cindex directives spacing
+As far as spacing is concerned, don't type a space before the closing
+brace, as there can't be one after the opening brace. If you
+concatenate many directives together, don't put a space between each of
+them, a single comma is enough.
+
+@c FIXME
+@c
+@c Maybe someone has good reasons to use the space after the commas.
+
+@cindex comments and directives
+No comments should be inserted within the directives. Write them
+separately, instead, like this:
+
+@smallexample
+@{$X+@}  @{ We need extended syntax. @}
+@end smallexample
+
+Borland Pascal allows mixing comments with directives, but it's really a
+misuse.
+
+Short forms for calling the directives are alright, but long forms are
+at least as good, not to say preferred. Short forms must be written in
+caps, while long forms in lower case (except for case-sensitive
+arguments like messages and file names -- of course, file names must
+always be treated as case-sensitive, even on DOS, to preserve code
+portability).
+
+You can combine several directives, also mixing short and long ones, in
+a single call, for example like the following:
+
+@smallexample
+@{$gnu-pascal,I-,X+@}
+@end smallexample
+
+@cindex standard directives
+Any unit or module should have @samp{@{$gnu-pascal,I-@}} or
+@samp{@{$gnu-pascal,I+@}} near the beginning (after the head comment
+with description and license). @samp{@{$gnu-pascal@}} lets the unit be
+compiled without dialect options even if the main program is compiled
+with some. @samp{@{$I-@}} or @samp{@{$I+@}} indicates to the user (even
+though one of them is the default) whether the unit handles/returns
+input/output errors or lets them cause runtime errors. The former is
+preferable for most units. For programs, this item is optional. Routines
+that return input/output errors should have the attribute
+@samp{iocritical} (@pxref{attribute, , , gpc}):
+
+@smallexample
+procedure CriticalRoutine; attribute (iocritical);
+@end smallexample
+
+@cindex no-warning directive
+@samp{@{$W-@}} (no warnings) must only be used locally and must have a
+``fixme'' comment (@pxref{Comments}) because it indicates a problem with
+the code or the compiler.
+
+Please, don't disable warnings when you're just too lazy to write the
+code that does not produce warnings.
+
+@cindex local directives
+Any compiler flags that are not set globally (for example, together with
+@samp{@{$gnu-pascal@}}, see above) should be set with @samp{@{$local
+@dots{}@}}. In other words, not this way:
+
+@smallexample
+@{$I-@} Reset (f); @{$I+@}
+@end smallexample
+
+But this way:
+
+@smallexample
+@{$local I-@} Reset (f); @{$endlocal@}
+@end smallexample
+
+The former is wrong if @samp{@{$I-@}} was set already. Even if a
+programmer might know and take into account which is the global setting,
+this might be changed sometime, or part of the code may be copied or
+moved. The latter form is safer in these cases.
+
+To make it even clearer, from the last two rules it follows:
+
+@smallexample
+@{$local W-@} Foo; @{$endlocal@}  @{ @@ GPC produces a superfluous warning @}
+@end smallexample
+
+Again, try to avoid local directives. @samp{@{$I-@}} is sometimes
+needed. @samp{@{$X+@}} might be used if @emph{really}, @emph{really}
+necessary (as locally as possible): avoid pointer arithmetics.
+
+@cindex return checks
+Don't use @samp{@{$X+@}} to ignore function results, don't use
+@samp{@{$ignore-function-results@}}, either. It is too easy to ignore a
+result one should not ignore. Sometimes, especially when linking to a
+foreign C library, you might have to deal with functions which have a
+superfluous result, which you probably don't want to check. You can
+declare such functions with the @samp{ignorable} attribute, so that
+their results are silently ignored.
+
+Also use dummy variables if you want to ignore the result of a
+particular call to a function whose result should in general not be
+ignored. But in such cases check carefully whether the result can
+really be ignored safely. If, however, an unexpected result would
+indicate an ``impossible'' situation, it's usually better to check the
+result and print a warning or abort in the unexpected case, at least if
+@samp{DEBUG} is defined (@pxref{Compiler Directives}).
+
+@cindex linker directives
+Linker directives, i.e. @samp{@{$L@}} for libraries and C (or other
+language) source files should be put near the start in programs and
+shortly after the @samp{implementation} line in units or modules.
+Several libraries and C source files in one directive are possible
+when they belong logically together (for example, a library and its
+C wrappers), but not for separate things. This directive should not
+be mixed with other directives (which doesn't even work if @samp{L}
+comes first -- the other way around it might work, but shouldn't be
+used). The external declaration of the library or C routines should
+immediately follow the directive (except in a unit or module for
+those that go in the interface). Using @samp{@{$L@}} in programs is
+often not a good idea, making a unit is often better for abstraction
+and reuse.
+
+@cindex conditional compilation
+Conditional compilation might be useful sometimes, but you should
+use as few @samp{@{$ifdef@}}'s as possible, as they decrease
+readability. When conditionals are used for differences between
+systems, check for features (for example,
+@samp{__BYTES_LITTLE_ENDIAN__}) or groups of systems (for example,
+@samp{__OS_DOS__}) rather than individual systems, to better cater
+for systems you don't know or that may not even exist yet.
+
+If possible (this might not be available), use the predefined
+constants (for example, @samp{BytesBigEndian}, @samp{OSDosFlag})
+rather than defines -- for code that is possible (the ``always
+false'' branch will be optimized away, but you still get its syntax
+checked as an additional benefit besides not using the
+preprocessor); for type declarations it is usually not possible and
+you have to use the defines. A good example is the declaration of
+@samp{TWindowXY} in the CRT unit. See:
+
+@smallexample
+TWindowXYInternalCard8 = Cardinal attribute (Size = 8);
+TWindowXYInternalFill = Integer attribute (Size = BitSizeOf (Word) - 16);
+TWindowXY = packed record
+  @{$ifdef __BYTES_BIG_ENDIAN__@}
+  Fill: TWindowXYInternalFill;
+  y, x: TWindowXYInternalCard8
+  @{$elif defined (__BYTES_LITTLE_ENDIAN__)@}
+  x, y: TWindowXYInternalCard8;
+  Fill: TWindowXYInternalFill
+  @{$else@}
+  @{$error Endianness is not defined!@}
+  @{$endif@}
+end;
+@end smallexample
+
+@cindex debug flag
+The @samp{DEBUG} flag should be used for (and only for) code to help
+debugging, i.e. code which doesn't change the real functionality.
+Programs must compile with and without setting @samp{DEBUG}. The latter
+may run slower and may produce useful additional messages in a suitable
+form, i.e. clearly marked as debug messages, for example prefixed with
+@samp{DEBUG: }, and @emph{may} abort when it detects erroneous or
+dubious conditions.
+
+@cindex conditionals and different versions
+Conditionals can also be used to make different versions of some code,
+for example, using GMP numbers if a condition is satisfied and using
+normal integers or reals otherwise (GMP is a library for working
+with arbitrarily large numbers). In this case, the name and meaning
+of all such defines used in a file must be explained in a comment
+near the top. (For examples, see the @samp{__BP_TYPE_SIZES__},
+@samp{__BP_RANDOM__} and @samp{__BP_PARAMSTR_0__} in the System
+unit.) The code must compile with any combination of those
+conditionals set, which means you have to test exponentially many
+cases -- here is a good reason to keep their number as small as
+possible.
+
+@cindex conditionals and different implementations
+Another similar use of conditionals is to select between different
+implementations. You should adopt this strategy @emph{only} if all of
+the implementations are really supported or planned to be supported.
+Otherwise, you'd better move the old implementations into your
+``museum'' and keep the code clean. The notes about code compilation of
+the previous rule apply here as well.
+
+@cindex complicated conditionals
+When you need to deal with complicated conditionals use Pascal syntax,
+i.e. format the conditionals according to the rules for Pascal code,
+rather than C syntax. This is a silly example:
+
+@smallexample
+@{$if defined (Foo) or False@}
+@end smallexample
+
+Instead, this is an example not to follow:
+
+@smallexample
+@{$if defined (Foo) || 0@}
+@end smallexample
+
+Or even worse:
+
+@smallexample
+#if defined (Foo) || 0
+@end smallexample
+
+@cindex commenting out code
+A special conditional can be used to comment out code temporarily.
+Here's the appropriate syntax:
+
+@smallexample
+@{$if False@} @dots{} @{$endif@}
+@end smallexample
+
+@cindex conditionals and GPC version
+A standard conditional statement should be used in programs or units or
+modules you distribute to make sure that the appropriate version of the
+GNU Pascal Compiler is used. You can follow this template:
+
+@smallexample
+@{$if __GPC_RELEASE__ < 20020510@}
+@{$error This unit requires GPC release 20020510 or newer.@}
+@{$endif@}
+@end smallexample
+
+@node Spacing
+@section How to use spaces in your code
+
+In general, no multiple spaces should be used except for indentation and
+as indicated below.
+
+A single space goes before and after operators, and @samp{:=} and
+@samp{..} as well as @samp{:} in @samp{Write}, @samp{WriteLn} and
+@samp{WriteStr}; after the comma and other @samp{:}. This example
+ought to make it clearer:
+
+@smallexample
+var
+  Foo: Integer;
+  @dots{}
+begin
+  Foo := 42;
+  WriteLn (Foo + 3 : 5, ' bar')
+end;
+@end smallexample
+
+No space should go before unary @samp{-}. In fact, these are the
+correct forms: @samp{x - 1}, @samp{-x}, @samp{-1}.
+
+A space must go before the opening parenthesis (@samp{(}) and after the
+closing parenthesis (@samp{)}), unless adjacent to further parentheses,
+brackets, @samp{^}, @samp{;}, @samp{,}. In other words, a space goes
+between identifiers or keywords and the opening brace (@samp{(}). (All
+the other spaces in this example are implied by the previous rule
+already.) See:
+
+@smallexample
+Foo (Bar^(Baz[Qux * (i + 2)]), Fred (i) + 3);
+@end smallexample
+
+For indexing arrays actually don't use a space before the opening
+bracket, i.e. @samp{Foo[42]} rather than @samp{Foo [42]}. However,
+insert a space before the opening bracket in array declarations, like:
+
+@smallexample
+Foo: array [1 .. 42] of Integer;
+@end smallexample
+
+A space goes before the opening bracket of a set constructor in
+some situations -- those brackets should be treated like
+parentheses, unlike the brackets used in array indexing. For
+example:
+
+@smallexample
+x := [0, 2 .. n];
+@end smallexample
+
+But:
+
+@smallexample
+Foo ([1, 2, 3]);
+@end smallexample
+
+No spaces for @samp{.} and @samp{^}:
+
+@smallexample
+Rec.List^.Next^.Field := Foo
+@end smallexample
+
+As we already pointed out, a single space goes after the opening brace
+and before the closing brace in comments, but not in compiler
+directives. Also, and we said this already too somewhere in the manual,
+two spaces go before comments after a line of code. For example:
+
+@smallexample
+Inc (x);  @{ Increment x. @}
+@end smallexample
+
+@cindex tabular code, spacing
+@cindex spacing, tabular code
+Optionally use additional spaces to make ``tabular'' code. In our
+opinion, this increases readability a lot because the human eye and
+brain is trained to recognize such structures, and similiarities and
+differences between the lines can be easier seen, and when changing the
+code, it's easier to find related places. An application of this
+principle can be seen in interface declarations (not so much applicable
+when separated by comments, but, for example, when described by a shared
+comment above them all):
+
+@smallexample
+function Pos             (const SubString, s: String): Integer;
+function LastPos         (const SubString, s: String): Integer;
+function PosCase         (const SubString, s: String): Integer;
+function LastPosCase     (const SubString, s: String): Integer;
+function CharPos         (const Chars: CharSet; const s: String): Integer;
+function LastCharPos     (const Chars: CharSet; const s: String): Integer;
+function PosFrom         (const SubString, s: String; From: Integer): Integer;
+function LastPosTill     (const SubString, s: String; Till: Integer): Integer;
+function PosFromCase     (const SubString, s: String; From: Integer): Integer;
+function LastPosTillCase (const SubString, s: String; Till: Integer): Integer;
+@end smallexample
+
+Also possible:
+
+@smallexample
+procedure Foo;
+function  Bar @dots{};
+procedure Baz;
+@end smallexample
+
+And, of course:
+
+@smallexample
+const
+  FooBar = 1;
+  Baz    = 2;
+  Quux   = 3;
+@end smallexample
+
+The same ``tabular'' strategy used in interfaces and const declarations
+can be used in initializers:
+
+@smallexample
+const
+  Foo: TBarArray =
+    (('Foo'    ,  3),
+     ('Bar baz', 42),
+     (''       , -1));
+@end smallexample
+
+And in @samp{case} statements:
+
+@smallexample
+case ReadKeyWord of
+  kbLeft    : if s[n] > l    then Dec (s[n]) else s[n] := m[n];
+  kbRight   : if s[n] < m[n] then Inc (s[n]) else s[n] := l;
+  kbUp      : if n > 1 then Dec (n) else n := 5;
+  kbDown    : if n < 5 then Inc (n) else n := 1;
+  kbHome    : s[n] := l;
+  kbEnd     : s[n] := m[n];
+  kbPgUp,
+  kbCtrlPgUp: n := 1;
+  kbPgDn,
+  kbCtrlPgDn: n := 5;
+  kbCR      : Done := True;
+end
+@end smallexample
+
+And optionally in other code:
+
+@smallexample
+WriteCharAt (1, 1, 1,     Frame[1], TextAttr);
+WriteCharAt (2, 1, w - 2, Frame[2], TextAttr);
+WriteCharAt (w, 1, 1,     Frame[3], TextAttr);
+@end smallexample
+
+@node Line Breaks
+@section Where to break your lines of code
+@cindex line breaks
+
+A line break is optional after @emph{local} @samp{const}, @samp{type},
+@samp{var} declarations if they contain only a single declaration (but
+it is possible to have multiple identifiers in a single line).
+
+@smallexample
+procedure Baz;
+var Foo, Bar: Integer;
+begin
+  @dots{}
+end;
+@end smallexample
+
+Of course, this is also accepted:
+
+@smallexample
+procedure Baz;
+var
+  Foo, Bar: Integer;
+begin
+  @dots{}
+end;
+@end smallexample
+
+But don't follow this example:
+
+@smallexample
+procedure Baz;
+var Foo, Bar: Integer;
+    Qux: Real;
+begin
+  @dots{}
+end;
+@end smallexample
+
+If you have many declarations you can break lines several ways. The
+following is the preferred form for @samp{var} declarations:
+
+@smallexample
+var
+  Foo, Bar, Baz, Qux, Quux, Corge, Grault, Garply, Waldo, Fred,
+    Plugh, Xyzzy, Thud: Integer;
+@end smallexample
+
+or:
+
+@smallexample
+var
+  Foo, Bar, Baz, Qux, Quux, Corge, Grault, Garply, Waldo: Integer;
+  Fred, Plugh, Xyzzy, Thud: Integer;
+@end smallexample
+
+This one, instead, is more suitable to @samp{record} and public
+@samp{object} fields, especially if there's a comment for many or each
+of them:
+
+@smallexample
+var
+  Foo,
+  Bar,
+  Baz,
+  Qux: Integer;
+@end smallexample
+
+No line break after @samp{var} declarations within statement blocks,
+because they allow only one declaration, and doing a line break would
+look like further ones were allowed.
+
+@smallexample
+Foo := Bar;
+var Baz: array [1 .. Foo] of Integer;
+@end smallexample
+
+As they are a GNU Pascal extension, use these declarations sparingly,
+for example for variables whose size depends on values computed within
+the routine, or for variables within unit or module initializers or
+finalizers to avoid global variables, although you might want to think
+about using a subroutine.
+
+@cindex label spacing
+Do not insert a line break after @samp{label}. This is how you should
+declare labels:
+
+@smallexample
+label Foo, Bar, Baz;
+@end smallexample
+
+And, for completeness, here's how not to do it:
+
+@smallexample
+label
+  Foo,
+  Bar,
+  Baz;
+@end smallexample
+
+Several declarations in different lines don't even work:
+
+@smallexample
+label
+  Foo;
+  Bar;
+  Baz;
+@end smallexample
+
+@cindex case and line breaks
+Here's an example on how to use line breaks within a case statement.
+
+@smallexample
+case
+  foo:
+    begin
+      @dots{}
+    end;
+  bar,
+  baz .. qux:
+    @dots{}
+  else
+    @dots{}
+end;
+@end smallexample
+
+Or (``tabular''):
+
+@smallexample
+case
+  foo:        begin
+                @dots{}
+              end;
+  bar,
+  baz .. qux: @dots{}
+  else        @dots{}
+end;
+@end smallexample
+
+@cindex breaking long lines
+Long statements or declarations should be broken either always before
+operators or always after them (where the extent of always is at least
+one routine) or after a comma, with indentation such as to make the
+meaning clear:
+
+@c FIXME
+@c
+@c I don't think it's consistent to allow both before and after.
+
+@smallexample
+if (x = y)
+   and (foo
+        or (bar
+            and (baz or qux))
+        or fred) then
+@end smallexample
+
+or:
+
+@smallexample
+if (x = y) and
+   (foo or
+    (bar and
+     (baz or qux)) or
+    fred) then
+@end smallexample
+
+@cindex if then else statements and line breaks
+Here's how to use line breaks within if-then-else statements. Another
+use for it is where you would use a @samp{case} statement if it was
+possible, but it isn't possible (for example because the types are not
+ordinal, or the values to be compared to are not constant, or the
+comparison involves a function (@samp{StrEqualCase}, or there are
+additional conditions).
+
+@smallexample
+if @dots{} then
+  a
+else if @dots{} then
+  b
+else
+  c
+@end smallexample
+
+If @samp{a} and non-@samp{a} are main cases, and @samp{b} and @samp{c}
+are sub-cases of non-@samp{a}, use the following (the distinction might
+be a matter of taste sometimes):
+
+@smallexample
+if @dots{} then
+  a
+else
+  if @dots{} then
+    b
+  else
+    c
+@end smallexample
+
+The following (biologically quite incomplete) example contains a
+mixture of both forms which we consider reasonable:
+
+@smallexample
+if Habitat = 'Water' then
+  @{ Animals living in water @}
+  WriteLn ('Is it a fish?')
+else if Habitat = 'Air' then
+  @{ Animals living in air @}
+  WriteLn ('Is it a bird?')
+else
+  @{ Animals living on land @}
+  if Legs = 8 then
+    WriteLn ('Is it a spider?')
+  else
+    WriteLn ('Is it a gnu?')
+@end smallexample
+
+The main cases are determined by the habitat, and the number of legs
+determines some sub-cases.
+
+@cindex control loops
+For normal control loops here's a brief list of possibilities:
+
+@smallexample
+for @dots{} do
+  @dots{}
+@end smallexample
+
+@smallexample
+while @dots{} do
+  @dots{}
+@end smallexample
+
+@smallexample
+repeat
+  @dots{}
+until @dots{}
+@end smallexample
+
+If there is only one command after the @samp{if} clause, or in a
+@samp{for} or @samp{while} loop, or between @samp{repeat} and
+@samp{until}, and if that command is short enough, you can put the
+statement on one line only, like this:
+
+@smallexample
+if @dots{} then @dots{}
+@end smallexample
+
+@smallexample
+for @dots{} do @dots{}
+@end smallexample
+
+@smallexample
+while @dots{} do @dots{}
+@end smallexample
+
+@smallexample
+repeat @dots{} until @dots{}
+@end smallexample
+
+Here's how to behave when @samp{begin} and @samp{end} are involved.
+
+@smallexample
+if @dots{} then
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@smallexample
+for @dots{} do
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@smallexample
+while @dots{} do
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@cindex indentation
+The indentation is 2 characters wide, for each @samp{begin},
+@samp{then}, @samp{else}, @samp{case}, @samp{do} (@samp{for},
+@samp{while}, @samp{with}, @samp{to begin}, @samp{to end}),
+@samp{repeat}, @samp{record}, @samp{object}, @samp{type},
+@samp{const}, @samp{var}, @samp{label}.
+
+The bodies and local variables etc. of global routines must not be
+indented, just like global variables etc. Each subroutine (header
+and body) and its declarations, on the contrary, must be indented.
+
+@smallexample
+program Prog;
+
+var
+  GlobalVar: Integer;
+
+procedure GlobalProc;
+var LocalVar: Integer;
+
+  procedure LocalProc;
+  var LocalLocalVar: Integer;
+  begin
+    WriteLn ('This is a local procedure.')
+  end;
+
+begin
+  WriteLn ('This is a global procedure.')
+end;
+
+begin
+  WriteLn ('This is the main program.')
+end.
+@end smallexample
+
+Variant records should be indented as follows:
+
+@smallexample
+type
+  Foo = record
+    NonVariant: Foo;
+  case Discriminant: Bar of
+    Val1: (Variant1: Baz;
+           Variant2: Qux);
+    Val2: (Variant3: Fred)
+  end;
+
+var
+  Foo: record
+    [ as above ]
+  end = [ initializer ]
+@end smallexample
+
+Bigger indentation, i.e. more than 2 characters wide, can be used to
+break statements or declarations or to get a ``tabular'' code.
+
+Conditionals (@samp{@{$ifdef@}}) should be on the same indentation level
+as the code they affect:
+
+@smallexample
+begin
+  @{$ifdef DEBUG@}
+  WriteLn ('Debugging version');
+  @{$endif@}
+  @dots{}
+end;
+@end smallexample
+
+Short conditionals which affect only an expression can be written within
+a single line:
+
+@smallexample
+Foo := @{$ifdef DEBUG@} 'debug' @{$else@} 'release' @{$endif@};
+@end smallexample
+
+If they are intentionally used in a way contrary to normal syntactic
+rules, put them where they seem to fit best and write a comment:
+
+@smallexample
+begin
+  @{ Do the code unconditionally if debugging @}
+  @{$ifndef DEBUG@}
+  if SomeCondition then
+  @{$endif@}
+    begin
+      @dots{}
+    end
+end;
+@end smallexample
+
+Most times you will find a nicer and not less efficient way of writing
+the same statements. In this case, it can be done this way:
+
+@smallexample
+begin
+  if @{$ifdef DEBUG@} True @{$else@} SomeCondition @{$endif@} then
+    begin
+      @dots{}
+    end
+end;
+@end smallexample
+
+Or better yet:
+
+@smallexample
+@{ globally @}
+const
+  DebugFlag = @{$ifdef DEBUG@} True @{$else@} False @{$endif@};
+
+begin
+  if DebugFlag or SomeCondition then
+    begin
+      @dots{}
+    end
+end;
+@end smallexample
+
+@node Strings
+@section Strings
+@cindex strings
+
+Most rules we have covered so far do not apply within strings. In
+general, messages contained in strings should follow the GNU Coding
+Standards, for example, put quoted names within @samp{`} and @samp{'},
+although this means you have to double the @samp{'} in a Pascal string.
+@xref{Errors, , , standards}, for more information.
+
+Normally you should use strings enclosed in single quotes, like
+@samp{'this nice string that you are reading'}. Use strings in double
+quotes when you need C style escape sequences like @samp{"\t"}. Note
+that @samp{NewLine} (@samp{"\n"}) is predefined, so using @samp{NewLine}
+is preferable unless you have to use a C style string for other
+purposes.
+
+You can use multiline strings like the following:
+
+@smallexample
+WriteLn ('Hello
+world')
+@end smallexample
+
+or (perhaps preferable, especially if the text in the string contains
+paragraphs and/or indentation itself):
+
+@smallexample
+WriteLn (
+'Hello
+world')
+@end smallexample
+
+However, it is also possible to use:
+
+@smallexample
+WriteLn ('Hello' + NewLine + 'world')
+@end smallexample
+
+(Note that the above example won't compile without using the
+@code{GPC} unit.)
+
+Or, of course:
+
+@smallexample
+WriteLn ('Hello');
+WriteLn ('world')
+@end smallexample
+
+When you want to check if a string is empty, use this syntax:
+
+@smallexample
+if s = '' then
+  @dots{}
+@end smallexample
+
+The GNU Pascal Compiler will eventually optimize it to the following
+more efficient test, hence you can use the previous, shorter one
+with no regret:
+
+@smallexample
+if Length (s) = 0 then
+  @dots{}
+@end smallexample
+
+The same applies for @samp{<>}, of course, and even for assignments
+where @samp{s := ''} is the recommended form and will be optimized
+by GPC to @samp{SetLength (s, 0)}.
+
+@node Internationalization
+@section Techniques for internationalization
+@cindex internationalization
+
+Please note the description in the GPC manual on how to
+do so (@pxref{I18N, , , gpc}).
+
+@node MemoryMap
+@section MemoryMap
+@findex MemoryMap
+
+This section of the GNU Coding Standards also applies to GNU Pascal.
+Remember that @samp{mmap} actually means @samp{MemoryMap} in this
+context. @xref{Mmap, , , standards}.
+
+@node Documentation
+@chapter Documenting Programs
+@cindex documentation
+
+We recommend reading the respective section in the GNU Coding Standards,
+as it applies to this context, too. @xref{Documentation, , ,
+standards}. There are some notes worth writing here, though.
+
+As far as man pages are concerned, it would be nice to have a man
+page referring to the Info documentation. There is a GNU program,
+called @samp{help2man}, which generates a man page based on the
+@samp{--help} and @samp{--version} outputs of a program. It works
+well, except that it always prints @samp{FSF} which is not correct
+for all programs compiled with the GNU Pascal Compiler, but the
+output can easily be changed (for example, automatically using
+@samp{sed}).
+
+However, don't put too much effort in man pages. They might be feasible
+initially, but keeping them up to date together with the Texinfo
+files means a lot of work. On top of that, if you don't keep them
+updated, they are likely to cause more confusion than they help.
+
+On the one hand, if man pages are shortened too much they are likely to
+miss important information. On the other hand, if not shortened, they
+get hard to navigate.
+
+In other words, devote to Info (i.e., Texinfo) documentation.
+
+@node Managing Releases
+@chapter The Release Process
+@cindex releasing
+
+Please read the respective chapter in the GNU Coding Standards.
+Note that the huge auto-tools effort of C is not needed for normal
+GNU Pascal programs. Also Makefiles are often not necessary in GNU
+Pascal. @xref{Managing Releases, , , standards}.
+
+@menu
+* Makefile Conventions::           Makefile Conventions
+@end menu
+
+@node Makefile Conventions
+@section Makefile Conventions
+@cindex makefile conventions
+
+For your Pascal project you probably won't need large @samp{Makefile}s
+and you won't need to use @samp{autoconf} or @samp{automake}. You can
+give the @samp{--automake} to the GNU Pascal Compiler so that it takes
+care of dependencies for you. (As of this writing, the GNU Pascal
+Compiler's @samp{automake} feature has some slight bugs, but they
+will be fixed. Also, there is a plan for a utility called @samp{gp},
+which is now under development, which will simplify the compilation
+process a lot more. Stay tuned. In any case, you usually don't need
+to write complex @samp{Makefile}s yourself.)
+
+A @emph{simple} Makefile may be in order, like:
+
+@smallexample
+GPC_FLAGS=-O2
+
+all: foo
+
+foo: foo.pas unit1.pas
+	gpc --automake $(GPC_FLAGS) foo.pas
+
+mostlyclean:
+	-rm -f *.o *.gpi *.gpd core
+
+clean: mostlyclean
+	-rm -f foo
+
+distclean: clean
+
+extraclean: distclean
+	-rm -f *~*
+
+maintainer-clean: extraclean
+@end smallexample
+
+You may, however, want to put other rules into a @samp{Makefile} to
+build documentation, data files, making distributions or whatever.
+Such things are outside of the scope of this text. You can usually
+do the Pascal compilations with a single @samp{gpc --automake} call
+per program.
+
+@node Glossary
+@chapter Glossary of words used throughout this text
+@cindex glossary
+
+Routines are @samp{procedure}s, @samp{function}s,
+@samp{constructor}s, @samp{destructor}s or (user-defined) operators.
+
+Declarations are those parts of a program that ``announce'' the
+existence and properties of certain objects like constants, types,
+variables, routines, units, modules and the program.
+
+Statements are those parts of a program that actually ``do''
+something. A single statement is an assignment, a procedure call, a
+jumping statement (@samp{goto}, @samp{Exit}, @samp{Return},
+@samp{Break}, @samp{Continue}), an assembler statement, or a
+compound statement (@samp{begin} @dots{} @samp{end}, @samp{if},
+@samp{case}, @samp{repeat}, @samp{while}, @samp{for}, @samp{with})
+which in turn may contain one or several statements.
+
+Identifiers are those language elements that give names to objects like
+routines, constants, types, variables, units, modules. They can be
+(locally) redefined, unlike keywords which are part of fixed syntactic
+constructs (for example @samp{if} @dots{} @samp{then} @dots{}
+@samp{else}) and cannot be redefined. Macros are no language elements
+at all since they are expanded by the preprocessor and never seen
+by the compiler.
+
+Endianness means the order in which the bytes of a value larger than
+one byte are stored in memory. This affects, e.g., integer values
+and pointers while, e.g., arrays of single-byte characters are not
+affected. (@pxref{Endianness, , , gpc})
+
+@emph{Note:} Other items may be inserted here when it appears
+useful. If you'd like a definition of some other term, let us know.
+
+@node Index
+@unnumbered Index
+@printindex cp
+
+@contents
+
+@bye

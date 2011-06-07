@@ -1,0 +1,94 @@
+#!/bin/sh
+
+# Convert GNU standard format messages to the format used by the
+# Sun Pascal compiler (roughly)
+#
+# Copyright (C) 2002-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+p=""
+while IFS="" read -r o; do
+  t="${o#$p }"
+  a="${t# }"
+  a="${t#[0-9]}"
+  if [ x"$p" != x ] && [ x"$t" != x"$o" ] && [ x"$a" = x"$t" ]; then
+    if [ x"$c" != x"" ]; then
+      printf "%13s%*s       %s\n" "" "$c" "" "$t"
+    else
+      printf "%13s  %s\n" "" "$t"
+    fi
+  else
+    s="$o"
+    f="${s%%:*}"
+    t="${s#[^ ]*:}"
+    if [ x"$t" = x"$s" ]; then
+      echo "$s"
+    else
+      s="${t# }"
+      l="${s%%:*}"
+      t="${t#*:}"
+      a="${l//[0-9]}"
+      if [ x"$t" = x"$s" ] || [ x"$a" != x ]; then
+        s="${s# }"
+        echo "$f:"
+        echo "$s"
+      else
+        s="${t# }"
+        c="${s%%:*}"
+        t="${t#*:}"
+        a="${c//[0-9]}"
+        if [ x"$t" = x"$s" ] || [ x"$a" != x ]; then
+          c=""
+        else
+          s="$t"
+        fi
+        s="${s# }"
+        echo "$f:"
+        printf "%13s " "$l"
+        head -"$l" "$f" | tail -1
+        if [ x"$c" != x"" ]; then
+          printf "%13s%*s^---  %s\n" "" "$c" "" "$s"
+        else
+          printf "%13s %s\n" "" "$s"
+        fi
+      fi
+    fi
+    p="${o%$s}"
+  fi
+done

@@ -1,0 +1,64 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%BoundingBox: -1 -1 400 400
+%%Pages: 1
+%%EndComments
+%%Page: 1 1
+
+% GPC color gradient
+%
+% Copyright (C) 2002-2005 Free Software Foundation, Inc.
+%
+% Author: Frank Heckenbach <frank@pascal.gnu.de>
+%
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public License as
+% published by the Free Software Foundation, version 3.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+% General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; see the file COPYING. If not, write to
+% the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+% Boston, MA 02111-1307, USA.
+
+/languagelevel where { pop languagelevel 3 ge } { false } ifelse
+{
+  /LinearRGBFill
+  {
+    /colors exch def
+    /coords exch def
+    <<
+      /ShadingType 2
+      /ColorSpace /DeviceRGB
+      /Coords coords
+      /Function
+      <<
+        /FunctionType 0
+        /Domain [ 0 1 ]
+        /Range [ 0 1 0 1 0 1 ]
+        /DataSource colors
+        /BitsPerSample 8
+        /Size [ 2 ]
+      >>
+    >> shfill
+  } bind def
+  [ 0   0 0 100 ] <FFFFFFFFFF9B> LinearRGBFill
+  [ 0 100 0 200 ] <FFFF9BFF9B37> LinearRGBFill
+  [ 0 200 0 300 ] <FF9B37FFFF9B> LinearRGBFill
+  [ 0 300 0 400 ] <FFFF9BFFFFFF> LinearRGBFill
+}
+{
+  /w 0.2 def
+  w setlinewidth
+  0 w 400 { /i exch def
+    1
+    i 200 sub 0.0039 mul dup 0 lt { neg } if dup
+    dup 0.39 gt { pop 0.39 } if 0.61 add exch
+    0.22 add
+    setrgbcolor 0 i moveto 400 i lineto stroke
+  } for
+} ifelse
+%%EOF

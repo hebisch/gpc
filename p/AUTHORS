@@ -1,0 +1,189 @@
+This file was generated automatically from authors.texi.
+DO NOT CHANGE THIS FILE MANUALLY!
+
+1 Register of Copyrights for GNU Pascal
+***************************************
+
+Jukka Virtanen
+     invented GNU Pascal in March 1988, implemented the ISO 7185 and
+     most of the ISO 10206 standard, etc.
+
+     He created all files except those listed below, based on the GCC
+     source.
+
+Dr. Peter Gerwinski (http://www.gerwinski.de/~peter/)
+     added Borland Pascal related and other extensions to GNU Pascal in
+     summer 1995, ported GPC to EMX, did most of the development of the
+     compiler from 1996 to 2001, created the WWW home page, etc.
+
+     He created `rts/move.pas', the files in `doc/' (together with
+     Jan-Jaap), the (former) files in `config/emx/' and
+     `gpc-nodes.def', and extensively modified all files.
+
+Jan-Jaap van der Heijden
+     ported GPC to DJGPP and to Microsoft Windows 95/NT, added ELF
+     support in spring 1996, solved a lot of configuration and
+     compatibility problems, created the GPC FAQ, etc.
+
+     He created `Make-lang.in', `lang-options.h', `lang-specs.h', the
+     files in `doc/' (together with Peter), `rts/Make*', and
+     `rts/config*', and modified `module.c' and most other files.
+
+Frank Heckenbach (http://fjf.gnu.de)
+     rewrote and maintains the Run Time System since July 1997, does
+     most of the development of the compiler since July 2001, wrote
+     most of the units, demo programs, scripts and utilities
+     distributed with GPC, wrote many test programs, maintains the GPC
+     To-Do list and the WWW home page, etc.
+
+     He created `gpc-options.h', most files in `units/', `demos/',
+     `script/', `utils/' and `rts/' and many files in `test/', and
+     extensively modified all files.
+
+Waldek Hebisch
+     made GPC compatible with gcc-3.1.1 and later backend versions,
+     fixed backend problems on various targets and improved the
+     frontend in the areas of structured initializers, qualified
+     identifiers, etc.
+
+     He created `p-tree.def', `diffs/gcc-3.*.diff' and modified
+     `Make-lang.in' and all source files of the compiler as well as
+     some files of the backend.
+
+Prof. Abimbola A. Olowofoyeku ("The African Chief") (http://www.bigfoot.com/~african_chief/)
+     created the original versions of many BP compatibility units in May
+     1997, contributed code to other units and the Run Time System,
+     helped porting GPC and the units to Cygwin, mingw and MSYS, wrote a
+     number of test programs, contributed a Borland Delphi-compatible
+     `SysUtils' unit (http://www.gnu-pascal.de/contrib/chief/), etc.
+
+     He created `units/gpcutil.pas', parts of `units/system.pas' and
+     `rts/fname.pas' and a number of files in `test/'.
+
+Nicholas Burrett
+     fixed some bugs and cleaned up GPC in May 1998, etc.
+
+     He modified `expressions.c', `parse.y', `module.c' and some other
+     files.
+
+Dominik Freche
+     improved and extended the GPC manual in August - September 1999 and
+     wrote conversion routines for Borland compatible 6 Byte floating
+     point numbers in December 1999.
+
+     He modified `doc/en/reference.texi', `doc/en/programming.texi',
+     and `units/system.pas' and created some files in `test/'.
+
+Alexey Volokhov
+     improved the performance of GPC's module/unit support in June 1997.
+
+     He extensively modified `module.c'.
+
+Bill Currie
+     implemented more Borland extensions into GPC in July 1997.
+
+     He modified `parse.y', `statements.c', and `predef.c'.
+
+Nicola Girardi
+     wrote the GNU Pascal Coding Standards in November 2001, contributed
+     a GPC unit (http://www.gnu-pascal.de/contrib/nicola/) for the
+     `svgalib' graphics library for some platforms in February 2000,
+     provided some portability enhancements to the RTS.
+
+     He created `doc/en/gpcs.texi' and modified `rts/rts.c' and created
+     some files in `test/'.
+
+Eike Lange
+     wrote an internationalization unit, translated the GNU Pascal
+     Coding Standards into German and worked on the documentation.
+
+     He created `units/intl.pas', `units/intlc.c', `doc/de/gpcs.texi'
+     and `doc/en/copying-demo.texi' and modified `doc/en/gpcs.texi' and
+     `doc/en/programming.texi'.
+
+Mirsad Todorovac
+     translated the GPC documentation into Croatian and contributed code
+     to the run time system.
+
+     He created all files in `doc/hr/' and several files in `test/' and
+     modified `rts/string1.pas'.
+
+Francisco Javier Fernandez Serrador
+     translated the GPC documentation into Spanish.
+
+     He created all files in `doc/es/'.
+
+Maurice Lombardi
+     maintains the DJGPP port of GPC, improved the numerical routines
+     for real and complex numbers and improved and extended the GMP real
+     routines.
+
+     He modified `rts/math.pas', `units/gmp.pas',
+     `demos/gettextdemo.pas' and created `test/dostest.bat' and several
+     other files in `test/'.
+
+Emil Jerabek
+     improved the numerical routines for real and complex numbers.
+
+     He modified `rts/math.pas' and created several files in `test/'.
+
+Adriaan van Os
+     helped with the port of GPC to Mac OS X and set up a web site
+     (http://www.microbizz.nl/gpc.html) with sources, binaries, patches
+     and building instructions for this platform, and helped with Mac
+     Pascal dialect support in GPC, since January 2003.
+
+     He made small changes to most source files of the compiler and
+     created several files in `test/'.
+
+Neil Santos
+
+All authors listed above have assigned their copyright of past and
+future changes of GNU Pascal to the Free Software Foundation (FSF).
+
+James A. Morrison
+     helps porting GPC to GCC-4.x backends since February 2005.
+
+     He modified all files of the compiler as well as `Make-lang.in'.
+
+     He has assigned his copyright of past and future changes of GCC to
+     the Free Software Foundation (FSF).
+
+Russell Whitaker
+     updated and maintained the GNU Pascal FAQ.
+
+     He modified `doc/en/faq.texi'.
+
+     He has assigned his copyright of past and future changes of the GNU
+     Pascal FAQ to the Free Software Foundation (FSF).
+
+Matthias Klose
+     integrated GPC into EGCS and Debian GNU/Linux in May 1998, improved
+     the installation process, etc.
+
+     He modified `Makefile*', the `configure' script and many other
+     files.
+
+     He has disclaimed the copyright of his changes of GNU Pascal and
+     released them to the Public Domain.
+
+Peter N Lewis
+     added support for Mac Pascal dialect specific features and improved
+     the documentation.
+
+     He modified most files of the compiler as well as
+     `doc/contributors.texi', `doc/en/authors.texi',
+     `doc/en/programming.texi' and `doc/en/reference.texi'.
+
+     He has disclaimed the copyright of his changes of GNU Pascal and
+     released them to the Public Domain.
+
+Orlando Llanes
+     provided some contributions to the manual in May 1998.
+
+     He modified `doc/reference.texi'.
+
+     He has assigned his copyright of the past and future changes of the
+     GNU Pascal manual to the Free Software Foundation (FSF).
+
+

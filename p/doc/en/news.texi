@@ -1,0 +1,210 @@
+@c Copyright (C) 2002-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Author: Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+@ifclear NEWSONLY
+@node News
+@chapter New Features of GNU Pascal.
+@cindex news
+@end ifclear
+
+@ifset NEWSONLY
+@include version.texi
+@c Note: The following line gets inserted into the destination file,
+@c       it does not apply to this Texinfo file!
+This file was generated automatically from news.texi.@*
+@sc{DO NOT CHANGE THIS FILE MANUALLY!}
+
+@settitle GPC News
+@node Top
+@chapter GPC News
+@paragraphindent 0
+@end ifset
+
+GPC's new or changed features since the last (non alpha/beta) GPC
+release are listed here. Items without further description refer to
+new routines, variables or options.
+
+Features implemented for compatibility to other compilers are marked
+with, e.g., @samp{(B)} for BP compatibility.
+
+A few old and obsolete features have been dropped or replaced by
+cleaner, more flexible or otherwise more useful ones. This might
+lead to minor problems with old code, but we suppose they're rare
+and easy to overcome. Backward-incompatible changes are marked with
+@samp{(@@)}.
+
+@itemize @bullet
+@item support building libgpc as Mach shared library
+@item `GPC_Initialize' and `GPC_Finalize' available as user
+routines (to help building shared libraries)
+@item better warnings for unexpected results of string comparisons
+@item handle `volatile' attribute on types
+@item allow `asm' in any dialect (if the `asm' keyword is enabled)
+@item support for gcc-4.1.x
+@item preliminary support for gcc-4.0.x
+@item handle named exit from a method
+@item check string parameters more strictly (@@)
+@item use at least integer precision for arithmetic (@@)
+@item refuse @samp{--executable-file-name} on names without a suffix
+@item do not create @samp{.gpi} files from incorrect input
+@item @samp{CWordBool} type
+@item allow passing variant selector by reference in default mode
+@item @samp{noinline} attribute
+@item check for identifier redeclaration in records and parameter
+lists (@@)
+@item set constants are compatible with packed sets
+@item @samp{ReadString} and @samp{StringOf} predefined routines (M)
+@item pass discriminated string schema by value (@@)
+@item @samp{const var} parameters
+@item preliminary support for OOE class views (test/view1[a-g].pas)
+@item @samp{--iso-goto-restrictions} option
+@item @samp{--preprocessed} option
+@item integrated preprocessor (@@)
+@item @samp{--longjmp-all-nonlocal-labels} is on by default on Darwin/PPC
+@item preliminary support for Delphi classes and Mac objects (D) (M)
+(delphi1[bc].pas, peter5[a-g].pas)
+@item new options @samp{--[no]-objects-require-override}, 
+@samp{--[no]-delphi-method-shadowing}, @samp{--[no]-objects-are-references}
+(off by default) (D) (M)
+@item new options @samp{--gnu-objects} (default), @samp{--ooe-objects}, @samp{--mac-objects}, @samp{--borland-objects} which choose object model
+@item @samp{uses} can not directly follow @samp{import} (@@)
+@item handle @samp{+} and @samp{-} as Mac Pascal does (M) (@@)
+@item new options @samp{--[no]-nonlocal-exit} (default in @samp{--ucsd-pascal} and @samp{--mac-pascal}) (fjf988[fijk].pas, fjf1062*.pas) (U) (M)
+@item new options @samp{--[no]-object-checking} (on by default) to check on virtual method calls if VMT pointer is not nil and has matchin @samp{Size} and @samp{NegatedSize} entries, new options @samp{--[no]-range-and-object-checking} which are now equivalent to @samp{$R[+-]} (fjf1053*.pas) (B)
+@item new options @samp{--[no]-pointer-checking}, @samp{--[no]-pointer-checking-user-defined}; new variable @samp{ValidatePointerPtr} (fjf1052*.pas, pcerrorc.pas) (these options are @emph{off} by default!)
+@item new options @samp{--[no]-implicit-result} (fjf1022*.pas) (on by default @strong{only} in @samp{--delphi} mode!) (D) (@@)
+@item new options @samp{--@{en,dis@}able-predefined-identifier} (fjf1037*.pas)
+
+@item @samp{import} within a routine (mod15[c-e].pas)
+@item the option @samp{--no-debug-info} was renamed to @samp{--disable-debug-info}, and @samp{--no-default-paths} was renamed to @samp{--disable-default-paths} (@@)
+@item qualified identifiers (chief18.pas, fjf260*.pas, fjf921*.pas, grp1.pas, kurzw1.pas, mod@{9,10,13..17@}*.pas) (@@)
+@item with @samp{-Wnested-comments} and without @samp{--nested-comments} warn about comment openers found within comments (fjf1017*.pas)
+@item new options @samp{--[no-]case-value-checking} (fjf1012*.pas)
+@item optimize arithmetic with a complex and a real operand <20020118143553.B28837@@artax.karlin.mff.cuni.cz>
+@item range checking <Pine.LNX.4.21.0012091605570.8168-100000@@rusty.russwhit.com> (chuck5.pas, fjf446.pas, fjf989*.pas, fjf992*.pas, fsc@{01..37@}*.pas, miklos1[bc].pas, mir@{016,021..028,030..047@}*.pas, ole[12]*.pas, russ4*.pas)
+
+@item @samp{Exit} with an argument (non-local exits not yet supported) (fjf988*.pas) (U) (M)
+@item new options @samp{--[no-]propagate-units} (on by default with @samp{--mac-pascal}, off in other dialects) (fjf987*.pas) (M); this also covers the item ``unit inheritance''
+@item enable @samp{Pointer} in @samp{--mac-pascal} mode (Mac Pascal has a @samp{Pointer} function which does the same as a type-cast to @samp{Pointer}; though adding @samp{Pointer} as a type allows more, it's backward-compatible) (M)
+@item @samp{&} and @samp{|} (shortcut @samp{and} and @samp{or}) (fjf981*.pas) (M)
+@item @samp{Leave} and @samp{Cycle} (equivalent to @samp{Break} and @samp{Continue}) (avo3.pas) (M)
+@item optimize @samp{WriteLn (... @var{string_constant})} and @samp{Write (... @var{string_constant}, @var{string_constant} ...)}
+@item @samp{BindingType} is now a packed record as EP demands (fjf975a.pas) (E)
+@item EP structured initializers (fjf964*.pas, fjf967*.pas, fjf968*.pas) (E)
+@item EP record, array, set values (constdef.pas, fjf966*.pas, fjf971*.pas) (E)
+@item @file{gp}: @samp{PC} now sets the compiler for both Pascal and C unless @samp{CC} is set explicitly
+@item @samp{Discard}
+@item @samp{Integer}, @samp{Word}, @samp{Cardinal} are now equivalent to @samp{PtrInt}, @samp{PtrWord}, @samp{PtrCard}, no more (necessarily) to C's @samp{int} and @samp{unsigned int} (@@)
+@item new types @samp{CInteger}, @samp{CWord}, @samp{CCardinal}
+@item new make variable @samp{GPC_PAGESIZE} to set the page size when building the manual (PDF, PostScript, DVI)
+@item @samp{qualified} and import lists are no more allowed after @samp{uses} (only after @samp{import}, as EP demands) (@@)
+@item the @samp{GMP} unit doesn't support gmp-2.x anymore (if you used it, just upgrade to a newer GMP version) (@@)
+@item conflicts between object fields/methods and ancestor type names are detected as required by OOE (fjf945*.pas) (@@) (O)
+@item repeated function headings (in @samp{forward} declarations and interfaces) are checked stricter: if one has a result variable, so must the other (according to the OOE draft) (@@) (O)
+@item the @samp{Pipe} unit was renamed to @samp{Pipes} because of a name conflict (@@)
+@item empty parameter lists can be written as @samp{()} (chief54*.pas, delphi6*.pas) (D)
+@item GMP unit: @samp{mpf_sin}, @samp{mpf_cos}
+@item the test suite output is now by default stored in DejaGnu compatible files @file{gpc.log} and @file{gpc.sum} in the @file{p/test/} directory; other available test targets are @samp{pascal.check-short} and @samp{pascal.check-long} (@@)
+@item new options @samp{-W[no-]dynamic-arrays} (fjf931*.pas)
+@item new argument to @samp{_p_initialize} (@@)
+@item @samp{UMask}
+@item new option @samp{--no-debug-source}
+@item new lexer (no directly user-visible difference, but should allow for better handling of lexer-based problems in the future)
+@item @samp{CompilerAssert} (fjf904*.pas)
+@item options @samp{--[no]-assert} renamed to @samp{--[no]-assertions} (necessary to avoid a conflict with GCC) (@@)
+@item new options @samp{--[no-]range-checking}, also as short compiler directives @samp{@{$R+@}}/@samp{@{$R-@}} (default is on) (C, E, B, @@)
+@item new options @samp{--[no-]methods-always-virtual} (fjf903*.pas) (M)
+@item new options @samp{--[no-]pointer-arithmetic}, @samp{--[no-]cstrings-as-strings}, @samp{-W[no-]absolute} (all of which @samp{--[no-]extended-syntax} implies)
+@item @samp{Integer2StringBase}, @samp{Integer2StringBaseExt}
+@item new constants @samp{NumericBaseDigits}, @samp{NumericBaseDigitsUpper}
+@item allow assigning, passing by value and returning objects, with assignments of an object of derived type to one of a base type (chief35[ab].pas, fjf451*.pas, fjf696[ef].pas, fjf884*.pas), BP compatible except for a bug in the BP feature itself (see the comment in @file{p/test/fjf451h.pas}) (B)
+@item new options @samp{-W[no-]object-assignment}
+@item warn (except in @samp{--borland-pascal}) if a virtual method overrides a non-virtual one (chief52*.pas)
+@item warn when an non-abstract object type has virtual methods, but no constructor (chief51*.pas)
+@item @samp{--maximum-field-alignment} does not apply to @samp{packed} records
+@item @samp{ArcSin}, @samp{ArcCos}
+@item trimming string relations as functions (@samp{EQPad} etc.) (fjf873.pas)
+@item new options @samp{-W[no-]interface-file-name}
+@item @samp{SeekEOF} and @samp{SeekEOLn} use @samp{Input} implicitly when no file is given (fjf871.pas) (B)
+@item tagging feature for @samp{with} statements (tom6.pas) <200012022215.eB2MFD614424@@wsinpa16.win.tue.nl> (Sun Pascal)
+@item new option @samp{--sun-pascal}
+@item field names and array indices in initalizers are recognized (waldek5*.pas) (options @samp{-W[no-]field-name-problem} removed, @@)
+@item object directives @samp{published}, @samp{public} (both equivalent), @samp{protected} (scope limited to object type and derived object types), @samp{private} (scope limited to current unit/module) (fjf864*.pas) (options @samp{-W[no-]object-directives} removed, @@)
+@item the operator precedence and associativity of @samp{+} and @samp{-} is now as defined in EP by default (and as in BP with @samp{--borland-pascal}) <Pine.LNX.4.44.0210251249500.6181-100000@@duch.mimuw.edu.pl> (fjf863*.pas) (@@)
+@item @samp{Integer (16)} etc. changed to @samp{Integer attribute (Size = 16)} (works for integer and Boolean types) (fjf861.pas) (@@)
+@item types can have attributes (note: no preceding @samp{;}) (fjf860*.pas)
+@item dynamic object methods (fjf859.pas) (B)
+@item in @samp{--borland-pascal} mode, @samp{Assign} unconditionally (re-)initializes its file parameter (fjf858.pas) (B)
+@item GPC doesn't use @file{gpm} files anymore (instead, each module has an implicit @file{@var{modulename}-all.gpi} interface which is a regular @file{gpi} file)
+@item make the program/module/unit finalizers non-public (@samp{static} in C sense), omit them if easily possible
+@item new options @samp{-W[no-]parentheses} (fjf848*.pas)
+@item non-@samp{interface} modules with empty implementation part (pmod1.pas, fjf843.pas)
+@item @samp{maximum-field-alignment} and @samp{[no-]field-widths} work as local compiler directives now (fjf842.pas)
+@item dropped @samp{@{$debug-statement@}} (should not be necessary anymore, now that debug info mostly works)
+@item new options @samp{--[no-]longjmp-all-nonlocal-labels}
+@item object methods can have attributes (fjf826*.pas)
+@item new attributes @samp{iocritical} (fjf824*.pas), @samp{ignorable} (fjf839*.pas) for routines
+@item dropped computed @samp{goto} (never worked for nonlocal @samp{goto} into the main program, implementing it would be quite difficult, probably not worth it) (@@)
+@item new type @samp{AnyFile} for parameters and pointer targets (fjf821*.pas)
+@item @samp{TimeStamp} is now a packed record as EP demands (fjf975b.pas) (E)
+@item Mac Pascal specific features are supported according to the dialect options (M)
+@item @samp{--interface-only} does not require @samp{-S} or @samp{-c} anymore (and does not create an object file)
+@item @samp{initialization}, @samp{finalization} (D)
+@item @samp{TimeZone} in @samp{TimeStamp} counts seconds @emph{east} of UTC now (not west, as before) (datetimedemo.pas) (@@)
+@item @samp{export @var{Foo} = all (@dots{})} (fjf811*.pas)
+@item new options @samp{-W[no-]local-external} (implied by @samp{-Wall})
+@item type-casts are BP compatible now, in particular, value type-casts between ordinal and real or complex types don't work anymore (B) (@@)
+@item all non-ISO-7185 keywords can be used as identifiers (with two small exceptions) (fjf440.pas)
+@item @samp{pack-struct} does not imply bit-level packing anymore (only explicit @samp{packed} records and arrays do) (@@)
+@item new options @samp{--[no-]ignore-packed} (@samp{--ignore-packed} is the default in BP mode) (fjf796*.pas) (B) (@@)
+@item new option @samp{--maximum-field-alignment=@var{N}}
+@item new options @samp{@{$[no-]pack-struct@}} as a compiler directive
+@item @samp{attribute} for routines doesn't imply @samp{forward} anymore (so you don't have to declare routines twice in a program or implementation part when setting the linker name or some other attribute) (@@)
+@item @samp{static}, @samp{volatile} and @samp{register} for variables and @samp{inline} for routines are no prefix-directives anymore, but @samp{attribute}s (@@)
+@item combining several dialect options (such as @samp{--extended-pascal --borland-pascal}) doesn't work anymore (what should this mean, anyway? Combine the features, but also the warnings from both!?!?!?) (@@)
+@item @samp{external} without @samp{name} defaults to all-lowercase now (@@)
+@item @samp{c}, @samp{c_language} and @samp{asmname} are deprecated (@@)
+@item @samp{external name 'foo'} (fjf780.pas), @samp{external 'libname' name 'foo'} (where @samp{libname} is ignored) (B)
+@item Mac Pascal directives @samp{definec}, @samp{macro}, @samp{undefc}, @samp{ifc}, @samp{ifoptc}, @samp{elsec}, @samp{elifc}, @samp{endc}, @samp{errorc} (treated as equivalent to the corresponding existing ones) (M)
+@item units without @samp{implementation} part (M)
+@item new options @samp{--vax-pascal}, @samp{--mac-pascal}
+@item attributes @samp{const} for variables and @samp{name} for variables, routines and modules; assembler names and module/unit file names can now be expressions (which must yield string constants) (fjf781*.pas, fjf809*.pas)
+@item the utilities @samp{gpidump} and @samp{binobj} are installed with GPC (B)
+@item new options @samp{-W[no-]identifier-case}, @samp{-W[no-]identifier-case-local} (fjf751*.pas)
+@item new compiler directive @samp{$R foo}, equivalent to @samp{$L foo.resource} (B)
+@item dropped @samp{--[no-]borland-char-constants} (now simply coupled to dialect options) (@@)
+@item test suite: support progress messages (@samp{TEST_RUN_FLAGS=-p} from the Makefile; @samp{-p} in testgpc); see @uref{http://fjf.gnu.de/misc/progress-messages.tar.gz}
+@item @samp{=} and @samp{<>} comparisons of structures (arrays, records, ...) except strings and sets are forbidden now (@@) (E)
+@item irrelevant operands and arguments (e.g.: @samp{foo in []}; @samp{bar * []}; @samp{Im (baz)} if @samp{baz} is of real type) are not necessarily evaluated anymore (which is allowed by the standard); instead, a warning is given if they have side-effects (@@)
+@item accept only one program, unit, module interface or implementation or a module interface and the implementation of the same module in one file; new options @samp{--[no-]ignore-garbage-after-dot} (fjf735*.pas) (@@)
+@item new options @samp{-W[no-]implicit-io} (fjf734*.pas)
+@item new options @samp{--enable-keyword}, @samp{--disable-keyword} (fjf733*.pas)
+@item @samp{CBoolean} (fjf727.pas)
+@item dropped the usage of @samp{GetMem} as a function with one parameter (only the BP compatible usage as a procedure with two parameters remains) (@@)
+@item accessing the variable @samp{FileMode} now requires using the @samp{GPC} (or, for BP compatibility, the @samp{System}) unit (@@)
+@item @samp{DupHandle}
+@item dropped the predefined dialect symbols @samp{__CLASSIC_PASCAL__}, @samp{__STANDARD_PASCAL__}, @samp{__EXTENDED_PASCAL__}, @samp{__OBJECT_PASCAL__}, @samp{__UCSD_PASCAL__}, @samp{__BORLAND_PASCAL__}, @samp{__DELPHI__}, @samp{__PASCAL_SC__} and @samp{__GNU_PASCAL__} (one can use @samp{@{$ifopt borland-pascal@}} etc. instead) (@@)
+@item @samp{Succ}, @samp{Pred}, @samp{Inc}, @samp{Dec} for real numbers (fjf714*.pas)
+@item use environment variables @samp{GPC_UNIT_PATH}, @samp{GPC_OBJECT_PATH}
+@item new options @samp{-W[no-]float-equal}
+@item new option @samp{--ucsd-pascal}
+@item dropped the syntax @samp{type foo = procedure (Integer, Real)} (i.e., without parameter names) (@@)
+@item CRT: new argument @samp{On} to @samp{CRTSavePreviousScreen}
+@item @samp{SetUserID}, @samp{SetGroupID}
+@item @samp{HeapChecking}
+@item new built-in procedure @samp{Assert}; new options @samp{--[no]-assert} (also @samp{@{$C+@}}, @samp{@{$C-@}} for Delphi compatibility) (fjf665*.pas) (D)
+@item @samp{ProcessGroup}
+@item StringUtils: @samp{QuoteEnum}
+@item @samp{CurrentRoutineName} (fjf752.pas)
+@item TFDD: new unit
+@item gpc-run: new options @samp{-e FILE} and @samp{-E FILE} (redirect/append standard error)
+@end itemize
+
+Have fun,
+
+The GNU Pascal Development Team

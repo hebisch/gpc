@@ -1,0 +1,414 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+@include macros.texi
+
+@c FIXME Still thinking about more suitable translation for 'Highlights',
+@c   maybe should try more free one ... -- MT 20011201
+
+@node Naglasci
+@chapter Neke od najinteresantnijih znaèajki GPC-a
+@cindex highlights
+
+GNU Pascal prevodilac (GPC) je, kao ¹to ime govori, Pascal prevodilac (engl.
+compiler) iz GNU obitelji (@uref{http://www.gnu.org/software/gcc/}). Ovo znaèi:
+
+@itemize @bullet
+
+@item GPC je 32/64-bitni prevodilac,
+
+@item nema ogranièenja kao ¹to je 64 kB ili 640 kB limit poznat iz nekih
+operacijskih sustava -- èak i na tim sustavima --,
+
+@item radi na svim operacijskim sustavima podr¾anim od GNU C prevodioca,
+ukljuèujuæi
+
+@itemize @minus
+@item @uref{http://www.linux.org,Linux} na Intelu, Alphi, S390, i na svim
+ostalim podr¾anim tipovima hardvera,
+@item BSD obitelj: @uref{http://www.freebsd.org,FreeBSD},
+@uref{http://www.netbsd.org,NetBSD},
+@uref{http://www.openbsd.org,OpenBSD},
+@item DOS sa 32 bita, koristeæi
+@uref{http://www.delorie.com/djgpp/,DJGPP} ili EMX,
+@item MS-Windows 9x/NT, koristeæi
+@uref{http://cygwin.com,Cygwin} ili
+@uref{http://www.mingw.org,mingw} ili
+@uref{http://www.mingw.org/msys.shtml,MSYS},
+@item OS/2 sa EMX,
+@item Mac OS X,
+@item MIPS-SGI-IRIX,
+@item Alpha-DEC-OSF,
+@item Sparc-Sun-Solaris,
+@item HP/UX,
+@end itemize
+
+@noindent i druge (zabilje¹ka: runtime sistem podr¾ava samo ASCII bazirane
+sisteme; to ukljuèuje gotovo sve dana¹nje sustave, meðutim nekoliko IBM
+strojeva jo¹ uvijek koristi EBCDIC; na tima, prevodilac bi se mogao izvr¹avati,
+ali bi runtime podr¹ka trebala velike izmjene),
+
+@c FIXME -- TM
+@c nEEd to find more suitable translation for 'native' and 'cross' compiler
+@item mo¾e slu¾iti kao nativni prevodilac ili prevodilac izmeðu sistema
+(engl. cross-compiler) - izmeðu svih podr¾anih sistema,
+
+@item proizvodi visoko optimirani kod za sve te sisteme,
+
+@item slobodan je softver
+@uref{http://www.gnu.org/philosophy/free-sw.html,Free Software}
+(@uref{http://www.opensource.org,Open-Source Software})
+u skladu sa
+@uref{http://www.gnu.org/copyleft/gpl.html,@strong{GNU General Public License}}
+licencom),
+
+@item kompatibilan je sa ostalim GNU jezicima i alatima kao ¹to su GNU C i
+GNU debugger (ili, ako vi¹e volite, program za simbolièko ispravljanje
+pogre¹aka u ispravljanom programu).
+
+@end itemize
+
+@anch{lang}@c
+Prevodilac podr¾ava slijedeæe jeziène standarde i kvazi-standarde:
+
+@itemize @bullet
+@item ISO 7185 Pascal (@pxref{Resursi}),
+@item veæinu dijelova ISO 10206 Extended Pascala,
+@item Borland Pascal 7.0,
+@item dijelove Borland Delphi, Mac Pascala i Pascal-SC (PXSC).
+@end itemize
+
+@anch{pro}@c
+Neki naglasci:
+
+@c DEMO-START
+
+@itemize @bullet
+
+@item Iz Standard Pascala: Mnogi popularni Pascal prevodioci tvrde da
+pro¹iruju Standard Pascal, ali im nedostaju ove va¾ne znaèajke.
+
+@itemize @minus
+@item
+@anch{conformantdemo}@c
+Polja kao konformni parametri -- standardni i komforan naèin prosljeðivanja
+polja (ARRAY) varijabilne velièine procedurama i funkcijama.
+@hrefexample{conformantdemo.pas}
+@item
+@anch{iteratordemo.pas}@c
+Prosljeðivanje lokalnih procedura kao proceduralnih parametara -- s punim
+pristupom svim varijablama ``nadreðene'' procedure.
+@hrefexample{iteratordemo.pas}
+@item
+@anch{filebuf1demo}@c
+@anch{filebuf2demo}@c
+@c FIXME Here I'm not resolute about meaning of the original -> I nEEd to
+@c   look at the examples, or ask Frank: -- MT 20011201 Done 20020103
+Automatski datoteèni meðuspremnici (engl. file buffers) i standardne @samp{Get}
+i @samp{Put} procedure. Predviðajuæe èitanje (engl. read-ahead) bez privremenih
+varijabli. @hrefexample{filebuf1demo.pas} Ovo dozvoljava, na primjer, da se
+provjeri ulaz iz tekst datoteka prije èitanja bez konverzije kroz znakovne
+nizove (engl. strings). @hrefexample{filebuf2demo.pas}
+@item
+@anch{packdemo}@c
+Istinski pakirani zapisi (RECORD) i polja. Pakira 8 Booleovih varijabli u
+jedan bajt.
+@hrefexample{packdemo.pas}
+@item
+@anch{intfiledemo}@c
+Interne datoteke. Ne morate se brinuti o kreiranju privremenih imena
+datoteka i njihovom brisanju kasnije.
+@hrefexample{intfiledemo.pas}
+@item
+Globalni @samp{goto}. (Da, @samp{goto} ima svoju ulogu kada nije ogranièen
+na trenutni potprogram.) @hrefexample{parserdemo.pas}
+@item
+@anch{variantedmo}@c
+Automatski postavlja diskriminantu varijabilnog zapisa (RECORD) u @samp{New}.
+@hrefexample{variantdemo.pas}
+@item
+@anch{bigsetsdemo}@c
+Skupovi (SET) proizvoljne velièine. @hrefexample{bigsetsdemo.pas}
+@end itemize
+
+@item Iz Extended Pascala:
+
+@itemize @minus
+@item
+@anch{stringschemademo}@c
+Znakovni nizovi (strings) proizvoljne duljine.
+@hrefexample{stringschemademo.pas}
+@item
+@anch{rwstringdemo}@c
+@samp{ReadStr} i @samp{WriteStr}. Èitajte iz i pi¹ite u znakovne nizove sa
+punim komforom @samp{ReadLn}/@samp{WriteLn}.
+@hrefexample{rwstringdemo.pas}
+@item
+@anch{datetimedemo}@c
+Rutine za predstavljanje datuma i vremena neovisne od sistema (prenosive).
+@hrefexample{datetimedemo.pas}
+@item
+Iteracija pomoæu èlanova skupa:
+@samp{@w{for Ch in ['A' .. 'Z', 'a' .. 'z'] do @dots{}}}
+@hrefexample{bigsetsdemo.pas}
+@item Pro¹irene operacije nad skupovima (simetrièna diferencija, @samp{Card})
+@item Generalizirane @samp{Succ} i @samp{Pred} funkcije
+(@code{@w{foo := Succ (bar, 5);}}).
+@item
+@anch{mandelbrot}@c
+@anch{parserdemo}@c
+Kompleksni brojevi. @hrefexample{mandelbrot.pas}
+@hrefexample{parserdemo.pas}
+@item Operatori za potenciranje (@samp{pow} i @samp{**}) za realne i
+kompleksne brojeve.
+@item
+@anch{initvardemo}@c
+Inicijalizirane varijable. @hrefexample{initvardemo.pas}
+@item Funkcije mogu vraæati vrijednost tipa zapis ili polje (Record, Array).
+@item
+@anch{resultvardemo}@c FIXME
+@c                     nEEd 2 look at exmpl to clean xlation
+@c                     -- TM 20011201 Done 20020103
+Varijable za imenovanu povratnu vrijednost u funkcijama.
+@hrefexample{resultvardemo.pas}
+@item Moduli.
+@item Ne-dekadski brojevi u bazama od 2 do 36: @samp{baza#broj}.
+@item @samp{MinReal}, @samp{MaxReal}, @samp{EpsReal}, @samp{MaxChar}
+konstante.
+@item
+@anch{schemademo}@c
+Schemata -- Pascalov naèin da se dobiju dinamièka polja bez nesta¹nih
+trikova @hrefexample{schemademo.pas}
+@item
+@anch{dynamicarraydemo}@c
+Lokalne varijable mogu imati dinamièku velièinu.
+@hrefexample{dynamicarraydemo.pas}
+@item
+@anch{arrayslicedemo}@c
+Pristup odsjeècima polja -- pristupa se dijelovima polja kao manjem polju,
+èak i na lijevoj strani operacije dodjele vrijednosti (engl. assignment)
+@hrefexample{arrayslicedemo.pas}
+@end itemize
+
+@item Kompatibilan sa Borland Pascalom 7.0 s objektima (BP):
+
+@itemize @minus
+@item
+@anch{absdemo}@c
+Podr¾ava jedinice (UNIT), objekte, @dots{}, i èini èak i stvari kao
+@samp{absolute} varijable prenosivima. @hrefexample{absdemo.pas}
+@item Dolazi s prenosivim verzijama standardnih BP jedinica sa punim
+izvornim kodom.
+@item
+@ifhtml
+@html
+<table align=right><tr><td>
+<a href="../images/crtdemo.png">
+<img alt="[CRTDemo screen] src="../images/crtdemo-small.png" width=133 height=138>
+<br>
+(PNG, 21 kB)
+</a>
+</td></tr></table>
+@end html
+@end ifhtml
+@anch{crtdemo}@c
+Istinski mre¾no-transparentna CRT jedinica: mo¾ete izvr¹avati svoje CRT
+aplikacije lokalno ili dok ste prijavljeni udaljeno (remote login), bez
+potrebe za brigom o razlièitim tipovima terminala. Kompatibilna s BP
+jedinicom, ali s mnogim pro¹irenjima, kao npr. preklapajuæi prozori.
+@hrefexample{crtdemo.pas}
+@item
+Potpuno funkcionalna GUI (X11) verzija CRT (takoðer potpuno mre¾no
+transparentna).
+@htmlbrclear
+@item @samp{Random} funkcija koja mo¾e proizvesti iste sekvence
+pseudo-sluèajnih brojeva kao i ona u BP -- ako vam je to potrebno umjesto
+mnogo jaèe elaboriranog inicijalnog algoritma.
+@item
+@anch{procvardemo}@c
+Podr¾ava proceduralne varijable u stilu BP-a, jednako kao i procedure kao
+parametre iz Standard Pascala. @hrefexample{procvardemo.pas}
+@item
+@anch{portdemo}@c
+@samp{Ports} jedinica dozvoljava pristup I/O portovima na sistemima gdje
+to ima smisla. @hrefexample{portdemo.pas}
+@item
+@anch{bigmemdemo}@c
+Specijalne kompatibilnostne znaèajke za pomoæ u migraciji s BP-a na GPC,
+kao @samp{GPC for BP} jedinica koja pru¾a neke od GPC-ovih znaèajki za BP,
+te neke rutine za pristup skupovima velikih memorijskih blokova na uniforman
+naèin pod GPC-om i BP-om (èak i u tzv. realnom modu).
+@hrefexample{bigmemdemo.pas}
+@item
+@anch{binobjdemo}@c
+Dolazi sa BP-kompatibilnom @samp{binobj} uslugom.
+@hrefexample{binobjdemo.pas}
+@end itemize
+
+@item Iz Borland Delphija:
+
+@itemize @minus
+@item @samp{abstract} tipovi objekata i metoda
+@item @samp{is} i @samp{as} operatori za testiranje pripadnosti objekta tipu
+@item komentari s @samp{//}
+@item @samp{Setlength} procedura za znakovne nizove (string) èini nepotrebnim
+kori¹tenje trikova kao ¹to je pridodjeljivanje ``nultom karakteru''.
+@item @samp{Initialize} i @samp{Finalize} za rukovanje varijablama na
+niskoj razini.
+@end itemize
+
+@item Iz Pascal-SC (PXSC):
+
+@itemize @minus
+@item Korisnièki redefinirani (preoptereæeni) operatori. Zbrajajte svoje
+vektore sa @samp{+}.
+@end itemize
+
+@item Pa¾ljivo definirana GNU pro¹irenja poma¾u vam da uèinite svoje
+programe iz realnog ¾ivota prenosivima:
+
+@itemize @minus
+@item 64-bitni cjelobrojni tipovi sa i bez predznaka.
+@item
+@anch{c_gpc}@c
+Specijalni tipovi garantiraju kompatibilnost sa drugim GNU jezicima kao
+¹to je GNU C. Direktive kao @samp{@w{@{$L foo.c@}}} èine jednostavnim
+odr¾avanje projekata pisanih u vi¹e jezika, npr. ukljuèivanje koda pisanog
+u drugim jezicima u Pascal programe
+@xhrefexample{c_gpc.pas,Primjer (Pascal dio)}
+@xhrefexample{c_gpc_c.c,Primjer (C dio)},
+@item
+@anch{gpc_c_pas}@c
+@anch{gpc_c_unit}@c
+ili ukljuèivanje Pascal koda u programe pisane u drugim jezicima.
+@xhrefexample{gpc_c_pas.pas,Primjer (Pascal dio)}
+@xhrefexample{gpc_c_unit.pas,Primjer (Pascal jedinica)}
+@xhrefexample{gpc_c_c.c,Primjer (C dio)}
+@item
+@anch{endiandemo}@c
+Pro¹irenja kao @samp{BitSizeOf} i @samp{ConvertFromBigEndian}
+poma¾u rje¹avanju problema s razlièitim tipovima i unutra¹njim poretkom
+(engl. endianess - big endian, little endian).
+@hrefexample{endiandemo.pas}
+@item Male sitnice kao ¹to su @samp{DirSeparator},
+@samp{PathSeparator}, @samp{GetTempDirectory} poma¾u vam da pi¹ete programe
+koji izgledaju i osjeæaju se ``kod kuæe'' na svim operativnim sistemima.
+@item
+@anch{pexecutedemo}@c
+@samp{PExecute} rutina dozvoljava izvoðenje 'child' procesa na prenosiv
+naèin koji u potpunosti iskori¹tava vi¹ezadaæne (engl. multitasking)
+okoline.
+@hrefexample{pexecutedemo.pas}
+@item
+@anch{getoptdemo}@c
+GNU GetOpt rutine daju komforan pristup kratkim i dugim opcijama u komandnoj
+liniji u Unix-stilu sa i bez argumenata.
+@hrefexample{getoptdemo.pas}
+@item
+@anch{fexpanddemo}@c
+Rutine kao @samp{FSplit} ili @samp{FSearch} ili @samp{FExpand} znaju o
+specifiènostima raznih operativnih sistema.
+@hrefexample{fexpanddemo.pas}
+@item
+@anch{formattimedemo}@c
+@samp{FormatTime} funkcija pu¹ta vas da formatirate vrijednosti datuma i
+vremena, prema raznim pravilima formatiranja.
+@hrefexample{formattimedemo.pas}
+@end itemize
+
+@item Korisne i prenosive GNU standardne jedinice:
+
+@itemize @minus
+@item
+@anch{pipedemo}@c
+@anch{demoproc}@c
+@samp{Pipes} jedinica daje meðuprocesnu komunikaciju èak i pod obiènim
+DOS-om. @hrefexample{pipedemo.pas}
+@xhrefexample{demoproc.pas,Demo proces za primjer}
+@item
+@anch{factorial}@c
+@anch{fibonacci}@c
+@anch{power}@c
+@anch{realpower}@c
+@anch{pi}@c
+GNU multipreciznostna @samp{GMP} jedinica omoguæava aritmetiku cijelih,
+realnih i racionalnih brojeva proizvoljne preciznosti.
+@xhrefexample{factorial.pas,Primjer: faktorijele}
+@xhrefexample{fibonacci.pas,Primjer: Fibonaccijev niz}
+@xhrefexample{power.pas,Primjer: potenciranje}
+@xhrefexample{realpower.pas,Primjer: potenciranje realnih brojeva}
+@xhrefexample{pi.pas,Primjer: pi}
+@item
+@anch{readdirdemo}@c
+@anch{statfsdemo}@c
+@anch{filelockdemo}@c
+POSIX funkcije poput @samp{ReadDir}, @samp{StatFS} ili
+@samp{FileLock} pru¾aju efikasno, lako za kori¹tenje i prenosivo suèelje
+(engl. interface) prema operacijskom sustavu. @hrefexample{readdirdemo.pas}
+@hrefexample{statfsdemo.pas}, @hrefexample{filelockdemo.pas}
+@item
+@anch{dosunixdemo}@c
+@samp{DosUnix} jedinica kompenzira neke nekompatibilnosti izmeðu dviju
+obitelji operacijskih sustava.
+@hrefexample{dosunixdemo.pas}
+@item
+@anch{md5demo}@c
+@samp{MD5} jedinica izraèunava MD5 sume poruka (engl. message digest),
+u skladu s RFC 1321. @hrefexample{md5demo.pas}
+@item
+@anch{findfilesdemo}@c
+@samp{FileUtils} jedinica pru¾a neke rutine za rukovanje datotekama i
+direktorijima na vi¹oj razini.  @hrefexample{findfilesdemo.pas}
+@item
+@anch{stringhashdemo}@c
+@samp{StringUtils} jedinica pru¾a neke rutine za rad sa znakovnim nizovima
+na vi¹oj razini. @hrefexample{stringhashdemo.pas}
+@item
+@anch{gettextdemo}@c
+@anch{localedemo}@c
+@samp{Intl} jedinica za internacionalizaciju.
+@hrefexample{gettextdemo.pas} @hrefexample{localedemo.pas}
+@item
+@anch{trapdemo}@c
+@samp{Trap} jedinica za hvatanje gre¹aka u vremenu izvoðenja (runtime-errors)
+i njihovo obraðivanje unutar programa.  @hrefexample{trapdemo.pas}
+@item
+@anch{tfdddemo}
+A @samp{TFDD} jedinica koja omoguæuje neke trikove s tekst datotekama,
+npr. ``tee'' datoteku koja prouzroèuje da se sve pisano u nju ispisuje u dvije
+druge datoteke. @hrefexample{tfdddemo.pas}
+@item @samp{HeapMon} jedinica koja poma¾e detektirati "curenje" memorije
+(engl. memory leaks) u va¹im programima.
+@end itemize
+@end itemize
+
+Demo programi spomenuti gore su raspolo¾ivi na WWW-u jednako kao i u
+GPC distribucijama, binarnim i source.
+
+@c DEMO-END
+
+@anch{contra}@c
+Nedostaci:
+
+@itemize @bullet
+
+@item GNU simbolièki debugger (GDB) jo¹ ne razumije Pascal sintaksu i
+tipove; potrebno je koristiti C sintaksu kod ispravljanja programa GDB-om.
+
+@item Sa GPC-om prevoðenje traje dulje nego s npr. Borland Pascalom.
+@end itemize
+
+@strong{Suradnici dobrodo¹li!}
+
+Sposobni, predani programeri su uvijek dobrodo¹li u GNU Pascal tim. Ako
+¾elite biti nezavisni od kompanija kojima morate plaæati za prevodilac
+sa mnogo restriktivnijim uvjetima licenciranja koji se izvr¹ava na
+@emph{jednom} operacijskom sustavu, budite pozvani da se pridru¾ite
+razvojnom timu, @ref{Acknowledgments}.

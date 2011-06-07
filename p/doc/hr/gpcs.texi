@@ -1,0 +1,2377 @@
+\input texinfo
+@setfilename gpcs-hr.info
+@settitle GNU Pascal Coding Standards (hrvatski)
+@c We use Latin 2 charset for hr_HR language.
+@set charset iso-8859-2
+@documentencoding iso-8859-2
+
+@c Copyright (C) 2001-2006 Free Software Foundation, Inc.
+@c
+@c Authors:     Frank Heckenbach <frank@pascal.gnu.de>
+@c              Peter Gerwinski <peter@gerwinski.de>
+@c              Nicola Girardi <nicola@g-n-u.de>
+@c Translator:  Mirsad Todorovac <mtodorov_69@yahoo.com>
+@c
+@c Remember to update this when you save:
+@set lastupdate 2006-02-02
+@set lasttranslationupdate 2003-04-27
+
+@direntry
+* Pascal Coding Standards: (gpcs-hr).   GNU Pascal Coding Standards (Croatian).
+@end direntry
+
+@setchapternewpage odd
+
+@c Put everything in one index (arbitrarily chosen to be the concept index).
+@syncodeindex fn cp
+@syncodeindex ky cp
+@syncodeindex pg cp
+@syncodeindex vr cp
+
+@ifnottex
+GNU Pascal Coding Standards
+
+Copyright (C) 2001-2006 Free Software Foundation, Inc.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this
+paragraph (this paragraph not being relevant to the printed manual).
+@end ignore
+
+Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that
+the entire resulting derived work is distributed under the terms of
+a permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for
+modified versions, except that this permission notice may be stated
+in a translation approved by the copyright holders.
+
+@end ifnottex
+
+@titlepage
+@title GNU Pascal Coding Standards (Hrvatski)
+@author Nicola Girardi
+@author last updated @value{lastupdate}
+@page
+
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2001-2006 Free Software Foundation, Inc.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the copyright holders.
+@end titlepage
+
+@ifnottex
+@node Top
+@top Version
+
+Prijevod dopunjen: @value{lasttranslationupdate}.
+Odgovara originalu od: @value{lastupdate}.
+@end ifnottex
+
+@menu
+* Uvod::                      O GNU Pascal Coding Standards
+* Pravne zaèkoljice::         ... Ili kako zadr¾ati software slobodnim ...
+* Savjeti glede dizajna::     Opæenito o dizajnu programa
+* Pona¹anje programa::        Kako bi se programi trebali pona¹ati
+* Programiranje u Pascalu::   Kako najbolje upotrijebiti Pascal
+* Dokumentacija::             Dokumentiranje programa
+* Izdanja programa::          Proces izdanja verzija softwarea
+* Rjeènik pojmova::           Rjeènik pojmova kori¹tenih kroz tekst
+* Indeks::
+@end menu
+
+@node Uvod
+@chapter O GNU Pascal Coding Standards
+
+Napomena prevodioca:
+
+Ovaj dokument sadr¾i prijevod teksta ``GNU Pascal Coding Standards''.
+Za neke originalne engleske termine i izraze nisu naðeni zadovoljavajuæi
+prijevodi, pa se koriste ili engleski originalni izrazi, ili pak
+izrazi kori¹teni u ¾argonu struke. Za sva pitanja i povratne
+informacije glede prijevoda molimo kontaktirajte M. Todorovac
+@email{mtodorov@@alu.hr}. Zahvaljujemo se svima koji su pomogli ovaj
+rad savjetima ili na drugi naèin. Kako se GPC intenzivno razvija,
+gdje god se pojavila razlika u ovom prijevodu u odnosu na engleski
+izvornik, treba uzeti izvornik kao toèniji. Iznimke od ovoga æe
+biti samo sluèaj i samo iznimke.
+
+GNU Pascal Coding Standards ("Standarde kodiranja u GNU Pascalu")
+je dizajnirala grupa volontera s GNU Pascal projekta. Cilj ovog
+dokumenta je pro¹irivanje "GNU standarda kodiranja" (GNU Coding
+Standards) specifiènim informacijama o Pascal programiranju.
+Istini za volju, informacije sadr¾ane u "GNU standardima kodiranja"
+uglavnom su relevantne za programe pisane u C jeziku.
+S druge strane, ta pravila takoðer obja¹njavaju mnoga pravila i
+principe koji su korisni za pisanje prenosivih, robustnih i pouzdanih
+programa. Mnoge od tih opæenitih tema bi mogle biti dijeljene s
+ovim dokumentom uz samo nekoliko specifiènih primjedbi, tako da
+su pru¾ene unakrsne reference koje æe èitatelja povesti do opæenitije
+informacije sadr¾ane u "GNU standardima kodiranja".
+
+Ovo izdanje GNU Pascal Coding Standards (GPCS) je nadopunjeno na dan
+@value{lastupdate}.
+
+@cindex gdje nabaviti GPCS
+@cindex download standarda kodiranja
+
+Dokument GNU Pascal Coding Standards je raspolo¾iv kao dio GPC
+distribucije -- u binarnim distribucijama kao info datoteke, u
+distribucijama izvornog koda (source) takoðer i kao Texinfo datoteke
+iz kojih se dodatni formati kao ¹to su HTML, PostScript i PDF mogu
+generirati. HTML verzija je takoðer raspolo¾iva na GPC matiènoj
+stranici, @uref{http://www.gnu-pascal.de}.
+
+@cindex feedback
+@cindex Va¹ doprinos ovom dokumentu
+
+Ispravke ili sugestije u vezi ovog dokumenta bi trebalo slati na GNU
+Pascal Compiler Documentation mailing listu, @email{gpc-doc@@gnu.de}.
+Ako imate sugestiju, molimo ukljuèite ¾eljenu verziju reèenica kako ih
+zami¹ljate u dokumentu; na¹e vrijeme je ogranièeno. Context 'diff'
+izvorne Texinfo datoteke bi bio vrlo dobrodo¹ao, ako je ikako moguæe.
+Ako pak ne mo¾ete poslati 'context diff', molimo osjeæajte se pozvanim
+da ipak svakako po¹aljete svoju sugestiju.
+
+Slijedeæi ljudi su tirani, koji nameæu svoj stil kodiranja zajednici
+programera: Peter Gerwinski @samp{peter(at)gerwinski.de}, Frank
+Heckenbach @samp{frank(at)pascal.gnu.de}, Markus Gerwinski
+@samp{markus(at)gerwinski.de}, Dominik Freche
+@samp{dominik.freche(at)gmx.net}, Nicola Girardi
+@samp{nicola(at)g-n-u.de}.
+
+@node Pravne zaèkoljice
+@chapter ... Ili kako zadr¾ati software slobodnim ...
+@cindex pravni aspekti
+
+Ovo poglavlje iz 'GNU Coding Standards' raspravlja o tome kako uèiniti
+sigurnim da GNU software ne zapadne u pravne pote¹koæe, i ostala srodna
+pitanja. @xref{Intellectual Property, , , standards}.
+
+@node Savjeti glede dizajna
+@chapter Opæenito o dizajnu programa
+@cindex dizajn programa
+
+Ovo poglavlje raspravlja o nekim pitanjima koja biste trebali uzeti u
+obzir kod dizajna vlastitog programa.
+
+@menu
+* Programski jezik::            Koji jezik koristiti?
+* Pascal i C::                  Povezivanje s bibliotekama C funkcija
+* Kori¹tenje ekstenzija::       Kori¹tenje nestandardnih znaèajki
+@end menu
+
+@node Programski jezik
+@section Koji jezik koristiti?
+@cindex programski jezici
+
+Osobno podr¾avamo ideju da je raznovrsnost programskih jezika dobra
+stvar i da su razlièiti jezici pogodniji za razlièite tipove
+zadataka. Za razliku od 'GNU Coding Standards', neæemo èitatelja
+poku¹ati uvjeravati da koristi C, Pascal niti bilo koji drugi jezik za
+@strong{sve} zadatke.
+
+Ako èitate ovaj tekst, veæ ste vjerojatno odluèili koristiti Pascal
+za neki projekt ili razmatrate njegovo kori¹tenje. Ovaj dokument æe
+sugerirati @emph{kako} oblikovati vlastiti Pascal kod kad ste veæ
+odluèili da koristite GNU Pascal.
+
+@node Pascal i C
+@section Povezivanje s bibliotekama C funkcija
+@cindex Pascal i C
+@cindex povezivanje s C bibliotekama
+
+Mo¾ete povezivati s C bibliotekama ili s C objektnim kodom va¹e
+Pascal programe ili jedinice (@samp{unit}). Molimo nadjite u
+GPC priruèniku upute o tome kako se to izvodi.
+(@pxref{Other Languages, , , gpc})
+
+@cindex wrapperi
+Napose, za pristup C bibliotekama sna¾no preporuèamo kori¹tenje C
+wrappera. Ovo je pitanje prenosivosti. Mogu se pojaviti promjene
+izmeðu razlièitih verzija biblioteka koje bi utjecale na direktne
+@samp{external} deklaracije u Pascal kodu. Trebali biste uskladiti
+wrappere tako da Pascal programi ili jedinice (@samp{unit}) rade
+s bilo kojom verzijom biblioteke koja vam je na raspolaganju.
+
+@c FIXME -- what does this actually mean??? - Ask Frank!, MT 20020115
+U nekim situacijama kad rukujete s velikim paketima ne mo¾ete
+lako zadr¾ati kompatibilnost izmeðu razlièitih verzija samih paketa.
+U ovakovom sluèaju, mo¾ete povezivati (engl. linking) izravno s
+bibliotekom s kojom planirate raditi, te pove¾ite u paket dodatnu
+C datoteku koja ne radi ni¹ta osim provjere verzije. Evo primjera
+(na engleskom jeziku):
+
+@smallexample
+#include <foo.h>
+#if FOO_MAJOR != 1 || FOO_MINOR != 2
+#error The GPC interface for libfoo was only written for libfoo-1.2.
+#error Please get libfoo-1.2 or check for a version of the GPC interface
+#error matching your version of libfoo.
+#endif
+@end smallexample
+
+Primijeti kori¹tenje @samp{!=} umjesto @samp{<} ili @samp{>}, kako bi
+se izvr¹ila vrlo striktna provjera verzije. Molimo dr¾ite na umu da je
+ovo u redu ako postoji samo jedna implementacija biblioteke, npr. ovo
+mo¾ete s bibliotekom GTK, ali ne mo¾ete s libc, libm, curses itd.
+
+@cindex header translator
+@cindex prevodilac header datoteka
+Automatski prevodilac header datoteka je u planu koji bi uèinio C
+wrappere suvi¹nima. Ovo je, meðutim, nimalo trivijalan zadatak i
+nije sigurno da je u potpunosti moguæ, tako da æe potrajati neko
+vrijeme prije nego ¹to bude na raspolaganju.
+
+@cindex prevoðenje C koda
+@cindex kompajliranje C koda
+Mo¾ete uzeti kao pretpostavku da se GNU C prevodilac (engl. compiler)
+koristi da se prevedu wrapperi, kao i opæenito bilo koji isjeèak C
+koda koji povezujete sa svojim Pascal kodom. Razlog za ovakvu
+pretpostavku je da jedino GNU C prevodilac garantirano ima sve
+konvencije kompatibilne s GNU Pascal prevodiocem na svakoj platformi
+na kojoj se oni vrte, s obzirom da dijele isti 'backend'. Takoðer,
+GNU Pascal prevodilac je uvijek izgraðen zajedno s GNU C prevodiocem,
+tako da se mo¾e oèekivati da je @samp{gcc} raspolo¾iv uvijek kad je to
+sluèaj i s @samp{gpc}-om
+
+@node Kori¹tenje ekstenzija
+@section Kori¹tenje nestandardnih znaèajki
+@cindex nestandardne ekstenzije
+
+Pru¾ene su mnoge GNU Pascal olak¹ice koje pro¹iruju standardni Pascal
+jezik. Da li koristiti te ekstenzije u svojim programima je zamorno
+pitanje.
+
+S jedne strane, kori¹tenje ekstenzija mo¾e proizvesti èi¹æi program.
+S druge strane - ljudi neæe moæi prevesti program ako GNU Pascal
+prevodilac nije na raspolaganju. One mogu prouzroèiti da se program
+neæe uspje¹no prevesti s drugim prevodiocima.
+
+Opæenito, najbolje je zadr¾ati kompatibilnost prema drugim prevodiocima
+ili jeziènim standardima, @emph{ako je tu kompatibilnost lako postiæi}.
+Meðutim, na na¹u ¾alost, uz postizanje kompatibilnosti dobivate znatne
+pote¹koæe, pa i unazaðenja. Na primjer, mogli biste morati dodati gomile
+@samp{@{$ifdef@}}-ova da biste providjeli za neke nestandardne prevodioce,
+a oni pak èine kod te¾im sa èitanje, pisanje i odr¾avanje. Jo¹ gore,
+@samp{@{$ifdef@}}-ovi su sami po sebi nestandardna ekstenzija, tako da
+ne dobivate jako mnogo na ovaj naèin.
+
+Na kraju, sugeriramo da se ne brinete previ¹e za kompatibilnost. Sva
+suèelja (engl. interface) GNU Pascal prevodioca (sam prevodilac i
+tzv. Run Time System) su otvorena. To znaèi da ih se mo¾e implementirati
+za druge prevodioce kad je potrebno, ili se èak i sam izvorni kod
+mo¾e koristiti uz uvjet da je licenca po¹tovana (èitajte vi¹e o GNU
+General Public License - GNU opæoj javnoj licenci na adresi
+@uref{http://www.gnu.org/copyleft/gpl.html}), radije nego da se
+osakaæuje kod nekori¹tenjem pro¹irenih znaèajki. Jedan (ogranièen)
+primjer ove strategije je @samp{gpc-bp} jedinica za Borland Pascal,
+distribuirana s GNU Pascal prevodiocem. Mogli biste po¾eljeti pogledati
+njeno suèelje da vidite ¹to toèno sadr¾i. Lako ju je pro¹iriti s
+dodatnim moguænostima za kompatibilnost prema potrebi, iako postoje
+znaèajke koje nije lako emulirati (posebno one koje imaju specijalnu
+sintaksu).
+
+Molimo da ne koristite slijedeæe moguænosti, osobito one koje su
+implementirane samo zbog kompatibilnosti prema unatrag:
+
+@itemize @bullet
+@item
+Ovakvi @samp{(* *)} komentari za stare terminale gdje @samp{@{} i
+@samp{@}} znakovi nisu bili na raspolaganju
+
+@item
+@samp{#} direktive i @samp{//} komentari, kao u C-u/Delphi-ju. Ako
+datoteka takoðer mora biti kori¹tena u C-u, mo¾e koristiti @samp{#}
+direktive, C sintaksu u uvjetnim izrazima (engl. conditionals), te
+@samp{//} komentare. Primjeri (u trenutku pisanja ovog teksta -
+mo¾e se promijeniti u buduænosti) su @file{p/rts/constants.h} u
+izvornom kodu GNU Pascal prevodioca.
+
+@item @c FIXME not clear about most of this items -- consult GPC manual, MT 20020115
+pogre¹no kori¹tenje tipiziranih konstanti kao varijabli, ¹to je
+lo¹a znaèajka Borland Pascala.
+
+@item
+Znakovne konstante tipa @samp{^A}. Koristite @samp{#1} ili @samp{Chr (1)}
+namjesto njih.
+
+@item
+@samp{CString}-ove (osim za C suèelja, naravno)
+
+@item
+komplicirani Borland Pascal kod poput slijedeæeg umjesto kori¹tenja
+@samp{WriteStr}:
+
+@c FIXME -- clarify!!! MT, 20020115
+@smallexample
+Str (Foo, s);
+s := 'Hello ' + s;
+@end smallexample
+
+@item
+veæinu sluèajeva @samp{FillChar} i @samp{Move}, osim za low-level kod
+i osim kad se odnosi na znakove unutar znakovnog niza. Kori¹tenje:
+
+@smallexample
+FillChar (s, SizeOf (s), 0);
+@end smallexample
+
+za pra¾njenje niza znakova - pogre¹no je u GNU Pascalu i neefikasno
+èak i u Borland Pascalu, jer bi se mogla koristiti slijedeæa naredba:
+
+@smallexample
+s := '';
+@end smallexample
+
+Ovo bi resetiralo samo polje duljine znakovnog niza @samp{s}.
+
+@c FIXME -- clarify "schemata" MT, 20020115
+@item
+veæina sluèajeva kori¹tenja @samp{GetMem} i @samp{FreeMem} -- oni su
+obièno 'work-around' za nedostajuæe sheme deklariranja tipa
+(orig. @samp{schemata}) u drugim prevodiocima.
+
+@item
+mnoge sluèajeve parametara bez tipa
+
+@item
+veæinu priruène rutine povezane s imenima datoteka. (One pisane u
+Borland Pascalu su obièno primjenljive jedino na DOS-u, dok rutine
+u @samp{GPC} jedinici pru¾aju prenosivu alternativu za veæinu
+stvari.)
+
+@item
+asemblerski kod, osim u vrlo malim podruèjima za specijalne
+optimizacije, omeðene uz pomoæ specifiènih @samp{@{$ifdef@}}
+(na primjer, za tip procesora). Meðutim, tada prilo¾ite
+ekvivalentnu Pascal verziju u @samp{@{$else@}} dijelu
+-- i testirajte je!
+
+@item
+sve ¹to zahtjeva @samp{System} jedinicu
+
+@item
+sve uvrije¾ene pretpostavke o velièini tipova
+
+@item
+pretpostavke o poretku bajtova (orig. 'endianness') (neki sistemi
+imaju bajt veæe te¾ine i bajt manje te¾ine u drugaèijem poretku
+nego drugi sistemi; molimo pogledajte rjeènik @xref{Rjeènik pojmova},
+za obja¹njenje)
+
+@item
+imena koja poèinju ili zavr¹avaju s podvlakom (engl. underscore, _)
+ili imaju nekoliko uzastopnih znakova za podvlaèenje
+
+@item
+jedinice samo pisane za Borland Pascal kompatibilnost (@pxref{GPC Units,
+, , GPC}). Primijetimo meðutim, @samp{CRT} i @samp{Printer} nisu samo za
+Borland Pascal kompatibilnost, veæ takoðer i za generalnu uporabu.
+
+@end itemize
+
+Tekst GNU Coding Standards ima lijepih primjedbi na ovu temu.
+@xref{Using Extensions, , , standards}.
+
+@node Pona¹anje programa
+@chapter Kako bi se programi trebali pona¹ati
+
+Ovo poglavlje iz teksta GNU Coding Standards opisuje konvencije za
+pisanje robustnog softwarea. Takoðer opisuje opæe standarde za poruke
+o gre¹kama, suèelje naredbene linije (engl. command line interface),
+te kako bi se biblioteke trebale pona¹ati. Ohrabrujemo vas da
+slobodno proèitate taj dio teksta GNU Coding Standards.
+@xref{Program Behavior, , , standards}.
+
+Ovdje su, meðutim, posebne dodatne upute za programiranje u Pascalu.
+
+@cindex signalne funkcije
+Izbor izmeðu signalnih funkcija, o kojem se govori u GNU Coding
+Standards, se obavlja u Run Time System-u tako da ne trebate
+brinuti o tome.
+
+@cindex provjere gre¹aka
+Slijedeæe odstupanje od GNU Coding Standards je podrazumno pona¹anje
+za provjere gre¹aka koje detektiraju ``nemoguæa'' stanja. Mi
+sugeriramo da ne napravite samo abort programa. Ovo bi pretpostavljalo
+da svaki korisnik mo¾e biti programer, ali mi ne vjerujemo da je
+to realistièno. Na¹ je savjet da ispi¹ete razumnu poruku o gre¹ci
+tako da korisnici mogu prijaviti opis buga programerima koji nisu
+sami primijetili bug ili ga ne mogu reproducirati.
+
+Takoðer, tekst GNU standardi kodiranja preporuèuju provjeru
+povratne vrijednosti svakog sistemskog poziva da li je mo¾da
+zavr¹io s pogre¹kom. To se odnosi na C. U Pascalu, provjera gre¹aka
+je èesto automatska, tako da se ne trebate muèiti s tim provjerama.
+Mnoge ulazno/izlazne (I/O) rutine ne vraæaju status (npr. @samp{Reset}),
+ali one koje vraæaju bi obièno trebalo provjeriti.
+
+Naravno mo¾ete onemoguæiti automatske provjere pogre¹aka i obaviti
+provjeru sami. Istini za volju, neke gre¹ke mogu prouzroèiti da program
+automatski prekine (abort) izvoðenje s porukom o gre¹ci. Umjesto toga,
+naroèito u jedinicama (@samp{unit}) i modulima, mogli biste ¾eljeti
+prijaviti pogre¹ku i dati korisniku priliku da intervenira i popravi
+stvari. Da biste to uèinili, morate koristiti @samp{@{$I-@}} direktivu
+prevodioca, i provjeriti vrijednost
+@samp{IOResult} (@pxref{IOResult, , , gpc}) ili globalnih varijabli
+za pogre¹ke kao ¹to je @samp{InOutRes} (@pxref{InOutRes, , , gpc}).
+Primijetite da se pozivi I/O rutina trenutno vraæaju ako je @samp{InOutRes}
+postavljen, tako da ga nije neophodno provjeravati nakon svake
+operacije, pa je moguæe slijedeæe:
+
+@smallexample
+@{$local I-@}
+Rewrite (f, 'bla');
+WriteLn (f, 'foo');
+WriteLn (f, 'bar');
+WriteLn (f, 'baz');
+Close (f);
+@{$endlocal@}
+if InOutRes <> 0 then
+  begin
+    WriteLn (StdErr, GetIOErrorMessage);
+    @dots{}
+  end;
+@end smallexample
+
+Bilo kako bilo, u va¹em kodu biste mogli po¾eljeti provjeriti
+@samp{Rewrite} i druge sistemske pozive sa zadatkom otvaranja, za
+koje je najveæa vjerojatnost da bi mogli zavr¹iti neuspje¹no;
+tako da izbjegnete daljnje nepotrebne pozive.
+
+Postoji skup rutina u GPC jedinici za imenovanje privremenih
+(temporary) datoteka, konfiguracijskih datoteka, i mnogo drugih stvari
+povezanih s imenima datoteka. Prednosti kori¹tenja ovih je da rade
+na razlièitim vrstama sistema (na primjer Unix i DOS), pa se eventualni
+buduæi problemi mogu rije¹iti na jednom mjestu u Run Time System-u
+radije nego u nekoliko razlièitih programa ili jedinica (unit).
+
+©to se tièe biblioteka, sugeriramo da ne stavljate svaku rutinu u
+posebnu datoteku. Nadamo se da æe jednog dana GNU Pascal prevodilac
+znati to napraviti automatski na nivou linkera (povezivaèa). Trenutno,
+vjerujemo da je ugodnost programera znatno va¾nija nego velièina
+proizvedene binarne datoteke. Takoðer ne preporuèamo kori¹tenje
+prefiksa u imenima, buduæi da æe konflikti biti razrije¹eni upotrebom
+kvalificiranih identifikatora (@samp{UnitName.RoutineName}) u buduænosti.
+Dotada, molimo, koristite privremena zaobilazna rje¹enja (engl. work-around)
+kad se pojave konflikti.
+
+@node Programiranje u Pascalu
+@chapter Kako najbolje upotrijebiti Pascal
+
+Ovo poglavlje daje savjete o tome kako najbolje iskoristi jezik Pascal
+kod pisanja softwarea. Naravno, pravila se odnose samo na kod koji se
+objavljuje -- ako na primjer ¾elite zakomentirati stvari sa staromodnim
+komentarima poput @samp{(* ovoga *)}, to biste trebali uèiniti privremeno
+i ukloniti to prije distribuiranja koda. Ali s obzirom da nikad ne znate
+da li æete i kada objaviti svoj kod, dobra je ideja prionuti uz pravila
+od poèetka.
+
+@menu
+* Izabrane natuknice::          Natuknice za programiranje u Pascalu
+* Provjera konzistentnosti::    Kori¹tenje @code{Assert} za prekid
+                                programa ako se dogodi ne¹to ``nemoguæe''
+* Formatiranje::                Formatiranje izvornog koda
+* Komentari::                   Komentiranje va¹eg rada
+* Redoslijed::                  Redoslijed blokova koda
+* Velika i mala slova::         Velika i mala slova u imenima
+* Direktive prevodiocu::        Kori¹tenje naredbi prevodiocu
+* Razmaci::                     Kako koristiti razmake u kodu
+* Lomljenje redaka::            Gdje prelamati retke koda
+* Znakovni nizovi::             Znakovni nizovi (stringovi)
+* Internacionalizacija::        Tehnike za internacionalizaciju
+* MemoryMap::                   Kako mo¾ete sigurno koristiti @samp{MemoryMap}
+@end menu
+
+@node Izabrane natuknice
+@section Natuknice za programiranje u Pascalu
+@cindex izabrane natuknice
+
+Pascal izvorne datoteke trebaju imati @samp{.pas} sufiks. Ime datoteke
+bez sufiksa treba obièno odgovarati imenu programa/jedinice/modula,
+ali sve malim slovima. U jednoj datoteci bi trebao biti samo jedan
+program/jedinica/modul.
+
+Kod se mora prevesti s @samp{-Wall} opcijom, sa i bez @samp{-O3}
+opcije i to bez upozorenja. (@xref{Direktive prevodiocu}, o tome kako
+namjerno zabraniti neka upozorenja ako je stvarno neophodno.)
+
+Ne koristite automatske @samp{Result} varijable u funkcijama. Ako
+¾elite jednu, deklarirajte ju:
+
+@smallexample
+function Foo (@dots{}) = Bar: Integer;
+@end smallexample
+
+Koristite deklaraciju sa @samp{=}, ne bez, osim ako ne ¾elite striktnu
+PXSC kompatibilnost.
+
+Ako funkcija vraæa @samp{Boolean} da indicira uspje¹nu operaciju,
+@samp{True} treba znaèiti uspjeh, a @samp{False} gre¹ku, za razliku
+od nekih C funkcija gdje @samp{0} znaèi uspjeh.
+
+Izbjegavajte @samp{goto} i sliène naredbe, kao ¹to su @samp{Exit},
+@samp{Return}, @samp{Break}, @samp{Continue}. Izbjegavajte
+@samp{goto} pod svaku cijenu (osim @emph{mo¾da} ne-lokalni @samp{goto}
+za povratak iz @emph{duboko} ugnije¾ðenih funkcija u sluèaju pogre¹ke).
+Izbjegavajte ostale ako je moguæe uz razuman ulo¾eni napor. Ako bi to
+zahtijevalo dodatnu @samp{Boolean} varijablu, ovo se broji kao izgovor
+za kori¹tenje ovih naredbi ako to stvarno ¾elite. Primijetite da èesto
+kod postaje znatno @emph{jednostavniji} izbjegavanjem kori¹tenja
+@samp{Break} itd. i kori¹tenjem umjesto toga boljih uvjeta za petlje
+i drugaèijih vrsta petlje.
+
+Nikad ne modificirajte brojaèe @samp{for} petlji, niti se oslanjajte
+na njihovu vrijednost nakon izlaska iz petlje (Ovo nije samo pitanje
+stila, to je definicija Pascala. Ti postupci proizvode nedefinirane
+rezultate.)
+
+Nikad se ne oslanjajte na nedefinirano pona¹anje. Na primjer, na to da su
+globalne varijable inicijalizirane na @samp{0} na poèetku programa,
+ili mo¾da na novo alociranu memoriju koja se èini kao inicijalizirana, ili
+na memoriju koja nakon dealociranja naizgled zadr¾ava neke vrijednosti,
+ili na to da brojaèi @samp{for} for petlji izgledaju kao da imaju neku
+vrijednost nakon petlje -- ni¹ta od ovoga nije garantirano, i pona¹anje
+se mo¾e promijeniti kad promijenite prevodilac ili njegovu verziju,
+ili ako promijenite platformu.
+
+Nedefinirano znaèi NEDEFINIRANO, i èinjenica da takve stvari izgledaju
+kao da rade na svim sistemima koje ste provjerili, kao i sa 42 druga
+prevodioca, ne znaèi toèno ni¹ta.
+
+U komparacijama stavite ``jaèe promjenljiv'' izraz na lijevu stranu:
+
+@smallexample
+for i := 1 to 10 do
+  if a[i] = Foo then
+    for j := 1 to 10 do
+      if b[j] = a[i] then @dots{}
+@end smallexample
+
+Ako promatramo drugi redak iz gornjeg primjera, izraz na lijevoj
+strani (@code{a[i]}) se mijenja svakom iteracijom petlje,
+dok s desnom stranom (@code{Foo}) to nije sluèaj. (U ovom sluèaju
+pretpostavljamo da je @code{Foo} konstanta ili funkcija koja ne
+ovisi o @code{i} ili nekim drugim globalnim podacima. Inaèe bi
+moglo imati smisla da se @code{Foo} stavi na lijevu stranu, i
+mo¾da stavi jo¹ jedan komentar da se to istakne.)
+
+Zadnji redak gornjeg primjera mo¾e izgledati èudno, jer @code{b[j]}
+i @code{a[i]} mogu izgledati kao da imaju isti stupanj ``promjenljivosti''.
+Meðutim, u stvari se @code{j} mijenja èe¹æe nego @code{i}, tj. svaki
+put kad se @code{i} promijeni, @code{j} se veæ promijenio 10 puta.
+
+Izbjegavajte dupliciranje koda. Lako je podleæi isku¹enju kopiranja
+koda, ali postaje noæna mora odr¾avanja da se kasnije promjene izvode
+na nekoliko sliènih mjesta. Koristite rutine ili potprograme,
+jedinice ili module, bilo ¹to. Planirajte svaki dio koda tako da
+taj dio mo¾e biti pro¹iren. Nemojte posezati za previ¹e dosjetljivim
+trikovima na mjestima koja æe vjerojatno kasnije biti mijenjana.
+
+Ne okru¾ujte pojedinaène naredbe s @samp{begin} i @samp{end}, osim
+ako nemate problem s viseæim @samp{else} ili pojedinaèna naredba
+èini èitavo tijelo funkcije! Vidi slijedeæe primjere:
+
+@smallexample
+if foo then
+  begin
+    if bar then
+      baz
+  end  @{ Izbjegni problem s viseæim else. @}
+else
+  qux  @{ Jedno-linijska naredba. @}
+@end smallexample
+
+Ne pi¹ite prazne inicijalizatore jedinica. Ovo je primjer ¹to @emph{ne}
+raditi:
+
+@smallexample
+@dots{}
+
+procedure Foo;
+begin
+  @dots{}
+end;
+
+begin
+end.
+@end smallexample
+
+Umjesto toga, jednostavno:
+
+@smallexample
+@dots{}
+
+procedure Foo;
+begin
+  @dots{}
+end;
+
+end.
+@end smallexample
+
+Ne pi¹ite neiskori¹tene deklaracije, osim u suèeljima (@samp{interface})
+koja su namijenjena za kori¹tenje od strane programa koji ih importira.
+
+@cindex Booleove varijable
+Sjetite se da su @samp{Boolean}i @samp{Boolean}i. Molimo koristite
+@samp{if Foo then} umjesto @samp{if Foo = True then}, te @samp{if not Foo
+then} umjesto @samp{if Foo = False then}. Takoðer, koristite @samp{until
+False} na mjesto @samp{until 1 = 0} -- ovo izgleda pametnije. Druga
+uobièajena situacija je @samp{Foo := Expression} umjesto @samp{if
+Expression then Foo := True else Foo := False}.
+
+Izbjegavajte dupliciranje globalnih identifikatora, tj. nemojte
+preoptereæivati (engl. overload) ugraðene identifikatore, (èak iako
+GNU Pascal prevodilac to dozvoljava) te ne koristite isti globalni
+identifikator u nekoliko jedinica (@samp{unit}) ili modula. (Ovo
+svojstvo æe biti prisutno u GNU Pascal prevodiocu u buduænosti pod
+imenom ``kvalificirani identifikatori'' (engl. ``qualified identifiers''
+ali ga svejedno nemojte koristiti.
+
+@cindex globalne varijable
+Obeshrabrujemo kori¹tenje globalnih varijabli za ne-globalne svrhe
+(npr. kori¹tenje varijable @code{Counter} kori¹tene kao brojaè
+u raznim lokalnim potprogramima). Umjesto toga, deklarirajte brojaèke
+varijable za svaki potprogram koji ih treba. Ovo generalno takoðer
+omoguæava bolju optimizaciju generiranog koda.
+
+@cindex beskonaène petlje
+Kada trebate beskonaènu petlju (iz koje se mo¾e iskoèiti sa
+@samp{Break}), sugeriramo da koristite @code{repeat} petlju
+radije nego @code{while} petlju jer ona pomièe kod manje udesno
+(barem tamo gdje je vi¹e od jedne naredbe u petlji). Preciznije:
+
+@smallexample
+repeat
+  @dots{}
+until False
+@end smallexample
+
+Umjesto:
+
+@smallexample
+while True do
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@node Provjera konzistentnosti
+@section Eksplicitna provjera interne konzistentnosti
+@cindex consistency checking
+@cindex assert
+@cindex provjera konzistentnosti
+
+Kao ¹to je navedeno u dokumentaciji GNU C biblioteke (@pxref{Consistency
+Checking, , , libc}) - dok pi¹ete program, èesto je dobra ideja ubaciti
+u njega provjere da li su prekr¹ene neke osnovne pretpostavke.
+
+Razmotrite slijedeæu proceduru u Pascalu:
+
+@smallexample
+procedure DoSomethingOnAPString (StrPtr: PString);
+@end smallexample
+
+Mo¾ete implicitno pretpostaviti da gornja procedura nikad neæe biti
+pozvana sa @code{nil} kao argumentom, ali je sigurnije provjeravati
+da li je do¹lo do ``nemoguæeg stanja'', tj. provjeriti da li je
+@samp{StrPtr} razlièito od @code{nil}, kao ovdje:
+
+@smallexample
+procedure DoSomethingOnAPString (StrPtr: PString);
+begin
+  Assert (StrPtr <> nil);
+  @dots{}
+end;
+@end smallexample
+
+Ako ova provjera ne uspije, program proizvodi @samp{runtime} pogre¹ku
+-- pogre¹ku za vrijeme izvoðenja. Mogli biste zakljuèiti da je kod koji
+zove ovu proceduru pogre¹an (ili da trebate pro¹iriti nevedenu rutinu),
+dakle bi ovo mogla biti pomoæ u lociranju problema. Drugim rijeèima,
+provjera baziènih pretpostavki na poèetku tijela potprograma je
+pravi naèin da se uèini sigurnim da funkcija nije kori¹tena na krivi
+naèin.
+
+GNU C biblioteka daje @code{assert} makro naredbu za ove vrste provjera.
+GNU Pascal proviða Pascal ekvivalent koji se zove @code{Assert}, ali se
+pona¹a malo drugaèije. @code{Assert} neæe prekinuti va¹ program, nego
+æe radije prouzroèiti pogre¹ku u vremenu izvoðenja, @samp{runtime error},
+(@pxref{Assert, , , gpc}) koju mo¾ete "uhvatiti" npr. @samp{Trap}
+jedinicom (@pxref{Trap, , , gpc}).
+
+Jednom kad mislite da je va¹ program debugiran, mo¾ete zabraniti provjere
+gre¹aka izvoðene @code{Assert} rutinom jednostavnim ponovnim prevoðenjem
+s @samp{--no-assertions} opcijom. Nikakve promjene source koda nisu potrebne
+da bi se zabranile ove provjere. Izrazi sa side-efektima u argumentima za
+@samp{Assert} se i dalje izraèunavaju (za razliku od C-a), tako da je u
+redu napisati:
+
+@smallexample
+Assert (MyFunction (Foo, Bar) > 0)
+@end smallexample
+
+Ovim æe se uvijek pozvati @code{MyFunction}, ali samo da se uèini sigurnim
+da je njen rezultat pozitivan ako @samp{--no-assertions} nije dan.
+
+Svejedno, preporuèa se da ne zabranjujete provjere konzistentnosti, osim
+ako nikako ne mo¾ete podnijeti da se va¹ program izvodi ne¹to sporije.
+
+@node Formatiranje
+@section Formatiranje izvornog koda
+@cindex formatiranje izvornog koda
+
+@cindex spaces
+@cindex blanks
+Najprije, izbjegavajte nepotrebne razmake na krajevima redaka. Takoðer
+zapamtite da ne snimate datoteke s TAB karakterima, s obzirom na
+èinjenicu da æe ih razni editori ili razlièite konfiguracije
+interpretirati kao razlièite kolièine razmaka, time lomeæi
+uvuèenost (engl. indentation) programa. (Ako koristite GNU Emacs,
+funkcija @samp{untabify} dobro doðe pri ruci; ako koristite VIM,
+opcija @samp{expandtab} (@samp{:set et}); u PENG-u se mo¾e koristiti
+opcija @samp{Expand tabs}).
+
+@cindex kontrolni znakovi
+Molimo izbjegavajte kori¹tenje bilo kakvih kontrolnih znakova, osim
+newline (znak za novi redak), naravno. Ovo znaèi nema form feed
+(@samp{#12}), znakova za novu stranicu. Oni su preporuèeni u GNU
+Coding Standards da razdvajaju logièno odvojene dijelove, ali ih
+nemojte koristiti barem u Pascal kodu. Takoðer nemojte koristiti
+ni znak @samp{SUB}, (@samp{#26}), koji se pogre¹no koristi kao
+end-of-file (kraj datoteke) indikator u DOS-u. Stariji DOS editori
+stavljaju taj znak na kraj svake datoteke bez dobrog razloga, jer
+èak i FAT file system zna pronaæi kraj datoteke sam po sebi.
+
+@cindex duljina retka
+Preporuèujemo maksimalnu duljinu retka od 68 znakova, tako da se mo¾e
+otisnuti u @TeX{}-u sa default fontom na A4 papiru, ili 78 znakova,
+za ekrane sa 80 stupaca. Ovo nije fiksno pravilo, jer lomljenje redaka
+èesto smanjuje èitljivost koda.
+
+@cindex prazni retci
+Koristite prazne retke izmeðu blokova. Blokovi su dugi komentari,
+@samp{type}, @samp{const}, @samp{var}, @samp{label} odsjeèci, tijela
+potprograma, inicijalizatori i finalizatori jedinica (@samp{unit}) i
+modula, @samp{program}, @samp{unit}, @samp{interface},
+@samp{implementation},  @samp{module}, @samp{export}, @samp{uses},
+@samp{import} retci, globalne direktive prevodioca. Ako se dugi
+komentar odnosi na prateæu deklaraciju, stavite samo prazni redak
+prije komentara, ne izmeðu komentara i same deklaracije. Posebna
+iznimka su blokovi unutar istog potprograma -- ne koristite prazne
+retke na tim mjestima. Na primjer:
+
+@smallexample
+procedure Short;
+var
+  Foo: Integer;
+  Bar: Char;
+begin
+  @dots{}
+end;
+@end smallexample
+
+Ali se sjetite staviti prazne retke da razdvojite potprograme, kao
+u slijedeæem primjeru:
+
+@smallexample
+procedure Long;
+const
+  @dots{}
+var
+  varijable kori¹tene od Sub @dots{}
+
+  procedure Sub;
+  var
+    @dots{}
+  begin
+    @dots{}
+  end;
+
+var
+  varijable koje nisu kori¹tene od Sub @dots{}
+begin
+  @dots{}
+end;
+@end smallexample
+
+Primijetite da ne biste trebali koristiti prazan redak nakon
+deklaracije glavnog potprograma, osim ako deklaracija ugnije¾ðenog
+potprograma slijedi odmah. Inaèe bi deklaracija glavnog potprograma
+izgledala kao forward deklaracija.
+
+Primijetite da smo u odsjeèku koda odvojili lokalne varijable
+(ili konstante) prije i poslije potprograma -- ovo nije obavezno.
+
+Naravno, ono ¹to smo rekli za potprograme je takoðer ispravno za
+pod-potprograme na bilo kojoj dubini.
+
+Prazni redak bi trebao biti meðu varijablama istog tipa, gdje je
+to prikladno, da ih se logièki razdvoji. U sluèaju da se komentar
+pojavljuje prije deklaracije, prazna linija mora biti prije komentara.
+Inaèe prazna linija dolazi prije deklaracije.
+
+Prazni retci se mogu koristiti u dugim komentarima da razdvoje
+paragrafe.
+
+Bez praznih redaka na poèetku ili kraju datoteke, samo znak za novi
+red na kraju. Bez vi¹estrukih praznih redaka.
+
+@node Komentari
+@section Komentiranje va¹eg rada
+@cindex komentiranje
+
+Komentare treba staviti u vitièaste zagrade kao ovdje:
+
+@smallexample
+@{ Ovo je lijepi komentar. :-) @}
+@end smallexample
+
+Ne koristite komentare starog stila izmeðu okruglih zagrada i zvjezdica,
+kao npr. ove:
+
+@smallexample
+(* Ovo je ru¾an komentar :-(, kakav ne biste smjeli koristiti. *)
+@end smallexample
+
+Takoðer, ne koristite komentare zapoèete s dvostrukom kosom crtom:
+
+@smallexample
+// Jo¹ jedan primjer komentara koji ne koristiti.
+@end smallexample
+
+Iako ISO Pascal eksplicitno dozvoljava mije¹ane komentare, GNU Pascal
+prevodilac ih uopæe ni ne prihvaæa, ako ih ne ukljuèite opcijom ili
+odgovarajuæom direktivom prevodiocu @samp{@{$mixed-comments@}} -- ali
+to ne ¾elite uèiniti. Ovdje je nekoliko primjera mije¹anih komentara,
+koje ne biste smjeli slijediti:
+
+@smallexample
+(* This ... @}
+@{ ... and that. *)
+@end smallexample
+
+@cindex ugnije¾ðeni komentari
+Takoðer, nastojte izbjegavati ugnije¾ðene (engl. nested) komentare, kao
+@samp{@{ @{ Ovaj ovdje @} @}}. Ovi su u redu ako ¾elite staviti
+ne¹to @TeX{} naredbi u komentar ili ne¹to vi¹e egzotièno. Koji god
+razlog imate za kori¹tenje ugnije¾ðenih komentara, potrebno je da ih
+omoguæite direktivom prevodiocu, @samp{@{$nested-comments@}}. Ne
+koristite @samp{--nested-comments} opciju naredbene linije. Stavite
+sve takve opcije u izvorni kod, tako da netko poku¹avajuæi prevesti
+ga ne mora ispitivati koje su opcije naredbene linije potrebne, te
+zato jer bi opcije komandne linije pogodile @emph{sve} izvorne
+datoteke, npr. kad se prevodi projekt sa vi¹e jedinica/modula.
+
+@cindex jezik kori¹ten u komentarima
+Molimo pi¹ite va¹e komentare na engleskom, jer je engleski jedini jezik
+kojeg gotovo svi programeri u svim zemljama mogu èitati. Ako ne pi¹ete
+dobro engleski, molimo pi¹ite komentare na engleskom najbolje ¹to mo¾ete,
+pa onda tra¾ite druge ljude da vam pomognu preformulirati ih. Ako ne
+mo¾ete pisati komentare na engleskom, molimo pronaðite nekoga da radi
+s vama i prevede va¹e komentare na engleski.
+
+@cindex razmaci u komentarima
+trebali biste usvojiti ``French Spacing'', tj. samo jedan razmak na
+kraju reèenice. Tako ne mo¾ete koristiti GNU Emacs @samp{M-a} i @samp{M-e}
+kombinacije tipki za kretanje izmeðu reèenica. Nadamo se da mo¾ete
+¾ivjeti bez toga. Takoðer, molimo stavite samo jedan razmak nakon vitièaste
+zagrade koja otvara komentar i prije zatvarajuæe zagrade.
+
+@cindex izmje¹tanje komentara
+Ako se komentar odnosi samo na jednu liniju koda, napi¹ite ga ako je
+moguæe nakon linije koda, u istom retku, odvojenog od koda s dva razmaka.
+Ovo je takoðer dozvoljeno za @samp{interface} odsjeèak jedinice
+(@samp{unit}) i za globalne varijable. Èesto je vjerojatno da æete
+pisati ovu vrstu komentara uz @samp{record} i @samp{object} polja.
+U ostalim sluèajevima, komentari idu u jedan ili vi¹e vlastitih redaka,
+ako npr.:
+
+@smallexample
+@{ foo bar baz @}
+@end smallexample
+
+Ili du¾e:
+
+@smallexample
+@{ foo bar
+   baz @}
+@end smallexample
+
+Ili s paragrafima:
+
+@smallexample
+@{ foo bar
+   baz
+
+   qux @}
+@end smallexample
+
+Komentari trebaju biti smje¹teni prije koda koji opisuju, i trebaju
+imati isti nivo uvlaèenja retka. Slijedeæi primjer bi to trebao pojasniti:
+
+@smallexample
+@{ Moji tipovi. @}
+type
+  @dots{}
+
+type
+  @{ Moji prvi tipovi. @}
+  Foo = Integer;
+  @dots{}
+
+begin
+  @{ Moja prva naredba. @}
+  Bla;
+  @{ Poèetak petlje. @}
+  repeat
+    @{ Tijelo petlje. @}
+    @dots{}
+  @{ Zavr¹i kad se Nesto desi @}
+  until Nesto
+end;
+@end smallexample
+
+Primijeti poziciju komentara uz @samp{until}.
+
+Komentari koji opisuju globalnu deklaraciju bi trebali biti u jednoj
+ili vi¹e vlastitih linija, neposredno prije deklaracije. Na primjer:
+
+@smallexample
+@{ Ovo je Foo. Radi ovo i ono. @}
+procedure Foo;
+@end smallexample
+
+@cindex smije¹ni komentari
+@cindex trivijalni komentari
+Ne pi¹ite ``trivijalne'' komentare, poput onih u gornjim primjerima.
+Trebali biste izbjegavati komentare pi¹uæi jasan kod. Linus Torvalds
+istièe ovo sna¾no u 'Kernel Coding Style':
+
+@quotation
+Comments are good, but there is also a danger of over-commenting.
+@strong{Never} try to explain @strong{how} your code works in a comment:
+it's much better to write the code so that the @emph{working} is
+obvious, and it's a waste of time to explain badly written code.
+Generally, you want your comments to tell @strong{what} your code does,
+not @strong{how}.
+@end quotation
+
+Prijevod:
+
+@quotation
+Komentari su dobri, ali postoji takoðer opasnost od prekomjernog
+komentiranja. @strong{Nikad} ne poku¹avajte objasniti @strong{kako}
+va¹ kod radi u komentaru: mnogo je bolje napisati kod tako da je njegovo
+@samp{funkcioniranje} oèito, i gubitak je vremena komentiranje lo¹e
+napisanog koda. Opæenito, mo¾ete ¾eljeti za va¹e komentare da ka¾u
+@strong{¹to} va¹ kod radi, ne @strong{kako}.
+@end quotation
+
+(Primijetite da mi inaèe poprilièno odstupamo od Linusovog stila
+kodiranja.)
+
+@cindex komentari o kodu koji nije oèigledan
+@cindex zakuèasti (``tricky'') komentari
+``Tricky'' kod je vrijedan komentiranja. ``Tricky'' kod definiramo
+kao kod koji radi ne tako oèite stvari, podrazumijeva pretpostavke koje
+nisu oèigledne, postoji ne¹to o èemu se mora voditi raèuna prilikom
+njegovog mijenjanja, nije ono ¹to izgleda na prvi pogled, postoje
+nuspojave (@emph{side-effect}) ili zahtijeva druge dijelove koda
+da budu promijenjeni simultano s njim. Tricky kod bi se trebao
+koristiti vrlo ¹tedljivo.
+
+@cindex komentari eksternog izvornog koda
+U sluèaju da se komentar odnosi na neko drugo mjesto u kodu,
+bilo u istoj ili u drugoj datoteci, molimo referirajte na to
+mjesto ne s brojem retka (ovaj æe se previ¹e èesto mijenjati),
+nego pomoæu imena potprograma ili pomoæu konteksta. Takoðer,
+razmislite da je korisno staviti komentar na to drugo mjesto
+koji pokazuje natrag. (Ne uvijek, ali ponekad se to pokazalo
+korisnim za nas.)
+
+@cindex zakomentiranje
+Da se zakomentira dio koda, koji se ne bi trebao prevesti, trebate ga
+omeðiti sa @samp{@{$if False@} @dots{} @{$endif@}} radije nego da
+koristite komentar.
+
+@cindex komentari za razdvajanje logiènih dijelova
+Da se razdvoje logièni dijelovi unutar velikih modula ili jedinica,
+mo¾ete koristiti specijalni komentar -- mi predla¾emo fiksan uzorak
+jer ga je lako pronaæi:
+
+@smallexample
+@{@@section Ime odsjeèka@}
+@{@@subsection Ime pododsjeèka@}
+@end smallexample
+
+Primijeti da nema razmaka iza otvorene vitièaste zagrade, niti
+ispred zatvorene u ovom sluèaju.
+
+@cindex deskripcijski komentari
+@cindex opisni komentari
+Modul ili jedinica (@samp{unit}) treba imati komentar za svaku od
+svojih 'interface' deklaracija, tako da je 'interface' dio datoteke
+sa izvornim kodom pouzdan izvor dokumentacije. Ovo je opcionalno
+za bilo koju deklaraciju koja se pojavljuje samo u 'implementation'
+dijelu ili u @samp{program}ima. Naravno, nekoliko srodnih deklaracija
+(npr. grupe konstanti) mogu dijeliti komentar.
+
+@cindex komentari s formatiranjem
+Utility nazvan @samp{pas2texi} æe biti napisan da omoguæi izgradnju
+Texinfo datoteka iz Pascal komentara. Ovo æe omoguæiti pojedine
+vrste formatiranja i nagla¹avanja unutar komentara. Oni æe biti
+opisani u dokumentaciji @samp{pas2texi} programa i/ili u buduæim
+verzijama ovog dokumenta.
+
+@cindex fixme komentari
+Mo¾ete koristiti ``fixme'' komentare, da biste ukazali na stvari koje
+treba ispraviti u kodu, ili u biblioteci (ili modulu, ili jedinici,
+ili kori¹tenom prevodiocu) koje direktno pogaðaju kod, zahtijevajuæi
+zaobilazni pristup (engl. work-around). Ovi komentari trebaju imati
+na poèetku barem dva @samp{@@} -- dodajte toliko @samp{@@} koliko
+je urgentno pitanje koje opisuju.
+
+Ovi komentari mogu sadr¾avati manje ili vi¹e opskurne detalje o
+problemu, naroèito ako je korijen problema negdje drugdje. Na
+primjer, komentar @samp{@{ @@@@fjf226 @}} deklarira prateæi kod
+kao zaobilaznicu za problem koji je demonstriran u GNU Pascal
+prevodioèevom test programu @samp{fjf226.pas}. (To je datoteka koju
+mo¾ete pronaæi u source distribuciji GNU Pascal prevodioca.)
+
+``Fixme'' komentare ne bi se smjelo mije¹ati s obiènim komentarima.
+Ako trebate obje vrste, koristite ih odvojeno, èak i ako direktno
+slijede jedan drugoga. Oni se mogu koristiti bilo gdje, èak i unutar
+naredbi, jer su privremeni po naravi. Veæina normalno pada u podruèje
+tijela, osim ako utjeèu na suèelja (@samp{interface}). Specijalno
+suèelja za koja je vjerojatno da æe biti promijenjena trebaju imati
+@samp{@@@@} komentar neposredno prije njihovog opisnog (deskripcijskog)
+komentara.
+
+@node Redoslijed
+@section Redoslijed blokova koda
+@cindex redoslijed
+
+Molimo zapoènite svaku datoteku sa komentarom koji sadr¾i, u slijedeæem
+redoslijedu:
+
+@itemize @bullet
+@item
+kratki opis koji govori ¹to kod u source datoteci radi
+@item
+du¾i opis koji ide u detalje o kodu i specificira izvore informacija
+i koda
+@item
+copyright obavijest o pravima koja pridr¾avaju autori koda
+@item
+licenca -- naravno, mo¾ete po¾eljeti koristiti GNU General Public License
+ili Lesser General Public License za va¹e programe i jedinice, zar ne?
+@end itemize
+
+@cindex declaracijski blokovi
+
+Opæenito, mogli biste pratiti slijedeæi redoslijed deklaracijskih blokova:
+
+@itemize @bullet
+@item
+@samp{const} deklaracije
+@item
+@samp{type} deklaracije
+@item
+@samp{var} deklaracije
+@item
+@samp{label} deklaracije
+@item
+potprogrami
+@end itemize
+
+Mo¾ete odstupiti od ovog poretka kad je neophodno ili to èini kod vi¹e
+èitljivim. Ovo je jedan primjer gdje poredak ne mo¾e biti po¹tovan:
+
+@smallexample
+type
+  TNesto = record
+    Ovo, ono: Integer
+  end;
+
+const
+  NekaKonstanta = SizeOf (TNesto);
+@end smallexample
+
+Gornja pravila se primjenjuju na deklaracijske blokove i u potprogramima.
+
+Kad postoji nekoliko vi¹e ili manje neovisnih dijelova, posebno u velikim
+jedinicama ili modulima, mo¾ete primijeniti ovaj redoslijed unutar
+svakog dijela. Ne stavljajte, na primjer, konstante svih dijelova
+zajedno. Morate odr¾ati kod èitljivim.
+
+@cindex deklaracije varijabli
+Varijable koje se koriste samo u glavnim programima moraju biti
+deklarirane globalnim u Pascalu, iako GNU Pascal nudi ekstenziju
+koja dozvoljava deklariranje varijabli na proizvoljnim mjestima
+u kodu (@pxref{var, , , gpc}). U ovom sluèaju, kao kontrast
+prethodnom opæem pravilu, èesto je bolje staviti njihovu deklaraciju
+upravo prije @samp{begin} glavnog programa, nakon svih potprograma itd.,
+naroèito kad je vi¹e nego nekoliko takvih varijabli i velièina
+izvorne datoteke nije malena. Tako, blok deklaracije varijabli je
+lak¹e uoèljiv i lak¹e se mijenja od strane programera dok se
+ureðuje glavni program, i tako èinite sigurnim da ih potprogrami
+sluèajno ne bi upotrijebili.
+
+@cindex deklaracije unutar type deklaracija
+Kada definirate tip zajedno s njegovim pokazivaèkim tipom, najprije
+deklarirajte pokazivaè. Lak¹e ih je prepoznati osobito ako je tip
+dugaèki @code{record} ili @code{object}. Takoðer, time postaje
+moguæe kori¹tenje rekurzivnih struktura (npr., kori¹tenje pokazivaèa
+na tip unutar tog istog tipa). Trebali biste staviti predmetak @samp{T}
+imenu tipa i @samp{P} asociranom imenu tipa pokazivaèa. Pogledajmo
+primjer:
+
+@smallexample
+type
+  PMojInt = ^TMojInt;
+  TMojInt = Integer;
+
+  PListaNizova = ^TListaNizova;
+  TListaNizova = record
+    Next: PListaNizova;
+    s: TNiz
+  end;
+@end smallexample
+
+Primijetite da je @samp{Next} polje specificirano prvo. Sugeriramo da
+ga uvijek stavljate kao prvo polje kod rekurzivnih tipova, buduæi da
+to dozvoljava nekim generièkim potprogramima za rad s listama da budu
+ne¹to malo efikasniji dok 'putuju' listom, tj. nema offseta.
+
+Sugeriramo stavljanje svih pokazivaèkih tipova unutar svake @samp{type}
+deklaracije na prvo mjesto, iako to ne smatramo obaveznim. Ovo je
+primjer:
+
+@smallexample
+type
+  @{ Pokazivaèki tipovi @}
+  PFoo = ^TFoo;
+  PBar = ^TBar;
+  PBaz = ^TBaz;
+
+  @{ Neki vlastiti cjelobrojni tipovi @}
+  TFoo = Integer attribute (Size = 16);
+  TBar = Cardinal attribute (Size = 16);
+  TBaz = Cardinal attribute (Size = 32);
+@end smallexample
+
+@cindex deklaracije unutar object tipova
+Unutar objektnih tipova mo¾ete imati tri deklaracijska podruèja. Postoje
+tri rezervirane rijeèi za zapoèinjanje takvih podruèja: @samp{public},
+@samp{protected}, @samp{private}. Unutar svakog od tih podruèja
+slijedite slijedeæi redoslijed:
+
+@itemize @bullet
+@item
+polja
+@item
+konstruktori
+@item
+destruktori (trebao bi biti samo jedan)
+@item
+metode
+@end itemize
+
+@cindex redoslijed u implementation dijelu
+U @samp{implemetation} dijelu objekta, stavite tijela potprograma
+u istom redoslijedu u kojem se pojavljuju u deklaraciji u @samp{interface}
+dijelu. Ovo se takoðer odnosi na jedinice i module, u kojima
+implementacija treba odra¾avati @samp{interface} deklaracije.
+
+Nemojte koristiti zavr¹ni @samp{;} na kraju bloka, tj. ispred
+@samp{end}, @samp{until}, itd. osim @samp{case} -- zadnja grana
+prije @samp{else} grane bi @emph{trebala} imati @samp{;}, da se izbjegnu
+problemi poput:
+
+@smallexample
+case @dots{}
+  Foo:
+    if Bar then  @{ naknadno umetnuti @}
+      begin
+        @dots{}
+      end  @{ ako ovdje nema @samp{;} @dots{} @}
+  else  @{ @dots{} ovo æe biti pogre¹no uzeto kao @samp{then}-ov @samp{else} @}
+    @dots{}
+@end smallexample
+
+(Isto ako je @samp{if} bio tamo du¾e i @samp{else} grana od @samp{case}
+je kasnije umetnuta.)
+
+U objektu, mo¾e izgledati èudno da se izostavi @samp{;} nakon zadnjeg
+èlana koji je najèe¹æe metoda. Stoga ga dozvoljavamo, a radi
+konzistentnosti takoðer i u @samp{record}-ima.
+
+@node Velika i mala slova
+@section Velika i mala slova u imenima
+@cindex velika i mala slova
+
+Rezervirane rijeèi bi trebale biti kompletno u malim slovima,
+ukljuèivo direktive, tj. rijeèi koje su rezervirane samo u nekim
+kontekstima, kao @samp{protected}. Ako koristite direktive kao
+identifikatore (za ¹to je vjerojatno da æe vam nanijeti bol)
+izvan njihovog konteksta, pi¹ite ih kao identifikatore.
+
+Kao specijalnu iznimku, mo¾ete koristiti @samp{File} pisan velikim
+poèetim slovom kad je kori¹ten kao tip sam po sebi tj. netipizirana
+datoteka, za razliku od @samp{file of Char}. Isto se ne mo¾e reæi za
+@samp{procedure} kao tip (u stilu Borland Pascala), buduæi da @samp{File}
+mo¾e biti valjan tip, dok je @samp{procedure} konstruktor tipa, tj.:
+
+@smallexample
+procedure Foo (var a: File);  @{ Ovo radi. @}
+procedure Foo (var a: procedure);  @{ Ovo ba¹ i ne. @}
+@end smallexample
+
+@cindex velika i mala slova u identifikatorima
+Slijedeæi problem su velika i mala slova u identifikatorima. Nema
+razlike izmeðu ugraðenih (built-in) i korisnièki definiranih
+(user-defined) identifikatora. Samo prvo slovo bi trebalo biti
+veliko, ili ako se sastoji od vi¹e spojenih rijeèi ili kratica,
+poèetno slovo svake od rijeèi bi trebalo biti veliko -- ne koristite
+znak za podvlaèenje (underscore). Kratice koje su postale dio
+govornog jezika mogu biti pisane kao takve. Na primjer, @samp{Dos}
+ili @samp{DOS}; ali uvijek @samp{GPC}, ne @samp{Gpc}. Ovdje su
+neki primjeri identifikatora: @samp{Copy}, @samp{SubStr},
+@samp{BlockRead}, @samp{IOResult}, @samp{WriteLn}, @samp{Sqr},
+@samp{SqRt}, @samp{EOF}, @samp{EOLn}.
+
+@cindex velika i mala slova u imenima konstanti
+Ova se pravila primjenjuju i na identifikatore konstanti, takoðer
+-- za razliku od C makroa.
+
+Takoðer primijetite da se vrlo mali identifikatori mogu pisati u cijelosti
+malim slovima, kao @samp{i} ili @samp{s1} ili @samp{xx}. Takve kratke
+identifikatore bi trebalo koristiti samo lokalno. Mogu biti kori¹teni
+kao parametri globalnih potprograma, jer je podruèje valjanosti (engl. scope)
+takvih identifikatora takoðer lokalno, i njihova imena zapravo nisu od
+nikakva znaèaja pozivanom potprogramu. Kori¹tenje ovakvih identifikatora
+u globalnom kontekstu bi svakako trebalo izbjeæi, posebno u jedinicama
+(unit), modulima ili bibliotekama (jer autor ne zna u kojem æe se kontekstu
+koristiti).
+
+Molimo budite konzistentni sa va¹im izborom velikih i malih slova.
+Znate da vas Pascal neæe ozlijediti ako mijenjate taj izbor kroz
+kod, ali molimo vas dr¾ite se istog izbora.
+
+@cindex enum tipovi
+@cindex konstante
+Za identifikatore za vrijednosti pobrojanih (@samp{enum}) tipova
+i za blokove konstanti, tj. mjesta gdje uvodite mnogo identifikatora
+mo¾e biti korisno koristiti dvoslovni prefiks malim slovima i @samp{_},
+kao kontrast prethodnim pravilima:
+
+@smallexample
+type
+  TFooBar = (fb_Foo, fb_Bar, fb_Baz, fb_Qux);
+@end smallexample
+
+@smallexample
+@{ Moji Foo-ovi @}
+const
+  mf_Foo = 1;
+  mf_Bar = 3;
+  mf_Baz = 42;
+@end smallexample
+
+@cindex OOP
+U objektno-orijentiranom kodu (posebno u konstruktorima), èesto
+postoji potreba da parametar korespondira polju objekta (npr.,
+da se proslijedi vrijednost kojom se inicijalizira polje). Buduæi
+da se oba ne mogu zvati istim imenom, polje bi trebalo imati
+``prirodno'' ime buduæi da se obièno koristi u vi¹e rutina, a
+ime parametra bi trebalo biti promijenjeno (engl. ``mangled'')
+FIXME: Jo¹ nismo prona¹li zaista zadovoljavajuæe pravilo za
+ovu modifikaciju (neki koriste @samp{a} kao prefiks), i ako
+imate bilo kakvu dobru ideju, javite nam.
+
+@cindex velika i mala slova u imenima makroa
+©to se makroa tièe, izrièito preporuèujemo da ih uopæe ne koristite.
+Molimo, ne koristite makroe u svojih programima. Poku¹ajte izbjeæi
+makroe u svojim programima, jer su oni zli. Vjerujemo da ne smijete
+koristiti makroe u svojem kodu. Nakon svega reèenog, ako se i dalje
+usudite koristiti makro, pi¹ite ih potpuno velikim slovima i
+razdvojite rijeèi znakom za podvlaèenje, @samp{_}. Kako makroi
+ne po¹tuju Pascalove domene deklarirarnosti (engl. scope), ima
+smisla pisati ih drugaèije. Ovo se odnosi na uvjetne direktive,
+takoðer.
+
+@node Direktive prevodiocu
+@section Kori¹tenje naredbi prevodiocu
+@cindex direktive prevodiocu
+
+Opæenito sugeriramo kori¹tenje direktiva prevodiocu toliko malo
+dok je to jo¹ moguæe i razumno, jer one èine kod te¾im za razumijevanje
+(npr. kad provjeravate nuspojave (side-effects)) i modificiranje
+(npr. kad se pomièu dijelovi koda iz ili u podruèje djelovanja
+direktiva prevodiocu). Direktive bi trebalo pozivati kao u primjeru:
+
+@smallexample
+@{$va¹a-direktiva-prevodiocu@}
+@end smallexample
+
+Definitivno ne ovako (@pxref{Komentari}):
+
+@smallexample
+(*$nemoj-koristiti-ovakvu-direktivu*)
+@end smallexample
+
+Takoðer, definitivno ne na ovaj naèin, koji ovisi o lomljenju linija,
+¹to sa Pascalom normalno nije sluèaj:
+
+@smallexample
+#va¹a-direktiva-prevodiocu
+@end smallexample
+
+Slièno vrijedi za makro definicije:
+
+@smallexample
+@{$define @dots{}@}
+@end smallexample
+
+Ovo takoðer u¹teðuje pisanje obrnute kose crte prije prekidanja linija,
+kao kontrast prema @samp{#define}. Ali vi ionako neæete koristiti
+makroe, zar ne?
+(@pxref{Velika i mala slova})
+
+@cindex razmaci u direktivama
+©to se razmaka tièe, ne tipkajte razmak ispred zatvarajuæe vitice,
+kako ne mo¾e biti jednoga niti poslije otvarajuæe vitice. Ako spajate
+mnogo direktiva zajedno, ne stavljajte razmake izmeðu svake, jedan
+zarez je dovoljan.
+
+@c FIXME
+@c
+@c Maybe someone has good reasons to use the space after the commas.
+
+@cindex direktive i komentari
+Unutar direktiva ne bi trebalo biti komentara. Pi¹ite ih odvojeno
+umjesto toga, kao ovdje:
+
+@smallexample
+@{$X+@}  @{ Trebamo extended sintaksu. @}
+@end smallexample
+
+Borland Pascal dozvoljava mije¹anje komentara s direktivama, no realno
+gledano to je pogre¹no kori¹tenje.
+
+Kratke forme pozivanja direktiva su u redu, no duge forme su barem
+jednako dobre, ako veæ neæemo reæi preferirane. Kratke forme se moraju
+pisati velikim slovima, a du¾e malim (osim za argumente osjetljive
+na 'velièinu' slova (engl. case-sensitive), kao ¹to su poruke i imena
+datoteka -- naravno, imena datoteka moraju uvijek biti tretirana
+kao case-sensitive, èak i na DOSu, da se saèuva prenosivost koda).
+
+Mo¾ete kombinirati nekoliko direktiva, takoðer i mije¹ati duge i kratke,
+u jednom jedinom pozivu, na primjer kao u slijedeæem:
+
+@smallexample
+@{$gnu-pascal,I-,X+@}
+@end smallexample
+
+@cindex standardne direktive
+Svaka jedinica ili modul bi trebala imati @samp{@{$gnu-pascal,I-@}} ili
+@samp{@{$gnu-pascal,I+@}} blizu poèetka (nakon komentara u zaglavlju
+s opisom i licencom). @samp{@{$gnu-pascal@}}  omoguæuje jedinici
+da bude prevedena bez opcija za dijalekte èak i ako je glavni program
+preveden s nekima od njih. @samp{@{$I-@}} ili @samp{@{$I+@}} govori
+korisniku (iako je jedno od ovog podrazumno stanje) da li jedinica
+obraðuje sama ulazno/izlazne pogre¹ke ili im dozvoljava da one izazovu
+pogre¹ke u vremenu izvoðenja (@samp{runtime error}). Prvi pristup je
+po¾eljniji za veæinu jedinica. Za programe, ova stavka je opcionalna.
+Rutine koji vraæaju ulazno/izlazne pogre¹ke bi trebale imati atribut
+@samp{iocritical} (@pxref{attribute, , , gpc}):
+
+@smallexample
+procedure CriticalRoutine; attribute (iocritical);
+@end smallexample
+
+@cindex no-warning direktiva
+@samp{@{$W-@}} (no warnings -- bez upozorenja) smije se koristiti samo
+lokalno, i mora imati ``fixme'' (popravi me) komentar (@pxref{Komentari}),
+jer situacija indicira problem s kodom ili s prevodiocem.
+
+Molimo, nemojte onemoguæivati upozorenja kad ste samo prelijeni da napi¹ete
+kod koji ne proizvodi upozorenja.
+
+@cindex lokalne direktive
+Svaka zastavica prevodioca koja nije postavljena globalno (na primjer,
+zajedno s @samp{@{$gnu-pascal@}}, vidi gore) treba biti postavljena s
+@samp{@{$local @dots{}@}}. Drugim rijeèima, ne ovako:
+
+@smallexample
+@{$I-@} Reset (f); @{$I+@}
+@end smallexample
+
+Nego ovako:
+
+@smallexample
+@{$local I-@} Reset (f); @{$endlocal@}
+@end smallexample
+
+Prvo je pogre¹no ako je @samp{@{$I-@}} veæ bio postavljen. Èak i ako
+programer mo¾e znati i uzeti u obzir koje je globalno postavljeno stanje,
+ovo se mo¾e u neko vrijeme promijeniti, ili se dio koda mo¾e kopirati
+ili premjestiti. Zadnja forma je sigurnija u ovim sluèajevima.
+
+Da bi to uèinili jo¹ i jasnijim, iz zadnja dva pravila slijedi:
+
+@smallexample
+@{$local W-@} Foo; @{$endlocal@}  @{ @@ GPC proizvodi suvi¹no upozorenje @}
+@end smallexample
+
+Opet, nastojte izbjegavati lokalne direktive. @samp{@{$I-@}} je ponekad
+potreban. @samp{@{$X+@}} mo¾e biti kori¹ten ako je @emph{stvarno},
+@emph{stvarno} neophodan (¹to je vi¹e moguæe lokalnije): izbjegavajte
+aritmetiku pokazivaèa.
+
+@cindex provjera povratnih vrijednosti funkcija
+Ne koristite @samp{@{$X+@}} da ignorira rezultate funkcija, ne koristite
+@samp{@{$ignore-function-results@}}, takoðer. Previ¹e je lako da se
+ignorira rezultat koji se ne bi trebao. Ponekad, posebno kad se povezuje
+s stranim C bibliotekama, mogli biste se susresti sa funkcijama koje
+imaju suvi¹an rezultat, koji vjerojatno ne biste ¾eljeli
+provjeravati. Mo¾ete deklarirati takve funkcije s @samp{ignorable}
+specijalnim atributom, tako da æe njihove povratne vrijednosti biti
+tiho ignorirane.
+
+Koristite dummy varijable ako ¾elite ignorirati rezultat
+pojedinog poziva rekurzivne funkcije èiji rezultat ne bi trebalo
+ignorirati generalno. Ali u takvim sluèajevima provjerite pa¾ljivo
+da li se rezultat mo¾e sigurno ignorirati. Ako bi, meðutim, neoèekivan
+rezultat indicirao ``nemoguæu'' situaciju, obièno je bolje provjeriti
+rezultat i ispisati upozorenje o neoèekivanom sluèaju, barem ako je
+@samp{DEBUG} definiran (@pxref{Direktive prevodiocu}).
+
+@cindex direktive povezivaèu (linkeru)
+Direktive povezivaèu (engl. linker) tj. @samp{@{$L@}} za biblioteke
+i C (ili drugi jezik) izvorne datoteke bi trebalo staviti blizu
+poèetka i brzo nakon @samp{implementation} retka u jedinicama i
+modulima. Nekoliko biblioteka i C datoteka u jednoj direktivi su
+moguæi ako logièki pripadaju zajedno (na primjer, biblioteka i
+njezini C wrapperi), ali ne za odvojene stvari. Ovu se direktivu ne
+bi smjelo mije¹ati s drugim direktivama (¹to èak niti ne funkcionira
+ako @samp{L} dolazi prvi -- suprotno bi moglo raditi, ali se ne bi
+trebalo koristiti). Eksterne deklaracije biblioteke ili C rutina
+bi trebale neposredno slijediti direktivu (osim u jedinici ili
+modulu za one koje ulaze u suèelje - interface). Kori¹tenje @samp{@{$L@}}
+u programima èesto nije dobra ideja, pisanje jedinice (@samp{unit})
+je èesto dobro za apstrakciju i moguænost ponovnog kori¹tenja koda.
+
+@cindex uvjetno prevoðenje
+Uvjetno prevoðenje bi ponekad moglo biti korisno, ali biste trebali
+koristiti toliko malo @samp{@{$ifdef@}}-ova koliko je to moguæe,
+buduæi da oni smanjuju èitljivost. Kad se kondicionali koriste zbog
+razlika meðu sistemima, provjerite znaèajke (na primjer,
+@samp{__BYTES_LITTLE_ENDIAN__}) ili grupe sistema (na primjer,
+@samp{__OS_DOS__}) radije nego pojedine sisteme, da biste bolje
+providjeli za sisteme koje ne poznajete ili koji mo¾da jo¹ i ne
+postoje.
+
+Ako je moguæe (ovo mo¾da jo¹ nije na raspolaganju), koristite predefinirane
+konstante (na primjer, @samp{BytesBigEndian}, @samp{OSDosFlag})
+radije nego @samp{define} konstrukte za kod gdje je to moguæe -- (``uvijek
+netoène'' grane æe biti dokinute u optimizatoru, ali æete jo¹ uvijek
+dobiti provjeru sintakse kao dodatnu dobrobit pored èinjenice da niste
+koristili preprocesor); za deklaracije tipova ovo obièno nije moguæe
+i morat æete koristiti @samp{define} konstrukcije. Dobar primjer je deklaracija
+tipa @samp{TWindowXY} u CRT jedinici. Pogledajte:
+
+@smallexample
+TWindowXYInternalCard8 = Cardinal attribute (Size = 8);
+TWindowXYInternalFill = Integer attribute (Size = BitSizeOf (Word) - 16);
+TWindowXY = packed record
+  @{$ifdef __BYTES_BIG_ENDIAN__@}
+  Fill: TWindowXYInternalFill;
+  Y, X: TWindowXYInternalCard8
+  @{$elif defined (__BYTES_LITTLE_ENDIAN__)@}
+  X, Y: TWindowXYInternalCard8;
+  Fill: TWindowXYInternalFill
+  @{$else@}
+  @{$error Endianness is not defined!@}
+  @{$endif@}
+end;
+@end smallexample
+
+@cindex debug zastavica
+@samp{DEBUG} zastavica bi se trebala koristiti samo (i ba¹ samo) za
+kod koji poma¾e uklanjanju bugova, tj. kod koji ne mijenja realnu
+funkcionalnost. Programi se moraju moæi uspje¹no prevesti sa
+postavljanjem @samp{DEBUG} i bez njega. Prvo se mo¾e izvr¹avati
+sporije i mo¾e pru¾iti korisne dodatne poruke u pogodnom obliku,
+tj. jasno oznaèene kao debug poruke, na primjer prefiksom @samp{DEBUG: },
+i @emph{mogu} prekinuti program kad detektiraju pogre¹na ili dubiozna
+stanja.
+
+@cindex kondicionali i razlièite verzije
+Kondicionali se mogu takoðer koristiti da se naprave razlièite verzije
+nekog koda, npr. koristeæi GMP brojeve ako je uvjet zadovoljen odnosno
+normalne cijele ili realne brojeve u drugom sluèaju (GMP je biblioteka
+za rad s proizvoljno velikim brojevima). U ovom sluèaju, ime i znaèenje
+svih takvih define konstrukcija mora biti obja¹njeno pri vrhu.
+(Na primjer, vidi @samp{__BP_TYPE_SIZES__}, @samp{__BP_RANDOM__} i
+@samp{__BP_PARAMSTR_0__} u System jedinici.) Kod se mora ispravno
+prevesti s bilo kojom kombinacijom postavljenih kondicionala, ¹to
+znaèi da morate testirati eksponencijalno rastuæi broj sluèajeva
+-- ovdje le¾i dobar razlog da se njihov broj dr¾i toliko malim
+koliko je to moguæe.
+
+@cindex kondicionali i razlièite implementacije
+Druga slièna upotreba kondicionala je da se izabere izmeðu razlièitih
+implementacija. Ovu biste strategiju smjeli koristiti @emph{samo}
+ako su sve implementacije podr¾ane ili ih planirate podr¾ati.
+U drugim sluèajevima, bolje je premjestiti staru implementaciju u
+``muzej'' i dr¾ati kod èistim. Sve primjedbe o prevoðenju koda iz
+prethodnog pravila se takoðer primjenjuju i ovdje.
+
+@cindex slo¾eni kondicionali
+
+Kad trebate koristiti komplicirane kondicionale, koristite Pascal
+sintaksu, tj. formatirajte kondicionale u skladu s pravilima Pascal
+koda, radije nego prema C sintaksi. Ovo je smije¹an primjer:
+
+@smallexample
+@{$if defined (Foo) or False@}
+@end smallexample
+
+Namjesto toga, ovo je primjer koji ne slijediti:
+
+@smallexample
+@{$if defined (Foo) || 0@}
+@end smallexample
+
+Ili jo¹ gore:
+
+@smallexample
+#if defined (Foo) || 0
+@end smallexample
+
+@cindex zakomentiranje dijelova koda
+Specijalni kondicional se treba koristiti da se privremeno 'zakomentira'
+kod. Ovdje je prikladna sintaksa:
+
+@smallexample
+@{$if False@} @dots{} @{$endif@}
+@end smallexample
+
+@cindex kondicionali i GPC verzija
+Standardno bi se uvjetna naredba trebala koristiti u programima ili
+jedinicama ili modulima koje distribuirate kako biste uèinili sigurnim
+da je kori¹tena ispravna verzija GNU Pascal prevodioca. Mo¾ete slijediti
+ovaj obrazac:
+
+@smallexample
+@{$if __GPC_RELEASE__ < 20020510@}
+@{$error This unit requires GPC release 20020510 or newer.@}
+@{$endif@}
+@end smallexample
+
+@node Razmaci
+@section Kako koristiti razmake u kodu
+
+Opæenito, nikakvi se vi¹estruki razmaci ne bi trebali koristiti osim
+za uvlaèenje redaka (indentation) i osim sluèajeva opisanih ni¾e.
+
+Jedan razmak ide prije i poslije operatora, poslije @samp{:=} i
+@samp{..}, kao i @samp{:} u @samp{Write}, @samp{WriteLn} i
+@samp{WriteStr}; nakon zareza i drugih upotreba @samp{:}. Slijedeæi
+primjer bi to trebao pojasniti:
+
+@smallexample
+var
+  Foo: Integer;
+  @dots{}
+begin
+  Foo := 42;
+  WriteLn (Foo + 3 : 5, ' bar')
+end;
+@end smallexample
+
+Ne bi trebalo stavljati razmak prije unarnog @samp{-}. U stvari,
+ove su forme korektne: @samp{x - 1}, @samp{-x}, @samp{-1}.
+
+Razmak mora iæi prije otvorene zagrade (@samp{(}) i nakon zatvarajuæe
+zagrade (@samp{)}), osim ako nije susjedna drugoj zagradi, uglatoj
+zagradi, @samp{^}, @samp{;}, ili @samp{,}. Drugim rijeèima, razmak
+ide izmeðu identifikatora ili kljuènih rijeèi i otvorene zagrade
+(@samp{(}). (Svi ostali razmaci u ovom primjeru se podrazumijevaju
+po prethodnom pravilu.) Pogledaj:
+
+@smallexample
+Foo (Bar^(Baz[Qux * (i + 2)]), Fred (i) + 3);
+@end smallexample
+
+Za indeksiranje polja zapravo nemojte koristiti razmak prije otvorene
+uglaste zagrade, tj. @samp{Foo[42]} radije nego @samp{Foo [42]}.
+Meðutim, umetnite razmak prije otvorene uglaste zagrade u deklaracijama
+polja, kao ovdje:
+
+@smallexample
+Foo: array [1 .. 42] of Integer;
+@end smallexample
+
+Razmak dolazi prije otvorene uglaste zagrade konstruktora skupa
+(@samp{set}) u nekim situacijama -- ove zagrade bi trebalo tretirati
+kao okrugle, za razliku od uglatih zagrada u indeksiranju polja.
+
+Na primjer:
+
+@smallexample
+x := [0, 2 .. n];
+@end smallexample
+
+Ali:
+
+@smallexample
+Foo ([1, 2, 3]);
+@end smallexample
+
+Nema razmaka uz @samp{.} i @samp{^}:
+
+@smallexample
+Rec.List^.Next^.Field := Foo
+@end smallexample
+
+Kao ¹to smo veæ istaknuli, jedan razmak ide nakon otvorene vitice i
+nakon zatvarajuæe vitice u komentarima, ali ne i u direktivama
+prevodiocu. Takoðer, i rekli smo to veæ negdje u priruèniku, dva
+razmaka idu prije komentara nakon retka koda. Na primjer:
+
+@smallexample
+Inc (x);  @{ Increment x. @}
+@end smallexample
+
+@cindex tabularni kod, razmaci
+@cindex razmaci, tabularni kod
+Opcionalno mo¾ete koristiti dodatne razmake da uèinite kod ``tabularnim''.
+Na¹e je mi¹ljenje da ovo jako poveæava èitljivost koda jer su ljudsko
+oko i mozak trenirani da prepoznaju takve strukture, te se sliènosti i
+razlike izmeðu redaka lak¹e uoèavaju. Takoðer, kad se kod mijenja,
+lak¹e se pronalaze povezana mjesta. Primjena ovog principa mo¾e se
+vidjeti u deklaracijama suèelja (engl. interface) (ne toliko
+primjenljivo kad su razdvojeni komentarima, ali, na primjer, kad su
+opisani zajednièkim komentarom iznad svih metoda):
+
+@smallexample
+function Pos             (const SubString, s: String): Integer;
+function LastPos         (const SubString, s: String): Integer;
+function PosCase         (const SubString, s: String): Integer;
+function LastPosCase     (const SubString, s: String): Integer;
+function CharPos         (const Chars: CharSet; const s: String): Integer;
+function LastCharPos     (const Chars: CharSet; const s: String): Integer;
+function PosFrom         (const SubString, s: String; From: Integer): Integer;
+function LastPosTill     (const SubString, s: String; Till: Integer): Integer;
+function PosFromCase     (const SubString, s: String; From: Integer): Integer;
+function LastPosTillCase (const SubString, s: String; Till: Integer): Integer;
+@end smallexample
+
+Takoðer je moguæe:
+
+@smallexample
+procedure Foo;
+function  Bar @dots{};
+procedure Baz;
+@end smallexample
+
+I, naravno:
+
+@smallexample
+const
+  FooBar = 1;
+  Baz    = 2;
+  Quux   = 3;
+@end smallexample
+
+Ista ``tabularna'' strategija kori¹tena u deklaracijama suèelja i
+konstanti mo¾e se koristiti i u inicijalizatorima:
+
+@smallexample
+const
+  Foo: TBarArray =
+    (('Foo'    ,  3),
+     ('Bar baz', 42),
+     (''       , -1));
+@end smallexample
+
+I u @samp{case} naredbama:
+
+@smallexample
+case ReadKeyWord of
+  kbLeft    : if s[n] > l    then Dec (s[n]) else s[n] := m[n];
+  kbRight   : if s[n] < m[n] then Inc (s[n]) else s[n] := l;
+  kbUp      : if n > 1 then Dec (n) else n := 5;
+  kbDown    : if n < 5 then Inc (n) else n := 1;
+  kbHome    : s[n] := l;
+  kbEnd     : s[n] := m[n];
+  kbPgUp,
+  kbCtrlPgUp: n := 1;
+  kbPgDn,
+  kbCtrlPgDn: n := 5;
+  kbCR      : Done := True;
+end
+@end smallexample
+
+I opcionalno u drugom kodu:
+
+@smallexample
+WriteCharAt (1, 1, 1,     Frame[1], TextAttr);
+WriteCharAt (2, 1, w - 2, Frame[2], TextAttr);
+WriteCharAt (w, 1, 1,     Frame[3], TextAttr);
+@end smallexample
+
+@node Lomljenje redaka
+@section Gdje prelamati retke koda
+@cindex lomljenje redaka
+
+Prijelom retka je opcionalan nakon @emph{lokalnih} @samp{const},
+@samp{type}, @samp{var} deklaracija ako one sadr¾e jedinu deklaraciju
+(ali je moguæe imati vi¹estruke identifikatore u jednom retku).
+
+@smallexample
+procedure Baz;
+var Foo, Bar: Integer;
+begin
+  @dots{}
+end;
+@end smallexample
+
+Naravno, slijedeæe je takoðer prihvatljivo:
+
+@smallexample
+procedure Baz;
+var
+  Foo, Bar: Integer;
+begin
+  @dots{}
+end;
+@end smallexample
+
+Ali nemojte slijediti ovaj primjer:
+
+@smallexample
+procedure Baz;
+var Foo, Bar: Integer;
+    Qux: Real;
+begin
+  @dots{}
+end;
+@end smallexample
+
+Ako imate mnogo deklaracija mo¾ete prelomiti linije na nekoliko naèina.
+Slijedi preferirani oblik za @samp{var} deklaracije:
+
+@smallexample
+var
+  Foo, Bar, Baz, Qux, Quux, Corge, Grault, Garply, Waldo, Fred,
+    Plugh, Xyzzy, Thud: Integer;
+@end smallexample
+
+ili:
+
+@smallexample
+var
+  Foo, Bar, Baz, Qux, Quux, Corge, Grault, Garply, Waldo: Integer;
+  Fred, Plugh, Xyzzy, Thud: Integer;
+@end smallexample
+
+Slijedeæa je, meðutim, pogodnija za polja @samp{record}a i javnih
+@samp{object} polja, posebno ako uz mnoge od njih ili sve stoji komentar.
+of them:
+
+@smallexample
+var
+  Foo,
+  Bar,
+  Baz,
+  Qux: Integer;
+@end smallexample
+
+Ne bi trebalo biti lomljenja linija nakon @samp{var} deklaracija
+u bloku naredbi, jer oni dozvoljavaju samo jednu deklaraciju, a
+prekidanje retka bi izgledalo kao da su daljnje deklaracije dozvoljene.
+
+@smallexample
+Foo := Bar;
+var Baz: array [1 .. Foo] of Integer;
+@end smallexample
+
+Buduæi da su to GNU Pascal ekstenzije, koristite ovakve deklaracije
+¹tedljivo, na primjer za varijable èija velièina ovisi o vrijednostima
+izraèunatim unutar potprograma, ili za varijable unutar inicijalizatora
+jedinica (unit) ili modula, iako biste mogli po¾eljeti koristiti
+potprogram.
+
+@cindex razmaci i labele
+Ne umeæite prijelom retka nakon @samp{label}. Pogledajte kako bi trebali
+deklarirati labele:
+
+@smallexample
+label Foo, Bar, Baz;
+@end smallexample
+
+I, radi kompletnosti, ovdje je kako to @emph{ne} èiniti:
+
+@smallexample
+label
+  Foo,
+  Bar,
+  Baz;
+@end smallexample
+
+Nekoliko deklaracija u razlièitim linijama ponekad èak i ne funkcioniraju:
+
+@smallexample
+label
+  Foo;
+  Bar;
+  Baz;
+@end smallexample
+
+@cindex case naredba i lomljenje redaka
+Slijedi primjer kako koristiti prijelome redaka unutar @samp{case} naredbe.
+
+@smallexample
+case
+  foo:
+    begin
+      @dots{}
+    end;
+  bar,
+  baz .. qux:
+    @dots{}
+  else
+    @dots{}
+end;
+@end smallexample
+
+Ili (``tabularno''):
+
+@smallexample
+case
+  foo:        begin
+                @dots{}
+              end;
+  bar,
+  baz .. qux: @dots{}
+  else        @dots{}
+end;
+@end smallexample
+
+@cindex lomljenje dugih redaka
+Duge naredbe ili deklaracije bi trebale biti prelomljene ili uvijek
+prije operatora ili uvijek poslije njih (gdje je podruèje tog 'uvijek'
+barem jedan potprogram) ili nakon zareza, s uvlaèenjem redaka takvim
+da se znaèenje uèini jasnim:
+
+@c FIXME
+@c
+@c I don't think it's consistent to allow both before and after.
+
+@smallexample
+if (x = y)
+   and (foo
+        or (bar
+            and (baz or qux))
+        or fred) then
+@end smallexample
+
+ili:
+
+@smallexample
+if (x = y) and
+   (foo or
+    (bar and
+     (baz or qux)) or
+    fred) then
+@end smallexample
+
+@cindex if then else naredbe i prelamanje redaka
+Ovdje je kako koristiti lomljenje redaka u if-then-else naredbama.
+Drugo kori¹tenje za njih je gdje bi koristili @samp{case} naredbu da
+je moguæe, ali to nije sluèaj (na primjer jer tipovi nisu cjelobrojni
+(ordinal), ili jer vrijednosti koje treba usporediti nisu konstantne,
+ali ako usporedba ukljuèuje funkciju (@samp{StrEqualCase}), ili
+postoje dodatne usporedbe).
+
+@smallexample
+if @dots{} then
+  a
+else if @dots{} then
+  b
+else
+  c
+@end smallexample
+
+Ako su @samp{a} i ne-@samp{a} glavni sluèajevi, a @samp{b} i @samp{c}
+pod-sluèajevi od ne-@samp{a}, koristite slijedeæe (iako razlika mo¾e
+ponekada biti stvar ukusa):
+
+@smallexample
+if @dots{} then
+  a
+else
+  if @dots{} then
+    b
+  else
+    c
+@end smallexample
+
+Slijedeæi (biologijski prilièno nepotpun) primjer sadr¾i mje¹avinu
+obaju formi koju smatramo razumnom:
+
+@smallexample
+if Staniste = 'Voda' then
+  @{ ®ivotinje koje ¾ive u vodi @}
+  WriteLn ('Da li je to riba?')
+else if Staniste = 'Zrak' then
+  @{ ®ivotinje koje ¾ive u zraku @}
+  WriteLn ('Da li je to ptica?')
+else
+  @{ ®ivotinje koje ¾ive na kopnu @}
+  if BrojNogu = 8 then
+    WriteLn ('Da li je to pauk?')
+  else
+    WriteLn ('Da li je to gnu?')
+@end smallexample
+
+Glavni sluèajevi su odreðeni stani¹tem, a broj nogu razdvaja neke
+pod-sluèajeve.
+
+@cindex kontrolne petlje
+Za normalne kontrolne petlje ovdje je kratka lista moguænosti:
+
+@smallexample
+for @dots{} do
+  @dots{}
+@end smallexample
+
+@smallexample
+while @dots{} do
+  @dots{}
+@end smallexample
+
+@smallexample
+repeat
+  @dots{}
+until @dots{}
+@end smallexample
+
+Ako je samo jedna naredba nakon @samp{if}, ili u @samp{for} ili u
+@samp{while} petlji, ili izmeðu @samp{repeat} i @samp{until}, te
+ako je ta naredba dovoljno kratka, mo¾ete staviti naredbu u samo jedan
+redak, ovako:
+
+@smallexample
+if @dots{} then @dots{}
+@end smallexample
+
+@smallexample
+for @dots{} do @dots{}
+@end smallexample
+
+@smallexample
+while @dots{} do @dots{}
+@end smallexample
+
+@smallexample
+repeat @dots{} until @dots{}
+@end smallexample
+
+Ovdje je kako se pona¹ati ako su umije¹ani @samp{begin} i @samp{end}.
+
+@smallexample
+if @dots{} then
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@smallexample
+for @dots{} do
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@smallexample
+while @dots{} do
+  begin
+    @dots{}
+  end
+@end smallexample
+
+@cindex uvlaèenje redaka ili indentacija
+Indentacija (uvlaèenje redaka) je 2 znaka ¹iroka, za svako od @samp{begin},
+@samp{then}, @samp{else}, @samp{case}, @samp{do} (@samp{for},
+@samp{while}, @samp{with}, @samp{to begin}, @samp{to end}),
+@samp{repeat}, @samp{record}, @samp{object}, @samp{type},
+@samp{const}, @samp{var}, @samp{label}.
+
+Tijela i lokalne varijable i sl. globalnih potprograma se ne smiju
+uvlaèiti, kao niti globalne deklaracije. Svaki ugnije¾ðeni potprogram
+(zaglavlje i tijelo) i njegove deklaracije, nasuprot tome, moraju biti
+uvuèeni.
+
+@smallexample
+program Prog;
+
+var
+  GlobalVar: Integer;
+
+procedure GlobalProc;
+var LocalVar: Integer;
+
+  procedure LocalProc;
+  var LocalLocalVar: Integer;
+  begin
+    WriteLn ('This is a local procedure.')
+  end;
+
+begin
+  WriteLn ('This is a global procedure.')
+end;
+
+begin
+  WriteLn ('This is the main program.')
+end.
+@end smallexample
+
+Zapisi s promjenljivim tipom (variant record) bi trebali biti uvuèeni
+kao ¹to slijedi:
+
+@smallexample
+type
+  Foo = record
+    NonVariant: Foo;
+  case Discriminant: Bar of
+    Val1: (Variant1: Baz;
+           Variant2: Qux);
+    Val2: (Variant3: Fred)
+  end;
+
+var
+  Foo: record
+    [ kao iznad ]
+  end = [ inicijalizirajuæi dio ]
+@end smallexample
+
+Veæa indentacija, tj. vi¹e od 2 znaka ¹iroka, mo¾e se koristiti da
+se prelamaju naredbe ili deklaracije ili da se postigne ``tabularnost'' koda.
+
+Kondicionali (@samp{@{$ifdef@}}) trebaju biti na istom nivou indentacije
+kao i kod na koji utjeèu:
+
+@smallexample
+begin
+  @{$ifdef DEBUG@}
+  WriteLn ('Debugging verzija');
+  @{$endif@}
+  @dots{}
+end;
+@end smallexample
+
+Kratki kondicionali koji pogaðaju samo jedan izraz mogu se napisati
+unutar jednog retka:
+
+@smallexample
+Foo := @{$ifdef DEBUG@} 'debug' @{$else@} 'release verzija' @{$endif@};
+@end smallexample
+
+Ako ih se namjerno koristi na naèin protivan normalnim sintaksnim
+pravilima, stavite ih tamo gdje izgleda da najbolje pristaju i
+napi¹ite komentar:
+
+@smallexample
+begin
+  @{ Izvr¹i kod bezuvjetno ako je debugging verzija @}
+  @{$ifndef DEBUG@}
+  if NekiUvjet then
+  @{$endif@}
+    begin
+      @dots{}
+    end
+end;
+@end smallexample
+
+U veæini æete situacija pronaæi ljep¹i i ne manje efikasan naèin pisanja
+istih naredbi. U ovom sluèaju, to se mo¾e uèiniti na ovaj naèin:
+
+@smallexample
+begin
+  if @{$ifdef DEBUG@} True @{$else@} NekiUvjet @{$endif@} then
+    begin
+      @dots{}
+    end
+end;
+@end smallexample
+
+Ili jo¹ bolje:
+
+@smallexample
+@{ globally @}
+const
+  DebugFlag = @{$ifdef DEBUG@} True @{$else@} False @{$endif@};
+
+begin
+  if DebugFlag or NekiUvjet then
+    begin
+      @dots{}
+    end
+end;
+@end smallexample
+
+@node Znakovni nizovi
+@section Znakovni nizovi
+@cindex Znakovni nizovi
+@cindex stringovi
+
+Veæina pravila koja smo pokrili dosad ne djeluju unutar znakovnih
+nizova. Opæenito, poruke sadr¾ane u nizovima trebaju slijediti pravila
+iz teksta GNU Coding standards, na primjer, stavite citirana imena
+unutar @samp{`} i @samp{'}, iako to znaèi da æete morati podvostruèiti
+@samp{'} u Pascal nizovima. @xref{Errors, , , standards}, za vi¹e
+informacija.
+
+Normalno biste trebali koristiti nizove omeðene jednostrukim navodnicima,
+kao @samp{'ovo je lijep niz kojeg èitate'}. Koristite nizove u
+dvostrukim navodnicima kad trebate escape sekvence u C stilu kao
+npr. @samp{"\t"}. Primijetite da je @samp{NewLine} (@samp{"\n"})
+predefiniran, tako da je preporuèljivo koristiti @samp{NewLine}
+osim ako ne morate koristiti niz u C stilu za druge svrhe.
+
+Niz koji zauzima vi¹e redaka mo¾ete koristiti ovako:
+
+@smallexample
+WriteLn ('Bok
+svijete')
+@end smallexample
+
+ili (mo¾da bolje, posebno ako tekst u nizu sadr¾i paragrafe i/ili
+uvlaèenje redaka sam po sebi):
+
+@smallexample
+WriteLn (
+'Bok
+svijete')
+@end smallexample
+
+Meðutim, takoðer je moguæe koristiti:
+
+@smallexample
+WriteLn ('Pozdrav' + NewLine + 'svijete')
+@end smallexample
+
+(Primijetite da se gornji primjer neæe prevesti bez kori¹tenja
+@code{GPC} jedinice (unit)).
+
+Ili, naravno:
+
+@smallexample
+WriteLn ('Pozdrav');
+WriteLn ('svijete')
+@end smallexample
+
+Ako ¾elite provjeriti da li je niz prazan, koristite slijedeæu sintaksu:
+
+@smallexample
+if s = '' then
+  @dots{}
+@end smallexample
+
+GNU Pascal prevodilac æe ovo optimizirati u slijedeæi vi¹e efikasan
+test, stoga mo¾ete koristiti prethodni, kraæi, bez kajanja:
+
+@smallexample
+if Length (s) = 0 then
+  @dots{}
+@end smallexample
+
+Ovo se odnosi i na @samp{<>}, naravno, èak i za pridru¾ivanja gdje
+je @samp{s := ''} preporuèeni oblik i biti æe optimiran od strane
+GPC-a u @samp{SetLength (s, 0)}.
+
+@node Internacionalizacija
+@section Tehnike za internacionalizaciju
+@cindex internacionalizacija
+
+@c Pogledajte @samp{gettext} priruènik za informacije o
+@c internacionalizaciji i lokalizaciji.
+@c
+@c U pogonu je projekt voðen od Eike Lange (@samp{eike(at)g-n-u.de})
+@c koji te¾i da proizvede internacionalizacijske rutine za GNU Pascal.
+@c Mo¾ete dobaviti distribuciju izvornog koda u .tar obliku sa
+@c @uref{http://www.gnu-pascal.de/contrib/eike/}.
+@c
+@c Osim internacionalizacijske jedinice, mo¾ete pronaæi drugi paket
+@c koji sadr¾i alat nazvan @code{pas2po}, kori¹ten za ekstrakciju
+@c nizova iz GNU Pascal source koda tj. slièno onome ¹to @code{xgettext}
+@c radi za C i C++ programe. @code{pas2po} nije tako komforan kao
+@c @code{xgettext}, ali na programu se jo¹ uvijek radi. Molimo
+@c proèitajte dokumentaciju isporuèenu u .tar paketu i dr¾ite se èvrsto.
+Molimo pogledajte u GPC manualu o tome kako se internacionalizacija
+programa izvodi (@pxref{I18N, , , gpc}).
+
+@node MemoryMap
+@section MemoryMap
+@findex MemoryMap
+
+Ovaj se odsjeèak GNU Coding Standards takoðer odnosi na GNU Pascal.
+Samo se prisjetite da @samp{mmap} zapravo znaèi @samp{MemoryMap}
+u tom kontekstu. @xref{Mmap, , , standards}.
+
+@node Dokumentacija
+@chapter Dokumentiranje programa
+@cindex dokumentacija
+
+Preporuèujemo èitanje odgovarajuæih poglavlja u tekstu GNU Coding Standards,
+kako se ona primjenjuju takoðer i u ovom kontekstu.
+@xref{Documentation, , , standards}. Meðutim, postoje neke primjedbe
+vrijedne spominjanja ovdje.
+
+©to se man stranica tièe, bilo bi dobro imati jednu koja ukazuje na
+Info dokumentaciju. Postoji GNU program, zvan @samp{help2man}, koji
+generira man stranicu na osnovi @samp{--help} ispisa programa.
+Radi dobro, osim ¹to uvijek ispisuje @samp{FSF} ¹to nije toèno za sve
+programe prevedene s GNU Pascal prevodiocem, ali se izlaz lako mo¾e
+promijeniti (na primjer, automatski, koristeæi @samp{sed}).
+
+Meðutim, ne ula¾ite previ¹e napora u man stranice. One mogu
+biti rje¹iv problem u poèetku, ali odr¾avati ih konzistentnim s
+Texinfo datotekama znaèi mnogo posla. Povrh svega, ako ih ne dr¾ite
+a¾urnim vjerojatnije je da æe kreirati vi¹e konfuzije nego ¹to æe
+biti od pomoæi.
+
+S jedne strane, ako su man stranice previ¹e skraæene vjerojatno æe
+im nedostajati va¾ne informacije. S druge strane, ako nisu skraæene,
+postaju te¹ke za navigaciju.
+
+Drugim rijeèima, posvetite se Info (tj. Texinfo) dokumentaciji.
+
+@node Izdanja programa
+@chapter Proces izdanja verzija softwarea
+@cindex izdanja
+
+Molimo proèitajte odgovarajuæe poglavlje u GNU Coding Standards.
+Primijetite da veliki napori sa auto-alatkama C-a nisu neophodni
+za normalne GNU Pascal programe. Makefile datoteke takoðer èesto
+nisu neophodne u GNU Pascalu. @xref{Managing Releases, , , standards}.
+
+@menu
+* Makefile konvencije::            Konvencije Makefile datoteka
+@end menu
+
+@node Makefile konvencije
+@section Konvencije Makefile datoteka
+@cindex makefile konvencije
+
+Za va¹ Pascal projekt vjerojatno neæete trebati velike @samp{Makefile}
+datoteke i neæete trebati koristiti @samp{autoconf} ili @samp{automake}.
+Mo¾ete proslijediti @samp{--automake} GNU Pascal prevodiocu tako da
+prevodilac vodi brigu o meðusobnim zavisnostima za vas. (U vrijeme dok
+ovo pi¹emo,  GNU Pascalov @samp{automake} ima nekih manjih bugova,
+ali æe oni biti ispravljeni. Takoðer, postoji i plan za alatku zvanu
+@samp{gp}, koja je u razvoju, koja bi jo¹ uvelike pojednostavnila
+proces kompilacije. Ostanite na vezi. U svakom sluèaju, obièno neæete
+trebati pisati kompleksne @samp{Makefile} datoteke sami.)
+
+@emph{Jednostavan} Makefile mo¾e biti u redoslijedu kao:
+
+@smallexample
+GPC_FLAGS=-O2
+
+all: foo
+
+foo: foo.pas unit1.pas
+	gpc --automake $(GPC_FLAGS) foo.pas
+
+mostlyclean:
+	-rm -f *.o *.gpi *.gpd core
+
+clean: mostlyclean
+	-rm -f foo
+
+distclean: clean
+
+extraclean: distclean
+	-rm -f *~*
+
+maintainer-clean: extraclean
+@end smallexample
+
+Mogli biste, meðutim, po¾eljeti da stavite druga pravila u @samp{Makefile}
+za izgradnju dokumentacije, podatkovnih datoteka, izradu distribucija
+i slièno. Takve stvari su izvan podruèja ovog teksta. Obièno mo¾ete
+izvesti Pascal kompilacije s jednim jedinim @samp{gpc --automake}
+pozivom po programu.
+
+@node Rjeènik pojmova
+@chapter Rjeènik pojmova kori¹tenih kroz tekst
+@cindex rjeènik pojmova
+
+Rutine (potprogrami) su ili @samp{procedure}, ili funkcije
+(@samp{function}), ili konstruktori (@samp{constructor}), ili
+destruktori (@samp{destructor}), ili korisnièki definirani operatori.
+
+Deklaracije su oni dijelovi programa koji ``najavljuju'' postojanje
+i svojstva odreðenih objekata kao ¹to su konstante, tipovi,
+varijable, rutine, jedinice (unit), moduli i sam program.
+
+Naredbe su dijelovi programa koji zapravo ``rade'' ne¹to.
+Pojedina naredba je ili dodjela vrijednosti, ili poziv procedure,
+ili naredba za skok (@samp{goto}, @samp{Exit}, @samp{Return},
+@samp{Break}, @samp{Continue}), ili asemblerska naredba, ili
+slo¾ena naredba (@samp{begin} @dots{} @samp{end}, @samp{if},
+@samp{case}, @samp{repeat}, @samp{while}, @samp{for}, @samp{with})
+koja opet mo¾e sadr¾avati jednu ili nekoliko naredbi.
+
+Identifikatori su takvi jezièni elementi koji daju imena objektima kao
+¹to su rutine, konstante, tipovi, varijable, jedinice (unit), moduli.
+Oni mogu biti (lokalno) redefinirani, za razliku od kljuènih rijeèi
+koje su dio fiksnih sintaktièkih konstrukcija (na primjer @samp{if} @dots{}
+@samp{then} @dots{} @samp{else}) i ne mogu biti redefinirani. Makro
+naredbe nisu jezièki elementi buduæi da su ekspandirani u preprocesoru
+i prevodilac ih nikada niti ne vidi.
+
+Endianness znaèi poredak u kojem su bajtovi vrijednosti du¾ih od
+jedne rijeèi smje¹tene u memoriju. Ovo pogaða, npr. cjelobrojne
+vrijednosti i pokazivaèe dok, npr. polja jednobajtnih znakova nisu
+time pogoðena. (@pxref{Endianness, , , gpc})
+
+@emph{Primijeti:} I druge se stavke mogu dodati ovdje ako vam se to èini
+korisnim. Ako biste ¾eljeli definiciju nekog drugog pojma, dajte nam
+do znanja.
+
+@node Indeks
+@unnumbered Indeks
+@printindex cp
+
+@contents
+
+@bye

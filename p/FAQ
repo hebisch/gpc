@@ -1,0 +1,975 @@
+This file was generated automatically from faq.texi.
+DO NOT CHANGE THIS FILE MANUALLY!
+
+The GNU Pascal Frequently Asked Questions List
+**********************************************
+
+This document is a part of the GPC documentation. To make, copy and
+distribute modified versions of this document please see the GPC
+documentation.
+
+   This is the Frequently Asked Questions List (FAQ) for GNU Pascal. If
+the FAQ and the documentation do not help you, you have detected a
+*bug* in it which should be reported, *Note Mailing List::.  Please
+really do it, so we can improve the documentation.
+
+GNU Pascal
+**********
+
+What and why?
+=============
+
+The purpose of the GNU Pascal project is to produce a Pascal compiler
+(called GNU Pascal or GPC) which
+
+   * combines the clarity of Pascal with powerful tools suitable for
+     real-life programming,
+
+   * supports both the Pascal standard and the Extended Pascal standard
+     as defined by ISO, ANSI and IEEE (ISO 7185:1990, ISO/IEC
+     10206:1991, ANSI/IEEE 770X3.160-1989),
+
+   * supports other Pascal standards (UCSD Pascal, Borland Pascal,
+     parts of Borland Delphi, Mac Pascal and Pascal-SC) in so far as
+     this serves the goal of clarity and usability,
+
+   * may be distributed under GNU license conditions, and
+
+   * can generate code for and run on any computer for which the GNU C
+     compiler can generate code and run on.
+
+   Pascal was originally designed for teaching. GNU Pascal provides a
+smooth way to proceed to challenging programming tasks without learning
+a completely different language.
+
+   The current release implements Standard Pascal (ISO 7185, levels 0
+and 1), most of Extended Pascal (ISO 10206, aiming for full
+compliance), is highly compatible to Borland Pascal (version 7.0), has
+some features for compatibility to other compilers (such as VAX Pascal,
+Sun Pascal, Mac Pascal, Borland Delphi and Pascal-SC).
+
+   It provides a lot of useful GNU extensions not found in other Pascal
+compilers, e.g. to ease the interfacing with C and other languages in a
+portable way, and to work with files, directories, dates and more,
+mostly independent of the underlying operating system.
+
+   Included units provide support for regular expressions, arithmetic
+with integer, rational and real numbers of unlimited size,
+internationalization, inter-process communication, message digests and
+more. Demo programs show the usage of these units and of many compiler
+features.
+
+What is the current version?
+============================
+
+The current version is 20070904.
+
+   Releases are available as a source archive and precompiled binaries
+for several common platforms from the GPC web site,
+`http://www.gnu-pascal.de'.
+
+   For details about new features, see the section `News' on the web
+site. On bugs fixed recently, see the `Done' section of the To-Do list
+(on the same web site).
+
+   GPC uses GCC as a back-end. It supports GCC version 2.8.1, 2.95.x,
+3.2.x, 3.3.x or 3.4.x. (The newest supported GCC version is usually
+preferable, unless it contains serious bugs in itself.)
+
+   There are no fixed time frames for new releases. Releases are made
+when enough interesting changes have been made and the compiler is
+somewhat stable.
+
+Is it compatible with Turbo Pascal (R)?
+=======================================
+
+GPC is not a drop-in replacement for Borland's Turbo Pascal (R).
+Almost all BP language features are supported. Notable exceptions are
+the string format (as discussed below), or the `Mem' and `Port' pseudo
+arrays, though replacement functions for the latter on IA32 platforms
+exist in the `Ports' unit.
+
+   Almost all of BP's run time library is supported in GPC, either by
+built-in compiler features or in units with the same names as their BP
+counterparts.
+
+   For details about the compatibility, the few remaining
+incompatibilities and some useful alternatives to BP features, see the
+`Borland Pascal' chapter in the GPC Manual.
+
+Which platforms are supported by GNU Pascal?
+============================================
+
+GPC uses the GCC backend, so it should run on any system that is
+supported by GNU CC. This includes a large variety of Unix systems,
+MS-DOS, OS/2 and Win32. A full list of platforms supported by GCC can
+be found in the file `INSTALL' of the GCC distribution. Not all of
+these have actually been tested, but it is known to run on these
+platforms:
+
+ix86-gnu                      (GNU Hurd)
+ix86-linux                    (Linux 2.x, ELF)
+Linux/AMD64                   
+i486-linuxaout                
+i486-linuxoldld               
+i386-freebsd1.2.0             
+AIX 4.2.1                     
+AIX 4.3                       
+DJGPP V2                      (Dos)
+EMX 0.9B                      (OS/2, Dos)
+Cygwin32 beta20 and higher    (MS-Windows95/98, MS-Windows NT)
+mingw32                       (MS-Windows95/98, MS-Windows NT)
+MSYS                          (MS-Windows)
+Mac OS/X 10.3                 
+mips-sgi-irix5.3              
+mips-sgi-irix6.5              
+sun-sparc-sunos4.1.4          
+sparc-sun-solaris2.x          
+sun-sparc-solaris 2.5.1       
+sun-sparc-solaris 2.6         
+sun-sparc-solaris 7           
+sun-sparc-solaris 8           
+alpha-unknown-linux           
+alpha-dec-osf4.0b             
+s390-ibm-linux-gnu            
+
+   *OK people - send us your success stories, with canonical machine
+name!*
+
+Installing GPC
+**************
+
+You find the most up-to-date installation instructions in the GPC
+Manual or the file `INSTALL' in source distributions, or on the GPC web
+site.
+
+   The following sections describe things you might need or want to
+install besides GPC itself.
+
+What to read next
+=================
+
+After installing GPC, please check the files in the directory
+`/usr/local/doc/gpc':
+
+`README'           General Information about GPC
+`FAQ'              This FAQ :-)
+`NEWS'             Changes since the last release
+`BUGS'             How to report bugs, about the Test Suite
+`AUTHORS'          List of GPC authors
+`COPYING'          The GNU General Public License
+`COPYING.LIB'      The GNU Lesser General Public License
+
+Which components do I need to compile Pascal code?
+==================================================
+
+A complete Pascal compiler system should at least have:
+
+  1. The actual compiler, GPC.
+
+  2. An editor, assembler, linker, librarian and friends.
+
+  3. A C library. If you have a working C compiler, you already have
+     this.
+
+  4. A debugger, if you want to debug your programs.
+
+   For most people, the GNU binutils and GNU debugger (`gdb') are a
+good choice, although some may prefer to use vendor specific tools.
+
+How do I debug my Pascal programs?
+==================================
+
+To debug your programs, (a) GNU Pascal must be able to generate
+executables with debug info for your platform, and (b) you must have a
+debugger which understands this.
+
+   * If `gpc -g -o hello hello.p' says:
+          gpc: -g not supported for this platform
+     then GPC is unable to generate debugging info. Usually, installing
+     `gas' (part of GNU binutils) instead of your system's assembler
+     can overcome this. When you configure the GCC used for GPC, specify
+     `--with-gnu-as', and possibly `--with-gnu-ld' and/or
+     `--with-stabs'. More information can be found in the `INSTALL'
+     file in the GNU CC source directory.
+
+   * Your system's debugger may not understand the debug info generated
+     by GNU tools. In this case, installing `gdb' may help.
+
+   The bottom line: if you can debug GCC compiled programs, you should
+be able to do this with GPC too.
+
+   The GNU debugger (`gdb') currently does not have a "Pascal" mode, so
+it is unable to display certain Pascal structures etc. When debugging,
+please note that the Initial Letter In Each Identifier Is In Upper Case
+And The Rest Are In Lower Case. If you want to display variable `foo'
+in the debugger, type `show Foo' or `display Foo' instead.
+
+   Although `gdb' is an excellent debugger, it's user interface is not
+everybody's preference. If you like to debug under X11, please refer to
+the comp.windows.x FAQ: "Where can I get an X-based debugger?" at:
+`http://www.faqs.org/faqs/x-faq/part6/section-2.html'
+
+   Some useful frontends include: XXGDB, tGDB and XWPE. See:
+`http://www.ee.ryerson.ca:8080/~elf/xapps/Q-IV.html'
+
+   Very nice, but resource consuming is the Motif based DDD:
+`http://sol.ibr.cs.tu-bs.de/softech/ddd/'
+
+   Furthermore, RHIDE (*note IDE::) contains built-in debugging suport,
+similar to the IDE of BP.
+
+What additional libraries should I have?
+========================================
+
+You will need certain additional libraries when you compile some of the
+units. These can be found in the directory
+`http://www.gnu-pascal.de/libs/'.
+
+   Currently, there are the following libraries:
+
+gmp
+     Arithmetic for integers, rationals and real numbers with arbitrary
+     size and precision. Used by the GMP unit.
+
+rx
+     Regular expression matching and substitution. Used by the RegEx
+     unit.
+
+ncurses
+PDCurses
+     Screen handling. Used by the CRT unit. Depending on your system,
+     you have the following choices:
+
+     Unix: You can compile terminal applications with ncurses and
+     applications that run in an X11 window with PDCurses (though
+     terminal applications can, of course, also run in an xterm under
+     X11). ncurses is used by default. If you want to use PDCurses
+     (a.k.a. XCurses), give the option `-DX11' when compiling CRT.
+
+     Dos with DJGPP and MS-Windows with mingw: Only PDCurses is
+     available and will be used by default.
+
+     MS-Windows with Cygwin: PDCurses and ncurses are available.
+     PDCurses is used by default. If you want to use ncurses, give the
+     option `-DUSE_NCURSES' when compiling CRT.
+
+     Other systems: Please see the `README's and installation
+     instructions of PDCurses and ncurses to find out which one(s) can
+     be built on your system. See the conditionals at the end of
+     crt.inc and crtc.h (and change them if necessary) on which library
+     is used by default.
+
+intl
+     Internationalization. Used by the Intl unit. On some systems, it is
+     part of the system library (libc).
+
+ElectricFence
+     This library is not used by any GPC unit. It is a debugging tool to
+     assist you in finding memory allocation bugs. To use it, just link
+     it to your program, either on the command line (`-lefence') or in
+     the source code (`{$L efence}') which you might want to put into
+     an `{$ifdef DEBUG}' or similar since using libefence is only
+     recommended for debugging.
+
+   The source code of the libraries is available in the main `libs'
+directory. Most libraries come with one or several patches which should
+be applied before compiling them.
+
+   Binaries for some platforms are available in the `binary/PLATFORM'
+subdirectories. If you compile the libraries for other platforms, be
+invited to make the binaries available to us for distribution on the
+web site.
+
+   There are also the following files:
+
+`terminfo-linux.tar.gz'
+     This is a patch to enable ncurses programs to make use of the
+     ability of Linux 2.2 and newer kernels to produce a block cursor
+     when needed. The present patch can be installed without recompiling
+     anything, just by copying some files into place. More details can
+     be found in the `README' file included in this archive. The patch
+     will not do any harm on older kernels. Please note that *not* only
+     on Linux machines it is useful to install the patch. Installing
+     them on any other machine will allow users who telnet in from a
+     Linux console to profit from the block cursor capability. Besides,
+     some Unix systems have installed older Linux terminfo entries or
+     none at all, so it's a good thing, anyway, to give them a current
+     version. The patch is included in the terminfo database of ncurses
+     5.0, so if you install ncurses 5.0 (source or binary), you don't
+     need to get the patch separately. But you can install it on a
+     system with an older ncurses version if you don't feel like
+     upgrading ncurses altogether.
+
+`tsort-2.9i.zip'
+     A little utility (extracted from util-linux-2.9i, but not Linux
+     specific), needed for the configuration of the rx library. You
+     need it only if you compile rx yourself (and if it's not already
+     present on your system), not when using a rx binary.
+
+Contributed units
+=================
+
+Several people have contributed units for GPC. They are usually
+announced on the mailing list, *Note Mailing List::. Most of them can
+be found in `http://www.gnu-pascal.de/contrib/'.
+
+Can you recommend an IDE?
+=========================
+
+Users of Borland Pascal may wonder if there's a replacement for the IDE
+(Integrated Development Environment). Here's a few suggestions:
+
+   * (X)Emacs. Some people think it's the answer to the question of
+     Life, the Universe and Everything, others decide it's uGNUsable.
+     Available from your friendly GNU mirror and most distributions.
+
+   * PENG. It's not free software, but it was written with GPC.  It's
+     very similar to Borland's IDE, but with many extensions.  Binaries
+     for DJGPP, Linux and Solaris can be downloaded from
+     `http://fjf.gnu.de/peng/'.
+
+   * RHIDE. DJGPP users might want to try RHIDE. The latest (beta)
+     release is compatible with GNU Pascal and allows stepping, tracing
+     and watching like Borland's IDE. It can be downloaded from
+     `http://www.rhide.com'.
+
+   * DevPascal. DevPascal is a Free Software IDE for mingw32. It can be
+     downloaded from `http://www.gnu-pascal.de/contrib/chief/' or
+     `http://www.bloodshed.net/devpascal.html'
+
+   * XWPE is another imitation of the Borland IDE, so users of Borland
+     Pascal may find it a good alternative.
+
+GNU Pascal on the DJGPP (MS-DOS) platform
+*****************************************
+
+This chapter discusses some potential problems with GNU Pascal on
+MS-DOS, using DJGPP.
+
+What is DJGPP?
+==============
+
+The following paragraph is from the site
+`http://www.delorie.com/djgpp/':
+
+   DJGPP is a complete 32-bit C/C++ development system for Intel 80386
+(and higher) PCs running DOS. It includes ports of many GNU development
+utilities. The development tools require a 80386 or newer computer to
+run, as do the programs they produce. In most cases, the programs it
+produces can be sold commercially without license or royalties.
+
+If you need more information
+============================
+
+GPC/DJGPP is a DJGPP V2 application, and most of the DJGPP
+documentation applies for GPC too. A great source of information is the
+DJGPP FAQ: `http://www.delorie.com/djgpp/v2faq/230b.zip'
+
+   Another place to look for DJGPP documentation is the DJGPP Knowledge
+Base, at this URL: `http://www.delorie.com/djgpp/doc/kb/'
+
+What do I download?
+===================
+
+As discussed in *Note Components::, other than GPC itself, you need an
+assembler, linker and friends, a C library and possibly a debugger.
+The site `http://www.delorie.com/djgpp/' recommended the following
+files and they will help you find a mirror:
+
+`v2/djdev203.zip'       (C library)
+`v2gnu/bnu2951b.zip'    (assembler, ...)
+`v2gnu/gcc2952b.zip'    (gcc)
+`v2gnu/gdb418b.zip'     (debugger)
+`v2gnu/mak379b.zip'     (make)
+`v2gnu/txi40b.zip'      (texi)
+
+   This list is about 10 MB not counting GPC. You can use a binary
+version of GPC from the web site.
+
+How do I install the compiler?
+==============================
+
+If you don't have DJGPP installed on your harddisk, create a directory
+for GNU Pascal (`c:\gpc'), and unzip the archives.  Make sure you
+preserve the directory structure (use `pkunzip -d'). Now, add the
+directory where `gpc.exe' lives (`c:\gpc\bin') to your path and set the
+DJGPP environment variable to point to your `djgpp.env' file:
+
+     set DJGPP=c:\gpc\djgpp.env
+
+   Then, add this to your `djgpp.env' file:
+
+     ---------------------------------------------------------
+     [gpcpp]
+     C_INCLUDE_PATH=%/>;C_INCLUDE_PATH%%DJDIR%/lang/pascal;%DJDIR%/include
+
+     [gpc]
+     COMPILER_PATH=%/>;COMPILER_PATH%%DJDIR%/bin
+     LIBRARY_PATH=%/>;LIBRARY_PATH%%DJDIR%/lib;%DJDIR%/contrib/grx20/lib
+     ---------------------------------------------------------
+
+   The GPC online documentation is in GNU info format; you need the
+Info reader (`txi390b.zip') to read it, or use the built-in Info reader
+of the RHIDE or PENG IDE. To add the GPC documentation to the info
+directory file, edit the `c:\gpc\info\dir' file, and locate this
+section:
+
+     ---------------------------------------------------------
+     * GCC: (gcc.inf).
+     The GNU C, C++, and Objective-C Compiler
+
+     * GDB: (gdb.inf).
+     The GNU Debugger (gdb and gdb-dpmi).
+
+     ---------------------------------------------------------
+
+   To add GPC, change it to look like this:
+
+     ---------------------------------------------------------
+     * GCC: (gcc.inf).
+     The GNU C, C++, and Objective-C Compiler
+
+     * GPC: (gpc.inf).
+     The GNU Pascal Compiler
+
+     * GDB: (gdb.inf).
+     The GNU Debugger (gdb and gdb-dpmi).
+
+     ---------------------------------------------------------
+
+   Specific information for low-memory conditions and more can be found
+in the DJGPP FAQ and documentation.
+
+I cannot read the Info documentation!
+=====================================
+
+To read the Info documentation, you need the `info' program from
+`txi390b.zip' or an IDE like RHIDE or PENG.
+
+GPC says: no DPMI
+=================
+
+You don't have a DPMI server installed, and DJGPP v2 requires it to
+run. You can either use one of the commercial DPMI servers (e.g., run
+`gpc' in a DOS box under MS-Windows) or download and install CWSDPMI
+(`csdpmi3b.zip') which is a free DPMI server written for DJGPP.
+
+I have troubles with assembly code
+==================================
+
+The GNU Assembler (`as.exe'), or `gas', called by GCC accepts "AT&T"
+syntax which is different from "Intel" syntax.  Differences are
+discussed in section 17.1 of the DJGPP FAQ.
+
+   A guide is available which was written by Brennan Mr. Wacko
+Underwood <brennan@mack.rt66.com> and describes how to use inline
+assembly programming with DJGPP, at this URL:
+`http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html'
+
+   There's also a GPC assembler tutorial at
+`http://www.gnu-pascal.de/contrib/misc/gpcasm.zip'
+
+   Section 17.3 of the DJGPP FAQ discusses some methods to convert
+"Intel" syntax to "AT&T" syntax.
+
+   However, please note that assembler code is unportable, i.e. it will
+work on IA32 ("x86") and compatible processors if written for them, but
+will not even compile for other processors. So by writing assembler
+code in your programs, you will limit their usefulness substantially.
+
+   If you think you "need" assembler code for speed - and you've
+checked that your assembler code actually runs faster than Pascal code
+compiled with suitable optimizations - you might want to put both
+Pascal and assembler versions of the critical sections in your program,
+and let, e.g., an `{$ifdef i386}' decide which one to use. This way,
+your program will at least compile on all processors.
+
+Tell me how to do DPMI, BIOS and other DOS related things.
+==========================================================
+
+DPMI, BIOS and other functions are no different than other system
+functions. Refer to the GPC Manual on how to access your system's
+C-library. This small example shows how to use DPMI, copying some
+structures and function prototypes of `<dpmi.h>':
+
+     program DPMIDemo;
+
+     { Only for DJGPP }
+
+     {$X+}
+
+     { `Byte' is `unsigned char' in C,
+       `ShortCard' is `unsigned short' in C,
+       `MedCard' is `unsigned long' in C,
+       `Word' is `unsigned' in C,
+       etc. (all these types are built-in). }
+
+     type
+       TDpmiVersionRet = record
+         Major     : Byte;
+         Minor     : Byte;
+         Flags     : ShortCard;
+         CPU       : Byte;
+         Master_PIC: Byte;
+         Slave_PIC : Byte;
+       end;
+
+     type
+       TDpmiFreeMemInfo = record
+         LargestAvailableFreeBlockInBytes,
+         MaximumUnlockedPageAllocationInPages,
+         MaximumLockedPageAllocationInPages,
+         LinearAddressSpaceSizeInPages,
+         TotalNumberOfUnlockedPages,
+         TotalNumberOfFreePages,
+         TotalNumberOfPhysicalPages,
+         FreeLinearAddressSpaceInPages,
+         SizeOfPagingFilePartitionInPages,
+         Reserved1,
+         Reserved2,
+         Reserved3: MedCard;
+       end;
+
+     function DpmiGetVersion (var Version: TDpmiVersionRet): Integer;
+              external name '__dpmi_get_version';
+
+     function DpmiGetFreeMemoryInformation
+              (var MemInfo: TDpmiFreeMemInfo): Integer;
+              external name '__dpmi_get_free_memory_information';
+
+     var
+       Version: TDpmiVersionRet;
+       MemInfo: TDpmiFreeMemInfo;
+
+     begin
+       if DpmiGetVersion (Version) = 0 then
+         begin
+           WriteLn ('CPU type:       ', Version.CPU, '86');
+           WriteLn ('DPMI major:       ', Version.Major);
+           WriteLn ('DPMI minor:       ', Version.Minor);
+         end
+       else
+         WriteLn ('Error in DpmiGetVersion');
+       if DpmiGetFreeMemoryInformation (MemInfo) = 0 then
+         WriteLn ('Free DPMI memory: ',
+                  MemInfo.TotalNumberOfFreePages, ' pages.')
+       else
+         WriteLn ('Error in DpmiGetMemoryInformation');
+     end.
+
+I got an exception when accessing an `array [1 .. 4000000] of Byte'.
+====================================================================
+
+Per default, the maximum stack size of a DJGPP application is 256K.  If
+you need more, you have to adjust it with the stubedit program, i.e.:
+
+     stubedit your_app.exe minstack=5000K
+
+   Another way is to add the following code to your program to define a
+minimum stack size (here: 2 MB). This value will be honored even if a
+user sets a lower value by using stubedit, so this method might be a
+little safer. (The linker name `_stklen' is essential; the Pascal
+identifier doesn't matter. The constant doesn't have to be used
+anywhere in the program. It is recommended to put this declaration in
+the main program file, not in any unit/module, so programs using a
+unit/module can set whatever limit they need.)
+
+     {$ifdef __GO32__}
+     const
+       MinStackSize: Cardinal = $200000; attribute (name = '_stklen');
+     {$endif}
+
+   Still, it might be a good idea to use pointers for large structures,
+and allocate the memory at runtime.
+
+   DJGPP has to allocate the stack in physical memory at program
+startup, so one might have to be careful with too large stack limits.
+Most other systems allocate stack pages on demand, so the only reason
+to set a limit at all might be to prevent a runaway recursion from
+eating up all memory ...
+
+   On Unix-like systems, you can set a resource limit, but you usually
+don't do it in normal programs, but rather in the shell settings (bash:
+`ulimit'; csh: `limit'; syscall: `setrlimit'(2)).
+
+Strings
+*******
+
+What's this confusion about strings?
+====================================
+
+Turbo Pascal strings have a length byte in front. Since a byte has the
+range 0 .. 255, this limits a string to 255 characters. However, the
+Pascal string schema, as defined in section 6.4.3.3.3 of the ISO 10206
+Extended Pascal standard, is a schema record:
+
+     type
+       String (Capacity: Integer) = record
+         Length: 0 .. Capacity;
+         String: packed array [1 .. Capacity + 1] of Char
+       end;
+
+   The `+ 1' is a GPC extension to make it feasible to automatically
+add the `#0' terminator when passing or assigning them to CStrings.
+Thus at the expense of a little added complexity (must declare
+capacity, don't use `GetMem' without explicit initialization of the
+`Capacity' field, and the additional space requirement) you can now
+have very long strings.
+
+Overlaying strings in variant records
+=====================================
+
+Q: Should the different variants in a variant record overlay in the
+same memory? Previous Pascals I have used have guaranteed this, and
+I've got low-level code that relies on this. The variants are not the
+same length, and they are intended not to be.
+
+   A: No, this is intentional so that the discriminants are not
+overwritten, and they can be properly initialized in the first place.
+Consider:
+
+     record
+     case Boolean of
+       False: (s1: String (42));
+       True:  (s2: String (99));
+     end;
+
+   If the strings would overlay, in particular their discriminants
+would occupy the same place in memory. How should it be initialized?
+Either way, it would be wrong for at least one of the variants ...
+
+   So, after a discussion in the ISO Pascal newsgroup
+(news:comp.lang.pascal.ansi-iso) where this topic came up concerning
+file variables (which also require some automatic initialization and
+finalization), we decided to do this in GPC for all types with
+automatic initialization and finalization (currently files, objects and
+schemata, including strings, in the future this might also be Delphi
+compatible classes and user-defined initialized and finalized types),
+since the standard does not guarantee variants to overlay, anyway ...
+
+   There are two ways in GPC to get guaranteed overlaying (both
+non-standard, of course, since the standard does not assume anything
+about internal representations; both BP compatible), `absolute'
+declarations and variable type casts. E.g., in order to overlay a byte
+array `b' to a variable `v':
+
+     var
+       b: array [1 .. SizeOf (v)] of Byte absolute v;
+
+   Or you can use type-casting:
+
+     type
+       t = array [1 .. SizeOf (v)] of Byte;
+
+   then `t (v)' can be used as a byte array overlayed to `v'.
+
+Why does `s[0]' not contain the length?
+=======================================
+
+Q: In standard Pascal you expect `s[1]' to align with the first
+character position of `s' and thus one character to the left is the
+length of `s'. Thus `s[0]' is the length of `s'.  True?
+
+   A: This holds for UCSD/BP strings (which GPC does not yet implement,
+but that's planned). The only strings Standard Pascal knows are arrays
+of char without any length field.
+
+   GPC also supports Extended Pascal string schemata (*note String
+schema::), but they also don't have a length byte at "position 0", but
+rather a `Length' field (which is larger than one byte).
+
+Watch out when using strings as parameters
+==========================================
+
+Q: Any "gotchas" with string parameters?
+
+   A: Be careful when passing string literals as parameters to routines
+accepting the string as a value parameter and that internally modify
+the value of the parameter. Inside the routine, the value parameter
+gets a fixed capacity - the length of the string literal that was
+passed to it. Any attempt to assign a longer value will not work.
+
+   This only applies if the value parameter is declared as `String'. If
+it is declared as a string with a given capacity (e.g., `String
+(255)'), it gets this capacity within the routine.
+
+Support for BP compatible short strings
+=======================================
+
+Q: Two different kinds of strings with the same name - `String' - does
+make a bit of confusion. Perhaps the oldstyle strings could be renamed
+`short string' ?
+
+   A: When we implement the short strings, we'll have to do such a
+distinction. Our current planning goes like this:
+
+   `String (N)': string schema (EP compatible)
+
+   `String [N]': short string (UCSD/BP compatible, where N must be <=
+255)
+
+   `String': dependent on flags, by default undiscriminated schema, but
+in BP mode (or with a special switch) short string of capacity 255
+(UCSD/BP compatible).
+
+   Q: So when will these short strings be available?
+
+   A: It's been planned for some years. The delay has been caused by
+more pressing problems.
+
+What about C strings?
+=====================
+
+A C string (`char *') is an array of char, terminated with a `#0' char.
+
+   C library functions require C, not Pascal style string arguments.
+However, Pascal style strings are automatically converted to C style
+strings when passed to a routine that expects C style strings. This
+works only if the routine reads from the string, not if it modifies it.
+
+   E.g., this is how you could access the `system()' call in your C
+library (which is not necessary anymore, since `Execute' is already
+built-in):
+
+     program SysCall;
+
+     function System (CmdLine: CString): Integer; external name 'system';
+
+     var
+       Result: Integer;
+
+     begin
+       Result := System ('ls -l');
+       WriteLn ('system() call returned: ', Result)
+     end.
+
+   You could use the type `PChar' instead of `CString'. Both `CString'
+and `PChar' are predefined as `^Char' - though we recommend `CString'
+because it makes it clearer that we're talking about some kind of
+string rather than a single character.
+
+   A lot of library routines in Pascal for many applications exist in
+the GPC unit and some other units. Where available, they should be
+preferred (e.g. `Execute' rather than `system()', and then you won't
+have to worry about `CString's.)
+
+   Do *not* pass a C style string as a `const' or `var' argument if the
+C prototype says `const char *' or you will probably get a segfault.
+
+Getting Help
+************
+
+Please read the GPC Manual (info files or other formats) as well as the
+`README' and `BUGS' files that come with GPC (usually installed in
+directory `/usr/local/doc/gpc'), plus other docs that might help (the
+DJGPP FAQ if you use DJGPP, etc.) before you send email to the
+maintainers or mailing list.
+
+   In particular, the `BUGS' file contains information on how to submit
+bug reports in the most efficient way.
+
+   The `Support' chapter of the GPC Manual tells you where to find more
+information about GPC and how to contact the GPC developers.  The
+following information is from this chapter.
+
+The GPC Mailing List
+====================
+
+There is a mailing list devoted to GNU Pascal. You can write to the
+mailing list, e.g. if you have problems installing GPC or if you found
+a problem with GPC (please see *Note Reporting Bugs::). You can also
+use it to discuss suggestions for improving GPC and, most welcome, to
+offer your help or contribute code, documentation or other work. Mails
+to the list should be in English.
+
+   To subscribe to the mailing list, send the command
+     subscribe gpc your@email.address
+   in the body of a mail to <majordomo@gnu.de> (*not* to
+`gpc@gnu.de'!). The subject is ignored. (Please replace
+`your@email.address' with your real email address.) For more info, send
+a line `help' to <majordomo@gnu.de>.
+
+   After subscribing, you can send a message to the mailing list by
+sending email to the list address <gpc@gnu.de> as if it were a person.
+
+   To leave the mailing list, send the command
+     unsubscribe gpc your@email.address
+   to <majordomo@gnu.de>.
+
+   You can reach a human moderator at _gpc-owner@gnu.de_.
+
+   There is a separate mailing list for discussions about GPC
+documentation, <gpc-doc@gnu.de>. To subscribe, send the command
+     subscribe gpc-doc your@email.address
+   to <majordomo@gnu.de>.
+
+   There is also a (low-traffic) announce list, <gpc-announce@gnu.de>
+that you can subscribe to stay up-to-date. To subscribe to the list,
+write an email with
+     subscribe gpc-announce your@email.address
+   in the body to <majordomo@gnu.de>. If you like to announce a
+contribution, a service or an event related to GPC, you are invited to
+post to this list rather than `gpc@gnu.de', but please don't use the
+announce list for questions or discussions. Please note that all mail
+sent to the announce list is forwarded to the regular list, so you
+won't have to subscribe to both lists if you don't want to miss
+anything. For the same reason, please don't cross-post to both lists.
+
+   There is also a German speaking mailing list, <gpc-de@gnu.de>. To
+subscribe send the command
+     subscribe gpc-de your@email.address
+   in the body of a mail to <majordomo@gnu.de> (note the hints above).
+
+The GPC Mailing List Archives
+=============================
+
+Perhaps your problem was already discussed on the list. There is a
+searchable archive of the mailing list on the WWW. It can be browsed or
+searched at
+     `http://www.gnu-pascal.de/crystal/gpc/en/'
+
+   The archive of the documentation list is at
+     `http://www.gnu-pascal.de/crystal/gpc-doc/en/'
+
+   The archive of the announce list is at
+     `http://www.gnu-pascal.de/crystal/gpc-announce/en/'
+
+   The archive of the German GPC list is at
+     `http://www.gnu-pascal.de/crystal/gpc-de/de/'
+
+Newsgroups relevant to GPC
+==========================
+
+To get support, you can also ask the Usenet newsgroups for help.  There
+are several Pascal related newsgroups, but none is dedicated just to
+GNU Pascal, so use the one which is most appropriate for your problem.
+For general Pascal questions, we recommend the following one:
+
+`news://comp.lang.pascal.misc'       Pascal in general and ungrouped
+                                     Pascals.
+
+   Pascal syntax related questions may be appropriate in:
+
+`news://comp.lang.pascal.ansi-iso'   Pascal according to ANSI and ISO
+                                     standards.
+
+   The next newsgroup is a haven for beginners, answering questions
+that would apply to almost any Pascal. However, if you have a
+GPC-specific question don't post there - use the GPC mailing list.  And
+when in doubt use the GPC mailing list.
+
+`news://comp.lang.pascal.borland'    Borland Pascal questions.
+
+   Don't forget to give back what you have obtained. None of us is
+getting money for answering your questions (unless you pay us by
+yourself). Please do your part by answering the questions of others
+instead.
+
+Where to get individual support for GPC
+=======================================
+
+GPC is free software and comes *without any warranty*.
+
+   If you want to get professional support, you can hire an individual
+or a company for providing such a service.
+
+   G-N-U GmbH (http://www.g-n-u.de) is doing large parts of the
+development of GNU Pascal. This company offers special support for GPC
+and can be contacted at <info@g-n-u.de>.
+
+   More generally, to find a company or an individual who offers
+support and other consulting services for free software, look into the
+GNU Service Directory (http://www.gnu.org/prep/service.html).
+
+If the compiler crashes ...
+===========================
+
+If the compiler crashes, you have discovered a bug. A reliable compiler
+never crashes. To help the maintainers fix this bug, it is important
+that you send us a problem report.
+
+   If you're on Unix, you can find out where the compiler crashed if
+you enable coredumps, then load the compiler (`gpc1') plus the core
+file in the debugger (`gdb /your_path_here/gpc1 core'), then type
+`backtrace' to get a stacktrace. Include this stacktrace in your bug
+report.
+
+How to report GPC bugs
+======================
+
+If you encounter a bug with GPC, please check whether it is one of the
+known bugs. If not, please report it to the GNU Pascal mailing list
+(*note Mailing List::). That way, they always reach the maintainers.
+Please note the following points.
+
+   * Please send a description of the problem. Try to give as much
+     information as possible, with the full text of any error messages
+     encountered, or a description of how some output varies from the
+     expected output. Always specify the operating system type with
+     version and the machine type (try `uname -a' if unsure) as well as
+     the version of GPC which you get by typing `gpc -v'.
+
+   * A good article on submitting bug reports can be found at either
+     `http://www.chiark.greenend.org.uk/~sgtatham/bugs.html' or
+     `http://freshmeat.net/news/2000/02/26/951627540.html'
+
+     Another good article "How To Ask Questions The Smart Way" is
+     available as `http://www.catb.org/~esr/faqs/smart-questions.html'
+
+     *Please note that the authors of these articles have no relation
+     to GPC and will not help you with your problems! The articles
+     contain general hints about how to report problems well.*
+
+
+   If the problem is with the compiler itself, not an installation
+problem or something like this, please provide a test program to
+reproduce the problem, and note the following hints. You can also
+contribute test programs for features that are working in GPC to ensure
+they will not break in future releases.
+
+   * The test program should be as short as possible, but *by all
+     means*, please send a *complete* program and *make sure* that it
+     still reproduces the problem before you send it. Too often, users
+     have sent code which contained obvious syntax errors far before
+     the actual problem, or just code fragments that we could only make
+     wild guesses about. This is unproductive for us and doesn't help
+     you get your problem solved.
+
+
+Miscellaneous
+*************
+
+I want to contribute; where do I start?
+=======================================
+
+If you want to contribute, please write to the mailing list, *Note
+Mailing List::.
+
+Where is the GNU Pascal web site?
+=================================
+
+The GPC homepage on the web, for information and downloads, is
+`http://www.gnu-pascal.de'.
+
+   The GPC To-Do list, listing the latest features and fixed bugs can
+also be found there.
+
+About this FAQ
+==============
+
+Current Maintainer: Russ Whitaker, <russ@ashlandhome.net>
+
+   This is the second incarnation of the GNU Pascal FAQ list, based on
+the previous FAQ by J.J. van der Heijden. Comments about, suggestions
+for, or corrections to this FAQ list are welcome.
+
+   Please make sure to include in your mail the version number of the
+document to which your comments apply (you can find the version at the
+beginning of this FAQ list).
+
+   Many people have contributed to this FAQ, only some of them are
+acknowledged above. Much of the info in, and inspiration for this FAQ
+list was taken from the GPC mailing list traffic, so you may have
+(unbeknownst to you) contributed to this list.
+

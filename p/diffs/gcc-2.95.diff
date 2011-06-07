@@ -1,0 +1,1363 @@
+*** ../gcc-2.95.3.orig/Makefile.in	1999-06-23 00:44:42.000000000 +0200
+--- Makefile.in	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 141,149 ****
+  	then echo $$r/m4/m4 ; \
+  	else echo ${DEFAULT_M4} ; fi`
+  
+! MAKEINFO = `if [ -f $$r/texinfo/makeinfo/Makefile ] ; \
+! 	then echo $$r/texinfo/makeinfo/makeinfo ; \
+! 	else echo makeinfo ; fi`
+  
+  # This just becomes part of the MAKEINFO definition passed down to
+  # sub-makes.  It lets flags be given on the command line while still
+--- 141,147 ----
+  	then echo $$r/m4/m4 ; \
+  	else echo ${DEFAULT_M4} ; fi`
+  
+! MAKEINFO = makeinfo
+  
+  # This just becomes part of the MAKEINFO definition passed down to
+  # sub-makes.  It lets flags be given on the command line while still
+diff -rc ../gcc-2.95.3.orig/gcc/Makefile.in gcc/Makefile.in
+*** ../gcc-2.95.3.orig/gcc/Makefile.in	2001-01-25 15:02:58.000000000 +0100
+--- gcc/Makefile.in	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 106,114 ****
+  # These permit overriding just for certain files.
+  INSTALL_PROGRAM = @INSTALL_PROGRAM@
+  INSTALL_DATA = @INSTALL_DATA@
+! MAKEINFO = `if [ -f $(objdir)/../texinfo/makeinfo/Makefile ] ; \
+! 	then echo $(objdir)/../texinfo/makeinfo/makeinfo ; \
+! 	else echo makeinfo ; fi`
+  MAKEINFOFLAGS =
+  TEXI2DVI = texi2dvi
+  # For GNUmake: let us decide what gets passed to recursive makes.
+--- 106,112 ----
+  # These permit overriding just for certain files.
+  INSTALL_PROGRAM = @INSTALL_PROGRAM@
+  INSTALL_DATA = @INSTALL_DATA@
+! MAKEINFO = makeinfo
+  MAKEINFOFLAGS =
+  TEXI2DVI = texi2dvi
+  # For GNUmake: let us decide what gets passed to recursive makes.
+diff -rc ../gcc-2.95.3.orig/gcc/config/i386/i386.h gcc/config/i386/i386.h
+*** ../gcc-2.95.3.orig/gcc/config/i386/i386.h	1999-04-25 13:43:49.000000000 +0200
+--- gcc/config/i386/i386.h	2006-03-13 23:20:22.000000000 +0100
+***************
+*** 258,272 ****
+     option if the fixed part matches.  The actual option name is made
+     by appending `-m' to the specified name.  */
+  #define TARGET_OPTIONS							\
+! { { "cpu=",		&ix86_cpu_string, "Schedule code for given CPU"}, \
+!   { "arch=",		&ix86_arch_string, "Generate code for given CPU"}, \
+!   { "reg-alloc=",	&i386_reg_alloc_order, "Control allocation order of integer registers" }, \
+!   { "regparm=",		&i386_regparm_string, "Number of registers used to pass integer arguments" }, \
+!   { "align-loops=",	&i386_align_loops_string, "Loop code aligned to this power of 2" }, \
+!   { "align-jumps=",	&i386_align_jumps_string, "Jump targets are aligned to this power of 2" }, \
+!   { "align-functions=",	&i386_align_funcs_string, "Function starts are aligned to this power of 2" }, \
+!   { "preferred-stack-boundary=", &i386_preferred_stack_boundary_string, "Attempt to keep stack aligned to this power of 2" }, \
+!   { "branch-cost=",	&i386_branch_cost_string, "Branches are this expensive (1-5, arbitrary units)" },			\
+    SUBTARGET_OPTIONS							\
+  }
+  
+--- 258,272 ----
+     option if the fixed part matches.  The actual option name is made
+     by appending `-m' to the specified name.  */
+  #define TARGET_OPTIONS							\
+! { { "cpu=",		(const char **) &ix86_cpu_string, "Schedule code for given CPU"}, \
+!   { "arch=",		(const char **) &ix86_arch_string, "Generate code for given CPU"}, \
+!   { "reg-alloc=",	(const char **) &i386_reg_alloc_order, "Control allocation order of integer registers" }, \
+!   { "regparm=",		(const char **) &i386_regparm_string, "Number of registers used to pass integer arguments" }, \
+!   { "align-loops=",	(const char **) &i386_align_loops_string, "Loop code aligned to this power of 2" }, \
+!   { "align-jumps=",	(const char **) &i386_align_jumps_string, "Jump targets are aligned to this power of 2" }, \
+!   { "align-functions=",	(const char **) &i386_align_funcs_string, "Function starts are aligned to this power of 2" }, \
+!   { "preferred-stack-boundary=", (const char **) &i386_preferred_stack_boundary_string, "Attempt to keep stack aligned to this power of 2" }, \
+!   { "branch-cost=",	(const char **) &i386_branch_cost_string, "Branches are this expensive (1-5, arbitrary units)" },			\
+    SUBTARGET_OPTIONS							\
+  }
+  
+diff -rc ../gcc-2.95.3.orig/gcc/configure gcc/configure
+*** ../gcc-2.95.3.orig/gcc/configure	2001-03-16 15:13:48.000000000 +0100
+--- gcc/configure	2006-03-13 23:20:22.000000000 +0100
+***************
+*** 8379,8385 ****
+  			echo "${srcdir}/$s/config-lang.in doesn't set \$language." 1>&2
+  			exit 1
+  		fi
+! 		all_lang_makefiles="$all_lang_makefiles ${srcdir}/$s/Make-lang.in ${srcdir}/$s/Makefile.in"
+  		all_languages="$all_languages $language"
+  		if test "x$boot_language" = xyes
+  		then
+--- 8379,8388 ----
+  			echo "${srcdir}/$s/config-lang.in doesn't set \$language." 1>&2
+  			exit 1
+  		fi
+! 		all_lang_makefiles="$all_lang_makefiles ${srcdir}/$s/Make-lang.in"
+! 		if test -f ${srcdir}/$s/Makefile.in
+! 		then all_lang_makefiles="$all_lang_makefiles ${srcdir}/$s/Makefile.in"
+! 		fi
+  		all_languages="$all_languages $language"
+  		if test "x$boot_language" = xyes
+  		then
+diff -rc ../gcc-2.95.3.orig/gcc/configure.lang gcc/configure.lang
+*** ../gcc-2.95.3.orig/gcc/configure.lang	1998-12-16 21:54:24.000000000 +0100
+--- gcc/configure.lang	2006-03-13 23:20:22.000000000 +0100
+***************
+*** 50,55 ****
+--- 50,56 ----
+  	test -d $subdir || mkdir $subdir
+  	cd $subdir
+  
++ if test -f "$srcdir/Makefile.in"; then
+  	# Create Makefile.tem from Makefile.in.
+  	# Make it set VPATH if necessary so that the sources are found.
+  	# Also change its value of srcdir.
+***************
+*** 157,162 ****
+--- 158,164 ----
+  		mv Makefile.xx Makefile.tem
+  		rm -f Makefile.ll
+  	fi
++ fi
+  
+  	# If the host supports
+  	# symlinks, point stage[123] at ../stage[123] so bootstrapping and the
+***************
+*** 169,174 ****
+--- 171,177 ----
+  		$symbolic_link ../$t $t 2>/dev/null
+  	done
+  
++ if test -f "$srcdir/Makefile.in"; then
+  	# Remove all formfeeds, since some Makes get confused by them.
+  	# Also arrange to give the variables `target', `target_alias',
+  	# `host_xmake_file', `tmake_file', `prefix', `local_prefix',
+***************
+*** 225,230 ****
+--- 228,234 ----
+  	rm -f Makefile
+  	mv Makefile.tem Makefile
+  	echo "Created \`$subdir/Makefile'."
++ fi
+  
+  	cd $STARTDIR
+  done   # end of current-dir SUBDIRS loop
+diff -rc ../gcc-2.95.3.orig/gcc/dbxout.c gcc/dbxout.c
+*** ../gcc-2.95.3.orig/gcc/dbxout.c	1999-04-18 15:09:24.000000000 +0200
+--- gcc/dbxout.c	2006-03-13 23:20:22.000000000 +0100
+***************
+*** 796,809 ****
+    tree type_encoding;
+    register tree fndecl;
+    register tree last;
+    char formatted_type_identifier_length[16];
+    register int type_identifier_length;
+! 
+    if (methods == NULL_TREE)
+      return;
+  
+    type_encoding = DECL_NAME (TYPE_NAME (type));
+! 
+  #if 0
+    /* C++: Template classes break some assumptions made by this code about
+       the class names, constructor names, and encodings for assembler
+--- 796,813 ----
+    tree type_encoding;
+    register tree fndecl;
+    register tree last;
++ #ifndef GPC
+    char formatted_type_identifier_length[16];
+    register int type_identifier_length;
+! #endif
+!   
+    if (methods == NULL_TREE)
+      return;
+  
++ #ifndef GPC
+    type_encoding = DECL_NAME (TYPE_NAME (type));
+! #endif
+!   
+  #if 0
+    /* C++: Template classes break some assumptions made by this code about
+       the class names, constructor names, and encodings for assembler
+***************
+*** 822,830 ****
+--- 826,836 ----
+    }
+  #endif
+  
++ #ifndef GPC
+    type_identifier_length = IDENTIFIER_LENGTH (type_encoding);
+  
+    sprintf(formatted_type_identifier_length, "%d", type_identifier_length);
++ #endif
+  
+    if (TREE_CODE (methods) != TREE_VEC)
+      fndecl = methods;
+***************
+*** 859,864 ****
+--- 865,871 ----
+  	  if (DECL_IGNORED_P (fndecl))
+  	    continue;
+  
++ #ifndef GPC
+  	  if (flag_minimal_debug)
+  	    {
+  	      char marker;
+***************
+*** 924,929 ****
+--- 931,937 ----
+  		  need_prefix = 0;
+  		}
+  	    }
++ #endif
+  
+  	  dbxout_type (TREE_TYPE (fndecl), 0, show_arg_types);
+  
+***************
+*** 1160,1165 ****
+--- 1168,1177 ----
+  	 HOST_BITS_PER_WIDE_INT.  That is wrong since gdb uses a
+  	 long (it has no concept of HOST_BITS_PER_WIDE_INT).  */
+        else if (use_gnu_debug_info_extensions
++ #ifdef GPC
++ 	       && TREE_CODE (TYPE_MIN_VALUE (type)) == INTEGER_CST
++ 	       && TREE_CODE (TYPE_MAX_VALUE (type)) == INTEGER_CST
++ #endif
+  	       && (TYPE_PRECISION (type) > TYPE_PRECISION (integer_type_node)
+  		   || TYPE_PRECISION (type) >= HOST_BITS_PER_LONG))
+  	{
+***************
+*** 1195,1201 ****
+  	  fputs ("@s", asmfile);
+  	  fprintf (asmfile, HOST_WIDE_INT_PRINT_DEC,
+  		   BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  fputs (";-20;", asmfile);
+  	}
+        else
+  	{
+--- 1207,1213 ----
+  	  fputs ("@s", asmfile);
+  	  fprintf (asmfile, HOST_WIDE_INT_PRINT_DEC,
+  		   BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  fputs (";-20", asmfile);
+  	}
+        else
+  	{
+***************
+*** 1214,1220 ****
+  	  fputs ("@s", asmfile);
+  	  fprintf (asmfile, HOST_WIDE_INT_PRINT_DEC,
+  		   BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  fputs (";-16;", asmfile);
+  	}
+        else /* Define as enumeral type (False, True) */
+  	fprintf (asmfile, "eFalse:0,True:1,;");
+--- 1226,1232 ----
+  	  fputs ("@s", asmfile);
+  	  fprintf (asmfile, HOST_WIDE_INT_PRINT_DEC,
+  		   BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  fputs (";-16", asmfile);
+  	}
+        else /* Define as enumeral type (False, True) */
+  	fprintf (asmfile, "eFalse:0,True:1,;");
+diff -rc ../gcc-2.95.3.orig/gcc/dwarf2out.c gcc/dwarf2out.c
+*** ../gcc-2.95.3.orig/gcc/dwarf2out.c	2001-01-25 15:03:03.000000000 +0100
+--- gcc/dwarf2out.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 6264,6272 ****
+        || TREE_CODE (type) == VOID_TYPE)
+      return 0;
+  
+!   if (TREE_CODE (name) == TYPE_DECL)
+!     name = DECL_NAME (name);
+!   type_name = IDENTIFIER_POINTER (name);
+  
+    switch (TREE_CODE (type))
+      {
+--- 6264,6278 ----
+        || TREE_CODE (type) == VOID_TYPE)
+      return 0;
+  
+!   if (name)
+!     {
+!       if (TREE_CODE (name) == TYPE_DECL)
+!         name = DECL_NAME (name);
+! 
+!       type_name = IDENTIFIER_POINTER (name);
+!     }
+!   else
+!     type_name = "__unknown__";
+  
+    switch (TREE_CODE (type))
+      {
+***************
+*** 7372,7386 ****
+        /* Else leave out the attribute.  */
+        break;
+  
+-     case MAX_EXPR:
+      case VAR_DECL:
+      case COMPONENT_REF:
+!       /* ??? These types of bounds can be created by the Ada front end,
+! 	 and it isn't clear how to emit debug info for them.  */
+        break;
+  
+      default:
+!       abort ();
+      }
+  }
+  
+--- 7378,7394 ----
+        /* Else leave out the attribute.  */
+        break;
+  
+      case VAR_DECL:
+      case COMPONENT_REF:
+!     case PARM_DECL:
+!       /* ??? These types of bounds as well as all kinds of expressions
+!              can be created by the Ada and Pascal front ends,
+!              and it isn't clear how to emit debug info for them.  */
+        break;
+  
+      default:
+!       if (!IS_EXPR_CODE_CLASS (TREE_CODE_CLASS (TREE_CODE (bound))))
+!         abort ();
+      }
+  }
+  
+***************
+*** 7797,7803 ****
+  
+        if (i < 0)
+  	{
+! 	  if (TREE_CODE_CLASS (TREE_CODE (containing_scope)) != 't')
+  	    abort ();
+  	  if (debug_info_level > DINFO_LEVEL_TERSE
+  	      && !TREE_ASM_WRITTEN (containing_scope))
+--- 7805,7812 ----
+  
+        if (i < 0)
+  	{
+! 	  if (TREE_CODE_CLASS (TREE_CODE (containing_scope)) != 't'
+! 	      && TREE_CODE_CLASS (TREE_CODE (containing_scope)) != 'd')
+  	    abort ();
+  	  if (debug_info_level > DINFO_LEVEL_TERSE
+  	      && !TREE_ASM_WRITTEN (containing_scope))
+***************
+*** 9525,9531 ****
+        /* Don't output any DIEs to represent mere function declarations,
+  	 unless they are class members or explicit block externs.  */
+        if (DECL_INITIAL (decl) == NULL_TREE && DECL_CONTEXT (decl) == NULL_TREE
+! 	  && (current_function_decl == NULL_TREE || ! DECL_ARTIFICIAL (decl)))
+  	break;
+  
+        if (debug_info_level > DINFO_LEVEL_TERSE)
+--- 9534,9540 ----
+        /* Don't output any DIEs to represent mere function declarations,
+  	 unless they are class members or explicit block externs.  */
+        if (DECL_INITIAL (decl) == NULL_TREE && DECL_CONTEXT (decl) == NULL_TREE
+! 	  && (current_function_decl == NULL_TREE || DECL_ARTIFICIAL (decl)))
+  	break;
+  
+        if (debug_info_level > DINFO_LEVEL_TERSE)
+diff -rc ../gcc-2.95.3.orig/gcc/expr.c gcc/expr.c
+*** ../gcc-2.95.3.orig/gcc/expr.c	2001-02-19 15:02:00.000000000 +0100
+--- gcc/expr.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 4505,4510 ****
+--- 4505,4517 ----
+  
+        domain_min = convert (sizetype, TYPE_MIN_VALUE (domain));
+        domain_max = convert (sizetype, TYPE_MAX_VALUE (domain));
++ 
++ #ifdef GPC
++       /* Align the set.  */
++       if (set_alignment)
++         domain_min = size_binop (BIT_AND_EXPR, domain_min, size_int (-set_alignment));
++ #endif /* GPC */
++ 
+        bitlength = size_binop (PLUS_EXPR,
+  			      size_binop (MINUS_EXPR, domain_max, domain_min),
+  			      size_one_node);
+***************
+*** 4519,4525 ****
+--- 4526,4534 ----
+        if (GET_MODE (target) != BLKmode || nbits <= 2 * BITS_PER_WORD
+  	  || (nbytes <= 32 && TREE_CHAIN (elt) != NULL_TREE))
+  	{
++ #ifndef GPC
+  	  int set_word_size = TYPE_ALIGN (TREE_TYPE (exp));
++ #endif /* not GPC */
+  	  enum machine_mode mode = mode_for_size (set_word_size, MODE_INT, 1);
+  	  char *bit_buffer = (char *) alloca (nbits);
+  	  HOST_WIDE_INT word = 0;
+***************
+*** 4531,4540 ****
+  	    {
+  	      if (bit_buffer[ibit])
+  		{
+  		  if (BYTES_BIG_ENDIAN)
+! 		    word |= (1 << (set_word_size - 1 - bit_pos));
+  		  else
+! 		    word |= 1 << bit_pos;
+  		}
+  	      bit_pos++;  ibit++;
+  	      if (bit_pos >= set_word_size || ibit == nbits)
+--- 4540,4553 ----
+  	    {
+  	      if (bit_buffer[ibit])
+  		{
++ #ifdef GPC
++ 		  if (set_words_big_endian)
++ #else /* not GPC */
+  		  if (BYTES_BIG_ENDIAN)
+! #endif /* not GPC */
+! 		    word |= ((HOST_WIDE_INT) 1 << (set_word_size - 1 - bit_pos));
+  		  else
+! 		    word |= (HOST_WIDE_INT) 1 << bit_pos;
+  		}
+  	      bit_pos++;  ibit++;
+  	      if (bit_pos >= set_word_size || ibit == nbits)
+***************
+*** 4567,4572 ****
+--- 4580,4590 ----
+  	}
+        else if (!cleared)
+  	{
++    /* GPC expects bits outside the range to be cleared. (fjf1010.pas)
++       Though this check might be "dead" in this GCC version since it only
++       applies to single ranges with constant bounds, and those are apparently
++       always stored as constants anyway, not initialized via `__setbits'. */
++ #ifndef GPC
+  	  /* Don't bother clearing storage if the set is all ones.  */
+  	  if (TREE_CHAIN (elt) != NULL_TREE
+  	      || (TREE_PURPOSE (elt) == NULL_TREE
+***************
+*** 4576,4581 ****
+--- 4594,4600 ----
+  		     || (TREE_INT_CST_LOW (TREE_VALUE (elt))
+  			 - TREE_INT_CST_LOW (TREE_PURPOSE (elt)) + 1
+  			 != nbits))))
++ #endif
+  	    clear_storage (target, expr_size (exp),
+  			   TYPE_ALIGN (type) / BITS_PER_UNIT);
+  	}
+***************
+*** 4645,4650 ****
+--- 4664,4675 ----
+  	  else
+  #endif
+  	    {
++ #ifdef GPC
++               /* The language-specific run time library must provide
++                  a suitable `__setbits()' function whose action coincides
++                  with the values of `set_word_size', `set_alignment', and
++                  `set_words_big_endian'.  */
++ #endif /* GPC */
+  	      emit_library_call (gen_rtx_SYMBOL_REF (Pmode, "__setbits"),
+  				 0, VOIDmode, 4, XEXP (targetx, 0), Pmode,
+  				 bitlength_rtx, TYPE_MODE (sizetype),
+***************
+*** 6278,6284 ****
+  	  if (target == 0 || ! safe_from_p (target, exp, 1)
+  	      || GET_CODE (target) == PARALLEL)
+  	    {
+! 	      if (mode != BLKmode && ! TREE_ADDRESSABLE (exp))
+  		target = gen_reg_rtx (tmode != VOIDmode ? tmode : mode);
+  	      else
+  		target = assign_temp (type, 0, 1, 1);
+--- 6303,6310 ----
+  	  if (target == 0 || ! safe_from_p (target, exp, 1)
+  	      || GET_CODE (target) == PARALLEL)
+  	    {
+! 	      if (mode != BLKmode && tmode != BLKmode
+! 	          && ! TREE_ADDRESSABLE (exp))
+  		target = gen_reg_rtx (tmode != VOIDmode ? tmode : mode);
+  	      else
+  		target = assign_temp (type, 0, 1, 1);
+***************
+*** 6963,6968 ****
+--- 6989,7004 ----
+        if (modifier == EXPAND_INITIALIZER)
+  	return gen_rtx_fmt_e (unsignedp ? ZERO_EXTEND : SIGN_EXTEND, mode, op0);
+  
++       if (mode == BLKmode && GET_MODE (op0) != BLKmode
++           && GET_CODE (op0) == MEM)
++         {
++           /* @@@@ ATM we should get here only for fake packed arrays
++              constructors, for which alignment is OK */
++           op0 = copy_rtx (op0);
++           op0 = change_address (op0, TYPE_MODE (type), 0);
++           return op0;
++         }
++ 			
+        if (target == 0)
+  	return
+  	  convert_to_mode (mode, op0,
+diff -rc ../gcc-2.95.3.orig/gcc/fold-const.c gcc/fold-const.c
+*** ../gcc-2.95.3.orig/gcc/fold-const.c	2001-01-25 15:03:14.000000000 +0100
+--- gcc/fold-const.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 1462,1469 ****
+--- 1462,1473 ----
+      }
+  
+    TREE_OVERFLOW (t)
++ #ifdef GPC
++     = ((notrunc ? overflow : force_fit_type (t, overflow))
++ #else /* not GPC */
+      = ((notrunc ? (!uns || forsize) && overflow
+  	: force_fit_type (t, (!uns || forsize) && overflow) && ! no_overflow)
++ #endif /* not GPC */
+         | TREE_OVERFLOW (arg1)
+         | TREE_OVERFLOW (arg2));
+    /* If we're doing a size calculation, unsigned arithmetic does overflow.
+***************
+*** 4720,4729 ****
+  				    TREE_TYPE (TREE_TYPE (arg0)),
+  				    TREE_OPERAND (arg0, 1))));
+        else if (TREE_CODE (arg0) == COMPLEX_CST)
+! 	return build_complex (type, TREE_OPERAND (arg0, 0),
+  			      fold (build1 (NEGATE_EXPR,
+  					    TREE_TYPE (TREE_TYPE (arg0)),
+! 					    TREE_OPERAND (arg0, 1))));
+        else if (TREE_CODE (arg0) == PLUS_EXPR || TREE_CODE (arg0) == MINUS_EXPR)
+  	return fold (build (TREE_CODE (arg0), type,
+  			    fold (build1 (CONJ_EXPR, type,
+--- 4724,4733 ----
+  				    TREE_TYPE (TREE_TYPE (arg0)),
+  				    TREE_OPERAND (arg0, 1))));
+        else if (TREE_CODE (arg0) == COMPLEX_CST)
+! 	return build_complex (type, TREE_REALPART (arg0),
+  			      fold (build1 (NEGATE_EXPR,
+  					    TREE_TYPE (TREE_TYPE (arg0)),
+! 					    TREE_IMAGPART (arg0))));
+        else if (TREE_CODE (arg0) == PLUS_EXPR || TREE_CODE (arg0) == MINUS_EXPR)
+  	return fold (build (TREE_CODE (arg0), type,
+  			    fold (build1 (CONJ_EXPR, type,
+diff -rc ../gcc-2.95.3.orig/gcc/function.c gcc/function.c
+*** ../gcc-2.95.3.orig/gcc/function.c	2001-01-25 15:03:15.000000000 +0100
+--- gcc/function.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 1572,1578 ****
+  
+    /* If this is a variable-size object with a pseudo to address it,
+       put that pseudo into the stack, if the var is nonlocal.  */
+!   if (DECL_NONLOCAL (decl)
+        && GET_CODE (reg) == MEM
+        && GET_CODE (XEXP (reg, 0)) == REG
+        && REGNO (XEXP (reg, 0)) > LAST_VIRTUAL_REGISTER)
+--- 1572,1578 ----
+  
+    /* If this is a variable-size object with a pseudo to address it,
+       put that pseudo into the stack, if the var is nonlocal.  */
+!   if (TREE_CODE (decl) != SAVE_EXPR && DECL_NONLOCAL (decl)
+        && GET_CODE (reg) == MEM
+        && GET_CODE (XEXP (reg, 0)) == REG
+        && REGNO (XEXP (reg, 0)) > LAST_VIRTUAL_REGISTER)
+diff -rc ../gcc-2.95.3.orig/gcc/gcc.c gcc/gcc.c
+*** ../gcc-2.95.3.orig/gcc/gcc.c	2001-01-25 15:03:16.000000000 +0100
+--- gcc/gcc.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 1274,1280 ****
+  
+  /* Vector of pointers to arguments in the current line of specifications.  */
+  
+! static char **argbuf;
+  
+  /* Number of elements allocated in argbuf.  */
+  
+--- 1274,1280 ----
+  
+  /* Vector of pointers to arguments in the current line of specifications.  */
+  
+! static const char **argbuf;
+  
+  /* Number of elements allocated in argbuf.  */
+  
+***************
+*** 1421,1432 ****
+  
+  static void
+  store_arg (arg, delete_always, delete_failure)
+!      char *arg;
+       int delete_always, delete_failure;
+  {
+    if (argbuf_index + 1 == argbuf_length)
+      argbuf
+!       = (char **) xrealloc (argbuf, (argbuf_length *= 2) * sizeof (char *));
+  
+    argbuf[argbuf_index++] = arg;
+    argbuf[argbuf_index] = 0;
+--- 1421,1432 ----
+  
+  static void
+  store_arg (arg, delete_always, delete_failure)
+!      const char *arg;
+       int delete_always, delete_failure;
+  {
+    if (argbuf_index + 1 == argbuf_length)
+      argbuf
+!       = (const char **) xrealloc (argbuf, (argbuf_length *= 2) * sizeof (char *));
+  
+    argbuf[argbuf_index++] = arg;
+    argbuf[argbuf_index] = 0;
+***************
+*** 2205,2211 ****
+    struct command
+      {
+        const char *prog;		/* program name.  */
+!       char **argv;	/* vector of args.  */
+        int pid;			/* pid of process for this command.  */
+      };
+  
+--- 2205,2211 ----
+    struct command
+      {
+        const char *prog;		/* program name.  */
+!       const char **argv;	/* vector of args.  */
+        int pid;			/* pid of process for this command.  */
+      };
+  
+***************
+*** 2259,2265 ****
+        /* Print each piped command as a separate line.  */
+        for (i = 0; i < n_commands ; i++)
+  	{
+! 	  char **j;
+  
+  	  for (j = commands[i].argv; *j; j++)
+  	    fprintf (stderr, " %s", *j);
+--- 2259,2265 ----
+        /* Print each piped command as a separate line.  */
+        for (i = 0; i < n_commands ; i++)
+  	{
+! 	  const char **j;
+  
+  	  for (j = commands[i].argv; *j; j++)
+  	    fprintf (stderr, " %s", *j);
+***************
+*** 2288,2296 ****
+    for (i = 0; i < n_commands; i++)
+      {
+        char *errmsg_fmt, *errmsg_arg;
+!       char *string = commands[i].argv[0];
+  
+!       commands[i].pid = pexecute (string, commands[i].argv,
+  				  programname, temp_filename,
+  				  &errmsg_fmt, &errmsg_arg,
+  				  ((i == 0 ? PEXECUTE_FIRST : 0)
+--- 2288,2296 ----
+    for (i = 0; i < n_commands; i++)
+      {
+        char *errmsg_fmt, *errmsg_arg;
+!       const char *string = commands[i].argv[0];
+  
+!       commands[i].pid = pexecute (string, (char **) commands[i].argv,
+  				  programname, temp_filename,
+  				  &errmsg_fmt, &errmsg_arg,
+  				  ((i == 0 ? PEXECUTE_FIRST : 0)
+***************
+*** 2301,2309 ****
+  
+        if (commands[i].pid == -1)
+  	pfatal_pexecute (errmsg_fmt, errmsg_arg);
+- 
+-       if (string != commands[i].prog)
+- 	free (string);
+      }
+  
+    execution_count++;
+--- 2301,2306 ----
+***************
+*** 4673,4679 ****
+  #endif
+  
+    argbuf_length = 10;
+!   argbuf = (char **) xmalloc (argbuf_length * sizeof (char *));
+  
+    obstack_init (&obstack);
+  
+--- 4670,4676 ----
+  #endif
+  
+    argbuf_length = 10;
+!   argbuf = (const char **) xmalloc (argbuf_length * sizeof (char *));
+  
+    obstack_init (&obstack);
+  
+diff -rc ../gcc-2.95.3.orig/gcc/graph.c gcc/graph.c
+*** ../gcc-2.95.3.orig/gcc/graph.c	1999-04-14 22:28:52.000000000 +0200
+--- gcc/graph.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 345,351 ****
+  	      bb = BASIC_BLOCK (i);
+  
+  	      /* End of the basic block.  */
+! 	      end_bb (fp, bb);
+  
+  	      /* Now specify the edges to all the successors of this
+  		 basic block.  */
+--- 345,351 ----
+  	      bb = BASIC_BLOCK (i);
+  
+  	      /* End of the basic block.  */
+! 	      end_bb (fp, (int) bb);
+  
+  	      /* Now specify the edges to all the successors of this
+  		 basic block.  */
+diff -rc ../gcc-2.95.3.orig/gcc/jump.c gcc/jump.c
+*** ../gcc-2.95.3.orig/gcc/jump.c	1999-10-21 08:24:03.000000000 +0200
+--- gcc/jump.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 2151,2156 ****
+--- 2151,2157 ----
+  	 gcse.  We eliminate such insns now to avoid having them
+  	 cause problems later.  */
+        else if (GET_CODE (insn) == JUMP_INSN
++ 	       && GET_CODE (PATTERN (insn)) == SET
+  	       && SET_SRC (PATTERN (insn)) == pc_rtx
+  	       && SET_DEST (PATTERN (insn)) == pc_rtx)
+  	insn = delete_insn (insn);
+Tylko w gcc: p
+diff -rc ../gcc-2.95.3.orig/gcc/protoize.c gcc/protoize.c
+*** ../gcc-2.95.3.orig/gcc/protoize.c	1999-04-16 21:52:36.000000000 +0200
+--- gcc/protoize.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 767,775 ****
+  static void
+  safe_write (desc, ptr, len, out_fname)
+       int desc;
+!      char *ptr;
+       int len;
+!      char *out_fname;
+  {
+    while (len > 0) {
+      int written = write (desc, ptr, len);
+--- 767,775 ----
+  static void
+  safe_write (desc, ptr, len, out_fname)
+       int desc;
+!      const char *ptr;
+       int len;
+!      const char *out_fname;
+  {
+    while (len > 0) {
+      int written = write (desc, ptr, len);
+diff -rc ../gcc-2.95.3.orig/gcc/reload1.c gcc/reload1.c
+*** ../gcc-2.95.3.orig/gcc/reload1.c	2001-01-25 15:03:21.000000000 +0100
+--- gcc/reload1.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 1247,1253 ****
+  maybe_fix_stack_asms ()
+  {
+  #ifdef STACK_REGS
+!   char *constraints[MAX_RECOG_OPERANDS];
+    enum machine_mode operand_mode[MAX_RECOG_OPERANDS];
+    struct insn_chain *chain;
+  
+--- 1247,1253 ----
+  maybe_fix_stack_asms ()
+  {
+  #ifdef STACK_REGS
+!   const char *constraints[MAX_RECOG_OPERANDS];
+    enum machine_mode operand_mode[MAX_RECOG_OPERANDS];
+    struct insn_chain *chain;
+  
+***************
+*** 1282,1288 ****
+        /* For every operand, see what registers are allowed.  */
+        for (i = 0; i < noperands; i++)
+  	{
+! 	  char *p = constraints[i];
+  	  /* For every alternative, we compute the class of registers allowed
+  	     for reloading in CLS, and merge its contents into the reg set
+  	     ALLOWED.  */
+--- 1282,1288 ----
+        /* For every operand, see what registers are allowed.  */
+        for (i = 0; i < noperands; i++)
+  	{
+! 	  const char *p = constraints[i];
+  	  /* For every alternative, we compute the class of registers allowed
+  	     for reloading in CLS, and merge its contents into the reg set
+  	     ALLOWED.  */
+diff -rc ../gcc-2.95.3.orig/gcc/stor-layout.c gcc/stor-layout.c
+*** ../gcc-2.95.3.orig/gcc/stor-layout.c	1999-03-11 14:56:20.000000000 +0100
+--- gcc/stor-layout.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 19,24 ****
+--- 19,26 ----
+  Boston, MA 02111-1307, USA.  */
+  
+  
++ /* @@ PATCHED FOR GPC 20070903 @@ */
++ 
+  #include "config.h"
+  #include "system.h"
+  
+***************
+*** 53,58 ****
+--- 55,73 ----
+     May be overridden by front-ends.  */
+  int set_alignment = 0;
+  
++ #ifdef GPC
++ /* The word size of a bitstring or (power-)set value, in bits.
++    Must be non-zero.
++    May be overridden by front-ends.  */
++ int set_word_size = BITS_PER_UNIT;
++ 
++ /* If non-zero, bits in (power-)sets start with the highest bit.
++    May be overridden by front-ends.
++    In order to be backward-compatible, the Chill frontend should
++    initialize this to BYTES_BIG_ENDIAN.  */
++ int set_words_big_endian = 0;
++ #endif /* GPC */
++ 
+  static tree layout_record	PROTO((tree));
+  static void layout_union	PROTO((tree));
+  
+***************
+*** 831,841 ****
+--- 846,867 ----
+  					 lb, 0))
+  	      ub = TREE_OPERAND (ub, 0);
+  
++ #ifdef GPC
++ 	    /* Taken from gcc-3.3.4 -- Frank */
++ 	    /* The initial subtraction should happen in the original type so
++ 	       that (possible) negative values are handled appropriately.  */
++ 	    length = size_binop (PLUS_EXPR, size_one_node,
++ 				 convert (sizetype,
++ 					  fold (build (MINUS_EXPR,
++ 						       TREE_TYPE (lb),
++ 						       ub, lb))));
++ #else
+  	    /* The initial subtraction should happen in the original type so
+  	       that (possible) negative values are handled appropriately.  */
+  	    length = size_binop (PLUS_EXPR, size_one_node,
+  				 fold (build (MINUS_EXPR, TREE_TYPE (lb),
+  					      ub, lb)));
++ #endif
+  
+  	    /* If neither bound is a constant and sizetype is signed, make
+  	       sure the size is never negative.  We should really do this
+***************
+*** 1040,1045 ****
+--- 1066,1085 ----
+  	abort();
+        else
+  	{
++ #ifdef GPC
++ 	  int alignment = set_alignment ? set_alignment : set_word_size;
++           int lower_bound = TREE_INT_CST_LOW (TYPE_MIN_VALUE (TYPE_DOMAIN (type)));
++           int upper_bound = TREE_INT_CST_LOW (TYPE_MAX_VALUE (TYPE_DOMAIN (type)));
++ 	  int size_in_bits, rounded_size;
++           if (set_alignment)
++             size_in_bits = upper_bound - (lower_bound & (-alignment)) + 1;
++           else
++ 	    size_in_bits
++               = (TREE_INT_CST_LOW (TYPE_MAX_VALUE (TYPE_DOMAIN (type)))
++ 	         - TREE_INT_CST_LOW (TYPE_MIN_VALUE (TYPE_DOMAIN (type))) + 1);
++ 	  rounded_size
++ 	    = ((size_in_bits + alignment - 1) / alignment) * alignment;
++ #else /* not GPC */
+  #ifndef SET_WORD_SIZE
+  #define SET_WORD_SIZE BITS_PER_WORD
+  #endif
+***************
+*** 1049,1054 ****
+--- 1089,1095 ----
+  	       - TREE_INT_CST_LOW (TYPE_MIN_VALUE (TYPE_DOMAIN (type))) + 1);
+  	  int rounded_size
+  	    = ((size_in_bits + alignment - 1) / alignment) * alignment;
++ #endif /* not GPC */
+  	  if (rounded_size > alignment)
+  	    TYPE_MODE (type) = BLKmode;
+  	  else
+diff -rc ../gcc-2.95.3.orig/gcc/toplev.c gcc/toplev.c
+*** ../gcc-2.95.3.orig/gcc/toplev.c	2001-01-25 15:03:23.000000000 +0100
+--- gcc/toplev.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 1599,1605 ****
+  static void
+  vnotice (file, msgid, ap)
+       FILE *file;
+!      char *msgid;
+       va_list ap;
+  {
+    vfprintf (file, _(msgid), ap);
+--- 1599,1605 ----
+  static void
+  vnotice (file, msgid, ap)
+       FILE *file;
+!      const char *msgid;
+       va_list ap;
+  {
+    vfprintf (file, _(msgid), ap);
+***************
+*** 1609,1622 ****
+  notice VPROTO((const char *msgid, ...))
+  {
+  #ifndef ANSI_PROTOTYPES
+!   char *msgid;
+  #endif
+    va_list ap;
+  
+    VA_START (ap, msgid);
+  
+  #ifndef ANSI_PROTOTYPES
+!   msgid = va_arg (ap, char *);
+  #endif
+  
+    vnotice (stderr, msgid, ap);
+--- 1609,1622 ----
+  notice VPROTO((const char *msgid, ...))
+  {
+  #ifndef ANSI_PROTOTYPES
+!   const char *msgid;
+  #endif
+    va_list ap;
+  
+    VA_START (ap, msgid);
+  
+  #ifndef ANSI_PROTOTYPES
+!   msgid = va_arg (ap, const char *);
+  #endif
+  
+    vnotice (stderr, msgid, ap);
+***************
+*** 1647,1653 ****
+  
+  static void
+  report_file_and_line (file, line, warn)
+!      char *file;
+       int line;
+       int warn;
+  {
+--- 1647,1653 ----
+  
+  static void
+  report_file_and_line (file, line, warn)
+!      const char *file;
+       int line;
+       int warn;
+  {
+diff -rc ../gcc-2.95.3.orig/gcc/tree.c gcc/tree.c
+*** ../gcc-2.95.3.orig/gcc/tree.c	2001-01-25 15:03:23.000000000 +0100
+--- gcc/tree.c	2006-03-14 05:46:35.000000000 +0100
+***************
+*** 637,642 ****
+--- 637,659 ----
+      = (char *) obstack_alloc (function_maybepermanent_obstack, 0);
+  }
+  
++ #ifdef GPC
++ /* When building a type copy or something similar, and the original
++    type (whose obstack is used, which is done by the caller) is
++    placed on the function_maybepermanent_obstack *before* its limit
++    (maybepermanent_firstobj), the new type must be there as well
++    because it is kept as a variant of the original type, i.e. we
++    must set the limit here. */
++ static void
++ check_type_obstack (type)
++      tree type;
++ {
++   if (TYPE_OBSTACK (type) == function_maybepermanent_obstack
++       && (char *) type < maybepermanent_firstobj)
++     preserve_data ();
++ }
++ #endif
++ 
+  void
+  preserve_initializer ()
+  {
+***************
+*** 3379,3384 ****
+--- 3396,3404 ----
+  	 then type_hash_add calls oballoc expecting to get something permanent
+  	 back.  */
+        current_obstack = ambient_obstack;
++ #ifdef GPC
++       check_type_obstack (ttype);
++ #endif
+      }
+  
+    return ttype;
+***************
+*** 3695,3700 ****
+--- 3715,3723 ----
+    current_obstack = TYPE_OBSTACK (type);
+    t = copy_node (type);
+    current_obstack = ambient_obstack;
++ #ifdef GPC
++   check_type_obstack (type);
++ #endif
+  
+    TYPE_POINTER_TO (t) = 0;
+    TYPE_REFERENCE_TO (t) = 0;
+***************
+*** 4155,4160 ****
+--- 4178,4186 ----
+    push_obstacks (TYPE_OBSTACK (to_type), TYPE_OBSTACK (to_type));
+    t = make_node (POINTER_TYPE);
+    pop_obstacks ();
++ #ifdef GPC
++   check_type_obstack (to_type);
++ #endif
+  
+    TREE_TYPE (t) = to_type;
+  
+***************
+*** 4190,4195 ****
+--- 4216,4224 ----
+    push_obstacks (TYPE_OBSTACK (itype), TYPE_OBSTACK (itype));
+    TYPE_MAX_VALUE (itype) = convert (sizetype, maxval);
+    pop_obstacks ();
++ #ifdef GPC
++   check_type_obstack (itype);
++ #endif
+  
+    TYPE_MODE (itype) = TYPE_MODE (sizetype);
+    TYPE_SIZE (itype) = TYPE_SIZE (sizetype);
+***************
+*** 4230,4241 ****
+--- 4259,4276 ----
+    TYPE_MIN_VALUE (itype) = convert (type, lowval);
+    TYPE_MAX_VALUE (itype) = highval ? convert (type, highval) : NULL;
+    pop_obstacks ();
++ #ifdef GPC
++   check_type_obstack (itype);
++ #endif
+  
+    TYPE_PRECISION (itype) = TYPE_PRECISION (type);
+    TYPE_MODE (itype) = TYPE_MODE (type);
+    TYPE_SIZE (itype) = TYPE_SIZE (type);
+    TYPE_SIZE_UNIT (itype) = TYPE_SIZE_UNIT (type);
+    TYPE_ALIGN (itype) = TYPE_ALIGN (type);
++ #ifdef GPC
++   TREE_UNSIGNED (itype) = TREE_UNSIGNED (type);
++ #endif
+    if (TREE_CODE (lowval) == INTEGER_CST)
+      {
+        HOST_WIDE_INT lowint, highint;
+***************
+*** 4397,4402 ****
+--- 4432,4440 ----
+    push_obstacks (TYPE_OBSTACK (to_type), TYPE_OBSTACK (to_type));
+    t = make_node (REFERENCE_TYPE);
+    pop_obstacks ();
++ #ifdef GPC
++   check_type_obstack (to_type);
++ #endif
+  
+    TREE_TYPE (t) = to_type;
+  
+***************
+*** 4661,4667 ****
+  
+    if (TREE_CODE (op) == COMPONENT_REF
+        /* Since type_for_size always gives an integer type.  */
+!       && TREE_CODE (TREE_TYPE (op)) != REAL_TYPE)
+      {
+        unsigned innerprec = TREE_INT_CST_LOW (DECL_SIZE (TREE_OPERAND (op, 1)));
+        tree type = type_for_size (innerprec, TREE_UNSIGNED (op));
+--- 4699,4707 ----
+  
+    if (TREE_CODE (op) == COMPONENT_REF
+        /* Since type_for_size always gives an integer type.  */
+!       && TREE_CODE (TREE_TYPE (op)) != REAL_TYPE
+!       /* Ensure field is laid out already.  */
+!       && DECL_SIZE (TREE_OPERAND (op, 1)) != 0)
+      {
+        unsigned innerprec = TREE_INT_CST_LOW (DECL_SIZE (TREE_OPERAND (op, 1)));
+        tree type = type_for_size (innerprec, TREE_UNSIGNED (op));
+***************
+*** 5025,5030 ****
+--- 5065,5079 ----
+    HOST_WIDE_INT domain_min
+      = TREE_INT_CST_LOW (TYPE_MIN_VALUE (TYPE_DOMAIN (TREE_TYPE (init))));
+    tree non_const_bits = NULL_TREE;
++ 
++ #ifdef GPC
++   /* Align the set.  */
++   if (set_alignment)
++     /* Note: `domain_min -= domain_min % set_alignment' would be wrong for negative
++        numbers (rounding towards 0, while we have to round towards -inf). */
++     domain_min &= -set_alignment;
++ #endif /* GPC */
++ 
+    for (i = 0; i < bit_size; i++)
+      buffer[i] = 0;
+  
+***************
+*** 5044,5051 ****
+  	  HOST_WIDE_INT hi_index
+  	    = TREE_INT_CST_LOW (TREE_VALUE (vals)) - domain_min;
+  	  if (lo_index < 0 || lo_index >= bit_size
+! 	    || hi_index < 0 || hi_index >= bit_size)
+! 	    abort ();
+  	  for ( ; lo_index <= hi_index; lo_index++)
+  	    buffer[lo_index] = 1;
+  	}
+--- 5093,5103 ----
+  	  HOST_WIDE_INT hi_index
+  	    = TREE_INT_CST_LOW (TREE_VALUE (vals)) - domain_min;
+  	  if (lo_index < 0 || lo_index >= bit_size
+! 	      || hi_index < 0 || hi_index >= bit_size)
+! 	    {
+! 	      error ("invalid set initializer");
+! 	      return NULL_TREE;
+! 	    }
+  	  for ( ; lo_index <= hi_index; lo_index++)
+  	    buffer[lo_index] = 1;
+  	}
+***************
+*** 5056,5062 ****
+  	    = TREE_INT_CST_LOW (TREE_VALUE (vals)) - domain_min;
+  	  if (index < 0 || index >= bit_size)
+  	    {
+! 	      error ("invalid initializer for bit string");
+  	      return NULL_TREE;
+  	    }
+  	  buffer[index] = 1;
+--- 5108,5114 ----
+  	    = TREE_INT_CST_LOW (TREE_VALUE (vals)) - domain_min;
+  	  if (index < 0 || index >= bit_size)
+  	    {
+! 	      error ("invalid set initializer");
+  	      return NULL_TREE;
+  	    }
+  	  buffer[index] = 1;
+***************
+*** 5077,5084 ****
+--- 5129,5140 ----
+       int wd_size;
+  {
+    int i;
++ #ifdef GPC
++   int bit_size = wd_size * BITS_PER_UNIT;
++ #else /* not GPC */
+    int set_word_size = BITS_PER_UNIT;
+    int bit_size = wd_size * set_word_size;
++ #endif /* not GPC */
+    int bit_pos = 0;
+    unsigned char *bytep = buffer;
+    char *bit_buffer = (char *) alloca(bit_size);
+***************
+*** 5089,5094 ****
+--- 5145,5168 ----
+  
+    for (i = 0; i < bit_size; i++)
+      {
++ #ifdef GPC
++       if (bit_buffer[i])
++ 	{
++           int k = bit_pos / BITS_PER_UNIT;
++           if (WORDS_BIG_ENDIAN)
++             k = set_word_size / BITS_PER_UNIT - 1 - k;
++ 	  if (set_words_big_endian)
++ 	    bytep[k] |= (1 << (BITS_PER_UNIT - 1 - bit_pos % BITS_PER_UNIT));
++ 	  else
++ 	    bytep[k] |= (1 << (bit_pos % BITS_PER_UNIT));
++ 	}
++       bit_pos++;
++       if (bit_pos >= set_word_size)
++ 	{
++           bit_pos = 0;
++           bytep += set_word_size / BITS_PER_UNIT;
++         }
++ #else /* not GPC */
+        if (bit_buffer[i])
+  	{
+  	  if (BYTES_BIG_ENDIAN)
+***************
+*** 5099,5104 ****
+--- 5173,5179 ----
+        bit_pos++;
+        if (bit_pos >= set_word_size)
+  	bit_pos = 0, bytep++;
++ #endif /* not GPC */
+      }
+    return non_const_bits;
+  }
+diff -rc ../gcc-2.95.3.orig/gcc/tree.def gcc/tree.def
+*** ../gcc-2.95.3.orig/gcc/tree.def	1999-05-17 09:21:12.000000000 +0200
+--- gcc/tree.def	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 490,528 ****
+  DEFTREECODE (CLEANUP_POINT_EXPR, "cleanup_point_expr", 'e', 1)
+  
+  /* The following two codes are used in languages that have types where
+!    the position and/or sizes of fields vary from object to object of the
+!    same type, i.e., where some other field in the object contains a value
+!    that is used in the computation of another field's offset or size.
+! 
+!    For example, a record type with a discriminant in Ada is such a type.
+!    This mechanism is also used to create "fat pointers" for unconstrained
+!    array types in Ada; the fat pointer is a structure one of whose fields is
+!    a pointer to the actual array type and the other field is a pointer to a
+!    template, which is a structure containing the bounds of the array.  The
+!    bounds in the type pointed to by the first field in the fat pointer refer
+!    to the values in the template.
+! 
+!    These "self-references" are doing using a PLACEHOLDER_EXPR.  This is a
+!    node that will later be replaced with the object being referenced.  Its type
+!    is that of the object and selects which object to use from a chain of
+!    references (see below).
+! 
+!    When we wish to evaluate a size or offset, we check it is contains a
+!    placeholder.  If it does, we construct a WITH_RECORD_EXPR that contains
+!    both the expression we wish to evaluate and an expression within which the
+!    object may be found.  The latter expression is the object itself in
+!    the simple case of an Ada record with discriminant, but it can be the
+!    array in the case of an unconstrained array.
+! 
+!    In the latter case, we need the fat pointer, because the bounds of the
+!    array can only be accessed from it.  However, we rely here on the fact that
+!    the expression for the array contains the dereference of the fat pointer
+!    that obtained the array pointer.
+  
+     Accordingly, when looking for the object to substitute in place of
+     a PLACEHOLDER_EXPR, we look down the first operand of the expression
+!    passed as the second operand to WITH_RECORD_EXPR until we find something
+!    of the desired type or reach a constant.  */
+  
+  /* Denotes a record to later be supplied with a WITH_RECORD_EXPR when
+     evaluating this expression.  The type of this expression is used to
+--- 490,547 ----
+  DEFTREECODE (CLEANUP_POINT_EXPR, "cleanup_point_expr", 'e', 1)
+  
+  /* The following two codes are used in languages that have types where
+!    some field in an object of the type contains a value that is used in
+!    the computation of another field's offset or size and/or the size of
+!    the type.  The positions and/or sizes of fields can vary from object
+!    to object of the same type or even for one and the same object within
+!    its scope.
+! 
+!    Record types with discriminants in Ada or schema types in Pascal are
+!    examples of such types.  This mechanism is also used to create "fat
+!    pointers" for unconstrained array types in Ada; the fat pointer is a
+!    structure one of whose fields is a pointer to the actual array type
+!    and the other field is a pointer to a template, which is a structure
+!    containing the bounds of the array.  The bounds in the type pointed
+!    to by the first field in the fat pointer refer to the values in the
+!    template.
+! 
+!    When you wish to construct such a type you need "self-references"
+!    that allow you to reference the object having this type from the
+!    TYPE node, i.e. without having a variable instantiating this type.
+! 
+!    Such a "self-references" is done using a PLACEHOLDER_EXPR.  This is
+!    a node that will later be replaced with the object being referenced.
+!    Its type is that of the object and selects which object to use from
+!    a chain of references (see below).  No other slots are used in the
+!    PLACEHOLDER_EXPR.
+! 
+!    For example, if your type FOO is a RECORD_TYPE with a field BAR,
+!    and you need the value of <variable>.BAR to calculate TYPE_SIZE
+!    (FOO), just substitute <variable> above with a PLACEHOLDER_EXPR
+!    whose TREE_TYPE is FOO.  Then construct your COMPONENT_REF with
+!    the PLACEHOLDER_EXPR as the first operand (which has the correct
+!    type).  Later, when the size is needed in the program, the back-end
+!    will find this PLACEHOLDER_EXPR and generate code to calculate the
+!    actual size at run-time.  In the following, we describe how this
+!    calculation is done.
+! 
+!    When we wish to evaluate a size or offset, we check whether it
+!    contains a PLACEHOLDER_EXPR.  If it does, we construct a
+!    WITH_RECORD_EXPR that contains both the expression we wish to
+!    evaluate and an expression within which the object may be found.
+!    The latter expression is the object itself in the simple case of an
+!    Ada record with discriminant, but it can be the array in the case of
+!    an unconstrained array.
+! 
+!    In the latter case, we need the fat pointer, because the bounds of
+!    the array can only be accessed from it.  However, we rely here on the
+!    fact that the expression for the array contains the dereference of
+!    the fat pointer that obtained the array pointer.
+  
+     Accordingly, when looking for the object to substitute in place of
+     a PLACEHOLDER_EXPR, we look down the first operand of the expression
+!    passed as the second operand to WITH_RECORD_EXPR until we find
+!    something of the desired type or reach a constant.  */
+  
+  /* Denotes a record to later be supplied with a WITH_RECORD_EXPR when
+     evaluating this expression.  The type of this expression is used to
+diff -rc ../gcc-2.95.3.orig/gcc/tree.h gcc/tree.h
+*** ../gcc-2.95.3.orig/gcc/tree.h	2001-01-25 15:03:23.000000000 +0100
+--- gcc/tree.h	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 1133,1139 ****
+  /* Nonzero for any sort of ..._DECL node means this decl node represents
+     an inline instance of some original (abstract) decl from an inline function;
+     suppress any warnings about shadowing some other variable.  */
+! #define DECL_FROM_INLINE(NODE) (DECL_ABSTRACT_ORIGIN (NODE) != (tree) 0)
+  
+  /* Nonzero if a _DECL means that the name of this decl should be ignored
+     for symbolic debug purposes.  */
+--- 1133,1140 ----
+  /* Nonzero for any sort of ..._DECL node means this decl node represents
+     an inline instance of some original (abstract) decl from an inline function;
+     suppress any warnings about shadowing some other variable.  */
+! #define DECL_FROM_INLINE(NODE) (DECL_ABSTRACT_ORIGIN (NODE) != NULL_TREE \
+! 				&& DECL_ABSTRACT_ORIGIN (NODE) != (NODE))
+  
+  /* Nonzero if a _DECL means that the name of this decl should be ignored
+     for symbolic debug purposes.  */
+***************
+*** 1631,1636 ****
+--- 1632,1645 ----
+  /* If non-zero, the alignment of a bitstring or (power-)set value, in bits. */
+  extern int set_alignment;
+  
++ #ifdef GPC
++ /* The word size of a bitstring or (power-)set value, in bits.  */
++ extern int set_word_size;
++ 
++ /* If non-zero, bits in (power-)sets start with the highest bit.  */
++ extern int set_words_big_endian;
++ #endif /* GPC */
++ 
+  /* Concatenate two lists (chains of TREE_LIST nodes) X and Y
+     by making the last node in X point to Y.
+     Returns X, except if X is 0 returns Y.  */
+diff -rc ../gcc-2.95.3.orig/texinfo/makeinfo/makeinfo.c texinfo/makeinfo/makeinfo.c
+*** ../gcc-2.95.3.orig/texinfo/makeinfo/makeinfo.c	1999-05-28 04:10:10.000000000 +0200
+--- texinfo/makeinfo/makeinfo.c	2006-03-13 23:20:23.000000000 +0100
+***************
+*** 2215,2221 ****
+        free_pending_notes ();
+        if (tag_table != NULL)
+          {
+!           tag_table = (TAG_ENTRY *) reverse_list (tag_table);
+            if (!no_headers)
+              write_tag_table ();
+          }
+--- 2215,2221 ----
+        free_pending_notes ();
+        if (tag_table != NULL)
+          {
+!           tag_table = (TAG_ENTRY *) reverse_list ((GENERIC_LIST *) tag_table);
+            if (!no_headers)
+              write_tag_table ();
+          }
+***************
+*** 2274,2280 ****
+  void
+  init_paragraph ()
+  {
+!   free_and_clear (&output_paragraph);
+    output_paragraph = (unsigned char *)xmalloc (paragraph_buffer_len);
+    output_paragraph[0] = 0;
+    output_paragraph_offset = 0;
+--- 2274,2280 ----
+  void
+  init_paragraph ()
+  {
+!   free_and_clear ((char **) &output_paragraph);
+    output_paragraph = (unsigned char *)xmalloc (paragraph_buffer_len);
+    output_paragraph[0] = 0;
+    output_paragraph_offset = 0;

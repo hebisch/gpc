@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Generate diff of two GPC source trees
+#
+# Copyright (C) 1997-2006 Free Software Foundation, Inc.
+#
+# Authors: Jan-Jaap van der Heijden <J.J.vanderHeijden@student.utwente.nl>
+#          Peter Gerwinski <peter@gerwinski.de>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+if [ $# -ne 2 ]; then
+  echo "Usage: `basename "$0"` old-dir new-dir" >&2
+  exit 1
+fi
+
+if [ x"$GPC_SRCDIR" = x ]; then
+  echo "GPC_SRCDIR must be set" >&2
+  exit 1
+fi
+
+if [ -e "$GPC_SRCDIR/gcc/p/gpc.c" ]; then
+  srcdir="$GPC_SRCDIR/gcc/p"
+elif [ -e "$GPC_SRCDIR/p/gpc.c" ]; then
+  srcdir="$GPC_SRCDIR/p"
+else
+  echo "Invalid GPC_SRCDIR" >&2
+  exit 1
+fi
+
+# @@ These files are generated automatically. We should exclude them
+#    from the diff, but diff's exclude feature considers only base
+#    names, and there are README files in other directories that are
+#    not generated automatically. So, we just remove them, and let
+#    the next make run regenerate them ...
+rm -f "$srcdir/README" "$srcdir/test/README"
+
+"`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`/mkdiff" "$1"/p "$2"/p "$srcdir"/script/gpcdiff.exclude "$srcdir"/script/gpcdiff.intro

@@ -1,0 +1,321 @@
+@c Copyright (C) 1988-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-01-30 (file up to date)
+
+@node Invoking GPC
+@chapter Command Line Options supported by GNU Pascal.
+@cindex GNU Pascal command line options
+@cindex command line options
+@cindex options, command line
+
+GPC is a command-line compiler, i.e., to compile a program you have
+to invoke @file{gpc} passing it the name of the file you want to
+compile, plus options.
+
+GPC supports all command-line options that GCC knows, except for
+many preprocessor options. For a complete reference and descriptions
+of all options, see @ref{Invoking GCC,,GCC Command Options,gcc,the
+GCC Manual}. Below, you will find a list of the additional options
+that GPC supports, and a list of GPC's most important options
+(including some of those supported by GCC as well).
+
+You can mix options and file names on the command line. For the most
+part, the order doesn't matter. Order does matter, e.g., when you
+use several options of the same kind; for example, if you specify
+@samp{-L} more than once, the directories are searched in the order
+specified. @emph{Note:} Since many options have multiletter names;
+multiple single-letter options may @emph{not} be grouped as is
+possible with many other programs: @samp{-dr} is very different from
+@w{@samp{-d -r}}.
+
+Many options have long names starting with @samp{--} or, completely
+equivalent @samp{-f}. E.g., @samp{--mixed-comments} is the same as
+@samp{-fmixed-comments}. Some options tell GPC when to give
+warnings, i.e. diagnostic messages that report constructs which are
+not inherently erroneous but which are risky or suggest there may
+have been an error. Those options start with @samp{-W}.
+
+Most GPC specific options can also be changed during one compilation
+by using compiler directives in the source, e.g. @samp{@{$X+@}}
+or @samp{@{$extended-syntax@}} for @samp{--extended-syntax}
+(@pxref{Compiler Directives}).
+
+GPC understands the same environment variables GCC does
+(@pxref{Environment Variables,,Environment Variables Affecting GCC,gcc,the GCC manual}).
+In addition, GPC recognizes @samp{GPC_EXEC_PREFIX} with the same
+meaning that @samp{GCC_EXEC_PREFIX} has to GCC. GPC also recognizes
+@samp{GCC_EXEC_PREFIX}, but @samp{GPC_EXEC_PREFIX} takes precedence.
+
+Some of the long options (e.g., @samp{--unit-path}) take an
+argument. This argument is separated with a @samp{=} sign, e.g.:
+
+@smallexample
+--unit-path=/home/foo/units
+@end smallexample
+
+@menu
+* GPC Command Line Options::  GPC options besides those of GCC.
+* GPC Options::               The most commonly used options to GPC.
+@end menu
+
+
+@c =========================================================================
+
+
+@node GPC Command Line Options
+@section GPC options besides those of GCC.
+
+The following table lists the command line options GPC understands
+in addition to those understood by GCC.
+
+@include lang-options.texi
+
+
+@c =========================================================================
+
+
+@node GPC Options
+@section The most commonly used options to GPC
+
+As the most simple example, calling
+
+@smallexample
+gpc foo.pas
+@end smallexample
+
+tells GPC to compile the source file @file{foo.pas} and to produce
+an executable of the default name which is @file{foo.exe} on EMX,
+@file{a.exe} on Cygwin, both @file{a.out} and @file{a.exe} on DJGPP,
+and @file{a.out} on most other platforms.
+
+Users familiar with BP, please note that you have to give the file
+name extension @samp{.pas}: GPC is a common interface for a Pascal
+compiler, a C, ObjC and C++ compiler, an assembler, a linker, and
+perhaps an Ada and a FORTRAN compiler. From the extension of your
+source file GPC figures out which compiler to run. GPC recognizes
+Pascal sources by the extension @file{.pas}, @file{.p}, @file{.pp}
+or @file{.dpr}. GPC also accepts source files in other languages
+(e.g., @file{.c} for C) and calls the appropriate compilers for
+them. Files with the extension @file{.o} or without any special
+recognized extension are considered to be object files or libraries
+to be linked.
+
+Another example:
+
+@smallexample
+gpc -O2 -Wall --executable-file-name --automake --unit-path=units foo.pas
+@end smallexample
+
+This will compile the source file @file{foo.pas} to an executable
+named @file{foo} (@samp{--executable-file-name}) with fairly good
+optimization (@samp{-O2}), warning about possible problems
+(@samp{-Wall}). If the program uses units or imports modules, they
+will be searched for in a directory called @file{units}
+(@samp{--unit-path}) and automatically compiled and linked
+(@samp{--automake}).
+
+The following table lists the most commonly used options to GPC.
+
+@table @code
+@item --automake
+Check whether modules/units used must be recompiled and do the
+recompilation when necessary.
+
+@item --unit-path=@var{dir}[:@var{dir}@dots{}]
+Search the given directories for units and object files.
+
+@item --object-path=@var{dir}[:@var{dir}@dots{}]
+Search the given directories for object files.
+
+@item --unit-destination-path=@var{dir}
+Place compiled units (GPI and object files) into the directory
+@var{dir}. The default is the current directory.
+
+@item --object-destination-path=@var{dir}
+Place compiled object files (e.g., from C files, but not from Pascal
+units) into the directory @var{dir}. The default is the directory
+given with @samp{--unit-destination-path}.
+
+@item --executable-path=@var{dir}
+Place the executable compiled into the directory @var{dir}. The
+default is the main source file's directory.
+
+@item -o @var{file}
+@cindex output file option
+Place output in file @var{file}. This applies regardless to whatever
+sort of output is being produced, whether it be an executable file,
+an object file, an assembler file, etc.
+
+Since only one output file can be specified, it does not make sense
+to use @samp{-o} when compiling more than one input file, unless you
+are producing an executable file as output.
+
+@item --executable-file-name[=@var{name}]
+@cindex output file option
+Derive the executable file name from the source file name, or use
+@var{name} as the executable file name. The difference to the
+@samp{-o} option is that @samp{--executable-file-name} considers the
+@samp{--executable-path}, while @samp{-o} does not and accepts a
+file name with directory. Furthermore, @samp{--executable-file-name}
+only applies to executables, not to other output formats selected.
+
+@item -L@var{dir}
+Search the directory @var{dir} for libraries. Can be given multiple
+times.
+
+@item -I@var{dir}
+Search the directory @var{dir} for include files. Can be given
+multiple times.
+
+@item -l@var{library}
+@cindex Libraries
+Search the library named @var{library} when linking. This option
+must be placed on the command line @emph{after} all source or object
+files or other libraries that reference the library.
+
+@item -O[@var{n}]
+Select the optimization level. Without optimization (or @samp{-O0}
+which is the default), the compiler's goal is to reduce the
+compilation time and to make debugging produce the expected results.
+Statements are independent: if you stop the program with a
+breakpoint between statements, you can then assign a new value to
+any variable or change the program counter to any other statement in
+the same routine and get exactly the results you would expect from
+the source code.
+
+With optimization, the compiler tries to reduce code size and
+execution time. The higher the value of @var{n}, the more
+optimizations will be done, but the longer the compilation will
+take.
+
+If you use multiple @samp{-O} options, with or without @var{n}, the
+last such option is the one that is effective.
+
+@item -g
+Produce debugging information suitable for @samp{gdb}. Unlike some
+other compilers, GNU Pascal allows you to use @samp{-g} with
+@samp{-O}. The shortcuts taken by optimized code may occasionally
+produce surprising results: some variables you declared may not
+exist at all; flow of control may briefly move where you did not
+expect it; some statements may not be executed because they compute
+constant results or their values were already at hand; some
+statements may execute in different places because they were moved
+out of loops. Nevertheless it proves possible to debug optimized
+output. This makes it reasonable to use the optimizer for programs
+still in the testing phase.
+
+@item -s
+Remove all symbol table and relocation information from the
+executable. Note: this has no influence on the performance of the
+compiled executable.
+
+@item -Wall
+Give warnings for a number of constructs which are not inherently
+erroneous but which are risky or suggest there may have been an
+error. There are additional warning options not implied by
+@samp{-Wall}, see the GCC warning options
+(@pxref{Warning Options,,Options to Request or Suppress Warnings,gcc,the GCC manual}),
+while @samp{-Wall} only warns about such constructs that should be
+easy to avoid in programs. Therefore, we suggest using @samp{-Wall}
+on most sources.
+
+Note that some warnings (e.g., those about using uninitialized
+variables) are never given unless you compile with optimization (see
+above), because otherwise the compiler doesn't analyze the usage
+patterns of variables.
+
+@item -Werror
+Turn all warnings into errors.
+
+@item -S
+Stop after the stage of compilation proper; do not assemble. The
+output is in the form of an assembler code file for each source
+file. By default, the assembler file name for a source file is made
+by replacing the extension with @samp{.s}.
+
+@item -c
+Compile and assemble the source files, but do not link. The output
+is in the form of an object file for each source file. By default,
+the object file name for a source file is made by replacing the
+extension with @samp{.o}.
+
+@item -static
+On systems that support dynamic linking, this prevents linking with
+the shared libraries, i.e. forces static linking. On other systems,
+this option has no effect.
+
+@item -D@var{macro}[=@var{def}]
+Define the macro and conditional symbol @var{macro} as @var{def} (or
+as @samp{1} if @var{def} is omitted).
+
+@item -b @var{machine}
+The argument @var{machine} specifies the target machine for
+compilation. This is useful when you have installed GNU Pascal as a
+cross-compiler.
+
+@item -v
+Print (on standard error) the commands executed to run the stages of
+compilation. Also print the version number of the compiler driver
+program and of the preprocessor and the compiler proper.
+
+@item --classic-pascal-level-0
+@itemx --classic-pascal
+@itemx --extended-pascal
+@itemx --object-pascal
+@itemx --ucsd-pascal
+@itemx --borland-pascal
+@itemx --delphi
+@itemx --pascal-sc
+@itemx --mac-pascal
+GNU Pascal supports the features of several different Pascal
+standards and dialects. The intention is to have common
+language, where features off all dialects are available. 
+As result, the defualt language is the biggest dialect, with most
+features. Sometimies features of different dialect conflict (in such
+cases we usually provide more detailed switches to choose desired
+behaviour). These switches turn on maximal compatiblity with
+given dialect. In particular they tell GPC to restrict itself
+to the features of the specified standard. 
+Warnings about certain dangerous constructs which would be valid in
+the specified dialect (e.g., assignment to a typed constant with
+@samp{--borland-pascal}) are suppressed.
+
+By default, GNU Pascal allows the redefinition of some keywords.
+Each of these switches causes GNU Pascal to forbid the redefinition
+of keywords of the specified standard.
+
+Most ISO 7185 Pascal programs should compile properly with or
+without @samp{--classic-pascal}. However, without this option,
+some constructs behave in non-standard way. Moreover,
+certain GNU extensions and Pascal features from other dialects are
+supported as well. With this option, they are rejected.
+
+These options are not intended to be @i{useful}; they exist only to
+satisfy pedants who would otherwise claim that GNU Pascal fails to
+support the ISO Standard or is not @i{really} compatible to Borland
+Pascal, or whatever. We recommend, rather, that users take advantage
+of the extensions of GNU Pascal and disregard the limitations of
+other compilers.
+
+
+@item -pedantic-errors
+Produce errors rather than warnings for portability violations.
+Unlike in C, this does @emph{not} imply the @samp{-pedantic} option,
+so you can, for instance, use @samp{-pedantic-errors} without
+@samp{-pedantic}, but with @samp{--extended-pascal}.
+
+@item --gpc-main=@var{name}
+Name the entry point of the main program @samp{@var{name}} instead
+of @samp{main} on the linker level. This is useful, e.g., when
+working with some C libraries which define their own @samp{main}
+function and require the program's main entry point to be named
+differently. (This option should preferably be used as a compiler
+directive in the unit or module which links to that strange C
+library, rather than be given on the command-line.)
+
+@end table

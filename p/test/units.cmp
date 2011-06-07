@@ -1,0 +1,83 @@
+#!/bin/sh
+
+check_crt()
+{
+cat << EOF > dummy.c
+$1
+int main()
+{
+  return 0;
+}
+EOF
+gcc dummy.c "$2" > /dev/null 2>&1
+}
+
+HAVE_UNITS=""
+if check_crt '#include <ncurses.h>' -lncurses ||
+   check_crt '#include <curses.h>'  -lpdcurses ||
+   check_crt '#include <xcurses.h>' -lXCurses; then
+  HAVE_UNITS="$HAVE_UNITS -DHAVE_CRT"
+fi
+
+cat << EOF > dummy.c
+#include <gmp.h>
+#if __GNU_MP_VERSION <= 2
+#error foo
+#endif
+int main()
+{
+  return 0;
+}
+EOF
+if gcc dummy.c -lgmp > /dev/null 2>&1; then
+HAVE_UNITS="$HAVE_UNITS -DHAVE_GMP"
+cat << EOF > dummy.c
+#include <gmp.h>
+#if __GNU_MP_VERSION != 3
+#error foo
+#endif
+EOF
+if gcc -c dummy.c -lgmp > /dev/null 2>&1; then
+HAVE_UNITS="$HAVE_UNITS -DHAVE_GMP3"
+fi
+fi
+
+cat << EOF > dummy.c
+#include <stdlib.h>
+#include <rxposix.h>
+int main()
+{
+  return 0;
+}
+EOF
+if gcc dummy.c -lrx > /dev/null 2>&1; then
+  HAVE_UNITS="$HAVE_UNITS -DHAVE_REGEX"
+fi
+
+check_intl()
+{
+  cat << EOF > dummy.c
+#include <stdlib.h>
+#include <locale.h>
+#include <libintl.h>
+#include <limits.h>
+
+int main ()
+{
+  textdomain (NULL);
+  return 0;
+}
+EOF
+  gcc dummy.c "$@" > /dev/null 2>&1
+}
+if check_intl || check_intl "-lintl" || check_intl "-lintl" "-liconv"; then
+  HAVE_UNITS="$HAVE_UNITS -DHAVE_INTL"
+fi
+
+rm -f "$A_OUT" dummy.c
+$1 $2 $HAVE_UNITS
+if [ -r "$A_OUT" ] ; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

@@ -1,0 +1,77 @@
+#!/bin/sh
+
+# Check which bison nonterminals are referenced to from below their
+# declaration. If the grammar is mostly written top-down, this helps
+# identify grammar recursions.
+#
+# This script is rather slow (O(n^2)), but since it's not meant to be
+# used regularly while building, it doesn't really matter.
+#
+# Copyright (C) 2005-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+if [ $# -ne 1 ]; then
+  echo "Usage: `basename $0` bison-grammar-filename" >&2
+  exit 1
+fi
+
+symbol_count=0
+symbols=()
+current_symbol=""
+sed '1,/^%%$/d;/^%%$/,$d;/^\/\*/d;/^#/d' "$1" |
+while IFS="" read line; do
+  case $line in
+    [^\ ]*:) if [ x"$current_symbol" != x ]; then
+               symbols[$symbol_count]="$current_symbol"
+               symbol_count=$[symbol_count+1]
+             fi
+             current_symbol="${line%:}";;
+  esac
+  i=0
+  while [ $i -lt $symbol_count ]; do
+    a=${symbols[$i]}
+    if [ x"$a" != x ]; then
+      case " $line " in
+        *" $a "*) symbols[$i]=""
+                  echo "$a";;
+      esac
+    fi
+    i=$[i+1]
+  done
+done

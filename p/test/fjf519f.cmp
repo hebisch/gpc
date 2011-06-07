@@ -1,0 +1,8 @@
+#!/bin/sh
+rm -f "$A_OUT"
+if $PC_WITHOUT_GP -o "$A_OUT" -Wall -Werror -x Preprocessed-Pascal `echo "$2" | sed -e 's/\.pas/.in/'` \
+     && [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

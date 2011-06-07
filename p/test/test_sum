@@ -1,0 +1,168 @@
+#!/bin/sh
+
+# Script to summarize the results of a GPC Test Suite run
+#
+# Copyright (C) 1998-2006 Free Software Foundation, Inc.
+#
+# Authors: Matthias Klose <doko@cs.tu-berlin.de>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+dejagnu=0
+if [ x"$1" = x"-d" ]; then
+  shift
+  dejagnu=1
+fi
+
+# Find a good awk.
+if test -z "$AWK"; then
+  for AWK in gawk nawk awk ""; do
+    if type "$AWK" 2>&1 | grep 'not found' > /dev/null 2>&1; then
+      :
+    else
+      break
+    fi
+  done
+fi
+if test -z "$AWK"; then
+  echo 'No awk found.' >&2
+  exit 1
+fi
+
+FFLUSH='fflush("/dev/stdout")'  # useful if the output of this script is piped to another process ...
+echo dummy | "$AWK" "{ $FFLUSH }" > /dev/null 2>&1 || FFLUSH=""  # ... but not all awks support it
+
+"$AWK" '
+function doprint (s) {
+  if (dejagnu)
+    {
+      print s > "gpc.log"
+      if (s !~ /^ /)
+        {
+          print s > "gpc.sum"
+          if (s !~ /^PASS:/)
+            print s
+        }
+    }
+  else
+    print s
+}
+function header () {
+  doprint(l1)
+  doprint(l2)
+  if (dejagnu)
+    {
+      doprint("")
+      doprint("		=== gpc tests ===")
+      doprint("")
+      doprint("Running target any")
+      doprint("Running testsuite ...")
+      doprint("")
+    }
+  else
+    doprint(l3)
+}
+function count () {
+  if (lines == "") return;
+  xfail=lines ~ /^TEST-[Ww]/
+  num++;
+  if (lines ~ /^TEST(-[WwC])?\t[a-z0-9_.~-]*:\tOK$/)
+    if (xfail)
+      {
+        num_xfail++
+        res = "XFAIL"
+      }
+    else
+      {
+        num_ok++
+        res = "PASS"
+      }
+  else
+    {
+      if (lines ~ /^TEST(-[WwC])?\t[a-z0-9_.~-]*:\tSKIPPED[: \t]/)
+        {
+          num_skipped++
+          res = "UNSUPPORTED"
+        }
+      else if (xfail)
+        {
+          num_xpass++
+          res = "XPASS"
+        }
+      else
+        {
+          num_fail++
+          res = "FAIL"
+        }
+      if (!dejagnu)
+        {
+          doprint(lines)
+          '"$FFLUSH"'
+        }
+    }
+  if (dejagnu)
+    {
+      doprint(res ": " testname)
+      sub ("^TEST(-[WwC])?\t[a-z0-9_.~-]*:\t", "", lines)
+      gsub ("\n", "\n ", lines)
+      sub (" $", "", lines)
+      doprint(" " lines)
+    }
+  lines = ""
+}
+function summary () {
+  if (doit)
+    doprint("Missing end indicator.")
+  if (!doit && !doend)
+    doprint("Nothing was run.")
+  else if (num == 0)
+    doprint("No tests were run.")
+  else
+    {
+      if (dejagnu)   { doprint(""); doprint("		=== gpc Summary ===") }
+      doprint("");     doprint("# of tests                " num)
+      if (num_ok)      doprint("# of expected passes      " num_ok)
+      if (num_xpass)   doprint("# of unexpected successes " num_xpass)
+      if (num_fail)    doprint("# of unexpected failures  " num_fail)
+      if (num_xfail)   doprint("# of expected failures    " num_xfail)
+      if (num_skipped) doprint("# of unsupported tests    " num_skipped)
+      if (dejagnu)
+        {
+          doprint("")
+          sub ("-B *[^ ]* *", "", l3)
+          sub (" ", " version ", l3)
+          sub (", flags.*", "", l3)
+          doprint(l3)
+        }
+    }
+}
+BEGIN                          { num = num_ok = num_xpass = num_fail = num_xfail = num_skipped = 0; dejagnu = '"$dejagnu"' }
+num == 0 && /\r$/              { cr = 1 }
+cr                             { sub ("\r+$", "") }
+/^\1#progress/                 { print; '"$FFLUSH"'; next }
+!start && !doit && /^Test Run/ { l1 = $0; getline; l2 = $0; getline; l3 = $0 }
+/^GPC-TEST-BEGIN$/             { start = 1; header(); next }
+/^==========================$/ { if (start) doit = 1; else doend = 1; start = 0; next }
+                               { start = 0 }
+/^GPC-TEST-END$/ && doend      { doit = 0 }
+!doit                          { next }
+/^TEST/                        { count(); lines = $0; testname = $2; sub (":$", "", testname); next }
+                               { lines = lines "\n" $0 }
+END                            { sub ("\n$", "", lines); count(); summary() }
+'

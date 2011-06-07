@@ -1,0 +1,102 @@
+<table align=left><tr><td>
+<a href="h-resources.html#Drawing"><img src="../images/GnuPascal-small.png" alt="[Gnu and Blaise Pascal]" width=123 height=99></a>
+</td></tr></table>
+
+<div align=center>
+<h1>GNU Pascal</h1>
+<p><em>Welcome to the WWW home site of GNU Pascal,<br>
+the free 32/64-bit Pascal compiler!</em></p>
+<p>Copyright &copy; 1987-2005
+<a href="http://www.gnu.org">Free Software Foundation</a>, Inc.</p>
+</div><br clear="all">
+
+<p>GNU Pascal is <a href="http://www.gnu.org/philosophy/free-sw.html">Free Software</a>
+(<a href="http://www.opensource.org">Open-Source Software</a>).
+You are welcome to redistribute it and/or modify it under the
+terms of the GNU General Public License;
+see <a href="h-gnu.html"><em>GNU</em></a> for details.</p>
+
+<h2>Contents</h2>
+
+<ul>
+
+<li><strong><a name="about_toc" href="h-about.html">About GNU Pascal</a></strong>
+<ul>
+  <li><a href="h-about.html#about">What is GNU Pascal?</a>
+  <li><a href="h-about.html#lang">Language standards supported by GNU Pascal</a>
+  <li><a href="h-about.html#pro">Advantages</a> and
+      <a href="h-about.html#contra">disadvantages</a>
+</ul>
+
+<li><strong><a name="news_toc" href="h-news.html">New features of GNU Pascal</a></strong>
+<ul>
+  <li>What's new since the last release?
+</ul>
+
+<li><strong><a name="download_toc" href="h-install.html">Installation instructions</a></strong>
+<ul>
+  <li><a href="http://www.gnu-pascal.de/current/">Download GNU Pascal from our web server!</a>
+  <li>About <a href="h-install.html#DJGPP">DJGPP</a>
+      and <a href="h-install.html#EMX">EMX</a>
+  <li><a name="libraries_toc" href="h-libraries.html">Libraries you can use with GPC</a>
+</ul>
+
+<li><strong><a name="support_toc" href="h-support.html">How to get support</a></strong>
+<ul>
+  <li>The <em>GPC Manual</em>
+    <ul>
+      <li>HTML format for online browsing: <a href="../gpc/index.html#Top">English</a>, <a href="../gpc-hr/index.html#Top">Croatian</a>, <a href="../gpc-es/index.html#Top">Spanish</a>
+      <li>tar.bz2 archive of the HTML pages: <a href="../gpc-html.tar.bz2">English</a>, <a href="../gpc-hr-html.tar.bz2">Croatian</a>, <a href="../gpc-es-html.tar.bz2">Spanish</a>
+      <li><a href="../gpc.pdf">PDF format</a>
+      <li><a href="../gpc.ps.bz2">PostScript format (compressed with bzip2)</a> for printing
+      <li><a href="../gpc.dvi.bz2">DVI format (compressed with bzip2)</a>
+          (requires <a href="../images/GnuPascal.eps">the EPS file of the GNU Pascal drawing</a>)
+    </ul>
+  <li>The GNU Pascal Coding Standards: <a href="../h-gpcs-en.html">English</a>, <a href="../h-gpcs-de.html">German</a>, <a href="../h-gpcs-hr.html">Croatian</a>, <a href="../h-gpcs-es.html">Spanish</a>
+  <li>Email and NewsGroup support
+  <li>The GNU Service Directory
+</ul>
+
+<li><strong><a name="team_toc" href="h-team.html">The GNU Pascal development team</a></strong>
+<ul>
+  <li>Who are those guys behind GNU Pascal?
+</ul>
+
+<li><strong><a name="gnu_toc" href="h-gnu.html">The GNU project</a></strong>
+<ul>
+  <li>What is Free Software?
+  <li>Your rights and responsibilities when using, distributing,
+      and modifying GNU Pascal
+  <li>What's GNU? - GNU is Not Unix!
+</ul>
+
+<li><strong><a name="todo_toc" href="h-todo.html">Things still to do for GNU Pascal</a></strong>
+<ul>
+  <li>The GNU Pascal To-Do list
+  <li>Known bugs
+  <li>Planned features
+</ul>
+
+<li><strong><a name="resources_toc" href="h-resources.html">Resources</a></strong>
+<ul>
+  <li><a href="h-resources.html#PENG">PENG</a> - Frank Heckenbach's integrated
+      development environment suitable for and written in GNU Pascal,
+      running under all platforms supported by GNU Pascal
+  <li><a href="h-resources.html#RHIDE">RHIDE</a> - Robert H&ouml;hne's integrated
+      development environment for GNU Pascal running under DOS (DJGPP)
+      or Linux
+  <li><a href="h-resources.html#GRX">GRX</a> - a mostly BP compatible
+      &quot;Graph&quot; unit for GNU Pascal
+  <li>Various programs, units and other resources for GNU Pascal
+</ul>
+
+</ul>
+
+<hr>
+
+<p>All trademarks used on these WWW pages are properties of their
+respective owners.</p>
+
+<p>Drawing: Copyright &copy; 1996 by Markus Gerwinski,<br>
+Color gradient: Copyright &copy; 1996, 2000, 2002 by
+Peter Gerwinski, Frank Heckenbach</p>

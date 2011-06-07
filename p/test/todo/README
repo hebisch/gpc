@@ -1,0 +1,6 @@
+This directory contains programs that reproduce known bugs which are
+currently being worked on or demand some features planned for future
+GPC versions.
+
+Only the top-level programs are placed here; associated units, data
+files etc. reside in `..' and do not hurt anyone.

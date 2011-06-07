@@ -1,0 +1,12 @@
+#!/bin/sh
+if [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+  status=$?
+  if [ $status = 7 ]; then
+    echo OK
+  else
+    echo "failed: status $status"
+  fi
+else
+  echo failed
+fi

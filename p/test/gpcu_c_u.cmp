@@ -1,0 +1,27 @@
+#!/bin/sh
+BASEDIR="`echo $2 | sed -e 's,[^/]*$,,'`"
+COMPILE_NO_LINK="`echo $1 | sed -e 's/ -o *[^ ]*//'` -c"
+$COMPILE_NO_LINK "$BASEDIR"/gpcu_dum.pas #-o gpcu_dum.o
+rm -f "$A_OUT"
+$COMPILE_NO_LINK $2
+$PC_WITHOUT_GP -o "$A_OUT" gpcu_c_c.o gpcu_c_u.o  # with GP
+if [ -r "$A_OUT" ]; then
+  ./"$A_OUT" > testmake.tmp
+  if [ x"$FIXCR" = x ]; then
+    diff testmake.tmp "$BASEDIR"/gpcu_c_u.out
+    stat=$?
+  else
+    "$FIXCR" < testmake.tmp > diff_cr1.tmp
+    "$FIXCR" < "$BASEDIR"/gpcu_c_u.out > diff_cr2.tmp
+    diff diff_cr1.tmp diff_cr2.tmp
+    stat=$?
+    rm -f diff_cr1.tmp diff_cr2.tmp
+  fi
+  if [ $stat -eq 0 ]; then
+    echo "OK"
+  else
+    echo "failed"
+  fi
+else
+  echo "failed"
+fi

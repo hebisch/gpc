@@ -1,0 +1,3 @@
+This directory contains some scripts used by the GPC maintainers and
+some scripts used during GPC's build process. They are mostly
+undocumented and some of them are quite special-purpose.

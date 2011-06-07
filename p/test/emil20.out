@@ -1,0 +1,5 @@
+read: `first line'
+(end of line)
+read: `second line, with no terminator'
+(end of line)
+(end of file)

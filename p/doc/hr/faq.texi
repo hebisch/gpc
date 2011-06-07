@@ -1,0 +1,902 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Russ Whitaker <russ@ashlandhome.net>
+@c          J.J. van der Heijden <j.j.vanderheijden@student.utwente.nl>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c          Peter Gerwinski <peter@gerwinski.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov2_69@yahoo.com>
+
+@include macros.texi
+
+@ifclear FAQONLY
+@node FAQ
+@chapter Èesto postavljana pitanja (FAQ) o GNU Pascalu.
+@subheading Izdanje 0.9, kolovoz 2000
+@cindex FAQ
+@cindex Frequently Asked Questions
+@cindex èesto postavljana pitanja
+@cindex pitanja, èesto postavljana
+@end ifclear
+
+@ifset FAQONLY
+@include version.texi
+@c Note: The following line gets inserted into the destination file,
+@c       it does not apply to this Texinfo file!
+Ova je datoteka generirana automatski iz faq.texi.@*
+@sc{NE MIJENJAJTE OVU DATOTEKU RUÈNO!}
+
+@settitle GPC lista èesto postavljanih pitanja
+@node Top
+@top GNU Pascal lista èesto postavljanih pitanja, izdanje 0.9, kolovoz 2000
+@raisesections
+
+Ovaj dokument je dio GPC dokumentacije. Prije izrade, kopiranja i
+distribuiranja modificiranih verzija ovog dokumenta molimo pogledajte GPC
+dokumentaciju.
+@end ifset
+
+Ovo je lista èesto postavljanih pitanje (FAQ) za GNU pascal. Ako
+vam niti FAQ niti dokumentacija ne poma¾u, detektirali ste
+@strong{bug} u dokumentaciji koji biste trebali prijaviti,
+@ref{Mailing List}. Molimo vas da zaista to i uèinite, kako
+bismo mogli pobolj¹ati dokumentaciju.
+
+@menu
+* GNU Pascal::               GNU Pascal
+* Instaliranje GPC-a::       Instaliranje GPC-a
+* GPC na DJGPP-u::           GNU Pascal na DJGPP (MS-DOS) platformi
+* Znakovni nizovi u GPC-u::  Znakovni nizovi (strings)
+* Tra¾enje pomoæi::          Tra¾enje pomoæi
+* FAQ "Razno"::              Razno
+@end menu
+
+@node GNU Pascal
+@section GNU Pascal
+
+@menu
+* ©to i za¹to::                        ©to i za¹to?
+* Trenutna verzija::                   Koja je trenutna verzija?
+* Kompatibilnost sa Turbo Pascalom::   Da li je kompatibilan s
+                                         Turbo Pascal-om (R)?
+* Podr¾ane platforme::                 Na kojim platformama GNU Pascal radi?
+@end menu
+
+@node ©to i za¹to
+@subsection ©to i za¹to?
+
+@include purpose.texi
+
+@node Trenutna verzija
+@subsection Koja je trenutna verzija?
+
+Prije srpnja 2000 release verzije su obièno slijedile nekoliko
+mjeseci jedna drugu. Od tada se nova verzija pojavila gotovo svakih
+nekoliko dana, dostupna kao source arhiva
+@c ili s CVS servera
+s GPC web sitea,
+@uref{http://www.gnu-pascal.de}.
+
+Za detalje od novim moguænostima, pogledajte sekciju @samp{News}
+na web siteu. O bug-ovima koji su nedavno popravljeni, molimo
+pogledajte @samp{Done} sekciju na To-Do ("preostalo za napraviti")
+listi.
+
+GPC koristi GCC kao "back-end", ¹to znaèi da koristi dokazano GCC-ovo
+suèelje za generiranje strojnog izvr¹nog koda, nakon ¹to je "front-end"
+"pro¾vakao" ulaznu sintaksu Pascal jezika. U distribuciji su prilo¾ene
+zakrpe za GCC 2.8.1 i GCC 2.95.x, ali se preporuèuje da koristite GCC 2.95.x.
+@c FIXME see for GCC 3.x.x
+
+@node Kompatibilnost sa Turbo Pascalom
+@subsection Da li je kompatibilan s Turbo Pascalom (R)?
+
+GPC nije usputni nadomjestak za Borlandov Turbo Pascal (R).
+Gotovo sve jeziène moguænosti BP-a su podr¾ane. Primjetne
+iznimke su formati znakovnih nizova (kao ¹to je diskutirano ni¾e
+u dokumentu), ili @samp{Mem} i @samp{Port} pseudo-polja, iako
+zamjena za potonje na IA32 platformi postoji u @samp{Ports}
+jedinici.
+
+Gotovo sve moguænosti BP-ove runtime biblioteke su podr¾ane u GPC-u,
+bilo ugraðenim moguænostima prevodioca ili jedinicama sa istim imenima
+kao i korespondentne BP jedinice.
+
+Za detalje o kompatibilnosti, o nekoliko preostalih nekompatibilnosti
+i nekim korisnim alternativama za moguænosti BP-a, pogledajte
+@samp{Borland Pascal} poglavlje u GPC priruèniku.
+@ifclear FAQONLY
+(@pxref{Borland Pascal})
+@end ifclear
+
+@node Podr¾ane platforme
+@subsection Na kojim platformama GNU Pascal radi?
+
+GPC koristi GCC "backend", tako da bi trebao raditi na svim sustavima
+podr¾anim od GNU CC-a. Ovo ukljuèuje ¹irok raspon Unix sustava,
+MS-DOS, OS/2 i Win32. Puna lista platformi podr¾anih od GCC-a
+mo¾e se naæi u datoteci @file{INSTALL} GCC distribucije. Sve
+te platforme nisu zapravo testirane, ali je poznato da radi na
+slijedeæim platformama:
+
+@multitable @columnfractions .4 .6
+@item        ix86-linux                 @tab (Linux 2.x, ELF)
+@item        i486-linuxaout
+@item        i486-linuxoldld
+@item        i386-freebsd1.2.0
+@item        AIX 4.2.1
+@item        AIX 4.3
+@item        DJGPP V2                   @tab (Dos)
+@item        EMX 0.9B                   @tab (OS/2, Dos)
+@item        Cygwin32 beta20 i vi¹e     @tab (MS-Windows95/98, MS-Windows NT)
+@item        mingw32                    @tab (MS-Windows95/98, MS-Windows NT)
+@item        MSYS                       @tab (MS-Windows)
+@item        mips-sgi-irix5.3
+@item        mips-sgi-irix6.5
+@item        sun-sparc-sunos4.1.4
+@item        sparc-sun-solaris2.x
+@item        sun-sparc-solaris 2.5.1
+@item        sun-sparc-solaris 2.6
+@item        sun-sparc-solaris 7
+@item        sun-sparc-solaris 8
+@item        alpha-unknown-linux
+@item        alpha-dec-osf4.0b
+@item        s390-ibm-linux-gnu
+@end multitable
+
+@strong{OK narode -- ¹aljite nam svoje pripovjesti o uspjehu, s
+kanonièkim imenima ma¹ina!}
+
+@node Instaliranje GPC-a
+@section Instaliranje GPC-a
+
+Najsvje¾ije instrukcije za instalaciju mo¾ete naæi u GPC priruèniku
+ili u datoteci @samp{INSTALL} u source distribucijama, ili na GPC
+web poslu¾itelju.
+@ifclear FAQONLY
+(@pxref{Installation})
+@end ifclear
+
+Slijedeæa poglavlja opisuju ¹to biste mogli trebati ili ¾eljeti
+osim samog GPC-a.
+
+@c FIXME -- "Libraries" left untranslated because referenced from en/install.texi
+@menu
+* Dokumentacijske datoteke::  ©to slijedeæe èitati?
+* Komponente::                Koje komponente trebam za prevoðenje Pascal koda?
+* Debugger::                  Kako da ispravljam moje Pascal programe?
+* Libraries::                 Biblioteke - koje bih dodatne biblioteke trebao
+                                imati?
+* Darovane jedinice::         Darovane jedinice
+* IDE::                       Mo¾ete li preporuèiti integriranu razvojnu
+                                okolinu (IDE)?
+@end menu
+
+@node Dokumentacijske datoteke
+@subsection ©to slijedeæe èitati?
+
+Nakon instaliranja GPC-a, molimo provjerite datoteke u direktoriju
+@file{/usr/local/doc/gpc}:
+
+@multitable @columnfractions .25 .75
+@item @file{README}      @tab Opæe informacije o GPC-u
+@item @file{FAQ}         @tab Ovaj FAQ :@minus{})
+@item @file{NEWS}        @tab Promjene od zadnjeg "release" izdanja
+@item @file{BUGS}        @tab Kako prijavljivati bug-ove, o test zbirci programa
+@item @file{AUTHORS}     @tab Lista GPC autora
+@item @file{COPYING}     @tab The GNU General Public License - GNU opæa javna licenca
+@item @file{COPYING.LIB} @tab The GNU Lesser General Public License - GNU manje opæa javna licenca
+@end multitable
+
+@node Komponente
+@subsection Koje komponente trebam za prevoðenje Pascal koda?
+
+Kompletiran sustav Pascal prevodioca bi trebao imati barem:
+
+@enumerate
+@item Sam prevodilac, GPC.
+
+@item editor, asembler, linker (povezivaè), program za rad s bibliotekama i prijatelje.
+
+@item C biblioteku. Ako imate C prevodilac (compiler) koji funkcionira, onda ovo
+veæ imate.
+
+@item debugger (ispravljaè pogre¹aka), ako ¾elite debuggirati svoje programe.
+@end enumerate
+
+Za veæinu ljudi, GNU ``binutils'' i GNU debugger (@samp{gdb}) su dobar
+izbor, iako biste mogli preferirati i koristiti alatke specifiène za
+proizvoðaèa.
+
+@node Debugger
+@subsection Kako da ispravljam moje Pascal programe?
+
+Da biste debuggirali svoje programe, (a) GNU Pascal mora biti u
+moguænosti generirati debug informacije za va¹u platformu, i
+(b) morati imati debugger koji ju znade razumjeti.
+
+@itemize @bullet
+@item
+Ako @samp{gpc -g -o hello hello.p} daje:
+@smallexample
+gpc: -g not supported for this platform
+@end smallexample
+onda to znaèi da GPC ne mo¾e generirati debugging informacije. Obièno,
+instaliranje
+@samp{gas} (dio GNU binutils) umjesto va¹eg "sistemskog" asemblera
+mo¾e rije¹iti problem. Kad konfigurirate GCC koji GPC koristi, specificirajte
+@samp{--with-gnu-as}, i - po moguænosti - @samp{--with-gnu-ld} i/ili
+@samp{--with-stabs}. Vi¹e informacija mo¾e se naæi u
+@file{INSTALL} datoteci u GNU CC source direktoriju.
+
+@item
+Debugger va¹eg sustava ne mora razumjeti debug informacije generirane
+GNU alatkama. U tom sluèaju mo¾e pomoæi instaliranje @samp{gdb}-a.
+@end itemize
+
+U najgorem sluèaju, ako mo¾ete debuggirati programe prevoðene GCC-om,
+onda biste to trebali moæi da to napravite i s GPC-om.
+
+GNU debugger (@samp{gdb}) trenutno nema ``Pascal'' mod, tako da nije
+u moguænosti prikazati neke Pascal strukture i sl. Dok debuggirate,
+molimo primijetite da je Inicijalno Slovo U Svakom Identifikatoru
+Veliko Slovo A Ostatak Su Mala Slova. Ako ¾elite prikazati varijablu
+@samp{foo} u debuggeru, otipkajte @samp{show Foo} ili @samp{display Foo}
+namjesto toga.
+
+Iako je @samp{gdb} izvrstan debugger, njegov user-interface nije
+ba¹ svaèiji prvi izbor. Ako biste ¾eljeli debuggirati pod X11,
+molimo pogledajte u comp.windows.x FAQ:
+``Where can I get an X-based debugger?'' na:@*
+@uref{http://www.faqs.org/faqs/x-faq/part6/section-2.html}
+
+Neki korisni front-endovi ukljuèuju: XXGDB, tGDB i XWPE. Pogledati:@*
+@uref{http://www.ee.ryerson.ca:8080/~elf/xapps/Q-IV.html}
+
+Vrlo lijep, ali zahtjevan po resurse je (baziran na Motif-u) DDD:@*
+@uref{http://sol.ibr.cs.tu-bs.de/softech/ddd/}
+
+Nadalje, RHIDE (@pxref{IDE}) sadr¾i ugraðenu debugging podr¹ku,
+sliènu onoj u IDE od BP-a.
+
+@c FIXME -- the following left untranslated because referenced from en/install.texi
+@node Libraries
+@subsection Biblioteke -- koje bi dodatne biblioteke trebao imati?
+@cindex libraries
+@cindex biblioteke
+@cindex gmp
+@cindex rx
+@cindex ncurses
+@cindex PDCurses
+@cindex ElectricFence
+@cindex efence
+
+@include libs.texi
+
+@node Darovane jedinice
+@subsection Darovane jedinice
+@cindex contributed units
+@cindex units, contributed
+@cindex darovane jedinice
+@cindex jedinice
+
+Nekoliko programera je darovalo jedinice za GPC. One su obièno
+ogla¹ene na email listi, @ref{Mailing List}. Veæina njih mo¾e
+se naæi na @uref{http://www.gnu-pascal.de/contrib/}.
+
+@node IDE
+@subsection Mo¾ete li preporuèiti integriranu razvojnu okolinu (IDE)?
+@cindex IDE
+
+Korisnici Borland Pascala se mogu zapitati da li postoji neki
+nadomjestak za IDE (Integrated Development Environment). Evo nekoliko
+sugestija:
+
+@itemize @bullet
+@cindex emacs
+@cindex xemacs
+@item (X)Emacs. Neki ljudi misle da je Emacs odgovor na pitanje
+®ivota, Univerzuma i Svega Ostalog, drugi su odluèili da je GNUsan.
+Dostupan na va¹em prijateljski raspolo¾enom GNU mirror-u i u
+veæini distribucija.
+
+@cindex PENG
+@item PENG. Nije free software, ali je pisan s GPC-om. Vrlo je slièan
+Borland-ovom IDE-u, ali s mnogim pro¹irenjima. Binarne distribucije
+za DJGPP, Linux i Solaris mogu se naæi na
+@uref{http://fjf.gnu.de/peng/}.
+
+@cindex RHIDE
+@item RHIDE. DJGPP korisnici mogli bi isprobati RHIDE. Posljednja
+(beta) verzija je kompatibilna s GNU Pascalom i omoguæava step,
+trace i watch funkcije poput onih u Borland IDE-u. Mo¾e se naæi na
+@uref{http://www.rhide.com}.
+
+@cindex DevPascal
+@item DevPascal. DevPascal je free software IDE za mingw32 platformu.
+Mo¾e se naæi na
+@uref{http://www.gnu-pascal.de/contrib/chief/} ili
+@uref{http://www.bloodshed.net/devpascal.html}
+
+@cindex xwpe
+@item XWPE je jo¹ jedna imitacija Borland IDE-a, tako da je korisnici
+Borland Pascala mogu ocijeniti kao dobru alternativu.
+@end itemize
+
+@node GPC na DJGPP-u
+@section GNU Pascal na DJGPP (MS-DOS) platformi
+
+Ovo poglavlje raspravlja neke potencijalne probleme s GNU Pascalom
+na MS-DOSu, koristeæi DJGPP.
+
+@menu
+* ©to je DJGPP::                 ©to je DJGPP?
+* DJGPP FAQ::                    Ako trebate vi¹e informacija
+* DJGPP download::               ©to download-ati?
+* Instaliranje GPC-a na DJGPP::  Kako instalirati prevodilac?
+* DJGPP Info reader::            Ne mogu èitati info dokumentaciju!
+* DJGPP DPMI server::            GPC ka¾e: no DPMI
+* Asemblerska sintaksa::         Imam problema s asemblerskim kodom @dots{}
+* DJGPP-specifièan kod::         Reci mi kako da koristim DPMI, BIOS i
+                                 ostale stvari povezane s DOS-om
+* Velièina stoga (stack)::       Dobio sam ``exception'' kod pristupanja
+                                 @samp{array [1 .. 4000000] of Byte}.
+@end menu
+
+@node ©to je DJGPP
+@subsection ©to je DJGPP?
+
+Slijedeæi paragraf je preuzet sa site-a
+@uref{http://www.delorie.com/djgpp/}:
+
+DJGPP je kompletan 32-bit C/C++ razvojni sistem na Intel 80386
+(i vi¹im) PC-jima koji vrte DOS. Ukljuèuje prijenos mnogih GNU
+razvojnih alatki. Razvojne alatke zahtijevaju 80386 ili novije
+raèunalo, kao i programi koje one proizvode. U najveæem broju
+sluèajeva, programi koje proizvodi se mogu komercijalno prodavati
+bez licence ili taksi.
+
+@node DJGPP FAQ
+@subsection Ako trebate vi¹e informacija
+
+GPC/DJGPP je DJGPP V2 aplikacija, i veæina DJGPP dokumentacije se
+odnosi na na GPC. Izvrstan izvor informacija je DJGPP FAQ:
+@uref{http://www.delorie.com/djgpp/v2faq/230b.zip}
+
+Drugo mjesto za tra¾enje DJGPP dokumentacije je DJGPP Knowledge Base,
+na slijedeæem URL-u:
+@uref{http://www.delorie.com/djgpp/doc/kb/}
+
+@node DJGPP download
+@subsection ©to download-ati?
+
+Kao ¹to je reèeno u @ref{Komponente}, osim samog GPC-a, trebate
+jo¹ i asembler, linker i prijatelje, C biblioteku i po moguænosti
+debugger. @uref{http://www.delorie.com/djgpp/} preporuèa
+slijedeæe datoteke i oni æe vam pomoæi naæi mirror:
+
+@multitable {xxxxxxxxxxxxxxxxxxxxx}  {xxxxxxxxxxxxxxxxxxx}
+@item  @file{v2/djdev203.zip}    @tab (C biblioteka)
+@item  @file{v2gnu/bnu2951b.zip} @tab (asembler, @dots{})
+@item  @file{v2gnu/gcc2952b.zip} @tab (gcc)
+@item  @file{v2gnu/gdb418b.zip}  @tab (debugger)
+@item  @file{v2gnu/mak379b.zip}  @tab (make)
+@item  @file{v2gnu/txi40b.zip}   @tab (texi)
+@end multitable
+
+Ova lista èini oko 10 MB ne brojeæi GPC. Mo¾ete koristiti
+binarnu verziju GPC-a s web poslu¾itelja.
+
+@node Instaliranje GPC-a na DJGPP
+@subsection Kako instalirati prevodilac?
+
+Ako nemate DJGPP instaliran na svom hard disku, kreirajte
+direktorij za GNU Pascal (@file{c:\gpc}), i raspakirajte
+arhive. Pazite da saèuvate strukturu direktorija (koristite
+npr. @samp{pkunzip -d}). Sada, dodajte direktorij gdje se
+nalazi @file{gpc.exe} (@file{c:\gpc\bin}) va¹em putu (@samp{$PATH}),
+zatim postavite DJGPP environment varijablu tako da pokazuje na
+va¹u @file{djgpp.env} datoteku:
+
+@smallexample
+set DJGPP=c:\gpc\djgpp.env
+@end smallexample
+
+Zatim, dodajte ovo u va¹u @file{djgpp.env} datoteku:
+
+@smallexample
+---------------------------------------------------------
+[gpcpp]
+C_INCLUDE_PATH=%/>;C_INCLUDE_PATH%%DJDIR%/lang/pascal;%DJDIR%/include
+
+[gpc]
+COMPILER_PATH=%/>;COMPILER_PATH%%DJDIR%/bin
+LIBRARY_PATH=%/>;LIBRARY_PATH%%DJDIR%/lib;%DJDIR%/contrib/grx20/lib
+---------------------------------------------------------
+@end smallexample
+
+GPC online dokumentacija je u GNU info formatu; potreban vam je
+info-reader (@file{txi390b.zip}) da ga proèitate, ili koristite
+ugraðeni info-reader iz RHIDE ili PENG IDE. Da biste dodali GPC
+dokumentaciju u info "directory" datoteku, editirajte datoteku
+@file{c:\gpc\info\dir}, i naðite slijedeæi odlomak:
+
+@smallexample
+---------------------------------------------------------
+* GCC: (gcc.inf).
+The GNU C, C++, and Objective-C Compiler
+
+* GDB: (gdb.inf).
+The GNU Debugger (gdb and gdb-dpmi).
+
+---------------------------------------------------------
+@end smallexample
+
+Da biste dodali GPC, promijenite ove retke tako da izgledaju
+ovako:
+
+@smallexample
+---------------------------------------------------------
+* GCC: (gcc.inf).
+The GNU C, C++, and Objective-C Compiler
+
+* GPC: (gpc.inf).
+The GNU Pascal Compiler
+
+* GDB: (gdb.inf).
+The GNU Debugger (gdb and gdb-dpmi).
+
+---------------------------------------------------------
+@end smallexample
+
+Specifiène informacije za situacije s malo memorije i jo¹ vi¹e toga
+mogu se pronaæi u DJGPP FAQ i dokumentaciji.
+
+@node DJGPP Info reader
+@subsection Ne mogu èitati info dokumentaciju!
+
+Da biste èitali Info dokumentaciju, potreban vam je @samp{info}
+program, @file{txi390b.zip} ili neka integrirana razvojna okolina
+(IDE) poput RHIDE ili PENG.
+
+@node DJGPP DPMI server
+@subsection GPC ka¾e: no DPMI
+
+Nemate instaliran DPMI server, a DJGPP v2 zatijeva da je on pokrenut.
+Mo¾ete ili koristiti neki od komercijalnih DPMI servera (npr.
+pokreæite @samp{gpc} u DOS prozoru pod MS-Windowsima), ili download-ajte
+i instalirajte CWSDPMI (@file{csdpmi3b.zip}) koji je free DPMI server
+napisan za DJGPP.
+
+@node Asemblerska sintaksa
+@subsection Imam problema s asemblerskim kodom @dots{}
+
+GNU asembler (@file{as.exe}), ili @file{gas}, kojeg poziva GCC
+prihvaæa ``AT&T'' sintaksu koja je razlièita od ``Intel'' sintakse.
+Razlike su poja¹njene u odlomku 17.1 DJGPP FAQ-a.
+
+Na rapolaganju je vodiè kojeg je napisao Brennan Mr. Wacko Underwood
+@email{brennan@@mack.rt66.com}, a opisuje kako koristiti "inline"
+asemblerske instrukcije s DJGPP-om, na ovom URL-u:
+@uref{http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html}
+
+Postoji takoðer i GPC asemblerski vodiè, na adresi@*
+@uref{http://www.gnu-pascal.de/contrib/misc/gpcasm.zip}
+
+Odlomak 17.3 DJGPP FAQ-a opisuje neke metode pretvaranja
+``Intel'' sintakse u ``AT&T'' sintaksu.
+
+Meðutim, molimo primijetite da asemlerski kod nije prenosiv, tj.
+radit æe na IA32 (``x86'') i kompatibilnim procesorima, ali neæe
+se èak ni prevesti na drugim procesorima. Dakle umeæuæi asemblerske
+instrukcije u svoje programe, znatno æete smanjiti njihovu korisnost.
+
+Ako mislite da zaiste ``trebate'' asemblerski kod radi brzine -- i
+provjerili ste da se asemblerski kod zaista vrti br¾e nego Pascal kod
+sa prikladnim optimizacijama -- mogli biste po¾eljeti oboje, i Pascal
+i asemblersku verziju, i dozvoliti npr. da jedan @samp{@{$ifdef i386@}}
+odluèuje koju æe koristiti. Na ovaj naèin, program æe se barem prevesti
+na svim procesorima.
+
+@node DJGPP-specifièan kod
+@subsection Reci mi kako da koristim DPMI, BIOS i ostale stvari povezane s DOS-om
+DPMI, BIOS i ostale funkcije ne razlikuju se od ostalih sistemskih
+funkcija. Pogledajte u GPC priruènik kako pristupiti C biblioteci svog
+sustava. Ovaj mali primjer pokazuje kako koristiti DPMI, kopirajuæi
+neke strukture i prototipove iz @samp{<dpmi.h>}:
+
+@smallexample
+program DPMIDemo;
+
+@{ Samo za DJGPP @}
+
+@{$X+@}
+
+@{ `Byte' je `unsigned char' u C-u,
+  `ShortCard' je `unsigned short' u C-u,
+  `MedCard' je `unsigned long' u C-u,
+  `Word' je `unsigned' u C-u,
+  itd. (svi ovi tipovi su ``built-in''). @}
+
+type
+  TDpmiVersionRet = record
+    Major     : Byte;
+    Minor     : Byte;
+    Flags     : ShortCard;
+    CPU       : Byte;
+    Master_PIC: Byte;
+    Slave_PIC : Byte;
+  end;
+
+type
+  TDpmiFreeMemInfo = record
+    LargestAvailableFreeBlockInBytes,
+    MaximumUnlockedPageAllocationInPages,
+    MaximumLockedPageAllocationInPages,
+    LinearAddressSpaceSizeInPages,
+    TotalNumberOfUnlockedPages,
+    TotalNumberOfFreePages,
+    TotalNumberOfPhysicalPages,
+    FreeLinearAddressSpaceInPages,
+    SizeOfPagingFilePartitionInPages,
+    Reserved1,
+    Reserved2,
+    Reserved3: MedCard;
+  end;
+
+function DpmiGetVersion (var Version: TDpmiVersionRet): Integer;
+         external name '__dpmi_get_version';
+
+function DpmiGetFreeMemoryInformation
+         (var MemInfo: TDpmiFreeMemInfo): Integer;
+         external name '__dpmi_get_free_memory_information';
+
+var
+  Version: TDpmiVersionRet;
+  MemInfo: TDpmiFreeMemInfo;
+
+begin
+  if DpmiGetVersion (Version) = 0 then
+    begin
+      WriteLn ('CPU type:       ', Version.CPU, '86');
+      WriteLn ('DPMI major:       ', Version.Major);
+      WriteLn ('DPMI minor:       ', Version.Minor);
+    end
+  else
+    WriteLn ('Error in DpmiGetVersion');
+  if DpmiGetFreeMemoryInformation (MemInfo) = 0 then
+    WriteLn ('Free DPMI memory: ',
+             MemInfo.TotalNumberOfFreePages, ' pages.')
+  else
+    WriteLn ('Error in DpmiGetMemoryInformation');
+end.
+@end smallexample
+
+@node Velièina stoga (stack)
+@subsection Dobio sam ``exception'' kod pristupanja @samp{array [1 .. 4000000] of Byte}
+
+Po ``default-u'', maksimalna velièina stoga DJGPP aplikacije je 256K.
+Ako trebate vi¹e, to trebate podesiti sa stubedit programom,
+npr.
+
+@smallexample
+stubedit your_app.exe minstack=5000K
+@end smallexample
+
+Drugaèiji naèin je da dodate slijedeæi kod va¹em programu kako bi
+definirali minimalnu velièinu stoga (ovdje: 2 MB). Ova æe vrijednost biti
+po¹tovana èak i ako korisnik postavi manje vrijednosti koristeæi stubedit,
+tako da bi ova metoda mogla biti ne¹to sigurnija. (Ime linkera @samp{_stklen}
+je esencijalno; ime kori¹teno u Pascalu nije od znaèaja. Konstanta se ne mora
+koristiti bilo gdje u programu. Preporuèuje se da ovu deklaraciju
+stavite u glavnu programsku datoteku, ne u beku jedinicu/modul, tako
+da programi koji koriste modul/jedinicu mogu postaviti koji god limit
+im je potreban.)
+
+@smallexample
+@{$ifdef __GO32__@}
+const
+  MinStackSize: Cardinal = $200000; attribute (name = '_stklen');
+@{$endif@}
+@end smallexample
+
+Svejedno, mogla bi biti dobra ideja koristiti pokazivaèe (``pointer'')
+na velike strukture, i alocirati memoriju dinamièki za vrijeme
+izvr¹avanja.
+
+DJGPP mora alocirati stog u fizièkoj memoriji za vrijeme pokretanja
+programa, dakle treba biti oprezan s prevelikim pro¹irenjima stoga.
+Veæina drugih sistema alocira stranice stoga ``on demand'', kada
+ih program tra¾i, pa je jedini razlog da se uopæe postavi ogranièenje
+taj da se sprijeèi da podivljala rekurzija pojede svu memoriju @dots{}
+
+Na Unix-olikim sustavima, mo¾ete postaviti ``resource limit'', ali
+to obièno ne radite u normalnim programima, nego radije u postavkama
+ljuske (bash: @samp{ulimit}; csh: @samp{limit}; sistemski poziv:
+@samp{setrlimit}(2)).
+
+@node Znakovni nizovi u GPC-u
+@section Nizovi
+
+@menu
+* String schema::                       Èemu sva ta zbrka oko nizova?
+* Nizovi u variant record-ima::         Preklapanje nizova u variant record-ima
+* Bajt za duljinu::                     Za¹to @samp{s[0]} ne sadr¾ava duljinu?
+* Nizovi kao parametri po vrijednosti:: Pa¾nja sa znakovnim nizovima kao
+                                          parametrima
+* Kratki znakovni nizovi::              Podr¹ka za BP kompatibilne kratke
+                                          znakovne nizove
+* C znakovni nizovi::                   ©to sa C znakovnim nizovima?
+@end menu
+
+@node String schema
+@subsection Èemu sva ta zbrka oko nizova?
+
+Znakovni nizovi u Turbo Pascalu imaju bajt koji oznaèava duljinu, na
+samom poèetku. Kako je vrijednost bajta u opsegu 0 .. 255, to ogranièava
+znakovne nizove na 255 znakova. Meðutim, u Pascal shemi znakovni niz je,
+kao ¹to je definirano odlomkom 6.4.3.3.3 ISO 10206 Extended Pascal
+standarda, ``schema record'':
+
+@smallexample
+type
+  String (Capacity: Integer) = record
+    Length: 0 .. Capacity;
+    String: packed array [1 .. Capacity + 1] of Char
+  end;
+@end smallexample
+
+Ovaj @samp{+ 1} je GPC ekstenzija da bi se uèinilo moguæim da se
+automatski dodaje @samp{#0} ``terminator'' kad se proslijeðuje ili
+ih se dodjeljuje CString-ovima. Tako uz tro¹ak od malo dodatne
+kompleksnosti (mora se deklarirati kapacitet niza, ne koristite
+@samp{GetMem} bez eksplicitne inicijalizacije èlana @samp{Capacity},
+i dodatnog zahtjeva na prostor) sada mo¾ete imati vrlo dugaèke
+znakovne nizove.
+
+@node Nizovi u variant record-ima
+@subsection Preklapanje nizova u variant record-ima
+
+Q: Da li bi razlièite varijante u varijant record-u trebale
+zapadati u istu memorijsku lokaciju? Prethodni Pascali koje sam
+koristio su ovo garantirali, i napisao sam low-level kod koji
+se oslanja na to. Varijante nisu iste duljine, niti je bila
+namjera da budu.
+
+A: Ne, namjerno je uèinjeno da diskriminante nisu preklopljene
+u memoriji, da bi se one mogle biti ispravno inicijalizirati prije svega.
+Razmotrite:
+
+@smallexample
+record
+case Boolean of
+  False: (s1: String (42));
+  True:  (s2: String (99));
+end;
+@end smallexample
+
+Ako bi se nizovi preklapali, posebno bi njihove diskriminante
+zauzimale isto mjesto u memoriji. Kako bi onda trebale biti
+inicijalizirane? Na bilo koji naèin, bilo bi krivo za barem jednu od
+varijanti @dots{}
+
+Dakle, nakon diskusije u
+@uref{news:comp.lang.pascal.ansi-iso,ISO Pascal newsgroup-i} gdje
+se ovo pitanje pojavilo u vezi s varijablama (koje takoðer zahtijevaju
+ne¹to automatske inicijalizacije i finalizacije), odluèili smo
+da napravimo ovo u GPC-u za sve tipove s automatskom inicijalizacijom
+i finalizacijom (trenutno datoteke, objekti i sheme (schemata),
+ukljuèujuæi i znakovne nizove, u buduænosti bi to takoðer mogle biti
+i Delphi kompatibilne klase i finalizirani tipovi), buduæi da
+standard ionako ne garantira za iste da su u preklapanom memorijskom
+podruèju (engl. overlay) @dots{}
+
+Postoje dva naèina u GPC-u da se dobije garantirano preklapanje
+memorije (oba nestandardna, naravno, buduæi da standard ne pretpostavlja
+ni¹ta o internim reprezentacijama; ali su oba BP-kompatibilna),
+@samp{absolute} deklaracije i varijabilno dodjeljivanje tipova
+(variable type casts). Npr. da bi se preklapalo polje bajtova @samp{b}
+sa varijablom @samp{v}:
+
+@smallexample
+var
+  b: array [1 .. SizeOf (v)] of Byte absolute v;
+@end smallexample
+
+Ili mo¾ete koristiti dodjelu tipa:
+
+@smallexample
+type
+  t = array [1 .. SizeOf (v)] of Byte;
+@end smallexample
+
+nakon èega @samp{t (v)} mo¾e biti kori¹ten kao polje preklopljeno
+(u memoriji se nalazi na istom mjestu) sa @samp{v}.
+
+@node Bajt za duljinu
+@subsection Za¹to @samp{s[0]} ne sadr¾ava duljinu?
+
+Q: U standardnom Pascalu mo¾ete oèekivati da se @samp{s[1]} podudara
+sa pozicijom prvog znaka u nizu @samp{s} i tako jedan znak ulijevo
+je duljina od @samp{s}. Tako je @samp{s[0]} jednak duljini od @samp{s}.
+Istina?
+
+A: Ovo stoji za UCSD/BP znakovne nizove (koje GPC jo¹ ne implementira,
+ali to je u planu). Jedini nizovi koje Standard Pascal podr¾ava
+su polja znakova bez ikakvog polja za duljinu.
+
+GPC takoðer podr¾ava Extended Pascal znakovnu shemu
+(@pxref{String schema}), ali one takoðer nemaju bajt koji sadr¾i
+duljinu na ``poziciji 0'', nego radije jedan @samp{Length} èlan
+(koji je veæi od jednog bajta).
+
+@node Nizovi kao parametri po vrijednosti
+@subsection Pa¾nja sa znakovnim nizovima kao parametrima
+
+Q: Postoje li neki skriveni problemi s parametrima - znakovnim nizovima?
+
+@c FIXME -- does this "string literal" mean it has to be a string constant,
+@c like "string1", "string2", "GPC" etc.?
+A: Budite oprezni kad prosljeðujete znakovne nizove potprogramima
+koje prihvaæaju znakovni niz kao parametar po vrijednosti i onda
+interno modificiraju vrijednost parametra. Unutar rutine, parametar
+po vrijednosti dobiva fiksan kapacitet -- duljinu znakovnog niza u
+navodnicima koja mi je proslijeðena. Bilo kakav poku¹aj da se
+dodijeli du¾a vrijednost neæe uspjeti.
+
+Ovo vrijedi samo ako je parametar po vrijednosti deklariran kao
+@samp{String}. Ako je deklariran kao znakovni niz sa danim kapacitetom
+(npr. @samp{String (255)}), tada dobiva ovaj kapacitet unutar rutine.
+
+@node Kratki znakovni nizovi
+@subsection Podr¹ka za BP kompatibilne kratke znakovne nizove
+
+Q: Dvije razlièite vrste znakovnih nizova nose isto ime --
+@samp{String} -- to radi malo konfuzije. Mo¾da bi znakovni nizovi
+u starom stilu trebali biti preimenovani u @samp{short string}?
+
+A: Kada implementiramo kratke nizove, morat æemo napraviti ovakvu
+razliku. Na¹ trenutaèan plan ide ovako:
+
+@samp{String (@var{n})}: string shema (EP kompatibilna)
+
+@samp{String [@var{n}]}: kratki znakovni niz (UCSD/BP kompatibilan, gdje
+@var{n} mora biti <= 255)
+
+@samp{String}: zavisno od prekidaèa i zastavica prevodioca, po defaultu
+shema bez diskriminante, ali u BP modu (ili sa specijalnim prekidaèem)
+kratki niz kapaciteta 255 (UCSD/BP kompatibilan).
+
+Q: Kada æe ti kratki nizovi biti na raspolaganju?
+
+A: Planira se veæ du¾e od godine. Zaka¹njenje je uzrokovano problemima
+koji su vi¹e pritiskali tim.
+
+@node C znakovni nizovi
+@subsection ©to sa C znakovnim nizovima?
+
+C znakovni niz (@samp{char *}) je polje znakova, zavr¹eno s
+@samp{#0} znakom.
+
+Funkcije C biblioteke zahtijevaju C, ne Pascal string argumente.
+Meðutim, znakovni nizovi u Pascal stilu se automatski pretvaraju
+u one u C stilu kada se prosljeðuju rutinama koje oèekuju znakovne
+nizove u C stilu. Ovo radi jedino ako rutina samo èita iz znakovnog
+niza, ne ako ga ona modificira.
+
+Npr. to je naèin kako æete pozvati @samp{system()} poziv u va¹oj
+C biblioteci (¹to vi¹e nije neophodno, otkad je veæ ugraðen
+@samp{Execute}):
+
+@smallexample
+program SysCall;
+
+function System (CmdLine: CString): Integer; external name 'system';
+
+var
+  Result: Integer;
+
+begin
+  Result := System ('ls -l');
+  WriteLn ('system() call returned: ', Result)
+end.
+@end smallexample
+
+Mogli biste koristiti tip @samp{PChar} umjesto @samp{CString}. I
+@samp{CString} i @samp{PChar} su oboje definirani kao @samp{^Char} --
+iako mi preporuèujemo @samp{CString} jer to èini jasnijim da
+govorimo o nekakvom nizu prije nego o jednom jedinom znaku.
+
+Mnogo rutina iz biblioteke u Pascalu za mnoge aplikacije postoji u
+GPC jedinici i u nekim drugim jedinicama. Kad god je to moguæe,
+trebalo bi ove koristiti (npr. @samp{Execute} radije nego @samp{system()},
+i tada se ne trebate brinuti o @samp{CString}-ovima.
+
+Molimo @strong{NE} prosljeðivati C znakovne nizove kao @samp{const}
+ili @samp{var} parametar ako C prototip ka¾e @samp{const char *}
+ili æete vjerojatno dobiti "Segmentation fault" pogre¹ku.
+@c FIXME -- why is this illegal, should be made more clear!
+
+@node Tra¾enje pomoæi
+@section Tra¾enje pomoæi
+
+Molimo proèitajte GPC priruènik (info datoteke ili drugi format)
+kao i @file{README} i @file{BUGS} datoteke koje dolaze s GPC-om
+(obièno instalirane u direktoriju @file{/usr/local/doc/gpc}), plus
+ostalu dokumentaciju koja bi mogla pomoæi (DJGPP FAQ ako koristite
+DJGPP, i sl.) prije nego po¹aljete email timu za odr¾avanje ili na mailing
+listu.
+
+Posebno, @file{BUGS} datoteka sadr¾i informacije kako poslati
+prijavu buga na najefikasniji naèin.
+
+@samp{Support} poglavlje GPC priruènika reæi æe vam gdje da naðete
+vi¹e informacija o GPC-u u kako kontaktirati GPC razvojni tim.
+@ifclear FAQONLY
+(@pxref{Support})
+@end ifclear
+@ifset FAQONLY
+Slijedeæe informacije su iz tog poglavlja.
+
+@c FIXME -- "Mailing List" is left untranslated because of xrefs
+@menu
+* Mailing List::           Pridru¾ite se GPC mailing listi
+* Arhive mailing listi::   Pogledajte u arhivama mailing liste
+* Newsgroups::             Pitajte na newsgroupi (grupa vijesti na USENETu)
+* Profesionalna podr¹ka::  Potra¾ite individualnu podr¹ku za GPC
+* Krahovi prevodioca::     Kad se compiler skr¹i @dots{}
+* Reporting Bugs::         Pronaðite kako prijaviti GPC bugove
+* Testing::                Testiranje - ako imate GPC source, nauèite kako
+                             pokrenuti Test Suite (kolekciju testova)
+                             da testirate bugove koje prijavljujete.
+@end menu
+
+@lowersections
+@include support.texi
+@raisesections
+@end ifset
+
+@node FAQ "Razno"
+@section Razno
+
+@menu
+* Suradnja na projektu::   ®elio bih doprinijeti projektu; ¹to sad?
+* GPC web poslu¾itelj::    Gdje je GNU Pascal web poslu¾itelj?
+* O ovom FAQ-u::           O ovom FAQ-u.
+@end menu
+
+@node Suradnja na projektu
+@subsection ®elio bih doprinijeti projektu; ¹to sad?
+
+Ako biste ¾eljeli suraðivati na projektu, molimo pi¹ite na mailing listu,
+@ref{Mailing List}.
+
+@node GPC web poslu¾itelj
+@subsection Gdje je GNU Pascal web poslu¾itelj?
+
+GPC homepage na webu, za informacije i download, je na@*
+@uref{http://www.gnu-pascal.de}.
+
+GPC "To-Do" lista, sa najnovijim moguænostima i ispravljenim
+bugovima mo¾e se naæi tamo.
+
+@node O ovom FAQ-u
+@subsection O ovom FAQ-u
+
+Trenutno odr¾ava: Russ Whitaker, @email{russ@@ashlandhome.net}
+
+Ovo je druga inkarnacija GNU Pascal FAQ liste, bazirano na prethodnom
+FAQ-u kojeg je napisao J.J. van der Heijden. Komentari, sugestije ili
+korekcije ovoj listi èesto postavljanih pitanja su uvijek dobrodo¹le.
+
+Molimo ukljuèite u svoju email poruku i broj verzije dokumenta na
+koji se va¹i komentari odnose (mo¾ete naæi broj verzije na poèetku ove
+FAQ liste).
+
+Mnogi su ljudi doprinijeli ovom FAQ-u, samo neki od njih su
+spomenuti gore. Mnogo informacija u njemu, kao i inspiracija za ovu FAQ
+listu su uzeta s prometa GPC mailing liste, tako da ste mogli
+(a da niste niti znali) doprinijeti ovoj listi.

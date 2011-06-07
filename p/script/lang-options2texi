@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# Extract documentation for the GPC specific command line options
+# from the lang-options.h file and convert it to Texinfo.
+#
+# Copyright (C) 2000-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+if [ $# != 2 ]; then
+  echo "Usage: `basename "$0"` options-header-file-name output-file-name" >&2
+  exit 1
+fi
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/find-sed`" || exit 1
+
+{
+  echo "@c Generated automatically from `echo "$1" | "$sed" -e 's,.*/,,'`" &&
+  echo '@c DO NOT CHANGE THIS FILE MANUALLY!' &&
+  echo '' &&
+  echo '@table @code' &&
+  # NOTE: `\([^"\]*\(\\.\)*\)*' (two places) is equivalent (except
+  #       for the numbering of the parentheses) to (though longer than)
+  #       `\([^"\]\|\\.\)*', but not all `sed's understand `\|'.
+  "$sed" -ne '
+    /^[^#]*GPC_OPT/{
+      N;
+      s/[@{}]/@&/g;
+      s/`\([^'"'"']*\)'"'"'/@samp{\1}/g;
+      s/"-f/"--/;
+      s/.*GPC_OPT[^,]*, *"\(\([^"\]*\(\\.\)*\)*\)"[^",]*,[^",]*,[^",]*,[^",]*"\(\([^"\]*\(\\.\)*\)*\)".*/@item \1\
+@cindex \1\
+\4./;
+      s/\\\"/"/;
+      p;
+    }
+  ' < "$1" &&
+  echo '@end table';
+} > "$2" || { rm -f "$2"; exit 1; }

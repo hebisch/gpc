@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# Concatenate several static libraries (*.a) into one.
+#
+# Copyright (C) 2000-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+realpath()
+{
+  echo "$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+}
+
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 dest source..." >&2
+  exit 1
+fi
+
+if [ -r "$1" ]; then
+  echo "$0: $1 exists already." >&2
+  exit 1
+fi
+dest="`realpath "$1"`"
+shift
+
+if [ x"$TMPDIR" = x ]; then
+  TMPDIR="/tmp"
+fi
+TMP="$TMPDIR/catlib.tmp.$$"
+rm -rf "$TMP" || exit 1
+mkdir "$TMP" || exit 1
+trap 'rm -rf "$TMP"; exit 1' INT 0
+
+for f do
+  fullname="`realpath "$f"`" || exit 1
+  (cd "$TMP"; ar x "$fullname") || exit 1
+done
+(cd "$TMP"; ar rc "$dest" *) || exit 1
+ranlib "$dest" || exit 1
+
+rm -rf "$TMP" || exit 1
+trap "" 0

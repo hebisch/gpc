@@ -1,0 +1,578 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+@include macros.texi
+
+@c FIXME -- "support" untranslated because being xref'd from untranslated
+@c           parts of docs
+@ifclear FAQONLY
+@ifclear TESTREADMEONLY
+@node Support
+@chapter Gdje dobiti podr¹ku za GNU Pascal; kako prijaviti bugove
+@cindex support
+@cindex podr¹ka
+@cindex pomoæ
+@cindex bugovi
+@end ifclear
+
+(Podr¹ka)
+
+@ifset TESTREADMEONLY
+@include version.texi
+@c Note: The following line gets inserted into the destination file,
+@c       it does not apply to this Texinfo file!
+Ova je datoteka generirana automatski iz support.texi.@*
+@sc{NE MIJENJAJTE OVU DATOTEKU RUÈNO!}
+
+@paragraphindent 0
+Zabilje¹ka: Ova datoteka je @file{README} datoteka @file{test}
+direktorija u GPC source distribuciji, @emph{a takoðer i} datoteka
+@file{BUGS} u GPC binarnim distribucijama.
+
+GPC @value{GPCMajor}.@value{GPCMinor}, @value{GPCVersion}
+
+@settitle GPC Test kolekcija
+@node Top
+@chapter GPC Test kolekcija
+@end ifset
+
+Ovdje mo¾ete pronaæi informaciju o tome gdje potra¾iti najsvje¾ije
+informacije o GPC-u, kako dobiti podr¹ku (profesionalnu ili
+dobrovoljnu), kako koristiti GPC-ovu test kolekciju, i kako
+prijavljivati nove bugove s na koje bi mogli naiæi.
+
+Ako imate problema s GNU Pascalom, molimo pogledajte relevantne
+dijelove GPC priruènika. Najnovija verzija priruènika je
+na raspolaganju na adresi
+@uref{http://www.gnu-pascal.de/gpc-hr/index.html}
+za online pregledavanje.
+Takoðer mo¾ete napraviti download
+@localuref{gpc-html.tar.bz2,kompletnog priruènika u HTML formatu (tar.bz2)}.
+Ovaj je priruènik takoðer dostupan i u
+@localuref{gpc.dvi.bz2,DVI formatu (bzip2)} i
+@localuref{gpc.ps.bz2,PostScript formatu (bzip2)} za ispis na ¹tampaè.
+
+Ako vam priruènik ne poma¾e, evo ¹to vam predla¾emo:
+
+@ifclear TESTREADMEONLY
+@noindent @ref{FAQ}                Provjerite u GPC FAQ-u
+@end ifclear
+@ifset TESTREADMEONLY
+@itemize @bullet
+@item Provjerite u GPC FAQ-u (vidi datoteku @samp{FAQ} ili GPC priruènik)
+@item Pridru¾ite se GPC mailing listi
+@item Pogledajte u arhivama mailing liste
+@item Pitajte na newsgroupi (grupa vijesti na USENETu)
+@item Potra¾ite individualnu podr¹ku za GPC
+@item Pronaðite kako prijaviti GPC bugove
+@item Ako imate GPC source, nauèite kako pokrenuti Test Suite (kolekciju testova) da testirate bugove koje prijavljujete.
+@end itemize
+@end ifset
+
+@c FIXME -- "Mailing List" left untranslated because of being referenced
+@c          from en/faq.texi (historical, now it's translated and waiting
+@c          for approval
+@menu
+* Mailing List::           Pridru¾ite se GPC mailing listi
+* Arhive mailing listi::   Pogledajte u arhivama mailing liste
+* Newsgroups::             Pitajte na newsgroupi (grupa vijesti na USENETu)
+* Profesionalna podr¹ka::  Potra¾ite individualnu podr¹ku za GPC
+* Krahovi prevodioca::     Kad se compiler skr¹i @dots{}
+* Reporting Bugs::         Pronaðite kako prijaviti GPC bugove
+* Testing::                Testiranje - ako imate GPC source, nauèite kako
+                           pokrenuti Test Suite (kolekciju testova)
+                           da testirate bugove koje prijavljujete.
+@end menu
+
+@end ifclear
+@c FIXME -- see the comment in menu directory above
+@node Mailing List
+@section GPC mailing lista
+@cindex Mailing List
+@cindex mailing lista
+
+(Mailing lista)
+
+Postoji posebna mailing lista posveæena GNU Pascalu. Mo¾ete pisati
+na listu, npr. ako imate probleme s instaliranjem GPC-a ili ako
+ste na¹li problem u vezi s GPC-om (molim pogledajte @ref{Reporting Bugs}).
+Mo¾ete takoðer diskutirati i davati sugestije za pobolj¹anje GPC-a
+i, vrlo dobrodo¹li, ponuditi svoju pomoæ ili doprinijeti kod,
+dokumentaciju ili drugi rad. Poruke na listu bi trebale biti na
+engleskom.
+
+Da biste se pretplatili na listu, po¹aljite naredbu
+@smallexample
+subscribe gpc va¹a@@email.adresa
+@end smallexample
+u tijelu poruke na @email{majordomo@@gnu.de} (@strong{ne} na
+@samp{gpc@@gnu.de}!). Subject: polje poruke se ignorira. (Molimo
+zamijenite @samp{va¹a@@email.adresa} va¹om pravom email adresom.)
+Za vi¹e informacija, po¹aljite redak @samp{help} na
+@email{majordomo@@gnu.de}.
+
+Nakon prijavljivanja na listu, mo¾ete poslati poruku na mailing listu
+¹aljuæi email na adresu liste @email{gpc@@gnu.de} kao da je rijeè o osobi.
+
+Za napu¹tanje mailing liste, po¹aljite naredbu
+@smallexample
+unsubscribe gpc va¹a@@email.adresa
+@end smallexample
+na @email{majordomo@@gnu.de}.
+
+Postoji posebna lista za diskutiranje o GPC dokumentaciji,
+@email{gpc-doc@@gnu.de}. Za prijavljivanje, po¹aljite naredbu
+@smallexample
+subscribe gpc-doc your@@email.address
+@end smallexample
+na @email{majordomo@@gnu.de}.
+
+Postoji jo¹ jedna (malog prometa) najavna lista,
+@email{gpc-announce@@gnu.de} na koju se mo¾ete pretplatiti
+da biste ostali informirani. Da se pretplatite na listu,
+napi¹ite email s
+@smallexample
+subscribe gpc-announce va¹a@@email.adresa
+@end smallexample
+u tijelu poruke na @email{majordomo@@gnu.de}. Ako biste ¾eljeli
+najaviti doprinos, servis ili dogaðaj u relaciji s GPC-om, pozvani
+ste da ¹aljete na ovu listu radije nego na @samp{gpc@@gnu.de}, ali
+molimo vas ne koristite najavnu listu za pitanja ili diskusije.
+Molimo uoèite da se sva po¹ta pristigla na najavnu listu preusmjerava
+takoðer i na regularnu listu, tako da se neæete morati pretplatiti
+na obje liste u sluèaju da ne ¾elite ni¹ta propustiti. Zbog istog razloga,
+molimo ne cross-postajte poruke na obje liste.
+
+Postoji i mailing lista za njemaèko govorno podruèje,
+@email{gpc-de@@gnu.de}. Za pretplaæivanje po¹aljite naredbu
+@smallexample
+subscribe gpc-de va¹a@@email.adresa
+@end smallexample
+u tijelu poruke na @email{majordomo@@gnu.de} (vrijede natuknice
+odozgo).
+
+Ljudskog moderatora mo¾ete kontaktirati na @emph{gpc-owner@@gnu.de}.
+
+
+@node Arhive mailing listi
+@section Arhive GPC mailing listi
+@cindex Arhive mailing listi
+@cindex Arhive, mailing listi
+
+Mo¾da se o va¹em problemu veæ diskutiralo na listi. Postoji pretra¾iva
+arhiva mailing liste na WWW-u. Mo¾e se pregledavati ili pretra¾ivati na
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc/en/} (engleski)
+@end smallexample
+
+Arhiva liste o dokumentaciji je na
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc-doc/en/}
+@end smallexample
+
+Arhiva liste najavne liste je na
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc-announce/en/}
+@end smallexample
+
+Arhiva njemaèke GPC liste je na
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc-de/de/} (njemaèki)
+@end smallexample
+
+@node Newsgroups
+@section Newsgroupe (grupe USENET vijesti) relevantne za GPC
+@cindex Newsgroups
+@cindex USENET grupe vijesti
+
+Za dobivanje podr¹ke, mo¾ete takoðer pitati Usenet grupu vijesti
+za pomoæ. Postoji vi¹e grupa u vezi s Pascalom, ali nijedna nije
+specijalizirana samo za GNU Pascal, pa koristite onu koja najbolje
+odgovara va¹em problemu. Za opæa pitanja o Pascalu, preporuèujemo
+slijedeæu:
+
+@multitable @columnfractions .5 .5
+@item @uref{news://comp.lang.pascal.misc} @tab Pascal in general and ungrouped Pascals.
+@end multitable
+
+Pitanja glede Pascal sintakse mogu biti zgodna u:
+
+@multitable @columnfractions .5 .5
+@item @uref{news://comp.lang.pascal.ansi-iso} @tab Pascal according to ANSI and ISO standards.
+@end multitable
+
+Slijedeæa grupa je skloni¹te za poèetnike, odgovarajuæi pitanja
+koja se mogu primijeniti za gotovo bilo koji Pascal. Meðutim, ako
+imate GPC-specifièno pitanje ne postavljajte ga tamo -- koristite
+GPC mailing listu. A i kada ste u nedoumici koristite GPC maling listu.
+
+@multitable @columnfractions .5 .5
+@item @uref{news://comp.lang.pascal.borland} @tab Borland Pascal questions.
+@end multitable
+
+Ne zaboravite vratiti nazad ¹to ste pribavili. Nitko od nas ne
+dobiva novac za odgovaranje na va¹a pitanja (ukoliko nas sami ne
+platite). Molimo dajte svoj udio odgovarajuæi na pitanja drugih.
+
+@node Profesionalna podr¹ka
+@section Gdje naæi profesionalnu podr¹ku za GPC
+@cindex Profesionalna podr¹ka
+@cindex Komercijalna podr¹ka
+@cindex Podr¹ka, profesionalna
+
+GPC je slobodan software i dolazi @strong{bez ikakve garancije}.
+
+Ako ¾elite potra¾iti profesionalnu podr¹ku, mo¾ete unajmiti pojedinca
+ili poduzeæe koja pru¾a takvu uslugu.
+
+@uref{http://www.g-n-u.de,G-N-U GmbH} izvodi velike dijelove razvoja
+GNU Pascala. Ova kompanija nudi specijalnu podr¹ku za GPC i mo¾e se
+kontaktirati na @email{info@@g-n-u.de}.
+
+Vi¹e opæenito, za pronala¾enje kompanije ili pojedinca koji nudi
+podr¹ku i ostale savjetodavne usluge za free software, pogledajte u
+@uref{http://www.gnu.org/prep/service.html,GNU Service Directory}.
+
+@node Krahovi prevodioca
+@section Kad se compiler skr¹i @dots{}
+@cindex Krahovi prevodioca
+@cindex Krah, prevodioca
+
+Ako se prevodilac skr¹i u radu, otkrili ste bug. Pouzdan prevodilac
+se nikad ne ru¹i. Da biste ljudima koji odr¾avaju pomogli ispraviti
+bug, va¾no je da nam po¹aljete problem report.
+
+Ako ste na Unixu, mo¾ete pronaæi gdje se prevodilac sru¹io ako
+omoguæite coredumpove, zatim uèitate prevodilac (@file{gpc1}) plus
+core datoteku u debugger (@samp{gdb /va¹_put_ovdje/gpc1 core}),
+da bi se dobio ispis stoga (engl. stacktrace). Ukljuèite ovaj
+ispis stoga u svoju prijavu buga.
+
+@node Reporting Bugs
+@section Kako prijaviti GPC bug
+@cindex Prijava bugova
+@cindex bugovi, prijava
+@cindex Test Suite, pisanje testova
+
+(Prijava bugova)
+
+Ako se susretnete s bugom u GPC-u, molimo provjerite da li je to jedan
+od veæ poznatih bugova@c
+@ifclear TESTREADMEONLY
+@ifclear FAQONLY
+ (@pxref{Known Bugs})@c
+@end ifclear
+@end ifclear
+. Ako nije, molimo prijavite ga na GNU Pascal mailing listu@c
+@ifclear TESTREADMEONLY
+ (@pxref{Mailing List})@c
+@end ifclear
+. Na taj naèin, oni uvijek sti¾u odr¾avateljima. Molimo primijetite
+slijedeæe toèke.
+
+@itemize @bullet
+
+@item
+Molimo vas po¹aljite deskripciju problema. Nastojte dati koliko
+god je vi¹e informacija moguæe, s punim tekstom eventualnih
+poruka o gre¹kama s kojima ste se susreli, ili opisom kako se
+neki izlaz razlikuje od oèekivanoga. Uvijek specificirajte
+operacijski sustav i tip stroja (npr. izlaz @samp{uname -a}
+ako niste sigurni) kao i verziju GPC-a koju æete dobiti ako
+otkucate @samp{gpc -v}.
+
+@item
+Dobar èlanak o podno¹enju prijave buga mo¾e se naæi na@*
+@uref{http://www.chiark.greenend.org.uk/~sgtatham/bugs.html} ili@*
+@uref{http://freshmeat.net/news/2000/02/26/951627540.html}
+
+Jo¹ jedan dobar èlanak ``How To Ask Questions The Smart Way''
+(Postavljati pitanja na mudar naèin) je na raspolaganju na adresi
+@uref{http://www.catb.org/~esr/faqs/smart-questions.html}
+
+@end itemize
+
+Ako je problem u samom prevodiocu, ne u procesu instalacije ili
+neèem poput toga, molimo prilo¾ite test program koji reproducira
+problem, i uoèite donje natuknice. Mo¾ete takoðer slati test
+programe za moguænosti koje rade u GPC-u kako bi osigurali da
+se neæe pokvariti u buduæim izdanjima.
+
+@itemize @bullet
+
+@item
+Test program treba biti ¹to je moguæe kraæi, ali
+@strong{u svakom sluèaju}, molimo po¹aljite @strong{kompletan}
+program i @strong{uèinite sigurnim} da isti jo¹ uvijek reproducira
+problem prije nego ¹to nam ga po¹aljete. Preèesto, korisnici su
+nam slali kod koji je sadr¾avao oèite sintaksne pogre¹ke daleko
+prije aktualnog problema, ili samo fragmente koda o kojima smo
+mogli samo izdaleka nagaðati. To je neproduktivno za nas, a i
+vama ne poma¾e da rije¹ite svoj problem.
+
+@end itemize
+
+@ifclear FAQONLY
+
+Preferirani oblik test programa je forma koju automatizirani
+GPC Test Suite razumije. Molimo, ako je ikako moguæe, ¹aljite
+svoje test programe u ovoj formi ¹to bi trebalo biti lako za uèiniti,
+kako mi ne bi morali gubiti vrijeme da ih prilagodimo toj formi,
+te da se mo¾emo koncentrirati na rje¹enje problema.
+
+@itemize @bullet
+
+@item
+Datoteka koja sadr¾i glavni program @emph{mora} imati ime koje
+zavr¹ava sa @file{.pas} i mora sadr¾avati rijeè @samp{program}
+(case-insensitive, tj. veliko i odgovarajuæe malo slovo se smatraju
+istim) te @samp{;} u istom retku da uopæe bude prepoznata od test
+skripte. Ostale datoteke koje zavr¹avaju sa @file{.pas} (npr. moduli
+i jedinice ili podatke koje program treba) ne smiju to sadr¾avati.
+
+@item
+Kako Test Suite mora raditi vrlo @dots{} hmph @dots{} èudnim
+operacijskim sustavima, takoðer imena se datoteka moraju razlikovati
+u prvih osam (8) znakova (case-insensitive) i ne bi smjela sadr¾avati
+ni¹ta osim slova, znamenki, crtice, podvlake (engl. underscore)
+i jedne toèke. Dalje, sve pomoæne datoteke (jedinice (unit), moduli,
+include i podatkovne datoteke) ne smije imati imena du¾a od ``8+3''
+znakova; isto se odnosi i na imena suèelja jedinica/modula (jer æe GPC
+kreirati @file{.gpi} imena datoteka bazirana na njihovim imenima).
+Èesto je dobra ideja koristiti vlastito ime, nadimak ili inicijale
+iza èega slijedi broj kao ime datoteke.
+
+@item
+Ako va¹ test program zahtijeva nake jedinice (units) ili module,
+nemojte im davati (odnosno njihovim 'interface' suèeljima u sluèaju
+modula) uobièajena imena puput @samp{Test}, @samp{Foo} ili
+@samp{MyUnit}, osim ako imate vrlo posebne razloge za to, buduæi
+da bi se mogli pojaviti suptilni problemi ako nekoliko testnih programa
+koristi isto ime. Umjesto toga, preporuèen pristup je da se imenima
+jedinica/modula/interface-a nadoda prefiks (predmetak) -- ime glavnog
+testnog programa ili njegova skraæenica (to je neophodno zbog restrikcija
+na imenima datoteka). Nadalje, molimo izbjegavajte kori¹tenje jedinica
+i modula uopæe, ako bug nije specifièan za njih; kako bi se test odr¾avao
+¹to je moguæe jednostavnijim.
+
+@item
+Test program, kada se izvr¹ava, treba proizvesti liniju izlaza
+koja se sastoji od niza @samp{OK} (praæenog znakom za novi red,
+newline) ako je sve pro¹lo kao ¹to je oèekivano, ili bilo ¹to
+drugo (npr. @samp{failed}, potencijalno praæeno razlogom pada
+na testu) ako je ne¹to po¹lo krivo. U tom posljednjem sluèaju
+mogli biste po¾eljeti ispisati dodatnu informaciju kao ¹to su
+vrijednosti va¾nih varijabli ili indikaciju u kom je dijelu
+do¹lo do pogre¹ke u programu ako se to moglo desiti na nekoliko
+moguæih mjesta.
+
+@item
+Meðutim, ako je program namijenjen da provjeri da li GPC prepoznaje
+(namjernu) gre¹ku u programu, stavite niz @samp{WRONG} negdje u
+test programu, najbolje u komentaru u retku koji sadr¾i namjernu
+pogre¹ku. @samp{WRONG} testovi æe biti pokrenuti s opcijom @samp{-w}
+da se potisnu sva upozorenja, tako da æe samo prave pogre¹ke biti
+detektirane.
+
+@strong{Primijeti:} Dok je moguæe kombinirati nekoliko @samp{OK}
+testova u jednom test programu (ako uèinite sigurnim da ispisuje
+@samp{OK} samo ako svi testovi uspje¹no proðu), ne mo¾ete staviti
+nekoliko @samp{WRONG} testova u isti program. Razlog tome je ¹to
+prevodilac neæe uspjeti prevoðenje (i test æe se smatrati uspje¹nim)
+veæ i kad se pojavi samo @samp{jedna} od oèekivanih gre¹aka. Dakle,
+za @samp{WRONG} testove, postavite samo jednu provjeru u testni
+program. Takoðer, nastojite odr¾avati takav test program ¹to je
+moguæe jednostavnijim, zbog izbjegavanja moguænosti da ne bi pao
+zbog drugih problema (i zbog toga bi test pogre¹no bio smatran
+uspje¹nim).
+
+@item
+Ako bi test trebao samo provocirati GPC upozorenje, koristite
+@samp{WARN} umjesto @samp{WRONG}. Ovo æe pokrenuti test bez @samp{-w},
+ali sa @samp{-Werror}. Meðutim, ovakvi testovi æe se takoðer èiniti
+uspje¹nim i ako proizvode gre¹ku kod prevoðenja, ne samo kod upozorenja.
+Stoga, kod provjeravanja za upozorenja, èesto je dobra ideja prilo¾iti
+komplemetarni test (za kojeg se oèekuje da uspije)
+i sa @samp{-w} u @samp{FLAG} ili direktivi prevodioca @samp{@{$W-@}}
+da bi se osiguralo da je rijeè zaista samo o upozorenju, a ne o
+pogre¹ci.
+
+@item
+Za test koji reproducira postojeæi problem (za koji se ne oèekuje da æe
+se brzo rije¹iti), molimo stavite komentar na vrh datoteke koji opisuje
+problem u par rijeèi, i zapoènite ga sa @samp{BUG}. Ovo se ne tra¾i od
+test skripti, to je samo da se uèini lak¹im onima koji æe poku¹ati
+rije¹iti problem kako bi se isprve i odmah vidjelo ¹to test ¾eli
+pokazati. Testovi za nove (planirane) znaèajke ne bi smjeli reæi
+@samp{BUG}.
+
+@end itemize
+
+Slijedeæe specijalne moguænosti testne aplikacije mogu biti korisne za
+konstruiranje pone¹to neuobièajenih testova:
+
+@itemize @bullet
+
+@item
+Ako je oèekivani ispis programa ne¹to osim @samp{OK}, stavite to u
+datoteku @file{<basename>.out} (gdje je @file{<basename>} ime testnog
+programa bez @file{.pas} nastavka).
+
+@item
+Ako program oèekuje neki ulaz, stavite ga u datoteku
+@file{<basename>.in}. Biti æe automatski preusmjerena na standardni
+ulaz programa.
+
+@item
+Ako test treba neke specijalne opcije proslijeðene GPC naredbenoj
+liniji, stavite ih u komentar sa prefiksom @samp{FLAG}, npr.
+
+@smallexample
+@{ FLAG --extended-pascal -Werror @}
+@end smallexample
+
+@item
+Ime izvorne datoteke test programa bit æe proslijeðeno kao prvi
+argument naredbene linije do test programa koji se izvr¹ava.
+
+@item
+Ako test treba biti pokrenut na specijalan naèin, mo¾ete popratiti
+program sa skriptom @file{<basename>.run} koja æe pokrenuti stvarni
+test nakon ¹to je testni program preveden. Ova skripta æe biti
+pokrenuta od @file{sh} (bez obzira na prvu liniju). Da bi bila
+prenosiva, trebala bi koristiti samo standardne alate i znaèajke
+prisutne u svim @file{sh} kompatibilnim ljuskama (npr. @samp{ash},
+@samp{bash}, ali ne neophodno i @samp{csh}). Ime izvorne datoteke
+test programa æe biti proslijeðeno kao prvi argument komandnoj
+liniji za izvr¹enje skripte u tom sluèaju. Prevedena
+datoteka se uvijek naziva @file{./a.out} na veæini sistema, ali,
+npr. @file{./a.exe} na Cygwin platformi. Environment varijabla
+@samp{A_OUT} sadr¾i ime (npr. @file{a.out} ili @file{a.exe}, tako da
+uvijek mo¾ete pozvati program sa @samp{./"$A_OUT"}).
+
+@item
+Ako test treba biti preveden na specijalan naèin (npr. da se odluèi
+da li preskoèiti test), smjestite naredbe u skriptu (najbolje
+nazvanu @file{<basename>.cmp}), i staviti ime datoteke sa skriptom
+u komentar ispred èega dolazi @samp{COMPILE-CMD:} u source test
+programa. Skripta za prevoðenje æe biti pokrenuta @strong{umjesto}
+prevodioca i bilo koje druge akcije poduzete za taj test program,
+tako da vam to daje maksimalnu fleksibilnost u èemu god ¹to trebate
+napraviti. Skripta æe biti pokrenuta od @file{sh} (bez obzira na njenu
+prvu liniju). Da bi bila prenosiva, najbolje da koristi samo standardne
+alatke i znaèajke @file{sh} kompatibilnih ljusaka (vidi gore).
+Prvi argument naredbene linije proslijeðen skripti za
+prevoðenje bit æe prevodilac kojeg treba koristiti, ukljuèivo sve
+opcije. Drugi argument bit æe ime izvorne datoteke sa test programom.
+Za neke tipiène testove postoje standardne skripte za prevoðenje,
+npr. @file{asmtest.cmp} koje æe preskoèiti test osim ako se pokrene
+na platformi podr¾anoj za nekoliko testova koji æe sadr¾avati `asm'
+naredbe. Naravno, opæenito je bolje izbjegavati situaciju da se mora
+koristiti takve skripte kad je god moguæe.
+
+@item
+U nekim biste sluèajevima mogli po¾eljeti napisati "posluèajene" testove.
+Ovo se u normalnim uvjetima ne preporuèa, jer èini probleme te¾im za
+reproducirati, ali ponekad mo¾e biti korisno (npr. kad ¾elimo pokriti
+velik raspon parametara). U takvim sluèajevima mo¾e se koristiti slijedeæa
+strategija:
+
+@smallexample
+@dots{}
+
+uses GPC;
+
+var
+  RandomSeed: Integer;
+
+begin
+  RandomSeed := Random (MaxInt);
+  SeedRandom (RandomSeed);
+
+  @dots{} @{ va¹i normalni testovi ovdje @}
+
+  @{ kad se ispisuje poruka o gre¹ci: @}
+  if @dots{} then
+    begin
+      WriteLn ('failed (', RandomSeed, ') ',
+               @dots{} @{ mo¾ebitne dodatne informacije @} );
+      Halt
+    end
+end.
+@end smallexample
+
+Ovo je pomalo neprirodno jer se pseudo-sluèajni broj koristi za
+(ponovno) postavi 'sjeme' (inicijalno stanje) pseudo-sluèajnog
+generatora, ali trenutno nema naèina da se dobavi interno stanje
+istog (i zapravo niti nije predstavljeno jednim brojem, veæ stanjem
+jednog polja).
+
+Dajuæi vrijednost @samp{RandomSeed} u poruci o gre¹ci, bit æe lako
+reproducirati problem stavljajuæi ovu vrijednost umesto @samp{Random (MaxInt)}.
+Samo budite sigurni da ste ispisali ovu vrijednost u @strong{svakoj}
+poruci o bugu koju test program mo¾e proizvesti.
+
+@end itemize
+
+@node Testing
+@section Pokretanje GPC Test Suite kolekcije testova
+@cindex Test Suite, pokretanje
+@cindex kolekcija testova, pokretanje
+
+(Testiranje).
+
+@emph{Opaska:} Ako imate instaliranu binarnu distribuciju, obièno
+nemate Test Suite instaliran (mo¾ete napraviti download source
+distribucije da ga pribavite, meðutim), tako da se ovaj odlomak
+ne odnosi na vas. Ipak, jo¹ uvijek mo¾ete pronaæi u odlomku
+@samp{Prilaganje programa u Test Suite} kako prijaviti GPC bugove
+u obliku novih test programa kako bismo ih mogli ispraviti ¹to je
+prije moguæe.
+
+Datoteke u test direktoriju i podstablima slu¾e samo za testiranje
+GPC-a i ne bi se smjele koristiti za druge svrhe.
+
+Opaska: Neki od testova nemaju smisla na svim sistemima. Oni su
+opremljeni provjerama i bit æe preskoèeni ako pronaðu sistem
+nepogodnim. Preskoèeni testovi @strong{ne znaèe} GPC bug, osim
+ako mislite da bi pojedini test imao smisla na va¹em sistemu.
+
+@itemize @bullet
+
+@item
+Da se pokrene èitava test kolekcija, otipkajte @samp{make} u test
+direktoriju (ili @samp{make check} u @samp{p} objektnom direktoriju
+nakon izgradnje GPC-a).
+
+@item
+Ispis æe pokazati sve uoèene gre¹ke (po¾eljno nijednu) i preskoèene
+testove, i konaèno sa¾etak dajuæi broj uspje¹nih, testova s gre¹kom i
+preskoèenih testova. Svaki test s gre¹kom znaèi bug u GPC-u koji bi
+trebao biti prijavljen na GPC mailing listu, @email{gpc@@gnu.de}.
+Ne zaboravite napomenuti operacijski sustav na kojem ste pokrenuli
+testove i ostale relevantne informacije o tome ¹to ste radili.
+
+@item
+Takoðer mo¾ete otipkati @samp{make pascal.check-long} da dobijete
+dugi ispis koji je niz imena datoteka praæenih sa @samp{OK} za uspje¹ne
+testove, @samp{SKIPPED} za preskoèene testove (oboje velikim slovima),
+i ni¹ta dodatno za testove koji su pali.
+
+@item
+Da pokrenete samo odreðene testove, mo¾ete otipkati ne¹to poput
+@samp{make MASK="foo[1-7]*.pas"} ili
+@samp{make MASK="foo42.pas" pascal.check-long}.
+
+@item
+Da poèistite rezultate testova, otipkajte @samp{make clean}.
+
+@end itemize
+
+@end ifclear

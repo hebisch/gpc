@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Try setting German locale (locally ;-)
+#
+# Which variables do we really need to set? (Probably not all of
+# these, but better be safe than sorry. ;-)
+#
+# The complicated redirecting is necessary on Solaris' shell which
+# otherwise would give messages "couldn't set locale correctly"
+# in the variable assignments that can't seem to be redirected
+# normally.
+exec 3>&2 2> /dev/null
+LC_ALL=de_DE.iso-8859-1; export LC_ALL
+LC_CTYPE=de_DE.iso-8859-1; export LC_CTYPE
+LANG=de_DE.iso-8859-1; export LANG
+exec 2>&3
+
+# Test if German locale actually works (i.e., whether the locale
+# database is installed on the system)
+if gcc "`dirname "$2"`/fjf165a.c" > /dev/null 2>&1; then
+  if ./"$A_OUT" 2> /dev/null; then
+    rm -f "$A_OUT"
+    $1 $2
+    if [ -r "$A_OUT" ] ; then
+      ./"$A_OUT"
+    else
+      echo "failed"
+    fi
+  else
+    echo "SKIPPED: German locale not installed"
+  fi
+else
+  echo "SKIPPED: can not compile the test C code"
+fi

@@ -1,0 +1,153 @@
+.\" Copyright (c) 1997-2006 Free Software Foundation         -*-Text-*-
+.\" See section KOPIRANJE for conditions for redistribution
+.\"
+.\" Set up \*(lq, \*(rq if -man hasn't already set it up.
+.\" Translated by Mirsad Todorovac
+.if @@\*(lq@ \{\
+.	ds lq "
+.	if t .ds lq ``
+.	if !@@\(lq@ .ds lq "\(lq
+.\}
+.if @@\*(rq@ \{\
+.	ds rq "
+.	if t .ds rq ''
+.	if !@@\(rq@ .ds rq "\(rq
+.\}
+.de Id
+.ds Rv \\$3
+.ds Dt \\$4
+..
+.de Sp
+.if n .sp
+.if t .sp 0.4
+..
+.TH GPC 1 "\*(Dt" "GNU Alati" "GNU Alati"
+.SH IME
+gpc \- GNU projekt Pascal Prevodilac (Compiler)
+.SH SINOPSIS
+.RB "" gpc " [ "\c
+.IR option\c
+.RB " | "
+.IR filename\c
+.RB " ].\|.\|.
+.SH OPIS
+Ova man stranica ne sadr¾i previ¹e informacija o GNU Pascalu
+jer nestrukturiran format man stranice nije prikladan za
+dokumentiranje tako velikog programa kao ¹to je GNU Pascal.
+Relevantne informacije mo¾ete pronaæi u GNU Pascal priruèniku koji
+je raspolo¾iv u Texinfo formatu i formatima proizvedenima iz njega,
+kao npr. HTML, Info i DVI. Za gledanje Info dokumentacije, molimo
+pokrenite `\|\c
+.B info -f gpc-hr\c
+\&\|' ili otvorite info datoteku `\|\c
+.B gpc-hr.info\c
+\&\|' u va¹em najdra¾em info readeru.
+.PP
+Aktualne verzije priruènika u raznim formatima kao i prevodilac (compiler)
+sam mogu se uvijek naæi na WWW-u na adresi
+.B http://www.gnu-pascal.de\c
+\&.
+.SH DATOTEKE
+file.pas		Pascal izvorni kod (source)
+.br
+file.p		Pascal izvorni kod (source)
+.br
+file.pp		Pascal izvorni kod (source)
+.br
+file.dpr		Pascal izvorni kod (source)
+.br
+file.c		C izvorna datoteka
+.br
+file.s		asemblerski program
+.br
+file.o		objektna datoteka
+.br
+file.gpi		GNU Pascal interface datoteka
+.br
+a.out		povezani izvr¹ni kod (po defaultu)
+.br
+\fILIBDIR\fR/gpcpp	preprocesor
+.br
+\fILIBDIR\fR/gpc1	sam prevodilac
+.br
+\fILIBDIR\fR/collect2	suèelje povezivaèa (linker front end) potrebno na nekim strojevima
+.br
+\fILIBDIR\fR/libgcc.a	GCC biblioteka potprograma (subroutine library)
+.br
+\fILIBDIR\fR/libgpc.dda	GPC runtime biblioteka
+.sp
+.I LIBDIR
+je obièno
+.B /usr/local/lib/\c
+.IR machine / version .
+.SH "SEE ALSO"
+gcc(1), cpp(1), as(1), ld(1), gdb(1), adb(1), dbx(1), sdb(1).
+.br
+.RB "`\|" gpc "\|', `\|" gcc "\|', `\|" cpp "\|',
+.RB "`\|" as "\|', `\|" ld "\|',
+i
+.RB "`\|" gdb "\|'
+poglavlja u
+.B info\c
+\&.
+.br
+.I
+The GNU Pascal Manual\c
+, Jan-Jaap van der Heijden, Peter Gerwinski, Frank Heckenbach i drugi;
+.I
+Using and Porting GNU CC\c
+, Richard M. Stallman;
+.I
+The C Preprocessor\c
+, Richard M. Stallman;
+.I
+Debugging with GDB: the GNU Source-Level Debugger\c
+, Richard M. Stallman i Roland H. Pesch;
+.I
+Using as: the GNU Assembler\c
+, Dean Elsner, Jay Fenlason & prijatelji;
+.I
+gld: the GNU linker\c
+, Steve Chamberlain i Roland Pesch.
+
+.SH NAPOMENA
+Ako na ovoj man stranici ne vidite ispravno 'na¹e' znakove i nakon ¹to ste
+propisno instalirali iso-8859-2 font (ili je veæ bio na sistemu), probajte
+slijedeæe:
+.PP
+.B setenv PAGER less; setenv LESSCHARSET iso8859
+.PP
+ili
+.PP
+.B PAGER=less; LESSCHARSET=iso8859; export PAGER LESSCHARSET
+.PP
+veæ prema ljusci koju koristite.
+
+.SH BUGOVI
+Za instrukcije kako prijavljivati bugove, vidite GNU Pascal priruènik.
+
+.SH KOPIRANJE
+
+(Licenca je na engleskom, u tijeku je tra¾enje odobrenog hrvatskog
+prijevoda koji bi bio pravno utemeljen.)
+
+Copyright (c) 1997-2006 Free Software Foundation, Inc.
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translations approved by the Free Software Foundation instead of in
+the original English.
+
+.SH AUTORI
+Pogledajte GNU Pascal priruènik za listu suradnike i onih koji su doprinijeli
+GNU Pascalu.

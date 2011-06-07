@@ -1,0 +1,4 @@
+program foo;
+begin
+  WriteLn ('OK')
+end.

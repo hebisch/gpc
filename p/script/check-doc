@@ -1,0 +1,420 @@
+#!/bin/sh
+
+# Check the consistency of some parts of GPC's documentation.
+# Meant to be run by GPC maintainers.
+#
+# Copyright (C) 2000-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# Can be made configurable when needed
+DOC_LANG=en
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+# Initialization
+
+docompile=y
+if [ x"$1" = x"-c" ]; then
+  docompile=n
+fi
+
+if [ x"$1" = x"-h" ] || [ x"$1" = x"--help" ]; then
+  echo "Usage: `basename "$0"` [-c] [mode]"
+  echo "  -c  Do not compile reference programs"
+  echo "  Modes, applying to reference entries:"
+  echo "  -d  List all differences (default)"
+  echo "  -m  Create menu entries for missing items"
+  echo "  -s  Create skeleton nodes for missing items"
+  exit
+fi
+
+if [ x"$GPC_SRCDIR" = x ]; then
+  echo "GPC_SRCDIR must be set" >&2
+  exit 1
+fi
+
+if [ -e "$GPC_SRCDIR/gcc/p/gpc.c" ]; then
+  PDIR="$GPC_SRCDIR/gcc/p"
+elif [ -e "$GPC_SRCDIR/p/gpc.c" ]; then
+  PDIR="$GPC_SRCDIR/p"
+else
+  echo "Invalid GPC_SRCDIR" >&2
+  exit 1
+fi
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/find-sed`" || exit 1
+
+# Find a good awk.
+if test -z "$AWK"; then
+  for AWK in gawk nawk awk ""; do
+    if type "$AWK" 2>&1 | grep 'not found' > /dev/null 2>&1; then
+      :
+    else
+      break
+    fi
+  done
+fi
+if test -z "$AWK"; then
+  echo 'No awk found.' >&2
+  exit 1
+fi
+
+if [ x"$TMPDIR" = x ]; then
+  TMPDIR="/tmp"
+fi
+TMP="$TMPDIR/`basename "$0"`.$$"
+rm -rf "$TMP" || exit 1
+mkdir "$TMP" || exit 1
+cd "$TMP" || exit 1
+trap 'cd /; rm -rf "$TMP"; exit 1' INT 0
+
+# Check that reference entries are sorted alphabetically
+
+"$sed" -ne '/^@menu/,/^@end menu/{s/^* //;s/::$//p;}' "$PDIR/doc/$DOC_LANG/reference.texi" > tmp2 ||
+  { echo 'error in sed (1)' >&2; exit 1; }
+
+sort -fd -t@ tmp2 > tmp1 ||
+  { echo 'error in sort (1)' >&2; exit 1; }
+
+"$sed" -ne '/@node/N;s/@node.*@unnumberedsec //p' "$PDIR/doc/$DOC_LANG/reference.texi" > tmp3 ||
+  { echo 'error in sed (2)' >&2; exit 1; }
+
+if [ $# = 0 ]; then
+  if ! diff -U1 tmp2 tmp1; then
+    echo 'Reference is not sorted correctly.'
+    echo ''
+  fi
+
+  if ! diff -U1 tmp3 tmp1; then
+    echo 'Reference nodes are not sorted correctly.'
+    echo ''
+  fi
+fi
+
+if [ x"$1" = x"-s" ]; then
+  mv tmp3 tmp1
+fi
+
+# Check the completeness of reference entries
+
+{
+  # Built-in identifiers and keywords
+  "$sed" -ne '
+    /PREDEF_ID.*)$/d;
+    /PREDEF_SYMBOL/d;
+    /NO_ID/d;
+    /^ *PREDEF_[A-Z_]* *( */{s///;s/[,)].*//;p;}
+  ' "$PDIR/predef.def" ||
+    { echo 'error in sed (3)' >&2; exit 1; }
+
+  # Built-in identifiers that are not listed in predef.def
+  echo "Result"
+  echo "Self"
+
+  # Keyword combinations that deserve their own entry
+  echo "and then"
+  echo "or else"
+  echo "to begin do"
+  echo "to end do"
+  echo "type of"
+} | sort -fdu -t@ > tmp2 ||
+  { echo 'error in sort (2)' >&2; exit 1; }
+
+diff -U0 tmp1 tmp2 | grep -v -e '^@@' -e '^---' -e '^+++' > tmp3
+"$sed" -ne '/^+/s///p' tmp3 > tmp1 ||
+  { echo 'error in sed (4)' >&2; exit 1; }
+"$sed" -ne '/^[^+]/s///p' tmp3 > tmp2 ||
+  { echo 'error in sed (5)' >&2; exit 1; }
+
+if [ -s tmp2 ]; then
+  echo "Superfluous documentation entries:"
+  cat tmp2
+  echo ""
+fi
+
+if [ -s tmp1 ]; then
+  if [ x"$1" = x"-m" ]; then
+    "$sed" -e 's/.*/* &::/' tmp1 ||
+      { echo 'error in sed (6)' >&2; exit 1; }
+  elif [ x"$1" = x"-s" ]; then
+    for id in `cat tmp1`; do
+      cat << EOF
+@c ----------------------------------------------------------------------------
+
+
+@node $id
+@unnumberedsec $id
+@cindex $id
+
+(Under construction.)
+
+@subheading Synopsis
+
+@subheading Description
+
+@subheading Conforming to
+
+@subheading Example
+
+@subheading See also
+
+
+EOF
+    done
+  else
+    echo "Missing in documentation:"
+    cat tmp1
+    echo ""
+  fi
+fi
+
+if [ $# != 0 ]; then
+  cd /
+  rm -rf "$TMP" || exit 1
+  trap "" 0
+  exit
+fi
+
+# Check the completeness of sections in the reference
+
+"$AWK" '
+BEGIN { split ("unnumberedsec,cindex,Synopsis,Description,Conforming to,Example,See also", items, ",") }
+function check (expected_state, expected_argument)
+{
+  while (state > 0 && state < expected_state)
+    print "`" items [state++] "'"'"' missing (" v ")"
+  if (state != expected_state || (expected_arugment != "" && expected_argument != argument))
+    print "`" $0 "'"'"' unexpected (" v ")"
+  else
+    state++
+}
+                             { argument = $0; sub ("[^ ]* ", "", argument) }
+demo == 1                    {
+                               if ($0 != "program " vd "Demo;")
+                                 print "Demo program: `" $0 "'"'"' unexpected (expected `" vd "Demo'"'"')"
+                               demo = 2
+                             }
+/^@node/                     {
+                               v = vd = argument
+                               for (i = 1; i <= length (vd); i++)
+                                 if (i == 1 || substr (vd, i - 1, 1) == " " || substr (vd, i - 1, 1) == "_")
+                                   vd = substr (vd, 1, i - 1) toupper (substr (vd, i, 1)) substr (vd, i + 1)
+                               vd = gensub (" ", "", "g", vd)
+                               check(0, v)
+                               state = 1
+                               demo = 0
+                             }
+/^@chapter/                  { state = 0 }
+/^@unnumberedsec/            { check(1, v) }
+/^@cindex/                   {
+                               if (state != 3) # accept additional cindex entries
+                                 check(2, v)
+                             }
+/^@subheading Synopsis/      { check(3, "") }
+/^@subheading Description/   { check(4, "") }
+/^@subheading Conforming to/ { check(5, "") }
+/^@subheading Example/       { check(6, "") }
+/^@smallexample/             { if (state == 7 && demo == 0) demo = 1 }
+/^@subheading See also/      {
+                               #@@ Later ...
+                               #if (demo < 2)
+                               #  print "No demo program for `" v "'"'"'"
+                               check(7, "")
+                               state = 0
+                             }
+' "$PDIR/doc/$DOC_LANG/reference.texi" || { echo 'error in awk (1)' >&2; exit 1; }
+
+# Check for unnecessarily indented examples
+
+# Currently, we don't use `@[small]format' and `@example' (only
+# `@smallexample') in the manual. Maybe there will be valid reasons
+# to change this (again). However, check that we are consistent.
+"$AWK" '
+/^@format/            { print FILENAME ":" FNR ": `@format'"'"' used" }
+/^@smallformat/       { print FILENAME ":" FNR ": `@smallformat'"'"' used" }
+/^@example/           { print FILENAME ":" FNR ": `@example'"'"' used" }
+/^@c OK format/       { getline }
+/^@c OK smallformat/  { getline }
+/^@c OK smallexample/ { getline }
+/^@end smallexample/  {
+                        if (indent > 1)
+                          print FILENAME ":" line ": indented example"
+                        example = 0
+                      }
+example               {
+                        i = 1
+                        while (i <= length ($0) && substr ($0, i, 1) == " ") i++;
+                        if (i <= length ($0) && i < indent)
+                          indent = i
+                      }
+/^@smallexample/      {
+                        example = 1
+                        indent = 2147483647
+                        line = FNR
+                      }
+' "$PDIR/doc"/*.texi "$PDIR/doc/generated"/*.texi "$PDIR/doc/$DOC_LANG"/*.texi || { echo 'error in awk (1)' >&2; exit 1; }
+
+# Check that all demo programs are referenced in the `about' and `resources' chapters
+
+(
+  echo crtscreen.c # intentionally not mentioned
+  "$sed" -ne '
+   s/@c.*//;
+   s/[:;]//g;
+   s/@hrefexample/:/g;
+   s/@xhrefexample/;/g;
+   : loop;
+   /^[^:;]*:{\([^}]*\)}/{
+     s//\1\
+       /;
+     P;
+     s/.*\n//;
+     b loop;
+   }
+   /^[^:;]*;{\([^,}]*\),[^}]*}/{
+     s//\1\
+       /;
+     P;
+     s/.*\n//;
+     b loop;
+   }
+  ' "$PDIR/doc/$DOC_LANG/about.texi" "$PDIR/doc/$DOC_LANG/resources.texi"
+) > tmp1 ||
+  { echo 'error in sed (7)' >&2; exit 1; }
+
+sort -u < tmp1 > tmp2 ||
+  { echo 'error in sort (3)' >&2; exit 1; }
+
+ls "$PDIR"/demos | grep -v -e '^README$' -e '^hello.pas$' | sort > tmp3 ||
+  { echo 'error in ls (1)' >&2; exit 1; }
+
+diff -U0 tmp3 tmp2 | grep -v -e '^@@' -e '^---' -e '^+++' > tmp4
+
+if [ -s tmp4 ]; then
+  echo "Difference in demo program references in the \`about' and \`resources' chapters:"
+  cat tmp4
+  echo ""
+fi
+
+# Check demo program anchors
+
+if grep -n -e '.@anch' -e '@anch.*}\(@c\)*\([^@]\|@[^c]\)' "$PDIR/doc/$DOC_LANG"/*.texi > tmp2; then
+  echo "\`@anch' must be on a line of its own:"
+  cat tmp2
+  echo ""
+fi
+
+"$sed" -ne 's/\.pas$//p' tmp1 | sort -u > tmp2 ||
+  { echo 'error in sed (8)' >&2; exit 1; }
+
+"$sed" -ne '
+  /@c DEMO-START/,/@c DEMO-END/{
+    s/@c.*//;
+    s/://g;
+    s/@anch/:/g;
+    : loop;
+    /^[^:]*:{\([^,}]*\)}/{
+      s//\1\
+        /;
+      P;
+      s/.*\n//;
+      b loop;
+    }
+  }
+' "$PDIR/doc/$DOC_LANG/about.texi" "$PDIR/doc/$DOC_LANG/resources.texi" | sort -u > tmp3 ||
+  { echo 'error in sed (9)' >&2; exit 1; }
+
+diff -U0 tmp2 tmp3 | grep -v -e '^@@' -e '^---' -e '^+++' > tmp4
+
+if [ -s tmp4 ]; then
+  echo "Demo program anchors in the \`about' and \`resources' chapters don't match:"
+  cat tmp4
+  echo ""
+fi
+
+# Extract docdemo programs
+
+rm -f tmp*
+
+"$PDIR"/script/extract-doc-demos "$PDIR/doc"/*.texi "$PDIR/doc/generated"/*.texi "$PDIR/doc/$DOC_LANG"/*.texi ||
+  { echo 'error in extract-doc-demos' >&2; exit 1; }
+
+# Check for docdemo program names that are problematic on some file systems
+
+ls > tmp1 ||
+  { echo 'error in ls (2)' >&2; exit 1; }
+
+"$sed" -e 's/\(.\{0,14\}\).*/\1/' tmp1 | sort > tmp2 ||
+  { echo 'error in sed (10)' >&2; exit 1; }
+if [ x"`uniq -d tmp2`" != x ]; then
+  echo "Docdemo programs matching in the first 14 characters:"
+  uniq -d tmp2
+fi
+
+"$sed" -e 's/\([^.]\{0,8\}\)[^.]*\(\(\.[^.]\{0,3\}\).*\)\{0,1\}/\1\3/' tmp1 | sort > tmp2 ||
+  { echo 'error in sed (11)' >&2; exit 1; }
+if [ x"`uniq -d tmp2`" != x ]; then
+  echo "Docdemo programs matching in the first 8+3 characters:"
+  uniq -d tmp2
+fi
+
+# Try to compile all demo and docdemo programs
+
+if [ x"$docompile" = x"y" ]; then
+  for file in "$PDIR/demos"/*.pas *.pas; do
+    if [ x"$file" = x"$PDIR/demos/binobjdemo.pas" ]; then
+      gpc --automake -o ./binobj "$PDIR/utils/binobj.pas" &&
+      ls -la > dir.txt
+      ./binobj dir.txt testobject TestObject &&
+      gpc --automake -Wall -O2 "$file" ||
+        { echo "error while compiling $file" >&2; }
+    elif grep -i "program.*;" "$file" > /dev/null; then
+      if grep -i "Only for DJGPP" "$file" > /dev/null; then
+        :
+      else
+        gpc --automake -Wall -Wno-unused -O2 --unit-path="$PDIR/demos" "$file" ||
+          { echo "error while compiling $file" >&2; }
+      fi
+    fi
+  done
+fi
+
+cd /
+rm -rf "$TMP" || exit 1
+trap "" 0

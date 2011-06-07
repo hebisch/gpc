@@ -1,0 +1,94 @@
+@c Copyright (C) 2000-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Author: Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+@c This file defines the following macros for the GPC Manual.
+@c They are suitable for both HTML and non-HTML versions.
+@c
+@c @@NOTE: All calls of any of them must be contained entirely
+@c         within one line, including arguments.
+@c
+@c @localuref{FILENAME,DESCRIPTION}
+@c Like `@uref' for references within the GPC web page. Currently
+@c only provided with 2 arguments.
+@c
+@c @anch{NAME}
+@c Create an HTML anchor. Ignored in non-HTML versions.
+@c @@NOTE: Calls of `@anch' *must* be on a line of their own
+@c         (problem with texinfo 1.6[12]). If they don't, you won't
+@c         get an error, just buggy output, so beware ...
+@c
+@c @hrefexample{FILENAME}
+@c Reference to a GPC demo program.
+@c
+@c @xhrefexample{FILENAME,DESCRIPTION}
+@c Like `@hrefexample', but with a specific description instead of
+@c `Example'.
+@c
+@c @htmlhrule
+@c Horizontal rule (HTML only)
+@c
+@c @htmlbrclear
+@c Do a `<br clear="all">' in HTML, nothing otherwise.
+
+@ifclear macrosset
+@set macrosset
+
+@ifhtml
+
+@macro localuref{FILENAME,DESCRIPTION}
+@uref{../\FILENAME\,\DESCRIPTION\}
+@end macro
+
+@macro anch{NAME}
+@anchor{\NAME\}
+@end macro
+
+@macro xhrefexample{FILENAME,DESCRIPTION}
+@uref{../demos/\FILENAME\,[\DESCRIPTION\]}
+@end macro
+
+@macro htmlhrule
+@html
+<hr>
+@end html
+@end macro
+
+@macro htmlbrclear
+@html
+<br clear="all">
+@end html
+@end macro
+
+@end ifhtml
+
+@ifnothtml
+
+@macro localuref{FILENAME,DESCRIPTION}
+\DESCRIPTION\ (@file{\FILENAME\} on GPC's WWW home page)
+@end macro
+
+@macro anch{NAME}
+@end macro
+
+@macro xhrefexample{FILENAME,DESCRIPTION}
+[\DESCRIPTION\ (\FILENAME\)]
+@end macro
+
+@macro htmlhrule
+@end macro
+
+@macro htmlbrclear
+@end macro
+
+@end ifnothtml
+
+@macro hrefexample{FILENAME}
+@xhrefexample{\FILENAME\,Example}
+@end macro
+
+@end ifclear

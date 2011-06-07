@@ -1,0 +1,3 @@
+#!/bin/sh
+echo O > test.dat
+if [ -r "$A_OUT" ]; then ./"$A_OUT" < test.dat; else echo failed; fi

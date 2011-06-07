@@ -1,0 +1,247 @@
+\input texinfo
+@setfilename gpc.info
+@settitle The GNU Pascal Manual
+@documentencoding iso-8859-1
+
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: J.J. van der Heijden <j.j.vanderheijden@student.utwente.nl>
+@c          Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c          Berend de Boer <berend@pobox.com>
+@c          Dominik Freche <dominik.freche@mailbox.tu-dresden.de>
+@c          Eike Lange <eike@g-n-u.de>
+@c          Russell Whitaker <russ@ashlandhome.net>
+@c          Peter N Lewis <peter@stairways.com.au>
+@c          Orlando Llanes <a010111t@bc.seflin.org>
+@c
+@c Last modification: 2006-01-30 (file up to date)
+@set UPDATE-MONTH Jan 2006
+
+@include version.texi
+
+@dircategory GNU programming tools
+@direntry
+* GPC: (gpc).                   The GNU Pascal Compiler.
+@end direntry
+@dircategory Individual utilities
+@direntry
+* GPC: (gpc)Invoking GPC.       The GNU Pascal Compiler.
+@end direntry
+
+@c For FSF printing, turn on finalout (to get rid of the black
+@c boxes) and smallbook; that is all that is needed.
+@c @finalout
+@iftex
+@c @smallbook
+@c
+@c This is what `\sloppy' does in LaTeX. -- Frank
+@emergencystretch 10em@hfuzz 5pt@vfuzz@hfuzz
+@end iftex
+
+@syncodeindex fn cp
+@syncodeindex vr cp
+
+@c Use with @@smallbook:
+@c
+@c Cause even numbered pages to be printed on the left hand side of
+@c the page and odd numbered pages to be printed on the right hand
+@c side of the page. Using this, you can print on both sides of a
+@c sheet of paper and have the text on the same part of the sheet.
+@c
+@c The text on right hand pages is pushed towards the right hand
+@c margin and the text on left hand pages is pushed toward the left
+@c hand margin.
+@c (To provide the reverse effect, set bindingoffset to -0.75in.)
+@c
+@c @tex
+@c \global\bindingoffset=0.75in
+@c \global\normaloffset =0.75in
+@c @end tex
+
+@c ***************************************************************************
+
+@ifinfo
+This file documents the GNU Pascal Compiler.
+
+@c Published by the Free Software Foundation
+@c 59 Temple Place - Suite 330
+@c Boston, MA 02111-1307 USA
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Copyright (C) 1988-2006 Free Software Foundation, Inc.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the sections entitled ``GNU General Public License'', ``The GNU
+Project'', ``The GNU Manifesto'' and ``Funding for free Software''
+are included exactly as in the original, and provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for
+modified versions, except that the sections entitled ``GNU General
+Public License'', ``The GNU Project'', ``The GNU Manifesto'' and
+``Funding for Free Software'' and this permission notice, may be
+included in translations approved by the Free Software Foundation
+instead of in the original English.
+@end ifinfo
+
+@setchapternewpage odd
+
+@c ***************************************************************************
+
+@titlepage
+@iftex
+@vskip-6cm
+@image{GnuPascal,,12cm}
+@sp 2
+@end iftex
+@center @titlefont{The GNU Pascal Manual}
+@sp 2
+@center Jan-Jaap van der Heijden,
+@center Peter Gerwinski,
+@center Frank Heckenbach,
+@center Berend de Boer,
+@center Dominik Freche,
+@center Eike Lange,
+@center Peter N Lewis,
+@sp 1
+@center and others
+@sp 3
+@center Last updated @value{UPDATE-MONTH}
+@sp 1
+@center for version @value{GPCVersion} (GCC @value{GCCVersion})
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1988-2006 Free Software Foundation, Inc.
+@sp 2
+For GPC @value{GPCVersion} (GCC @value{GCCVersion})@*
+@sp 1
+Published by the Free Software Foundation@*
+59 Temple Place - Suite 330@*
+Boston, MA 02111-1307, USA@*
+@c Printed copies are available for $50 each.@*
+@sp 1
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the sections entitled ``GNU General Public License'', ``The GNU
+Project'', ``The GNU Manifesto'' and ``Funding for Free Software''
+are included exactly as in the original, and provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for
+modified versions, except that the sections entitled ``GNU General
+Public License'', ``The GNU Project'', ``The GNU Manifesto'' and
+``Funding for Free Software'' and this permission notice, may be
+included in translations approved by the Free Software Foundation
+instead of in the original English.
+@end titlepage
+@summarycontents
+@contents
+@page
+
+@c ***************************************************************************
+
+@node Top
+@top GNU Pascal
+
+This manual documents how to run, install and maintain the GNU
+Pascal Compiler (GPC), as well as its new features and
+incompatibilities, and how to report bugs. It corresponds to GPC
+@value{GPCVersion} (GCC @value{GCCVersion}).
+
+@c It seems that there must be no comments in the menu. -- PG, 2. Aug. 1996
+@menu
+Introduction:
+
+* Welcome::           Welcome to GNU Pascal @dots{}
+* Highlights::        Some of GPC's most interesting features.
+* News::              New Features of GNU Pascal.
+* FAQ::               The GNU Pascal Frequently Asked Questions List.
+
+Installation:
+
+* Installation::      How to download, compile and install GNU Pascal.
+
+Using GNU Pascal:
+
+* Invoking GPC::      Command Line Options supported by GNU Pascal.
+* Programming::       The Programmer's Guide to GPC.
+* Borland Pascal::    A QuickStart Guide from Borland Pascal to GNU Pascal.
+* Reference::         The Alphabetical GPC Language Reference.
+* Keywords::          Pascal keywords and operators supported by GNU Pascal.
+* Support::           Where to get support for GNU Pascal; how to report bugs.
+
+Development:
+
+* To Do::             The GNU Pascal To-Do List.
+* Internals::         How to get more information from the GPC source itself.
+
+Licenses:
+
+* Copying::           The GNU General Public License -- Your rights and
+                      duties when using GPC.
+* Library Copying::   The GNU Lesser General Public License -- Your rights
+                      and duties when using certain libraries.
+* Demo Copying::      GPL with exception -- Your rights and duties when
+                      using or modifying the demo programs.
+
+Appendix:
+
+* Acknowledgments::   Contributors to GNU Pascal.
+* Resources::         Resources For Use With GPC.
+* GNU::               The GNU Project.
+* Index-GPC::         Index of concepts and symbol names (incomplete).
+@end menu
+
+@c ***************************************************************************
+
+@include welcome.texi
+@include about.texi
+@include news.texi
+@include faq.texi
+
+@include install.texi
+
+@include invoke.texi
+@include programming.texi
+@include bpqstart.texi
+@include reference.texi
+@include keywords.texi
+@include support.texi
+
+@include todo.texi
+@include internals.texi
+
+@include copying.texi
+@include copying-lib.texi
+@include copying-demo.texi
+
+@include authors.texi
+@include resources.texi
+@include gnu.texi
+
+@node Index-GPC
+@unnumbered Index-GPC
+@printindex cp
+
+@bye

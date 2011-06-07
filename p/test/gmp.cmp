@@ -1,0 +1,38 @@
+#!/bin/sh
+cat << EOF > dummy.c
+#include <gmp.h>
+#if __GNU_MP_VERSION <= 2
+#error foo
+#endif
+int main()
+{
+  return 0;
+}
+EOF
+if gcc dummy.c -lgmp > /dev/null 2>&1; then
+GMP_VERSION=""
+cat << EOF > dummy.c
+#include <gmp.h>
+#if __GNU_MP_VERSION != 3
+#error foo
+#endif
+EOF
+if gcc -c dummy.c -lgmp > /dev/null 2>&1; then
+GMP_VERSION="$GMP_VERSION -DHAVE_GMP3"
+fi
+  rm -f "$A_OUT" dummy.c
+  $1 $2 $GMP_VERSION
+  if [ -r "$A_OUT" ] ; then
+    # GMP 4 is locale sensitive WRT decimal dot
+    LANG=
+    LC_CTYPE=
+    LC_NUMERIC=
+    export LANG LC_CTYPE LC_NUMERIC
+    ./"$A_OUT"
+  else
+    echo "failed"
+  fi
+else
+  rm -f dummy.c
+  echo "SKIPPED: libgmp (>=3.x) not installed"
+fi

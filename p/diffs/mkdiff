@@ -1,0 +1,42 @@
+#! /bin/sh
+
+# Shell script to make GCC diff for GPC
+#
+# J.J. van der Heijden <J.J.vanderHeijden@student.utwente.nl>
+# Peter Gerwinski <peter@gerwinski.de>
+# Russ Whitaker <russ@ashlandhome.net>
+
+if [ x"$1" = x ]; then
+  echo
+  echo "usage: $0 <GCC version number>"
+  echo
+  echo "example: $0 3.2.3"
+  echo
+  exit 1
+fi
+
+GCC_VERSION="$1"
+
+ln -s ../.. gcc
+
+cat > "gcc-$GCC_VERSION.diff" << EOF
+Changes for GCC version $GCC_VERSION for GNU Pascal
+
+To apply these diffs, go to the directory gcc-$GCC_VERSION/gcc
+and use the command
+
+    patch -p1
+
+feeding it the following diffs as input.
+
+EOF
+
+for f in convert.c dbxout.c dwarf2out.c emit-rtl.c expr.c fold-const.c \
+         function.c integrate.c optabs.c stmt.c stor-layout.c system.h \
+         toplev.c tree.c tree.h tree.def varasm.c version.c; do
+  diff -C3 "gcc/$f.orig" "gcc/$f" >> "gcc-$GCC_VERSION.diff"
+done
+
+rm gcc
+
+exit 0

@@ -1,0 +1,4 @@
+char *foo()
+{
+  return FOO;
+}

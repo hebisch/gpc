@@ -1,0 +1,169 @@
+#!/bin/sh
+
+# Runs a GPC program, and converts addresses in the stack dump on a
+# runtime error and in the list of non-released pointers possibly
+# printed by HeapMon to line numbers (using addr2line) if the
+# program was compiled with debug information. The standard error of
+# the program run is redirected to standard output, to separate it
+# from the runtime error etc. messages.
+#
+# Copyright (C) 2001-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+usage()
+{
+cat << EOF
+gpc-run: Run programs compiled with GPC and translate runtime error
+messages to a more human readable format.
+
+Copyright (C) 2001-2006 Free Software Foundation, Inc.
+
+This program is part of GPC. GPC is free software; see the source
+for copying conditions. There is NO warranty; not even for
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Usage: `basename $0` [options] command arguments
+Options:
+  --help     Display this help and exit
+  --version  Display this help and exit
+  -r RUNNER  Run executable with RUNNER
+  -e FILE    Redirect stderr of program to FILE
+             (if FILE is \`-', leave stderr; by default, stderr is redirected
+             to stdout, and only the stack dump etc. appears on stderr)
+  -E FILE    Append stderr of program to FILE
+EOF
+}
+
+if [ x"$1" = x"--version" ]; then
+  echo "gpc-run @version@"
+  echo "Copyright (C) 2001-2006 Free Software Foundation, Inc."
+  exit
+fi
+
+if [ x"$1" = x"--help" ]; then
+  usage
+  exit
+fi
+
+runner=""
+if [ x"$1" = x"-r" ]; then
+  runner="$2"
+  shift
+  shift
+fi
+
+stderr_to=""
+if [ x"$1" = x"-e" ]; then
+  stderr_to="$2"
+  shift
+  shift
+fi
+
+stderr_append=""
+if [ x"$1" = x"-E" ]; then
+  stderr_append="$2"
+  shift
+  shift
+fi
+
+if [ $# -lt 1 ]; then
+  usage >&2
+  exit 1
+fi
+
+# Create temp directory
+TMP="${TMPDIR:-/tmp}/`basename "$0"`.$$"
+rm -rf "$TMP" || exit 1
+mkdir "$TMP" || exit 1
+trap 'rm -rf "$TMP"; exit 1' INT 0
+
+EXE="$1"
+shift
+if [ x"$stderr_append" != x ]; then
+  if [ x"$stderr_append" = x"-" ]; then
+    $runner "$EXE" --gpc-rts=-E"$TMP/errors" "$@"
+  else
+    $runner "$EXE" --gpc-rts=-E"$TMP/errors" "$@" 2>>"$stderr_append"
+  fi
+elif [ x"$stderr_to" != x ]; then
+  if [ x"$stderr_to" = x"-" ]; then
+    $runner "$EXE" --gpc-rts=-E"$TMP/errors" "$@"
+  else
+    $runner "$EXE" --gpc-rts=-E"$TMP/errors" "$@" 2>"$stderr_to"
+  fi
+else
+  $runner "$EXE" --gpc-rts=-E"$TMP/errors" "$@" 2>&1
+fi
+STATUS=$?
+
+if [ -r "$TMP/errors" ]; then
+  case "$EXE" in
+    */*) ;;
+    *) EXE="`which "$EXE"`";;
+  esac
+  addr2line -f -e "$EXE" < "$TMP/errors" > "$TMP/lines"
+  exec 3< "$TMP/errors" 4< "$TMP/lines"
+  read -r addr msg <&3
+  case "$addr" in
+    $EXE*) addr="";;
+  esac
+  firstmsg="$addr $msg"
+  read -r dummy <&4
+  read -r dummy <&4
+  while read -r addr msg <&3; do
+    case "$addr" in
+      $EXE*) addr="";;
+    esac
+    if read -r func <&4 && read -r line <&4; then
+      if [ x"$func" = x"pascal_main_program" ]; then
+        func="main program"
+      fi
+      if [ x"$firstmsg" != x ]; then
+        case "$line---$func" in
+          *\(null\)* | *\<implicit\ code\>* | *__crt_dummy* | *rts[/\]error.pas* | *\?\?*) ;;
+          *) echo "$line: $firstmsg" >&2; firstmsg=""; continue;;
+        esac
+      fi
+      if [ x"$msg" = x ]; then
+        case "$line---$func" in
+          *\(null\)* | *\<implicit\ code\>* | *__crt_dummy* | *rts[/\]error.pas* ) ;;
+          *\?\?*---*\?\?*)      echo "$addr" >&2;;
+          *\?\?*---*)           echo "$addr: $func" >&2;;
+          *)                    echo "$line: $func" >&2;;
+        esac
+      else
+        case "$line---$func" in
+          *\(null\)* | *\<implicit\ code\>* | *__crt_dummy* | *rts[/\]error.pas*) ;;
+          *\?\?*---*\?\?*)      echo "$addr $msg" >&2;;
+          *\?\?*---*)           echo "$addr: ($func) $msg" >&2;;
+          *)                    echo "$line: ($func) $msg" >&2;;
+        esac
+      fi
+    else
+      echo "$addr $msg" >&2
+    fi
+  done
+fi
+
+# Clean up
+rm -rf "$TMP"
+trap "" 0
+exit $STATUS

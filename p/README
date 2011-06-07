@@ -1,0 +1,156 @@
+This file was generated automatically from welcome.texi.
+DO NOT CHANGE THIS FILE MANUALLY!
+
+                        Welcome to GNU Pascal,
+the free 32/64-bit Pascal compiler of the GNU Compiler Collection (GNU
+CC or GCC). It combines a Pascal front-end with the proven GCC back-end
+for code generation and optimization.  Other compilers in the
+collection currently include compilers for the Ada, C, C++, Objective
+C, Chill, FORTRAN, and Java languages. Unlike utilities such as p2c,
+this is a true compiler, not just a converter.
+
+This version of GPC corresponds to GCC version 2.8.1, 2.95.x, 3.2.x,
+3.3.x or 3.4.x.
+
+The purpose of the GNU Pascal project is to produce a Pascal compiler
+(called GNU Pascal or GPC) which
+
+   * combines the clarity of Pascal with powerful tools suitable for
+     real-life programming,
+
+   * supports both the Pascal standard and the Extended Pascal standard
+     as defined by ISO, ANSI and IEEE (ISO 7185:1990, ISO/IEC
+     10206:1991, ANSI/IEEE 770X3.160-1989),
+
+   * supports other Pascal standards (UCSD Pascal, Borland Pascal,
+     parts of Borland Delphi, Mac Pascal and Pascal-SC) in so far as
+     this serves the goal of clarity and usability,
+
+   * may be distributed under GNU license conditions, and
+
+   * can generate code for and run on any computer for which the GNU C
+     compiler can generate code and run on.
+
+Pascal was originally designed for teaching. GNU Pascal provides a
+smooth way to proceed to challenging programming tasks without learning
+a completely different language.
+
+The current release implements Standard Pascal (ISO 7185, levels 0 and
+1), most of Extended Pascal (ISO 10206, aiming for full compliance), is
+highly compatible to Borland Pascal (version 7.0), has some features
+for compatibility to other compilers (such as VAX Pascal, Sun Pascal,
+Mac Pascal, Borland Delphi and Pascal-SC).
+
+It provides a lot of useful GNU extensions not found in other Pascal
+compilers, e.g. to ease the interfacing with C and other languages in a
+portable way, and to work with files, directories, dates and more,
+mostly independent of the underlying operating system.
+
+Included units provide support for regular expressions, arithmetic with
+integer, rational and real numbers of unlimited size,
+internationalization, inter-process communication, message digests and
+more. Demo programs show the usage of these units and of many compiler
+features.
+
+GNU Pascal has a home site in the World Wide Web,
+     `http://www.gnu-pascal.de'
+
+GNU Pascal distributions can always be found there.
+
+We prefer distributing GNU Pascal in source form because it gives you
+the possibility to customize, improve, and maintain the compiler by
+yourself (or to hire a programmer to do so for you). However, we
+provide binary distributions for some platforms for your convenience,
+in a subdirectory `binary'.
+
+Compilation of GNU Pascal requires the GCC sources, not just an
+installed copy of GCC.
+
+Installing GPC (from sources or a binary) will create various files in
+subdirectories of `/usr/local/lib', which are used by the compiler. It
+will also create `/usr/local/bin/gpc', which is the user-level command
+to do a compilation.
+
+Please send comments, suggestions, and bug reports to the GNU Pascal
+mailing list, <gpc@gnu.de>. See the FAQ for details.
+
+The GNU Pascal Manual which contains extensive documentation about GPC
+is contained in the files gpc.info* (GNU Info format) in source and
+binary distributions. You can read them with any info reader, e.g. by
+typing `info -f gpc'. The source of the manual is provided in Texinfo
+format in GPC source distributions. From this, you can recreate the
+Info version, and you can also create HTML and PostScript versions.
+HTML and PostScript versions are also provided on GPC's web pages.
+
+The file `FAQ' contains the GNU Pascal FAQ (Frequently Asked Questions)
+list. It should answer most of the questions you might have about GNU
+Pascal.
+
+The file `NEWS' lists changes to GNU Pascal since the last release.
+
+The file `AUTHORS' lists the authors and contributors to GNU Pascal.
+
+The file `COPYING' contains the GNU General Public License under which
+GNU Pascal is distributed.
+
+The file `COPYING.LIB' contains the GNU Lesser General Public License
+under which certain libraries are distributed (see the individual
+licensing notes).
+
+The file `INSTALL' contains installation instructions.
+
+The file `BUGS' describes how to run the GPC test suite and how to
+report bugs.
+
+The files mentioned in the following are part of the source code
+distributions of GNU Pascal.
+
+The file `ChangeLog' contains an edit history.
+
+The directory `rts' contains the source code of GNU Pascal's Run Time
+System. Its interface to Pascal programs is contained in the file
+`gpc.pas'.
+
+The directory `script' contains some scripts used by the GPC
+maintainers and some scripts used during GPC's build process.
+
+In the directory `doc' you can find the GNU Pascal documentation in GNU
+Texinfo format. See `doc/README' for more about that.
+
+The directory `units' contains the GNU Pascal standard units, some of
+which being portable replacements for Borland Pascal standard units of
+the same name.
+
+The directory `utils' contains some utilites used by or in connection
+with GNU Pascal.
+
+The directory `demos' contains demo programs illustrating some of GNU
+Pascal's capabilities.
+
+The directory `test' contains programs to test the compiler during its
+development and installation.
+
+Everything else belongs to GNU Pascal's source code.
+
+All parts of the compiler are copyrighted (C) 1987-2006 by the Free
+Software Foundation, Inc. (FSF).
+
+GNU Pascal is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 3, or (at your option) any
+later version.
+
+GNU Pascal is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with GNU Pascal; see the file COPYING. If not, write to the Free
+Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+02111-1307, USA.
+
+Enjoy,
+
+The GNU Pascal Development Team
+

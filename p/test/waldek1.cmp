@@ -1,0 +1,2 @@
+#!/bin/sh
+$PC_WITHOUT_GP -o "$A_OUT" --interface-only -S $2 && echo OK

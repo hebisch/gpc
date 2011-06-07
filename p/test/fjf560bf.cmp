@@ -1,0 +1,10 @@
+#!/bin/sh
+tmp="`$1 $2 2>&1 | sed -e 's/^.*\.pas:/foo.pas:/'`"
+fn="`echo "$2" | sed -e 's/^.*\.pas$/foo.pas/'`"
+if [ x"$tmp" = x"$fn:3: #error That's allowed!" ]; then
+  echo "OK"
+else
+  echo ""
+  echo "failed:   $tmp"
+  echo "expected: $fn:3: #error That's allowed!"
+fi

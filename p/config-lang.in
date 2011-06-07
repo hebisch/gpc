@@ -1,0 +1,190 @@
+# Top level configure fragment for GNU Pascal.
+#
+# Copyright (C) 1994-2005 Free Software Foundation, Inc.
+#
+# Authors: Peter Gerwinski <peter@gerwinski.de>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+
+# Parameters used by configure:
+language="pascal"
+compilers="gpc1\$(exeext)"
+stagestuff="gpc\$(exeext) gpc-cross\$(exeext) gpc1\$(exeext) gpcpp\$(exeext) libgpc.a"
+gtfiles="\$(srcdir)/p/gpc.h \$(srcdir)/p/declarations.c \$(srcdir)/p/module.c \$(srcdir)/p/predef.c \$(srcdir)/p/plant.c"
+
+#echo "in p/config-lang.in"
+#echo "srcdir=$srcdir"
+#echo "pwd=`pwd`"
+
+(
+if [ -f "$srcdir/version.c" ]; then
+  MY_SRCDIR="$srcdir"
+  gcc_version_h="gcc-version.h"
+else
+  MY_SRCDIR="$srcdir/gcc"
+  gcc_version_h="gcc/gcc-version.h"
+  [ -d gcc ] || mkdir gcc
+fi
+
+# Check if running first time
+if [ -r "$gcc_version_h" ]; then
+#  echo "Not first time"
+  exit
+fi
+#echo "First time"
+
+srcdir="$MY_SRCDIR"
+
+if [ -r "$srcdir/BASE-VER" ]; then
+  version=`cat "$srcdir/BASE-VER"`
+else
+  version=`grep version_string "$srcdir/version.c" | sed -e 's/[^"]*"//;s/[ "].*//'`
+fi
+
+mainversion="$version"
+gcc281=y
+gcc3=n
+if echo $version | grep '^2\.9' > /dev/null || echo $version | grep '^3\.[1-9]' > /dev/null || echo $version | grep '^4\.[0-9]' > /dev/null; then
+  gcc281=n
+  echo '#define EGCS' > "$gcc_version_h"
+  if echo $version | grep '^2\.95\.[3-9]' > /dev/null || echo $version | grep '^3\.[1-9]' > /dev/null || echo $version | grep '^4\.[0-9]' > /dev/null; then
+    echo '#define GCC_2_95_3' >> "$gcc_version_h"
+  fi
+  if echo $version | grep '^2\.9[6-9]' > /dev/null || echo $version | grep '^3\.[1-9]' > /dev/null || echo $version | grep '^4\.[0-9]' > /dev/null; then
+    gcc3=y
+    echo '#define EGCS97' >> "$gcc_version_h"
+    if echo $version | grep '^3\.[3-9]' > /dev/null || echo $version | grep '^4\.[0-9]' > /dev/null; then
+      echo '#define GCC_3_3' >> "$gcc_version_h"
+      if echo $version | grep '^3\.[4-9]' > /dev/null || echo $version | grep '^4\.[0-9]' > /dev/null; then
+        echo '#define GCC_3_4' >> "$gcc_version_h"
+        if echo $version | grep '^4\.[0-9]' > /dev/null; then
+          echo '#define GCC_4_0' >> "$gcc_version_h"
+          echo "" >&2
+          echo "***" >&2
+          echo "*** Detected GCC version $mainversion." >&2
+          if echo $version | grep '^4\.[1-9]' > /dev/null; then
+            echo '#define GCC_4_1' >> "$gcc_version_h"
+          fi
+          if echo $version | grep '^4\.[2-9]' > /dev/null; then
+            echo '#define GCC_4_2' >> "$gcc_version_h"
+            echo "*** The GPC port for GCC > 4.1.x does not work." >&2
+            echo "*** You can proceed now if you want to work on it." >&2
+            echo "***" >&2
+          else
+            echo "*** The GPC port for GCC 4.x.x is less tested than" >&2
+            echo "*** older versions." >&2
+            echo "*** You can proceed now if you want to use it." >&2
+          fi
+          echo "*** For a \"production compiler\" we currently still" >&2
+          echo "*** recommend GPC based on gcc 3.3.x or gcc 3.4.x" >&2
+          echo "***" >&2
+          echo "*** Press ENTER to continue, Ctrl-C to abort." >&2
+          echo "***" >&2
+          read junk
+        fi
+      fi
+    fi
+  fi
+else
+  echo "/* empty */" > "$gcc_version_h"
+fi
+
+if echo $version | grep '^2\.[89]' > /dev/null || echo $version | grep '^3\.[1-2]' > /dev/null; then
+  echo "*** Detected GCC version $mainversion." >&2
+  echo "*** Using GPC with 2.x or 3.2.x backends is depreciated." >&2
+  echo "*** In the future support for those backends will be dropped." >&2
+  echo "*** We encourage you to try GPC based on gcc 3.3.x or gcc 3.4.x" >&2
+  echo "***" >&2
+  echo "*** Press ENTER to continue, Ctrl-C to abort." >&2
+  echo "***" >&2
+  read junk
+fi
+
+for x in 2.95.1 2.95.2 2.95.3 2.95.3-5 2.95.3-6 2.95.3-8 2.95.4; do
+  if [ ! -r "$srcdir/p/diffs/gcc-$x.diff" ]; then
+    (cd "$srcdir/p/diffs"; ln -s "gcc-2.95.diff" "gcc-$x.diff")
+  fi
+done
+for x in 3.2.2 3.2.3; do
+  if [ ! -r "$srcdir/p/diffs/gcc-$x.diff" ]; then
+    (cd "$srcdir/p/diffs"; ln -s "gcc-3.2.1.diff" "gcc-$x.diff")
+  fi
+done
+if [ ! -r "$srcdir/p/diffs/gcc-3.3.6.diff" ]; then
+    (cd "$srcdir/p/diffs"; ln -s "gcc-3.3.5.diff" "gcc-3.3.6.diff")
+fi
+if [ ! -r "$srcdir/p/diffs/gcc-3.4.5.diff" ]; then
+    (cd "$srcdir/p/diffs"; ln -s "gcc-3.4.4.diff" "gcc-3.4.5.diff")
+fi
+if [ ! -r "$srcdir/p/diffs/gcc-3.4.6.diff" ]; then
+    (cd "$srcdir/p/diffs"; ln -s "gcc-3.4.4.diff" "gcc-3.4.6.diff")
+fi
+if [ ! -r "$srcdir/p/diffs/gcc-4.1.2.diff" ]; then
+    (cd "$srcdir/p/diffs"; ln -s "gcc-4.1.1.diff" "gcc-4.1.2.diff")
+fi
+
+if grep "@@ PATCHED FOR GPC 20070903 @@" "$srcdir/stor-layout.c" > /dev/null; then
+  :
+elif grep "@@ PATCHED FOR GPC" "$srcdir/stor-layout.c" > /dev/null; then
+  echo "" >&2
+  echo "*** There have been changes in the patch for GCC." >&2
+  echo "*** Please start with a fresh copy of the GCC sources and run configure again." >&2
+  echo "" >&2
+  exit 1
+else
+  patchfile="p/diffs/gcc-$mainversion.diff"
+  if [ ! -r "$srcdir/$patchfile" ]; then
+    echo "" >&2
+    echo "***" >&2
+    echo "*** Detected GCC version $mainversion." >&2
+    echo "*** This version of GPC requires one of the following versions of the GCC" >&2
+    echo "*** sources to build:" >&2
+    echo "***" >&2
+    ls "$srcdir"/p/diffs/gcc-*.diff | sed -e 's/^.*\/p\/diffs\/gcc-/***   /' -e 's/\.diff//' >&2
+    echo "***" >&2
+    echo "*** (You can try to patch GCC manually by changing to the directory" >&2
+    echo "*** `cd "$srcdir"; pwd`," >&2
+    echo "*** typing a command like \`patch -p1 < p/diffs/gcc-<version>.diff' and patching" >&2
+    echo "*** possible rejects by hand before you run the configure script again.)" >&2
+    echo "***" >&2
+    echo >&2
+    exit 1
+  fi
+  echo "" >&2
+  echo "***" >&2
+  echo "*** Detected GCC version $mainversion." >&2
+  echo "*** This version of GPC requires a patch to GCC to build with" >&2
+  echo "*** GCC version $mainversion." >&2
+  echo "*** This patch will now be applied." >&2
+  echo "*** Press ENTER to continue, Ctrl-C to abort." >&2
+  echo "***" >&2
+  read junk
+  if [ $gcc281 = y ]; then
+    (cd "$srcdir"; patch -s -p1 < "$patchfile" || exit 1)
+  else
+    (cd "$srcdir/.."; patch -s -p0 < "gcc/$patchfile" || exit 1)
+  fi
+  # gcc-2's configure expects this. Since it's already running, patching it
+  # will not stop it from requiring it (only for future runs).
+  if [ $gcc3 = n ] && [ ! -r "$srcdir/p/Makefile.in" ]; then
+    echo "*** Creating dummy $srcdir/p/Makefile.in"
+    echo "# empty" > "$srcdir/p/Makefile.in"
+  fi
+fi
+) || exit 1

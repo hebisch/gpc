@@ -1,0 +1,11 @@
+#!/bin/sh
+FAILED=fjf1000-failed.pas
+TMPFILE=dummy.pas
+rm -f "$FAILED" "$TMPFILE" "$A_OUT"
+if $1 $2 && "./$A_OUT" > $TMPFILE; then
+  rm -f "$A_OUT"
+  $1 -O0 "$TMPFILE" && [ -r "$A_OUT" ] && "./$A_OUT" || mv -f "$TMPFILE" "$FAILED"
+else
+  echo "failed: could not generate random test program"
+fi
+rm -f "$TMPFILE"

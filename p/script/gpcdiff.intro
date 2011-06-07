@@ -1,0 +1,19 @@
+Changes for $2 from $1.
+
+Changes in files you can reconstruct with Bison, etags, makeinfo,
+and TeX have been omitted. Some of these files are updated just by
+building the compiler. You can update the rest of these files by
+executing this command
+
+   make -f Make-lang.in srcdir=".." pascal.generated-files
+
+in the directory of GPC sources, provided the necessary tools
+(etags, makeinfo, TeX and texi2dvi) are installed.
+
+To apply these diffs, go to the directory `$1' and use the command
+
+    patch -p1
+
+feeding it the following diffs as input.
+Then rename the directory to `$2'.
+

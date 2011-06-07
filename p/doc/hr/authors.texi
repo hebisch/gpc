@@ -1,0 +1,455 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+@include macros.texi
+
+@ifclear AUTHORSONLY
+@node Acknowledgments
+@appendix Autori i suradnici na GNU Pascal projektu.
+@cindex priznanja
+@cindex acknowledgments
+@cindex suradnici
+@cindex autori
+@cindex razvojni tim
+@end ifclear
+
+@ifset AUTHORSONLY
+@include version.texi
+@c Note: The following line gets inserted into the destination file,
+@c       it does not apply to this Texinfo file!
+Ova datoteka je generirana automatski iz authors.texi.@*
+@sc{NEMOJTE MIJENJATI OVU DATOTEKU RUÈNO!}
+
+@settitle Popis copyrighta za GNU Pascal
+@node Top
+@chapter Popis copyrighta za GNU Pascal
+@end ifset
+
+@table @asis
+@item Jukka Virtanen
+izumio GNU Pascal u o¾ujku 1988, implementirao ISO 7185 i veæinu
+ISO 10206 standarda, itd.
+
+@ifset AUTHORSONLY
+Napisao je sve datoteke osim onih popisanih dolje, zasnovano na
+GCC kodu.
+@end ifset
+
+@item @uref{http://www.gerwinski.de/~peter/,Dr.@: Peter Gerwinski}
+@anch{peter}@c
+@c 4567891123456789212345678931234567894123456789512345678961234567897
+dodao je Borland Pascal korelirane i druge ekstenzije GNU Pascalu u
+ljeto 1995, prenio GPC na EMX platformu, radi na najveæem dijelu
+razvoja prevoditelja (engl. compiler) od 1996-e, napisao i
+odr¾ava WWW home page, odr¾ava GNU Pascal mailing listu, radi
+neke druge administrativne stvari itd.
+
+@ifset AUTHORSONLY
+Napisao je @file{rts/move.pas}, datoteke u @file{doc/} (zajedno
+sa Jan-Jaapom), (biv¹e) datoteke u @file{config/emx/} i
+@file{gpc-nodes.def}, i znaèajno modificirao sve datoteke.
+@end ifset
+
+@item Jan-Jaap van der Heijden
+prenio GPC na DJGPP platformu i na Microsoft Windows 95/NT, dodao
+ELF podr¹ku u proljeæe 1996, rije¹io mnogo problema konfiguracije
+i kompatibilnosti, kreirao GPC FAQ, itd.
+
+@ifset AUTHORSONLY
+Kreirao je @file{Make-lang.in}, @file{lang-options.h},
+@file{lang-specs.h}, datoteke u @file{doc/} (zajedno s Peterom),
+@file{rts/Make*}, i @file{rts/config*}, te modificirao
+@file{module.c} i veæinu drugih datoteka.
+@end ifset
+
+@item @uref{http://fjf.gnu.de,Frank Heckenbach}
+@anch{frank}@c
+ispoèetka napisao i odr¾ava Run Time System od srpnja 1997, prilièno
+radi na razvoju od srpnja 2001, napisao je veæinu jedinica (Unit),
+demo programa, skripti i utility-ja distibuiranih s GPC-om,
+napisao velik broj test programa, odr¾ava GPC To-Do ("za napraviti")
+listu
+@ifclear AUTHORSONLY
+(@pxref{To Do})
+@end ifclear
+itd.
+
+@ifset AUTHORSONLY
+Kreirao je @samp{gpc-options.h}, veæinu datoteka u @file{units/}, @file{demos/},
+@file{script/}, i @samp{utils/} i @file{rts/} i mnogo datoteka u
+@file{test/}; modificirao je veæinu ostalih datoteka.
+@end ifset
+
+@item @uref{http://www.bigfoot.com/~african_chief/,Prof.@: Abimbola A.@: Olowofoyeku (``The African Chief'' - afrièki poglavica)}
+kreirao originalne verzije mnogih BP kompatibilnostnih jedinica u
+svibnju 1997, prilo¾io kod drugim jedinicama i Run Time sistemu,
+pomogao preno¹enju GPC-a i jedinica na Cygwin i mingw platforme,
+napisao izvjestan broj test programa, dodao Borland Delphi-kompatibilnu
+@samp{SysUtils} @uref{http://www.gnu-pascal.de/contrib/chief/,jedinicu}, itd.
+
+@ifset AUTHORSONLY
+Kreirao je @file{units/gpcutil.pas}, dijelove
+@file{units/system.pas} i @file{rts/fname.pas} i brojne
+datoteke u @file{test/}.
+@end ifset
+
+@item Nick Burrett
+ispravio neke bugove i poèistio GPC u svibnju 1998, itd.
+
+@ifset AUTHORSONLY
+Modificirao je @file{expressions.c}, @file{parse.y}, @file{module.c} i
+neke druge datoteke.
+@end ifset
+
+@item Matthias Klose
+integrirao je GPC u EGCS i Debian GNU/Linux u svibnju 1998,
+usavr¹io je proces instalacije, itd.
+
+@ifset AUTHORSONLY
+Modificirao je @file{Makefile*}, @file{configure} skripte i mnoge
+druge datoteke.
+@end ifset
+
+@item Dominik Freche
+pobolj¹ao je i pro¹irio GPC manual u kolovozu -- rujnu 1999 i napisao
+je rutine za konverziju za Borland kompatibilne 6 bajtne brojeve s
+pomiènim zarezom (floating point numbers) u prosincu 1999.
+
+@ifset AUTHORSONLY
+Modificirao je @file{doc/en/reference.texi},
+@file{doc/en/programming.texi}, i @file{units/system.pas} te
+kreirao neke datoteke u @file{test/}.
+@end ifset
+
+@item Alexey Volokhov
+pobolj¹ao je performanse GPC-ove podr¹ke za module/jedinice u lipnju 1997.
+
+@ifset AUTHORSONLY
+Znaèajno je modificirao @file{module.c}.
+@end ifset
+
+@item Bill Currie
+implementirao je dodatne Borland ekstenzije u GPC u srpnju 1997.
+
+@ifset AUTHORSONLY
+Modificirao je @file{parse.y}, @file{statements.c}, i @file{predef.c}.
+@end ifset
+
+@item Nicola Girardi
+napisao je 'GNU Pascal standarde za kodiranje' u studenom 2001,
+prilo¾io je @uref{http://www.gnu-pascal.de/contrib/nicola/,GPC jedinicu} za
+@samp{svgalib} grafièku biblioteku za neke platforme u veljaèi 2000, prilo¾io je
+neka pobolj¹anja koja su doprinijela prenosivosti RTS-a.
+
+@ifset AUTHORSONLY
+Napisao je @file{doc/en/gpcs.texi} i modificirao @samp{rts/rts.c},
+napisao neke datoteke u @file{test/}.
+@end ifset
+
+@item Eike Lange
+@anch{Eike}@c
+je napisao jedinicu @samp{unit} za internacionalizaciju, preveo je tekst GNU
+Pascal Coding Standards na njemaèki i radio na dokumentaciji.
+
+@ifset AUTHORSONLY
+Kreirao je @file{doc/de/gpcs.texi}.
+@end ifset
+
+@item Francisco Javier Fernandez Serrador
+@anch{Francisco}@c
+preveo je GPC dokumentaciju na ¹panjolski.
+
+@ifset AUTHORSONLY
+Kreirao je sve datoteke u @file{doc/es/} (koje jo¹ nisu integrirane u GPC
+na dan pisanja 21.06.2003.)
+@end ifset
+
+@end table
+
+@ifset AUTHORSONLY
+Svi autori nabrojani iznad su prenijeli svoja copyright prava na pro¹le i
+buduæe izmjene GNU Pascala na Free Software Foundation (FSF).
+@end ifset
+
+@table @asis
+
+@item Mirsad Todorovac
+@anch{mirsad}@c
+je preveo GPC dokumentaciju na hrvatski.
+
+@ifset AUTHORSONLY
+Kreirao je datoteke u @file{doc/hr/}.
+
+Prenio je copyright prava od svojih pro¹lih i buduæih izmjena hrvatskog
+prijevoda GNU Pascal dokumentacije na Free Software Foundation (FSF).
+@end ifset
+
+@item Russ Whitaker
+dopunio i odr¾ava GNU Pascal FAQ.
+@ifclear AUTHORSONLY
+(@pxref{FAQ})
+@end ifclear
+
+@ifset AUTHORSONLY
+Modificirao je @file{doc/en/faq.texi}.
+@end ifset
+
+@ifset AUTHORSONLY
+Prenio je svoja copyright prava pro¹lih i buduæih izmjena GNU
+Pascal FAQ-a na Free Software Foundation (FSF).
+@end ifset
+
+@end table
+
+@ifclear AUTHORSONLY
+
+Razvojni proces GNU Pascala ima mnoge koristi od nezavisnih
+doprinosa:
+
+@table @asis
+
+@item Anja Gerwinski
+odr¾ava GPC mailing listu, od rujna 1999.
+
+@item Berend de Boer
+napisao je mnogo korisne dokumentacije o Extended Pascalu u 1995.
+
+@item @uref{http://www.gerwinski.de/~markus/,Markus Gerwinski}
+kreirao je crte¾ jednog Gnua s Blaise Pascal
+@ifhtml
+@html
+-- <a href="../images/GnuPascal-small.png">mali (PNG, 1 kB)</a> i
+<a href="../images/GnuPascal.png">veliki (PNG, 10 kB)</a> --
+@end html
+@end ifhtml
+i pomogao dizajnu WWW home stranice u listopadu 1996.
+
+@item Eike Lange
+prilo¾io je
+@uref{http://www.gnu-pascal.de/contrib/eike/,jedinice} za
+pristup MySQL, GNU DBM i PostgreSQL bazama podataka u kolovozu 2000,
+te jedinicu (sada dio GPC-a) i alate za internacionalizaciju od
+listopada do prosinca 2001.
+
+@item Eike Lange i Nicola Girardi zajedno su doprinijeli skup
+@uref{http://www.gnu-pascal.de/contrib/nicola/,Gtk jedinica}
+od veljaèe do svibnja 2001.
+
+@item Nicola Girardi
+napisao je standarde za kodiranje u GNU Pascalu na engleskom. Eike Lange
+ih je preveo na njemaèki.
+
+@item Prof.@: Phil Nelson
+kreirao je sustav za prijavu bugova za GPC u listopadu 1996.
+
+@item @uref{Robert Höhne}
+napisao je @uref{http://www.tu-chemnitz.de/~rho/rhide.html,RHIDE},
+integriranu razvojnu okolinu za GNU prevoditelje koja se vrti pod
+DOS-om (DJGPP) i Linuxom, te dodao podr¹ku za GNU Pascal u jesen
+1996.
+
+@item Sven Hilscher
+napisao (prete¾no) BP kompatibilnu @samp{Graph} jedinicu za nekoliko
+platformi u prosincu 1996, sada dio
+@uref{http://www.gnu.de/software/grx/,GRX biblioteke}.
+
+@item @uref{http://www.geocities.com/SiliconValley/Vista/6573,Dario Anzani (``Predator Zeta'')}
+prilo¾io dokumentaciju o kori¹tenju asemblera u GNU Pascalu
+u svibnju 1997.
+@ifclear AUTHORSONLY
+(@pxref{Assembler})
+@end ifclear
+
+@item Dieter Schmitz
+postavio mailing listu na njemaèkom jeziku za GPC, @ref{Mailing List}, u o¾ujku
+2001.
+
+@item Adriaan van Os
+pomogao je oko preno¹enja GPC-a na Mac OS X i postavio
+@uref{http://www.microbizz.nl/gpc.html,web site} sa source kodom,
+binarnim datotekama, zakrpama (patch)i instrukcijama za izgradnju na
+ovoj platformi u sijeènju 2003.
+
+@item @code{(@minus{}:@minus{}@minus{}@minus{}@minus{}@minus{}@minus{}@minus{}@minus{}@minus{}:@minus{})}
+Ovo mjesto je rezervirano za @emph{Va¹e} ime. ;@minus{}) Molimo
+kontaktirajte nas na GPC mailing listi, @ref{Mailing List}, ako imate
+ne¹to interesantno za nas.
+
+@end table
+
+Zahvaljujemo svima koji nas podr¾avaju prijavljujuæi bugove, dajuæi
+povratne informacije, doprinoseæi svojim znanjem i dobrim idejama,
+donacijama razvojnih alata, dajuæi nam priliku da testiramo GPC na
+velikom broju razlièitih sistema. Naroèito smo du¾nici (abecednim redom,
+najprije pojedinci) prema
+
+@include contributors.texi
+@cite{BIP} na @cite{University of Birmingham}, Velika Britanija,
+@cite{Institut fuer Festkoerperforschung (IFF)} na @cite{Forschungszentrum Juelich}, Njemaèka,
+CARNet-u (Hrvatska akademska i istra¾ivaèka mre¾a), Akademiji likovnih
+umjetnosti i Grafièkom fakultetu na Sveuèili¹tu u Zagrebu, Hrvatska.
+
+@noindent kao i svima koje smo mo¾da zaboravili spomenuti ovdje.
+Hvala svima vama!
+
+@c The following text should appear in all versions of the manual,
+@c but not on the GPC home page.
+@ifhtml
+@html
+<!--MAKE-HOMEPAGE-CUT-->
+@end html
+@end ifhtml
+
+GNU Pascal se bazira na GNU CC-u Richarda Stallmana.  Nekoliko od ljudi koji
+su doprinijeli GNU CC-u:
+
+@c -- JJ 13jul96: should we keep all these ?
+@c I already zapped a number of irrelevant ones.
+@c
+@c Keep them, but with a note that we are talking about GNU C now.
+@c (I zapped another one who contributed to the C++ front-end.)
+@c (Or: ask the FSF.) -- PG, 2. Aug 1996
+
+@itemize @bullet
+@item
+Ideja kori¹tenja RTL-a i neke od ideja optimizacije su do¹le iz
+programa PO napisanog na University of Arizona od Jacka Davidsona
+i Christophera Frasera.  Vidi ``Register Allocation and Exhaustive
+Peephole Optimization'', Software Practice and Experience 14 (9),
+Sept. 1984, 857-866.
+
+@item
+Paul Rubin je napisao veæi dio preprocesora.
+
+@item
+Leonard Tower je napisao dijelove parsera, RTL generator, i RTL
+definicije, te Vax deskripcije.
+
+@item
+Ted Lemon je napisao dijelove RTL èitaèa i pisaèa.
+
+@item
+Jim Wilson je implementirao 'loop strength reduction' i neke druge
+optimizacije petlji.
+
+@item
+Nobuyuki Hikichi iz Software Research Associates, Tokyo, pridonio je
+podr¹ku za Sony NEWS machine.
+
+@item
+Charles LaBrec doprinio je podr¹ku za Integrated Solutions
+68020 sistem.
+
+@item
+Michael Tiemann iz Cygnus Support napisao je podr¹ku za inline (umetnute)
+funkcije i 'instruction scheduling'.  Takoðer i deskripcije
+National Semiconductor 32000 serije procesora, SPARC procesora i dijelom
+Motorola 88000.
+
+@item
+Jan Stein iz Chalmers Computer Society je pru¾io podr¹ku za
+Genix, kao i dijelove 32000 machine deskripcija.
+
+@item
+Randy Smith je dovr¹io Sun FPA podr¹ku.
+
+@item
+Robert Brown je implementirao podr¹ku za Encore 32000 sisteme.
+
+@item
+David Kashtan iz SRI je prilagodio GNU CC za VMS.
+
+@item
+Alex Crain je dodao promjene za 3b1.
+
+@item
+Greg Satz i Chris Hanson su pomogli da GNU CC radi na HP-UX
+za 9000 series 300 platformu.
+
+@item
+William Schelter je napravio glavni dio posla na podr¹ci za Intel 80386.
+
+@item
+Christopher Smith je prenio prevodilac na Convex strojeve.
+
+@item
+Paul Petersen je napisao machine deskripcije za Alliant FX/8.
+
+@item
+Dario Dariol je doprinio èetiri varijacije primjera programa koji
+ispisuju vlastiti izvorni kod.
+
+@item
+Alain Lichnewsky je prenio GNU CC na Mips procesor.
+
+@item
+Devon Bowen, Dale Wiles i Kevin Zachmann su prenijeli GNU CC na
+Tahoe.
+
+@item
+Jonathan Stone je napisao machine deskripcije za Pyramid
+computer.
+
+@item
+Gary Miller je prenio GNU CC na Charles River Data Systems strojeve.
+
+@item
+Richard Kenner s New York University Ultracomputer Research
+Laboratory je napisao machine deskripcije za AMD 29000, za DEC
+Alphu, za IBM RT PC, te za IBM RS/6000 kao i podr¹ku za
+instrukcijske atribute.  Takoðer je naèinio izmjene kako bi se bolje
+podr¾alo RISC procesore ukljuèujuæi izmjene u 'common subexpression
+elimination' (eliminacija zajednièkih pod-izraza),
+'strength reduction', 'function calling sequence' rukovanju, i
+'condition code support', uz dodatke za generalizacije koda za
+'frame pointer elimination'.
+
+@item
+Richard Kenner i Michael Tiemann zdru¾eno su razvili reorg.c,
+'delay slot scheduler'.
+
+@item
+Mike Meissner i Tom Wood iz Data General zavr¹ili su prijenos
+na Motorolu 88000.
+
+@item
+Masanobu Yuhara iz Fujitsu Laboratories implementirao je machine
+deskripcije za Tron architecture (toènije za Gmicro).
+
+@item
+James van Artsdalen napisao je kod koji efikasno upotrebljava
+Intel 80387 register stack (registarski slog).
+
+@item
+Mike Meissner iz Open Software Foundation dovr¹io je prijenos
+na MIPS procesor, ukljuèujuæi dodavanje ECOFF debug podr¹ke, i
+radio je prijenos na Intel 80386 procesor.
+
+@item
+Ron Guilmette implementirao je @code{protoize} i @code{unprotoize}
+alate, podr¹ku za Dwarf simbolièke debugging informacije, i
+veæinu podr¹ke za System V Release 4.  Takoðer je radio
+naporno na Intel 386 i 860 podr¹ci.
+
+@item
+Torbjorn Granlund je implementirao multiply- i divide-by-constant
+optimizacije, pobolj¹ao long long podr¹ku, i pobolj¹ao 'leaf function
+register allocation'.
+
+@item
+Mike Stump je implementirao podr¹ku za Elxsi 64-bitni procesor.
+
+@item
+John Wehle je dodao machine deskripcije za Western Electric
+32000 procesor kori¹ten u nekoliko strojeva 3b serije (nema veze
+s National Semiconductor 32000 procesorom).
+
+@end itemize
+@end ifclear

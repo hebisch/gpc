@@ -1,0 +1,347 @@
+#!/bin/sh
+
+# Script to run the GPC Test Suite
+#
+# NOTE: Don't invoke this script manually. Run `make' instead.
+#
+# Copyright (C) 1996-2006 Free Software Foundation, Inc.
+#
+# Authors: Frank Heckenbach <frank@pascal.gnu.de>
+#          Matthias Klose <doko@cs.tu-berlin.de>
+#          Peter Gerwinski <peter@gerwinski.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+if [ x"$TEST_MAKE_FLAG" != x"test-make-flag" ]; then
+  echo "`basename $0`: Don't invoke this script manually. Run \`make' instead," >&2
+  echo "          unless you know what you're doing (in which case you'll" >&2
+  echo "          also know how to get rid of this message :-)." >&2
+  exit 1
+fi
+
+progress_msg=n
+if [ x"$1" = x"-p" ]; then
+  progress_msg=y
+  shift
+fi
+
+if [ x"$*" = x ]; then set "*"; fi
+
+exec < /dev/null  # Don't hang if any test tries to read from standard input.
+
+# Maximum time allowed per process (compiler and test programs).
+# I hope the value (seconds) is ok for most systems. Otherwise we
+# might have to run a little timing test at the beginning.
+#
+# Set the hard limit a little higher than the soft limit, so we get
+# a SIGXCPU rather than SIGKILL in the normal timeout case, but if
+# a process ignores SIGXCPU, it will be killed a little later.
+#
+# Note: Some strange shells (e.g., the native shell on OSF/Alpha)
+# abort the whole script when trying to set a hard limit as
+# non-root.
+if [ x"$BASH" != x ]; then
+  ulimit -H -t 2010 > /dev/null 2>&1
+fi
+ulimit -S -t 2000 > /dev/null 2>&1
+
+if [ -z "$PC" ]; then
+  PC=gpc
+fi
+
+if [ -z "$PFLAGS" ]; then
+  PFLAGS="--automake -g -O3 -W -Wall -Wno-unused"
+fi
+
+if [ -z "$SRCDIR" ]; then
+  SRCDIR=.
+fi
+export SRCDIR
+
+# Find a good echo. !:-/
+echo1 () { echo -n "$*"; }
+echo2 () { echo "$*\c"; }
+echo3 () { echo -e "$*\c"; }
+if [ "`echo1 foo; echo bar`" = "foobar" ]; then
+  echon=echo1
+elif [ "`echo2 'foo'; echo bar`" = "foobar" ]; then
+  echon=echo2
+elif [ "`echo3 'foo'; echo bar`" = "foobar" ]; then
+  echon=echo3
+else
+  echo "$0: fatal: cannot find a way to echo without newline :-(" >&2
+  echo "  (if you know one for this system, please add it in" >&2
+  echo "  $0 and report it to the GPC developers)" >&2
+  exit 1
+fi
+
+echo "program Dummy (Output); begin WriteLn ('1723') end." > dummy.pas
+
+if [ x"$GP" = x ]; then
+  DEFAULT_UNIT_DIR="`$PC $PFLAGS --print-file-name=units`"
+  INVOKE_PC1="$PC --unit-path=$DEFAULT_UNIT_DIR -I $DEFAULT_UNIT_DIR"
+  INVOKE_PC="$INVOKE_PC1"
+  PC_WITHOUT_GP=""
+else
+  INVOKE_PC1="$GP PC=$PC"
+  INVOKE_PC="$INVOKE_PC1 --no-check-platform"
+  # GP deals with needed-options and the unit directory already
+fi
+
+PC_WITHOUT_GP="$PC $PFLAGS"
+export PC_WITHOUT_GP  # only needed for very particular tests
+
+rm -f a.out a.exe
+A_OUT=a.out
+if echo 'program foo; begin end.' | $PC -x Pascal - && [ ! -r "$A_OUT" ] && [ -r "a.exe" ]; then
+  A_OUT=a.exe
+fi
+export A_OUT
+rm -f a.out a.exe
+if $INVOKE_PC1 $PFLAGS -o $A_OUT dummy.pas; then
+  rm -f dummy.pas
+  if [ ! -r "$A_OUT" ]; then
+    echo "$0: fatal: cannot find $A_OUT after compilation" >&2
+    exit 1
+  fi
+else
+  rm -f dummy.pas
+  echo "$0: fatal: cannot compile a simple program" >&2
+  exit 1
+fi
+
+rm -f dummy.out
+./"$A_OUT" > dummy.out ||
+  {
+    echo "$0: fatal: cannot run a simple program" >&2
+    echo "  (if this is a cross-compiler, you can't run the test suite easily)" >&2
+    exit 1
+  }
+
+diff_cr ()
+{
+  "$FIXCR" < "$1" > diff_cr1.tmp
+  "$FIXCR" < "$2" > diff_cr2.tmp
+  diff diff_cr1.tmp diff_cr2.tmp; stat=$?
+  rm -f diff_cr1.tmp diff_cr2.tmp
+  return $stat
+}
+
+DIFF=diff
+"$DIFF" dummy.out "$SRCDIR/basic.out" > /dev/null ||
+  {
+    $INVOKE_PC1 $PFLAGS -o fixcr "$SRCDIR/fixcr.pas" ||
+      { echo "$0: fatal: cannot compile fixcr.pas" >&2; exit 1; }
+    if [ -r "./fixcr" ]; then
+      FIXCR=./fixcr
+    elif [ -r "./fixcr.exe" ]; then
+      FIXCR=./fixcr.exe
+    else
+      echo "$0: fatal: cannot find either fixcr or fixcr.exe" >&2
+      exit 1
+    fi
+    export FIXCR
+    DIFF=diff_cr
+    "$DIFF" dummy.out "$SRCDIR/basic.out" > /dev/null ||
+      {
+        echo "$0: fatal: output of a simple program differs" >&2
+        exit 1
+      }
+  }
+rm -f dummy.out
+
+# Use a single grep to check multiple patterns for speed, but if the
+# grep doesn't support it, use multiple grep invocations.
+internal_error_single ()
+{
+  grep -i -e "internal.*error" -e "fatal signal" -e "expect.*, have " stderr.out > /dev/null
+}
+internal_error_separate ()
+{
+  grep -i "internal.*error" stderr.out > /dev/null ||
+  grep -i "fatal signal" stderr.out > /dev/null ||
+  grep -i "expect .*, have " stderr.out > /dev/null
+}
+test_grep ()
+{
+  echo 'internal test error' > stderr.out; $INTERNAL_ERROR || return 1
+  echo 'fatal signal 42' > stderr.out; $INTERNAL_ERROR || return 1
+  echo 'expect foo, have bar' > stderr.out; $INTERNAL_ERROR || return 1
+  echo 'user error' > stderr.out; $INTERNAL_ERROR && return 1
+  return 0
+}
+INTERNAL_ERROR=internal_error_single
+test_grep 2> /dev/null ||
+  {
+    INTERNAL_ERROR=internal_error_separate
+    test_grep ||
+      {
+        rm -f stderr.out
+        echo "$0: fatal: could not find a working \`grep'" >&2
+        exit 1
+      }
+  }
+rm -f stderr.out
+
+c1=""
+
+testfile ()
+{
+  xb="`basename "$1"`"
+  x1="$SRCDIR/`echo "$xb" | sed -e 's/\.[^.]*$//'`"
+  xr="$x1.run"
+  xi="$x1.in"
+  xo="$x1.out"
+  xc="`sed -ne '/COMPILE-CMD:/{s/.*COMPILE-CMD: *//;s/ *\*).*//;s/ *}.*//;p;}' "$1"`"
+  PC_WITH_FLAGS="$INVOKE_PC $PFLAGS -o $A_OUT \
+    --unit-path=$SRCDIR --unit-path=$SRCDIR/../rts \
+    --unit-path=$SRCDIR/../units -I $SRCDIR -I $SRCDIR/../units --executable-path=. \
+    `sed -ne '/FLAG/{s/.*FLAG *//;s/ *\*).*//;s/ *}.*//;p;}' "$1"`"
+  rm -f "$A_OUT" 2> /dev/null
+  if [ $progress_msg = y ]; then
+    echo "$c1#progress# $xb"
+    echo "$c1#progress-bar# $n"
+    n=`expr $n + 1`
+  fi
+  if [ x"$xc" != x ]; then
+    $echon "TEST	$xb:	"
+    { sh "$SRCDIR/$xc" "$PC_WITH_FLAGS" "$1"; } 2>&1
+  elif grep WRONG "$1" > /dev/null; then
+    $echon "TEST	$xb:	"
+    $PC_WITH_FLAGS -w "$1" 2> stderr.out; stat=$?
+    if [ $stat -eq 0 ] || [ -r "$A_OUT" ]; then
+      $echon "failed: "
+      { ./"$A_OUT"; } 2>&1
+      echo ""
+    elif [ $stat -gt 1 ] || $INTERNAL_ERROR; then
+      $echon "failed: "
+      cat stderr.out
+      echo ""
+    else
+      echo "OK"
+    fi
+  elif grep WARN "$1" > /dev/null; then
+    $echon "TEST	$xb:	"
+    $PC_WITH_FLAGS -Werror "$1" 2> stderr.out; stat=$?
+    if [ $stat -eq 0 ] || [ -r "$A_OUT" ]; then
+      $echon "failed: "
+      { ./"$A_OUT"; } 2>&1
+      echo ""
+    elif [ $stat -gt 1 ] || $INTERNAL_ERROR; then
+      $echon "failed: "
+      cat stderr.out
+      echo ""
+    else
+      echo "OK"
+    fi
+  else
+    $echon "TEST	$xb:	"
+    if { $PC_WITH_FLAGS -Werror "$1"; } 2>&1; then
+      if [ -r "$xr" ]; then
+        if [ -r "$xo" ]; then
+          if [ -r "$xi" ]; then
+            { sh "$xr" "$1" < "$xi"; } > testmake.tmp 2>&1
+          else
+            { sh "$xr" "$1"; } > testmake.tmp 2>&1
+          fi
+          if "$DIFF" testmake.tmp "$xo"; then
+            echo "OK"
+          else
+            echo "failed"
+          fi
+        else
+          if [ -r "$xi" ]; then
+            { sh "$xr" "$1" < "$xi"; } 2>&1
+          else
+            { sh "$xr" "$1"; } 2>&1
+          fi
+        fi
+      else
+        if [ -r "$A_OUT" ]; then
+          if [ -r "$xo" ]; then
+            if [ -r "$xi" ]; then
+              { ./"$A_OUT" "$1" < "$xi"; } > testmake.tmp 2>&1
+            else
+              { ./"$A_OUT" "$1"; } > testmake.tmp 2>&1
+            fi
+            if "$DIFF" testmake.tmp "$xo"; then
+              echo "OK"
+            else
+              echo "failed"
+            fi
+          else
+            if [ -r "$xi" ]; then
+              { ./"$A_OUT" "$1" < "$xi"; } 2>&1
+            else
+              { ./"$A_OUT" "$1"; } 2>&1
+            fi
+          fi
+        else
+          echo "failed"
+         fi
+      fi
+    else
+      echo "failed"
+    fi
+  fi
+  true  # IRIX's shell wants this, otherwise it aborts after a failed command!?
+}
+
+n=0
+
+echo "Test Run By ${USER:-$LOGNAME} on `date '+%Y-%m-%d %H:%M:%S'`"
+echo "Native configuration is `$PC $PFLAGS -dumpmachine` (`hostname || echo 'unknown host'`)"
+echo "$PC `$PC $PFLAGS -dumpversion`, flags: $PFLAGS_NO_PATHS `if [ x"$GP" != x ]; then echo '(using GP)'; fi`"
+echo "GPC-TEST-BEGIN"
+echo "=========================="
+if [ $progress_msg = y ]; then
+  c=0
+  for f in "$@"; do
+    case "$f" in
+      *.pas) ;;
+      *) f="$f.pas"
+    esac
+    c="$c + `cd "$SRCDIR"; grep -li "program.*;" $f 2> /dev/null | wc -l`"
+  done
+  echo "$c1#progress-bar+# 0, 1, `expr $c`"
+fi
+for f in "$@"; do
+  case "$f" in
+    *pas) ;;
+    *) f="$f.pas";;
+  esac
+  case "$f" in
+    /*|\\*|[A-Za-z]:*) ;;
+    *) f="$SRCDIR/$f";;
+  esac
+  found=n
+  for x in $f; do
+    grep -i "program.*;" "$x" > /dev/null 2>&1 && { testfile "$x"; found=y; }
+  done
+  if [ $found = n ]; then
+    echo "$f: No such program" >&2
+  fi
+done
+if [ $progress_msg = y ]; then
+  echo "$c1#progress#"
+  echo "$c1#progress-bar-#"
+  echo "$c1#progress-bar# 1"
+fi
+echo ""
+echo "=========================="
+echo "GPC-TEST-END"  # be sure that GPC-TEST-END starts in a new line ...

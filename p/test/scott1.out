@@ -1,0 +1,2 @@
+'how now<eoln> brown cow<eoln> ' s/b 'how now<eoln> brown cow<eoln> '
+'too much<eoln> too soon<eoln> ' s/b 'too much<eoln> too soon<eoln> '

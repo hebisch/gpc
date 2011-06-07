@@ -1,0 +1,1853 @@
+ChangeLog -- Edit History for GPC, the GNU Pascal Compiler, since version 2.1
+=============================================================================
+2007-09-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* utils/gpidump.pas: Skip version check for 4.x backends.
+
+2007-09-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	Bump version.
+
+2007-09-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+            Frank Heckenbach  <frank@pascal.gnu.de>
+
+	* diffs/*: Update diffs.
+          config.lang.in: Adjust.
+
+2007-09-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+	* statements.c: assign_string2(): Save the whole string
+          before copying (to prevent multiple evaluation).
+
+2007-09-03  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* expressions.c: convert_and_check(): For range checking
+          convert enumerations to integers.
+
+2007-09-03  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* declarations.c: declare_variables(): when initializing 
+          local static variables explicitly check for nested
+          functions.
+
+2007-09-03  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* types.c: count_unsigned_bits(): For non-constants use
+	  counts_bits on type (fixes range2.pas and chuck6.pas).
+
+2007-09-02  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* predef.c: build_predef_call(): pass 2 as nonconvert to
+          build_unary_op to allow function values as copy source.
+
+2007-08-31  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* plant.c: plant_continue_loop(), plant_exit_loop(): Do not
+          ICE, just signal error when outside a loop.
+
+2007-08-31  Adriaan van Os  <gpc@microbizz.nl>
+
+	* rts/Makefile.in: Add support for building libgpc as Mach
+          shared library.
+
+2007-08-31  Frank Heckenbach  <frank@pascal.gnu.de>
+
+	* rts/init.pas: Mark GPC_Initialize as user routine.
+	* rts/error.pas: Rename Finalize to GPC_Finalize. Mark it
+          as user routine.
+
+2007-08-31  Frank Heckenbach  <frank@pascal.gnu.de>
+
+	* predef.c: get_string_length_plus_1(): New function.
+          build_predef_call(): Use it. Add better warnings for
+          string comparisons.
+
+2007-08-30  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* declarations.c: type_attributes(): Use TYPE_READONLY.
+
+2007-08-30  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* declarations.c: check_identifier(): Make sure that
+          initializers are unshared (igor2.pas).
+
+2007-08-30  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* declarations.c: pascal_expand_goto(): use iso_goto_restrictions
+	* gpc.c: cpp_unique_options: add -quiet when needed.
+
+2007-08-30  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	Added 4.1 changes.
+	* diffs/gcc-4.1.1.diff: New file.
+	* config-lang.in: Handle 4.1 diff, adjust messages.
+	* gpc.h, expressions.c, statements.c, typecheck.c: Fix 4.1
+        problems with string initializers.
+
+2006-08-02  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * declarations.c: type_attributes(): handle `volatile'
+          attribute
+
+        * objects.c: finish_object_type(): for abstract objects
+          set NegatedSize to -1
+
+2006-07-22  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * rts/fname.pas, rts/string1.pas, rts/string2.pas: put each
+          string parameter into separate section
+
+        * typecheck.c: build_discriminated_schema_type (): do not
+          call `check_pascal_initializer'
+
+        * predef.c: build_predef_call (): skip dialect check on
+          procedure name
+
+        * statements.c: pascal_expand_asm_operands (): allow `asm'
+          in any dialects (if the `asm' keyword is enabled)
+
+2006-07-15  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * plant.c: plant_asm_operands (): handle volatile attribute
+          plant_asm (): add implementation
+
+2006-05-19  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h: correct conditional check for including "parse.h"
+          (recent Bison versions output tokens as enum values, not
+          as #defines anymore)
+
+        * parse.y: move most of the first section of C code below
+          the token declarations, so it doesn't appear in parse.h
+          with Bison 2.2, as it is parser-private stuff which would
+          cause some unused-warnings otherwise; correct "%expect-rr"
+          number as Bison 2.2 gives errors instead of warnings on
+          mismatch
+
+        * utils/mk-t-inc: minor portability fix (some sed versions
+          require ";" before "}")
+
+2006-05-05  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-options.h:  make `-frange-and-object-checking' into a
+          default option (fixes gale12[a-h].pas)
+
+2006-04-24  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * rts/string2.pas: InternalStringOf (): handle empty string
+
+2006-04-12  Adriaan van Os  <gpc@microbizz.nl>
+
+        * gpc.c: update for gcc-4.1 
+
+2006-03-24  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * Make-lang.in, config-lang.in, declarations.c, expressions.c,
+          gbe.h, gpc-lex.c, gpc.c, gpc.h, lang.c, module.c, objects.c,
+          options.c, opts.sum, p-tree.def, parse.y, pascal-lex.l,
+          predef.c, statements.c, typecheck.c, types.c, utils/Makefile
+          utils/gpidump.pas, utils/mk-t-inc: adapted to gcc-4.0,
+          schema changed to use placeholders
+          plant.c, plant.h, diffs/gcc-4.0.2.diff, diffs/gcc-4.0.3.diff:
+          new files
+ 
+2006-03-09  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * predef.c: build_predef_call (): handle named exit from a method
+          parse.y: allow qualified name as an argument for `Exit'
+
+2006-03-05  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * parse.y: remove reduce-reduce conflict in `object_field_list'
+
+2006-03-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * types.c: is_of_string_type (): check more strictly
+
+2006-02-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * units/crtc.c: crt_Read (): add casts between `Char *' and
+          `char *'.
+
+2006-02-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * types.c: select_integer_type (): Use at least integer
+          precision for arithmetic
+
+2006-02-25  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * parse.y: increase YYMAXDEPTH
+       
+        * types.c: find_field (): remove `gcc_unreachable'
+
+2006-02-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * predef.c: build_read (): in ISO mode require second argument
+          to `ReadStr'. Copy first argument if needed.
+
+        * declarations.c: check_routine_decl (): check that types of both
+          args have the same code, before testing reference types (ice3.pas)
+
+        * declarations.c: routine_attributes (): disable noninline attribute
+          with 2.x backends
+
+        * lang.c: pascal_clear_binding_stack (): new routine which exits
+          on errors (ice4.pas)
+          define LANG_HOOKS_CLEAR_BINDING_STACK
+
+        * gpc-lex.c: CheckFeature (): allow choice of base for Sun Pascal
+
+        * types.c: build_set_constructor (): omit constant empty ranges from
+          set initializers (avoid failure in sets18.pas). Do not copy input
+          list (should be unique).
+
+        * parse.y: correct number of expected conflicts, allow initialization
+          with for Sun Pascal
+
+2006-02-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        Turn string argument of runtime support for `ReadStr' into
+        conformal array
+        * predef.c: string_par (): new routine
+          build_read (): call it, add length parameter to `ReadStr_Init'
+          build_val (): likewise
+          build_write (): likewise
+          predef.def: new signature for `ReadStr_Init'
+          rts/files.pas: likewise, simplify `Write_String', new signature
+          for `StringTFDD_Reset'
+          
+        
+
+2006-02-13  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * module.c: finalize_module (), create_gpi_files (): do
+          not write `.gpi' files if any errors were found
+
+        * declarations.c: visible_list_length (): new function
+          sort_fields (): call it, skip fields with PASCAL_FIELD_SHADOWED on
+          types.c: find_field (): likewise
+          objects.c: finish_object_type (): ignore unfinished parents,
+          set PASCAL_FIELD_SHADOWED on vmt entries
+          finish_view_type (): do not set PASCAL_FIELD_SHADOWED on vmt
+          field
+          statements.c: init_record (): avoid `find_field' on fields with
+          PASCAL_FIELD_SHADOWED on
+
+        * expressions.c: parser_build_binary_op (): return error_mark_node
+          on incompatible arguments (avoid crash later)
+
+        * gpc.h, gpc-options.h, gpc.h, lang-options.h, opts.sum: new
+          option `-fiso-goto-restrictions'
+          declarations.c: set_label (): handle it
+
+        * types.c: construct_set (): return error_mark_node on errors,
+          clone list.
+
+2006-02-12  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Fixes for argument handling (needed by `const var')        
+        * typecheck.c: convert_arguments (): reorganized
+          argument_error (), convert_arg1 (), convert_bounds (),
+          convert_conformal (), convert_one_arg (), convert_schema (),
+          copy_val_ref_parm (), get_schema_plain_type (), handle_typed_arg (),
+          handle_vararg (), scan_section (): new functions
+
+2006-02-08  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Check identifier scopes stricter in record types and
+        parameter lists
+        * declarations.c: check_field_list (), check_param_redeclaration (),
+          check_id_redeclaration (), peek_name (): new local functions
+          push_scope (), pop_record_level (), pop_param_level (): new functions
+          parse.y: call thema
+
+        * declarations.c: make scope index long
+          lang.c: likewise
+
+        * parse.y: support `const var'
+          declarations.c: build_formal_param (): handle it
+
+2006-02-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * units/crtc.c: chtransform (): do not use A_ALTCHARSET on normal
+          characters
+
+2006-02-02  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * rts/Makefile.in: remove `needed-options'
+
+2006-02-30  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Support OOE view
+        * declarations.c: make check_routine_decl () global
+          gpc.h: Likewise. 
+          objects.c: use it
+          finish_view_type (): new function
+          mark_fields_shadowed (): new function
+          parse.y: call finish_view_type ()
+
+        * lang-specs.h: clean-up
+
+        Make set constants compatible with packed sets
+        * gpc.h: PASCAL_TYPE_CANONICAL_SET () : new macro (flag)
+          declarations.c: set it for empty_set_type_node
+          predef.c: build_predef_call (): handle it
+          typecheck.c: common_type (): reject sets
+          comptypes (): use PASCAL_TYPE_CANONICAL_SET ()
+          types.c (): set it for set constants
+        
+        In ISO modes report out of range constants only at runtime
+        * expressions.c: do_range_error (): New function
+          range_check_2 (): Use it
+
+        * predef.def: define `noinline' attribute
+          declarations.c: handle it
+
+2006-01-29  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * rts/files.pas: StringOf_Result (): new routine
+          rts/string2.pas: InternalStringOf (): new routine
+          predef.def: add `StringOf', make `ReadString' alias
+          of `ReadStr'
+          predef.c: build_read (): handle `ReadString'
+          build_write (): handle `StringOf'
+          build_predef_call (): likewise
+          
+2006-01-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * gpc-lex.c: CheckFeature (): require digit after decimal
+          point in ISO modes (change a warning to an error)
+        * module.c: associate_external_objects (): in ISO-7185 mode
+          require that program parameters are files
+        * predef.c: build_read (): in ISO-7185 mode require
+          parameters to `read'
+          build_write (): Likewise
+        * statements.c: init_any (): set `co->pascal_dialect' to
+          ANY_PASCAL when building calls to p_DoneFDR and p_InitFDR
+
+2006-01-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * types.c: build_type_of (): check `type of' argument more
+          strictly
+
+2006-01-27  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * rts/sets.pas: SetEqual: check that SetA has no elements
+          beyond the higest word of SetB
+          SetLessEqual: Likewise
+        * parse.y: allow string literals in ISO-7185 mode
+        * types.c: build_set_constructor (): allow empty ranges
+          in set constructors (warn only)
+
+2006-01-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * module.c: store_executable_name (): give error if input
+          filename contains no suffix
+        * statements.c: check_reference_parameter (): Allow passing
+          variant selector by reference, give error only in ISO modes
+
+2006-01-04  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * declarations.c: support `CWordBool'
+          module.c: Likewise
+          gpc.h: Likewise
+          predef.def: Likewise
+        
+
+2006-01-04  Adriaan van Os  <gpc@microbizz.nl>
+
+        * gpc-options.h: default `-flongjmp-all-nonlocal-labels' to on
+          for all MACHO targets
+
+2005-11-18  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * lang.c: do_def (): add `__OS_DOS__' hack
+          call_gpcpp (): avoid double close
+        * gpcpp.c: gpcpp_process_options (): disable `__OS_DOS__' hack
+          for gcc-3.[34]
+        * lang-specs.h: pass `-O' options to the preprocessor
+
+2005-11-15  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * utils/gpidump.pas: Flags: add `pascal_cst_parentheses', adjust
+          RealSize for 64-bit machines
+        * lang.c: init_gpcpp (): predefine `__LP64__' for 64-bit targets
+
+2005-11-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * typecheck.c: convert_arguments (): fix passing discriminated
+          string schema
+
+2005-11-12  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Integrate preprocessor.
+        * gpc.h: add preprocessed, preprocess_only, print_deps fields
+          to struct options
+        * lang-options.h, opts.sum, diffs/gcc-2.8.1.diff,
+          options.c: add preprocessor options, for 3.4.x save
+          argc and argv
+        * gpcpp.c: main (): split into tree functions: 
+          gpcpp_process_options (), gpcpp_main () and gpcpp_writeout ()
+          gpcpp_process_options (): ignore invalid options
+          pend_includes, fp: move to file scope
+          gpcpp_argc: new variable
+          gpcpp_fillbuf (): New function
+          initialize_char_syntax (), make_definition (): export them
+          safe_write (): add filename argument
+          deps_out_file: new variable, export it
+          do_include (): print name of included file to deps_out_file
+          fatal (): make uncoditionally static
+          fancy_abort (), xmalloc (), xrealloc (): remove
+          xcalloc (): define only for gcc-2.8.1
+        * gpcpp.h: new file
+        * lang.c: open_input (), call_gpcpp (), init_gpcpp (),
+          open_gpcpp_output (): new functions
+          save_argc, save_argv, gpcpp_out_stream, gpcpp_out_fname:
+          new variables
+          do_def (): new function
+          builtin_define* (): produce string and call do_def, define
+          then for all backends (called from init_gpcpp)
+          pascal_post_options (), lang_init (), init_lex (), parse_init ():
+          if only preprocessing open output for gpcpp
+          pascal_post_options (): use input file name as main input name,
+          unless given already preprocessed input
+          lang_init (), init_lex (), parse_init (): if only preprocessing 
+          call gpcpp
+          lang_init (): move predefine handling to init_gpcpp
+        * pascal-lex.l: DoInput (): split into DoInputF () and
+          DoFixInput ()
+          DoInputP (): new function
+          InitLex (): if needed redirect input to preprocessor
+        * script/mk-handle-opts-c: Correctly handle one letter options
+          and non [fW] options
+        * Make-lang.in: link gpcpp.o into gpc1, remove gpcpp, add
+          dependency on gpcpp.h
+        * lang-specs.h: adjust
+
+2005-11-12  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * gpc-options.h: default `-flongjmp-all-nonlocal-labels' to on
+          if the target is Darwin/PPC
+        * lang-options.h, opts.sum: adjust help strings to match
+
+2005-11-05  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * objects.c: call_method(): distinguish normal and continuing
+          destructor invocation
+        * statements.c: expand_call_statement (): set `function_called'
+          for constructor calls, check if call valid
+        * predef.def: recognize `abstract' in Delphi mode
+
+2005-11-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Misc fixes
+        * objects.c: call_method(): disable constuctor calls inside
+          methods if the backend is 2.x
+        * expressions.c: build_range_check(): use SAVE_EXPR if the
+          backend is 2.x
+        * diffs/*: add dbxout.c hunk to backend diffs
+        * config-lang.in: Make links to handle 3.4.5 and 3.3.6 diffs
+        * Make-lang.in: pass `--no-unit-path' to the test Makefile
+
+2005-10-25  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * parse.y: give p_uses higher precedence then optional_import_part1
+          (waldek15.pas)
+
+2005-10-25  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * parse.y: turn `virtual' and `override' into directives
+
+2005-10-24  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * gpc-options.h, lang-options.h, opts.sum: add new options
+          -fborland-objects, -fmac-objects, -fooe-objects,
+          -fgnu-objects, -fdelphi-method-shadowing, 
+          -fobjects-require-override
+        * options.c: pascal_decode_option (): Likewise.
+        * gpc.h: objects_require_override, delphi_method_shadowing: new
+          variables (flags)
+        * objects.c: finish_object_type (): Handle them
+
+2005-10-24  Adriaan van Os  <gpc@microbizz.nl>
+
+        * gpc-lex.c: yylex (): handle `+' and `-' as Mac Pascal does.
+        * predef.c: build_predef_call (): allow file name parameters and
+          file buffer size arguments for USCD and Mac Pascal
+
+2005-10-24  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * lang-options.h: accept -fno-methods-always-virtual
+
+2005-10-24  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Support Mac objects and Delphi classes.
+        * gpc.h: PASCAL_FIELD_SHADOWED (), PASCAL_METHOD_SHADOWED(),
+          PASCAL_METHOD_OVERRIDE(), PASCAL_METHOD_REINTRODUCE(): new macros
+        * p-tree.def: PASCAL_CONSTRUCTOR_CALL: new tree code
+        * predef.def: add Delphi keywords 
+        * declarations.c: patch_type (): new function
+          build_routine_heading (), start_routine (), declare_types (),
+          shadow_one_level (): handle classes
+        * expressions.c: build_pascal_pointer_reference (): Likewise
+        * module.c: store_node_fields (), load_node (): Likewise
+        * objects.c: simple_get_field (), check_private_protected (), 
+          call_method (), start_object_type (), finish_object_type (),
+          build_is_as (): Likewise
+        * predef.c: build_predef_call (): Likewise
+        * statements.c: expand_call_statement (), expand_pascal_assignment ():
+          Likewise
+        * typecheck.c: comp_object_or_schema_pointer_types (): Likewise
+        * types.c: find_field (), build_component_ref_no_schema_dereference ():
+          Likewise
+        * parse.y: Likewise
+
+2005-10-21  Waldek Hebisch  <hebisch@math.uni.wroc.pl>          
+
+        * expressions.c: build_iso_set_constructor (), 
+          build_iso_constructor (): allow one element sets in non-iso
+          dialects (delset.pas)
+        * types.c: build_array_ref_or_constructor (): but disallow here
+        * typecheck.c: check_pascal_initializer (): add dialect checks
+          for EP initializers
+
+2005-10-21  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * declarations.c: build_formal_param_list (): when passing
+          open array do not access new type in case of errors
+          (waldek13.pas)
+
+        * diffs/gcc-3.2.3.diff, diffs/gcc-3.3.5.diff: backport nonlocal
+          jump fix from 3.4.3 
+
+        * diffs/gcc-3.3.5.diff: reverse ENUM_BITFIELD changes
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h, predef.c, options.c: warn_about_keyword_redeclaration ():
+          do not warn if Pascal directives are used as variables.
+        * predef.def: mark `forward', `near' and `far' as directives.
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+        * rts/string1.pas: make TInteger2StringBase a subrange of 
+          Cardinal (mir048[cd].pas on 64 bit-machines).
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * types.c: build_set_type (): do not use `type' before checking
+          for error mark (dimwit1.pas)
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * declarations.c: start_routine (): set DECL_CONTEXT to
+          avoid crash on bad declarations (dimwit3.pas, dimwit5.pas)
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * rts/files.pas: Avoid calling fcntl if not present
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * expressions.c: build_pascal_pointer_reference (): add call
+          to probably_call_function () 
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * types.c: sce_cmp (): Do correct three-way comparison (fixes
+          set failures on Solaris)
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * types.c: build_record (): detect duplicates in variant records
+          save_nonconstants (): eliminate SAVE_EXPR (modtest.pas)
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+                Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * test/fjf30.cmp: new file
+        * test/arp1.pas, test/asmtest.pas, test/chief56.pas, test/fjf9.pas, fjf30a.pas,
+          fjf30b.pas, test/fjf129.pas, test/fjf915s.pas, test/fjf1000.pas,
+          test/schema2a.pas, test/mir015.pas, test/mir048c.pas,
+          test/mir048d.pas, test/contourbug.pas : correct tests.
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * options.c: pascal_init_options() : do not modify version_string
+          when the backend is 3.4.x or later.
+          put gpc version info into lang_version_string
+        * gcc/toplev.c: print version stored in lang_version_string
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Rename version.h to p-version.h (to avoid conflict with
+        version.h from GCC).
+        * Make-lang.in, gpc.c, gpcpp.c, lang-specs.h, module.c, options.c,
+          utils/Makefile: use p-version.h insted of version.h
+        * gpcpp.c: include backend version.h, choose type of version_string
+          based on backend version
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * cpp_predef.h: remove
+        * gpc.c: just define GPC_CPP_PREDEFINES (instead of including
+          definition from cpp_predef.h)
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * unit/trap.pas: Do not use local procedure parameters (trampolines)
+          to minimize interference with stack execute protection.
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * rts/move.pas: Merge: do not range check -- fixes
+          crashes on strict alignment machines.
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        Move range checks to RTL expander (removes spurious side
+        effects).
+        * p-tree.def: New tree codes RANGE_CHECK_EXPR and
+          IO_RANGE_CHECK_EXPR
+        * expressions.c: build_range_check(): new function
+          range_check_2: call it or build [IO_]RANGE_CHECK_EXPR
+        * gpc.h: add build_range_check()
+        * lang.c: pascal_expand_expr(): call build_range_check
+          to expand [IO_]RANGE_CHECK_EXPR
+
+2005-10-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in: Fix build with flex-2.5.4 (do not change
+          directories when using a workaround)
+
+2005-10-14  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+                 Frank Heckenbach  <frank@pascal.gnu.de>
+
+        Fix bootstrap with 3.2.x
+        * declarations.c: pushlevel (): allocate 
+          newlevel->shared_decl_lang_specific using ggc_alloc 
+          if the backend is 3.2.x
+        * mark_binding_level: mark_binding_level (): correctly
+          mark shared_decl_lang_specific.
+        * lang.c:lang_mark_tree (): correct argument type
+        * gbe.h: activate conditional rename 
+          copy_decl_lang_specific -> copy_lang_decl
+
+2005-03-30  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * typecheck.c: process_init_list(), process_init_element():
+          check PASCAL_TYPE_RECORD_VARIANTS instead of testing for
+          UNION_TYPE as variant records can be RECORD_TYPE or
+          UNION_TYPE internally
+
+        * types.c: build_record(): set PASCAL_TYPE_RECORD_VARIANTS
+
+        * gpc.h: PASCAL_TYPE_RECORD_VARIANTS: new flag
+
+2005-03-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y: `rpar_or_error' removed (such error handling
+          routines are dangerous in connection with `%dprec', as
+          they may give an erroneous parse a higher dynamic
+          precedence over a correct one; it didn't really improve
+          the errors reported, anyway)
+
+        * gpc-lex.c: yylex(), parse.y: LEX_BUILTIN_FUNCTION_VT
+          removed (simplifies the grammar and is necessary for the
+          new `New'/`Dispose' handling, when their argument was
+          `High (...)' etc.)
+
+        * predef.c: check_argument(): reject TYPE_DECL if the
+          parameter doesn't want it
+
+        * parse.y: builtin_actual_parameter_list: accept a TYPE_DECL
+          as an argument
+
+2005-03-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y: rearranged rules to be mostly top-down (except
+          for recursions, see script/check-bison-top-down)
+
+        * script/check-bison-top-down: new file
+
+2005-03-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * rts/constants.h: `#define's replaced with `RTS_CONSTANT'
+          macros (to not require `#' directives on the Pascal side),
+          `COMMENT' replaced with `//' comments (gcc-3.4.x doesn't
+          like `$' in macro arguments), renamed to constants.def,
+          includers adjusted
+
+2005-03-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * doc/en/internals.texi: now obsolete stuff removed, updated
+
+        * parse.y: new_identifier_1: use `id' instead of duplicating
+          it, avoiding a number of R/R conflicts
+
+        * parse.y: new_identifier_limited_par_1,
+          new_identifier_limited_par, new_identifier_limited_1,
+          new_identifier_limited: removed (merged into
+          new_identifier, new_identifier_1); precedences for
+          `p_uses' etc., `prec_import' removed (leaving those
+          conflicts to GLR handling instead of explicit tricks,
+          making it simpler and fixing some corner-case bugs, at the
+          cost of some more S/R and R/R conflicts)
+          (fjf106[3-6]*.pas)
+
+        * gpc-lex.c: yylex(): special cases for `attribute' etc.
+          removed
+
+2005-03-27  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * predef.c: build_new_dispose(): new function
+
+        * parse.y: parse `New' and `Dispose' using `%dprec' (at the
+          cost of some more S/R and R/R conflicts) (fjf915*.pas)
+
+        * gpc.h: current_structor_object_type,
+          current_structor_object_type_constructor: removed
+
+        * declarations.c: set_structor_object(): removed
+
+        * gpc-lex.c: yylex(): `LEX_STRUCTOR' tie-in removed
+
+2005-03-23  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h: last_parenthesized_expression: removed (didn't work
+          reliably, as the address it pointed to could be occupied
+          by a diffent tree node); PASCAL_CST_PARENTHESES: new flag;
+          parse.y: iso_no_parentheses(): removed; expressions.c:
+          set_exp_original_code(): set PASCAL_CST_PARENTHESES (only
+          needed for *_CST nodes)
+
+2005-03-21  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * declarations.c: start_routine(): declare label for
+          non-local `Exit'; finish_routine (): set this label;
+          predef.c: build_exit_statement(): do non-local `Exit',
+          merged into build_predef_call() (to avoid a spurious
+          pedantic warning about `Halt'), function removed
+
+        * gpc.h: struct lang_decl: new field `info4'
+
+2005-03-20  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * expressions.c: build_pascal_pointer_reference(): only
+          called for explicit `^' now, add nil pointer check
+
+        * objects.c: build_is_as(): don't call
+          build_pascal_pointer_reference(), but directly
+          build_indirect_ref()
+
+2005-03-20  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * ChangeLog: don't write time (only date), in accordance
+          with GCC style
+
+        * predef.h: renamed to predef.def
+
+2005-03-18  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * declarations.c, module.c, parse.y, predef.c, statements.c:
+          use void_list_node instead of building our own duplicates
+
+2005-03-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * all files: remove `PARAMS', replace K&R with ISO C
+          declarations
+
+2005-03-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-lex.c: yylex(), types.c: convert(): remove (now)
+          obsolete setting of TREE_UNSIGNED of expressions
+
+        * expressions.c, types.c: replace `TREE_UNSIGNED (expr)'
+          with `TYPE_UNSIGNED (TREE_TYPE (expr))' for non-type nodes
+
+        * types.c: count_bits(): new argument `punsigned', get rid
+          of the abuse of TREE_UNSIGNED; callers changed
+
+2005-03-13  James A. Morrison  <phython@gcc.gnu.org>
+
+        * Make-lang.in: disable traditional warnings
+
+2005-03-13  James A. Morrison  <phython@gcc.gnu.org>
+
+        * gbe.h: Define TYPE_UNSIGNED if it is not defined.
+        * declarations.c: Use TYPE_UNSIGNED instead of TREE_UNSIGNED.
+        * expressions.c: Likewise.
+        * gpc-lex.c: Likewise.
+        * predef.c: Likewise.
+        * statements.c: Likewise.
+        * typecheck.c: Likewise.
+        * types.c: Likewise.
+
+2005-03-12  James A. Morrison  <phython@gcc.gnu.org>
+
+        * gpc.h: Change assert to gcc_assert and add gcc_unreachable.
+        * declarations.c: Use gcc_assert or gcc_unreachable instead
+          of assert; remove side-effects from assertions.
+        * expressions.c: Likewise.
+        * module.c: Likewise.
+        * parse.y: Likewise.
+        * pascal-lex.l: Likewise.
+        * predef.c: Likewise.
+        * statements.c: Likewise.
+        * typecheck.c: Likewise.
+        * types.c: Likewise.
+        * pascal-lex.l: Use YY_BUFFER_CURRENT.
+
+2005-03-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * units/crt.pas: CRT_DoTextModeCommand: disable the default SVGATextMode
+          command as SVGATextMode is rarely used anymore (by necessity); it can
+          still be used by setting an environment variable
+
+2005-03-02  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * rts/files.pas: SeekInternal: change result type to Boolean
+          so we can optimize away nops (returning True, instead of having to
+          return the unknown current position), callers adjusted (only needed
+          success status anyway); GPC_Update: fixed (arp2*.pas) and simplified
+
+2005-02-17  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * parse.y, declarations.c, gpc.h, module.c, objects.c,
+          parse.y, rts/*.pas, statements.c: handle qualified
+          identifiers
+
+        * config-lang.in, declarations.c, expressions.c, gbe.h,
+          gpc.c, gpc.h, gpc-lex.c, gpcpp.c, lang.c, Make-lang.in,
+          options.c, p-tree.def, statements.c, typecheck.c, types.c:
+          update to gcc-3.4.x
+
+        * typecheck.c: handle discriminants in schema initializers
+
+        * types.c: fold constant array references
+
+2005-01-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * expressions.c: set_string_length(): don't use
+          build_index_2_type() because the resulting type (which
+          could be available to a user program via `type of') would
+          be based on sizetype which has TYPE_IS_SIZETYPE set
+
+2005-01-06  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * predef.c, predef.h, rts/files.pas: call the read routines
+          and `Val_Done' directly from the compiler; lots of
+          `Val_Foo' routines and complicated parameter handling in
+          the compiler removed; this also allows for regular range
+          checking of the result
+
+2005-01-06  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * types.c: build_array_slice_ref(): use a suitable type for
+          index computations, not always pascal_integer_type_node,
+          so that larger ranges work
+
+2005-01-06  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * expressions.c: build_pascal_binary_op(): operator
+          overloading code and some checkd moved to
+          parser_build_binary_op() because it must not be used for
+          implicit operations (fjf991.pas, and many more cases not
+          tested for); build_binary_op(): removed the last
+          parmameter (convert_p), instead call default_conversion()
+          in the caller where necessary
+
+2004-11-25  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in: pascal.bindist, pascal.bindist-with-gcc: use
+          `$(DESTDIR)'; variables real_prefix, install_prefix:
+          removed; GPC_EXTRA_INSTALL_FLAGS_TO_PASS: new variable
+
+2004-11-23  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * types.c: build_pascal_packed_array_ref(), expressions.c:
+          build_modify_expr: new kludge to write to packed arrays
+          (abusing TREE_OPERAND (NON_LVALUE_EXPR, 1), but avoiding
+          decomposing a read access)
+
+2004-11-17  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.c: init_automake_temp_file(): pass
+          `-x Preprocessed-Pascal' to automake compilations as well
+
+2004-11-17  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h, gpc-lex.c, lang.c, module.c, declarations.c,
+          objects.c, expressions.c, parse.y: added support for
+          columns in locations (however, the preprocessor and the
+          backend don't support them yet, so it's not of immediate
+          use)
+
+2004-11-04  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * statements.c: assign_set(): avoid range check when
+          unnecessary; types.c: int_cst_lt_always: renamed to
+          const_lt
+
+2004-10-17  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * declarations.c, expressions.c, gpc.h, parse.y,
+          statements.c, typecheck.c types.c: implemented ISO
+          constructors (initializers), added support for packed
+          arrays and variant records.
+
+        * objects.c: use `size_zero_node' (correct type) to
+          initialize size field in vmt for abstract objects.
+
+2004-10-15  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * statements.c: check_reference_parameter: new parameter
+          `protected'; prepare_for_modification: renamed to
+          mark_lvalue, new parameter `modification', to better
+          handle `protected var' parameters
+
+2004-10-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * test/fjf77.pas, test/environo.pas, test/bill5.pas,
+          test/jj5.pas: made more portable (less `UNSUPPORTED'
+          messages)
+
+2004-09-30  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in, rts/Makefile.in, script/gpcdiff.exclude:
+          rts/rtsc.pas is now a generated file
+
+        * rts/make-library-interface: renamed to rts/make-gpc-pas
+          (because it's quite specific after all); rts/gpc-pas.in:
+          integrated into rts/make-gpc-pas, file removed
+
+        * rts/rts-c-to-pas: generate rts/rtsc.pas completely;
+          renamed to rts/make-rtsc-pas
+
+2004-09-19  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * doc/*/*.texi: s/example/smallexample/ to facilitate
+          `@smallbook' printing (the change has no effect on larger
+          paper sizes)
+
+2004-09-19  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * units/crt.pas, units/gmp.pas, units/intl.pas,
+          units/pipes.pas, units/regex.pas, demos/gpc_c_pas.pas,
+          demos/gpc_c_unit.pas, demos/c_gpc.pas,
+          doc/en/programming.texi: changed to use `CInteger' etc.
+
+        * predef.h: add `CInteger', `CWord', `CCardinal'; change
+          `Integer', `Word', `Cardinal' to use
+          pascal_integer_type_node and pascal_cardinal_type_node
+
+        * gpc.h: pascal_integer_type_node,
+          pascal_cardinal_type_node: new aliases
+
+2004-09-13  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * predef.c: do the direct-access file checks at compile
+          time; direct_access_warning(): new function;
+          rts/files.pas: remove the runtime direct-access file
+          checks; DirectWarn: function removed
+
+2004-09-12  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * rts/Makefile.in: adjusted
+
+        * rts/numtodec.pas: merged into rts/files.pas (where it was
+          only used as subroutines in the routines from file.c; was
+          separate only because of the different source languages);
+          file removed
+
+        * rts/rts.h: merged into rts/rts.c (the only place left
+          where it was used); file removed
+
+        * rts/filename.pas: renamed to rts/fname.pas (to avoid a
+          name conflict)
+
+        * script/file-c-to-pas: file removed (has done its job)
+
+        * rts/file.c: translated to Pascal and merged into
+          rts/files.pas; file removed
+
+2004-09-09  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * script/cvsupdate: file removed (buggy)
+
+2004-09-08  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * rts/rts-va.c: file removed
+
+        * predef.c: rts_read, rts_write: call individual reading and
+          writing routines directly, without going through the
+          varargs wrappers
+
+2004-07-10  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h, predef.c: build_predef_call(): RETADDR_BUG removed
+          (underlying problem on AIX seems to be fixed with recent
+          backend versions)
+
+2004-06-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h, types.c: pascal_type_variant():
+          TYPE_QUALIFIER_QUALIFIED removed (no idea what it was
+          supposed to mean)
+
+2004-05-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * units/gmp.pas: dropped support for gmp-2.x after finding
+          that gmptest.pas hits a serious memory management bug that
+          was fixed in gmp-3.x; units/gmpc.c: removed
+
+2004-05-11  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * declarations.c: declare_variables(): use CONST_DECL rather
+          than VAR_DECL for `absolute' variables: fixes a bug
+          (waldek8.pas) and saves some special cases elsewhere, so
+          it seems like a good thing; though these things are not
+          really constants, but if it ever becomes a problem, we
+          should probably rather used a new *_DECL node than
+          VAR_DECL again
+
+2004-05-07  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * rts/string.pas: renamed to string1.pas
+
+2004-05-07  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * statements.c: init_any(), rts/file.c: remove traces of
+          started, but never finished, implementation of packed
+          files (`packed' in general is rather deprecated, and
+          implementing it for files would introduce a number of new
+          problems which do not seem justified for any purpose
+          (since file formats are generally undefined, anyway) or
+          required by any standard or dialect, AFAIK)
+
+2004-04-27  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y, declarations.c: merge handling of parameters for
+          normal routines and procedural types to save a lot of
+          duplication and fix some bugs (fjf939*.pas)
+
+2004-04-27  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * declarations.c, expressions.c, gpc.h, parse.y: allow
+          empty parentheses to mean no parameters in routine
+          declarations and calls (Delphi compatibility)
+          (chief54*.pas, delphi6*.pas)
+
+2004-04-25  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * units/md5.pas: re-release under LGPL, deriving from the
+          LGPL C code in glibc
+
+2004-04-14  Maurice Lombardi  <Maurice.Lombardi@ujf-grenoble.fr>
+
+        * units/gmp.pas: mpf_sin, mpf_cos: new procedures; GetExp,
+          mpf_ln, mpf_arctan, mpf_pi: bug fixes and improvements
+
+2004-02-10  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * typecheck.c: mark_addressable2(): new function
+
+2004-02-04  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in, rts/init.pas:
+          `__GPC_RTS_VERSION_<YYYYMMDD>__' renamed to
+          `_p_GPC_RTS_VERSION_<YYYYMMDD>' (to be consistent with
+          other `_p_foo' identifiers)
+
+        * rts/file.c, rts/files.pas: initialize Input, Output and
+          StdErr at runtime to save space in the initialized data
+          section; rts/error.pas, rts/filename.pas, rts/getopt.pas:
+          likewise for initialized strings
+
+2003-11-20  Matthias Klose  <doko@cs.tu-berlin.de>
+
+        * Make-lang.in: support the newly patched backend files
+
+2003-11-16  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * diffs/gcc-3.3.2.diff: new file
+
+2003-11-10  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * all info files: s/@strong{Note:}/@strong{Please note:}/
+          because recent (CVS) versions of makeinfo tell us so
+          because `*Note:*' is said to be a spurious cross-reference
+          in Info (though this seems more like a bug in this
+          particular reader program, and not all info readers share
+          this problem, but unfortunately that's the "default" info
+          reader, distributed in the same package with makeinfo, so
+          they have the power to put this warning into makeinfo)
+
+2003-10-05  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y: avoid all assignments to $n which don't work with
+          GLR (and are dubious even in plain LALR grammars)
+
+2003-09-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-lex.c: include pascal-lex.c; old hand-coded lexer code
+          removed
+
+        * Make-lang.in: generate pascal-lex.c from pascal-lex.l
+          using flex; dependencies added
+
+        * pascal-lex.l: new file
+
+2003-07-29  Mirsad Todorovac  <mtodorov@alu.hr>
+
+        * script/check-test-name: new script
+
+2002-07-15  and following days
+                 Frank Heckenbach <frank@pascal.gnu.de>
+                 Mirsad Todorovac <mtodorov@alu.hr>
+                 Eike Lange <eike.lange@uni-essen.de>
+                 Peter N Lewis <peter@stairways.com.au>
+
+        Redid all essential changes to the documentation under the
+        GPL that were done since 2002-11-28, including:
+
+        * Make-lang.in: create and install COPYING.DEMO
+
+        * doc/en/copying-demo.texi: new file
+
+        * doc/en/programming.texi, doc/en/reference.texi: some
+          updates
+
+2003-07-15  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * ChangeLog: removed all entries relating to the (now
+          removed) documentation changes since 2002-11-28
+
+        * doc/*: replaced completely with the directory from
+          gpc-20021117, its documentation being released under the
+          GPL
+
+2003-07-15  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * ChangeLog: moved the old parts (before 2.1) to a separate
+          file (to be found in
+          http://gnu-pascal.de/old/ChangeLog.old) since so many
+          internals have changed and many of the entries were more
+          misleading than helpful, after I was informed that it is
+          permissible to do so
+
+2003-06-04  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-lex.c, parse.y: added location tracking, also keep
+          track of compiler directives, taking into account the
+          potentially different positions in the source code of the
+          lexer and parser due to read-ahead
+
+2003-05-18  Eike Lange  <eike.lange@uni-essen.de>
+
+        * rts/gpc.pas, units/gpcutil.pas, units/heapmon.pas,
+          units/intl.pas, units/pipe.pas, units/stringutils.pas: add
+          `attribute (ignorable)' where appropriate
+
+2003-05-11  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.c: synced with gcc-3.3
+
+2003-05-09  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-lex.c, parse.y: new token LEX_CARET_LETTER for letters
+          after `^', lex_caret flag removed, to make the lexer less
+          dependent on the parser
+
+2003-05-02  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y: removed `then_or_error' etc. (in case of error,
+          the parser would sometimes reduce `error' to these
+          nonterminals, discard them again (if it doesn't find a
+          matching context), reduce `error' again (and give the
+          message again) a number of times which was quite
+          misleading
+
+2003-04-25  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: renamed to declarations.c
+
+        * gpc-typeck.c: renamed to typecheck.c
+
+        * module.c: do export renaming while exporting, store the
+          current value of identifiers in the main list, not with
+          the identifiers; gpc.h: IDENTIFIER_IMPORT_VALUE: removed
+
+        * test: made sure all module names are not longer than 7
+          chars, so "8+3" file systems can handle
+          `modulename-all.gpi'
+
+        * module.c: start_module_interface (): new function: set up
+          an implicit `<module>-all' autoexport interface;
+          load_gpm_file: load this instead of using the gpm
+          mechanism, renamed to load_own_interface;
+          create_gpm_file(): removed
+
+        * gpc.h: IDENTIFIER_LABEL_VALUE: removed, gpc-decl.c:
+          label_level_chain: removed; labels are now handled like
+          other declarations; IDENTIFIER_GLOBAL_VALUE,
+          IDENTIFIER_LOCAL_VALUE: merged to IDENTIFIER_VALUE
+
+        * types.c, expressions.c, predef.c: use
+          new_string_by_model() or make_new_variable() instead of
+          alloca_string(); gpc-decl.c: alloca_string(): removed
+
+        * expressions.c: build_pascal_binary_op(): optimize union of
+          set constructors
+
+        * statements.c: new file, moved routines about statemtents
+          here (many from util.c), other routines from util.c moved
+          to files where they fit better; util.c: file removed
+
+2003-04-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * util.c: get_unique_identifier(): do *not* add leading
+          underscores because they could lead to conflicts with
+          (non-standard) Pascal identifiers, whereas the name
+          template should start with a lower-case letter to prevent
+          this
+
+        * util.c: pascal_expand_goto(): do not set
+          main_program_has_nonlocal_label (apparently used for
+          "normal" nonlocal gotos, not setjmp/longjmp implemented
+          ones like here) and main_program_needs_context (was always
+          0!?); start_main_program(): do not set
+          current_function_contains_functions (seems to be used in
+          the low-level meaning where it is not true for the Pascal
+          main program)
+
+        * objects.c: finish_object_type(): handle attributes and
+          explicit assembler names
+
+        * gpc.h: DECL_LANG_METHOD_DECL: new macro; objects.c:
+          finish_object_type(): store here the method definition to
+          the method field; call_method(): use this instead of
+          looking up the DECL_ASMNAME =:-<>
+
+        * gpc-decl.c: start_pascal_function(), start_function():
+          rearranged to start_routine() and start_implicit_routine()
+
+2003-04-12  Matthias Klose  <doko@cs.tu-berlin.de>
+
+        * Make-lang.in: support DESTDIR
+
+2003-04-10  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * predef.c: build the RTS function declarations from the
+          descriptions in predef.h, once in init_predef(), rather
+          than rebulding them at each call and deriving them
+          (partly) from the actual parameters
+
+        * gpc-typeck.c: comp_target_types(): accept new variable
+          any_file_type_node
+
+2003-04-09  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * predef.c, util.c: create all calls the RTS routines, con-
+          and destructors etc. as regular `build_function_call's
+          rather than via RTX
+
+2003-04-08  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y: allow LEX_CONST_EQUAL almost everywhere where '='
+          is accepted (except in the conflicting place, of course),
+          just to make it a little less critical
+
+        * module.c: load_node(): load FUNCTION_DECL nodes rather
+          than rebuilding them; this finally gets rid of rebuilding
+          any nodes, which again makes it possible to refer to nodes
+          early when they're very incomplete (because no backend
+          function can be called in the recursion that could take
+          offense); mark_node_loaded(): function removed; store and
+          load DECL_SIZE_UNIT for all decl nodes in gcc-3.x
+
+        * gpc-decl.c: grok_directive(), start_function(): avoid
+          grokdeclarator for routines, grok_directive renamed to
+          declare_routine; grokdeclarator(): function removed! :-)
+
+2003-04-07  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * config-lang.in: add gtfiles, define GCC_3_3 in gcc-version.h
+          for gcc-3.3
+
+        * expressions.c, gpc-decl.c: handle TImode (needed for alpha)
+
+        * gpc-decl.c: resolve confilcting prototype
+          for builtin_function
+
+        * gpc.h, gpc-decl.c, lang.c, module.c, predef.c: updated for
+          gcc-3.3 garbage collection: add GTY annotations. For gcc-3.3
+          call ggc_alloc for collectable allocations, do not register
+          roots.
+
+        * gpc-decl.c: change ereal_atof to REAL_VALUE_ATOF. Add dummy
+          language_function.
+
+        * gpc-lex.c: make yylval explicitly extern. Change permalloc to
+          xmalloc.
+
+        * gpc-typeck.c: add support for field tags and array indices in
+          structured initializers
+
+        * gpc.c: do not pass '-lang-c' to cc1
+
+        * gpcpp.c: recognize and ignore '-quiet'.
+
+        * lang.c: update to new tree code handling in gcc-3.3, changed to
+          work with 3.3 diagnostic routines, add new langhooks; copy
+          attribute handling from c-common.c
+
+        * module.c: Do not touch DECL_UID and TYPE_UID (let backend
+          handle them). For all types reset TREE_ASM_WRITTEN when writing
+          to gpi files. For gcc-3.3 allocate memory when loading REAL_CST.
+
+        * diffs/gcc-3.3.diff: new file
+
+2003-04-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-typeck.c: start_init(): removed incremental
+          constructors (suggested by Waldek Hebisch)
+
+        * gpc.h: TYPE_LANG_VMT_FIELD, TYPE_LANG_VMT_VAR: new fields
+          in struct lang_type for objects; store the VMT field and
+          variable there instead of as a named var declaration (for
+          the latter) and looking them up each time;
+          TYPE_LANG_OBJECT_NAME: removed
+
+        * gpc-common.c: renamed to expressions.c; some routines
+          moved to and from other files where they fit better
+
+2003-04-01  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: declare_vars(): avoid grokdeclarator for
+          variables; NEW_DECLARE_VARS branch removed (too incomplete
+          and broken, everything it was supposed to do is now done
+          by the updated "old" code), merged with declare_variables;
+          module.c: load_node(): load VAR_DECL nodes rather than
+          rebuilding them
+
+2003-03-31  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * diffs/gcc-2.95.diff: add some updates in tree.h and
+          dwarf2out.c (mostly copied from gcc-3.2.1) to support
+          dwarf with gcc-2.95.x (not successful, seems to require
+          more work, probably not worth it for gcc-2); lang.c: added
+          note
+
+        * config-lang.in: create gcc-2.95.3.diff, gcc-2.95.3-5.diff
+          and gcc-3.2.2.diff as symlinks (they were identical to
+          gcc-2.95.diff and gcc-3.2.1 diff except for some offsets
+          with `patch -s' will ignore); files removed
+
+2003-03-31  Peter N Lewis  <peter@stairways.com.au>
+
+        * gpc-common.c, gpc-decl.c, gpc-lex.c, gpc-options.h,
+          gpc-typeck.c, gpc.h, options.c, parse.y, predef.c,
+          predef.h, util.c: support MAC_PASCAL in dialect specific
+          features
+
+2003-03-30  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * test/berend1n.pas: changed from an interface-only module
+          to a "simple" module (the former never really worked, and
+          just failed to cause a compile-time failure, instead
+          producing undefined runtime behaviour; see notes there);
+          the same will apply to user code having interface-only
+          modules
+
+2003-03-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * utils/mk-t-inc: translate the GPI defines from gpi.h (now
+          module.c) to Pascal format (into tree.inc)
+
+        * gpi.h: contents moved (back) to module.c; file removed
+
+2003-03-26  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * all target files: check for `__GO32__' instead of `DJGPP'
+          or `__DJGPP__' (gcc-3 doesn't seem to define the latter
+          anymore, but relies on including <sys/version.h> which
+          doesn't happen in Pascal)
+
+2003-03-21  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * module.c: store and load parameters, do not rebuild them
+          (fixes another instance of the "prior parameter's size
+          depends on `Foo'" bug)
+
+2003-03-13  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * `all', `absolute', `abstract', `and_then', `as', `asm',
+          `asmname', `attribute', `bindable', `constructor',
+          `destructor', `export', `external', `far', `forward',
+          `implementation', `import', `inherited', `interface',
+          `is', `module', `near', `object', `operator', `or_else',
+          `otherwise', `pow', `private', `protected', `public',
+          `published', `qualified', `restricted', `shl', `shr',
+          `unit', `uses', `value', `virtual', `xor': turned to
+          "weak" keywords (only recognized if not used as
+          identifiers) or regular identifiers (where possible
+          without parser conflicts), avoiding the need to enable and
+          disable them explicitly; gpc-lex.c: en_disable_keyword():
+          removed
+
+        * `inline', `name', `register', `static', `volatile': turned
+          from directives (and conditional keywords) into attributes
+          (and regular identifiers)
+
+2003-03-05  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * module.c: do not transport DECL_UID and TYPE_UID through
+          GPI files (they lose uniqueness or even get out of range
+          then which breaks dwarf)
+
+2003-02-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * options.c: new file; code related to command-line options
+          and compiler directives from gpc-decl.c and gpc-lex.c
+          moved here
+
+        * gpc-lex.c: warn_about_keyword_redeclaration,
+          set_identifier_spelling: moved to util.c
+
+2003-02-23  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * predef.h: add keywords; gpc-lex.c: recognize keywords via
+          IDENTIFIER_BUILT_IN_VALUE rather than using gperf;
+          gpc.gperf (and generated hash.h): files removed
+
+2003-02-21  Adriaan van Os  <gpc@microbizz.nl>
+
+        * gpcpp.c: directive_table, gpc-lex.c:
+          process_pascal_directive(): support Mac Pascal directives
+          `definec', `macro', `undefc', `ifc', `ifoptc', `elsec',
+          `elifc', `endc', `errorc' (treated as equivalent to the
+          corresponding existing ones)
+
+2003-02-21  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * config-lang.in: remove the special warning for gcc-3.x
+
+2003-02-18  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: push_parm_decl(): avoid grokdeclarator for
+          parameters
+
+2003-02-15  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: avoid grokdeclarator for type definitions;
+          store forward types in current_type_list;
+          build_type_decl(): don't output type definitions until the
+          end of a `type' block when all forward types are resolved;
+          resolve_forward_pointers(): output type definitions,
+          function renamed to declare_types
+
+2003-02-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * types.c: maybe_schema_discriminant(): put the
+          pseudo-VAR_DECL below the CONVERT_EXPR in discriminant
+          placeholders, rather than a constant value, in order to
+          prevent the backend from folding
+
+2003-02-11  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * parse.y: make undiscriminated schemata and objects
+          separate cases in type_definition (saves a number of
+          conditional tests compared to merging it with the
+          type_denoter rules)
+
+        * parse.y, module.c, etc.: store type initializers in
+          TYPE_LANG_INITIAL rather than DECL_INITIAL (so they can be
+          obtained from a type, without references to their
+          declaration having to be passed around)
+
+2003-02-09  Russell Whitaker  <russ@ashlandhome.net>
+
+        * diffs/gcc-3.2.2.diff: new file
+
+2003-02-07  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h: new TYPE_LANG_CODEs
+          PASCAL_LANG_UNDISCRIMINATED_STRING,
+          PASCAL_LANG_PREDISCRIMINATED_STRING,
+          PASCAL_LANG_DISCRIMINATED_STRING,
+          PASCAL_LANG_UNDISCRIMINATED_SCHEMA,
+          PASCAL_LANG_PREDISCRIMINATED_SCHEMA,
+          PASCAL_LANG_DISCRIMINATED_SCHEMA to replace
+          PASCAL_LANG_STRING, PASCAL_LANG_SCHEMA and avoid the
+          fragile tests for prediscriminated schemata
+
+2003-02-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: init_decl_processing(): put error_mark_node in
+          read-only memory to detect some errors earlier. Since the
+          library calls used are not portable, this is only done if
+          PROTECT_ERROR_MARK_NODE is defined in gpc.h (currently
+          only on Linux where I can test it), and not with gcc-3.x
+          since it doesn't seem to work together with its GC
+
+2003-02-02  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * all files: flag_what_pascal renamed to pascal_dialect
+
+        * gpc-decl.c: grokfield(): avoid grokdeclarator for
+          structure fields, renamed to build_field; p_grokfields:
+          renamed to build_fields
+
+2003-01-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: struct binding_level: new field forward_decls;
+          grok_directive(), start_pascal_function(),
+          resolve_forward_decl() (new function): keep track of
+          forward declarations; check_forward_decls() (new
+          function): check for unresolved declarations (az32.pas,
+          fjf758*.pas)
+
+2003-01-28  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: obsolete usage of IDENTIFIER_LIMBO_VALUE
+          removed; gpc.h: IDENTIFIER_LIMBO_VALUE renamed to
+          IDENTIFIER_IMPORT_VALUE
+
+2003-01-17  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in, script/make-homepage: use `makeinfo --html'
+          instead of texi2html; script/get-href: integrated into
+          script/make-homepage
+
+        * Make-lang.in, script/mg, script/mkdjgppgpczip,
+          test/gettext2.cmp: prefix all relative directories in `cd'
+          commands with `./' to avoid the effects of a $CDPATH set
+
+        * Make-lang.in, utils/Makefile: build and install the
+          utilities during a normal GPC build, also their man pages
+          if help2man is available
+
+2003-01-10  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.c: synced with gcc-3.2.1's gcc.c
+
+        * diffs/gcc-3.1.1.diff: file removed (gcc-3.2.1 is
+          recommended instead now)
+
+        * gpc-lex.c: yylex(): keep track of the given spelling
+          (upper/lower case) of identifiers, optionally warn if it
+          differs; all files: use the given case for messages, RTS
+          file variable names, object names in VMTs
+
+        * gpc.h: struct lang_identifier: new fields spelling,
+          spelling_file, spelling_lineno
+
+2003-01-05  Matthias Klose  <doko@cs.tu-berlin.de>
+
+        * test/Makefile: log results to test_log and test_summary
+
+2003-01-04  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * script/testgpc, test/Makefile, test/test_run,
+          test/test_sum: support progress messages
+
+2003-01-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc.h: new macros EM, CHK_EM to simplify checks for
+          occurrences of error_mark_node
+
+2002-12-05  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-lex.c: check_if_predefined_type() removed (together
+          with the call from parse.y), seems to be completely
+          unnecessary
+
+        * gpc-decl.c: lookup_name(): look at
+          IDENTIFIER_BUILT_IN_VALUE, checking the dialect flags;
+          pascal_decode_option(): don't call declare_known_ids()
+          when dialect changes
+
+        * rtscall.c: declare_known_ids(): handle built-in types the
+          same way as other built-in names (added to KItable); new
+          macros to build KItable; install built-in names
+          independently of dialect settings; file renamed to
+          predef.c; KItable and rts table: merged, built using
+          macros, moved macros to predef.h (new file)
+
+        * parse.y: identifiers of built-in declarations (which
+          require no special syntax) moved to rtscall.c (thus
+          reducing the size of the generated file parse.c from ~600
+          to ~350 KB :-)
+
+        * gpc.lex.c: return LEX_BUILTIN_PROCEDURE,
+          LEX_BUILTIN_FUNCTION and LEX_BUILTIN_FUNCTION_VT for
+          built-in routines, so the parser doesn't have to know all
+          their names
+
+        * util.c: KItable etc.: moved to rtscall.c; set
+          IDENTIFIER_BUILT_IN_VALUE
+
+        * gpc.h: IDENTIFIER_BUILT_IN_VALUE: new access macro (and
+          corresponding field in struct lang_identifier)
+
+2002-12-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-lex.c: en_disable_keyword(): use a counter to allow
+          for nested settings, keyword_enabled(): removed; parse.y:
+          always do keyword enabling and disabling paired, don't
+          need to store the previous value via keyword_enabled()
+
+2002-11-25  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * lang-specs.h: dropped the predefined dialect symbols
+          `__CLASSIC_PASCAL__', `__STANDARD_PASCAL__',
+          `__EXTENDED_PASCAL__', `__OBJECT_PASCAL__',
+          `__UCSD_PASCAL__', `__BORLAND_PASCAL__', `__DELPHI__',
+          `__PASCAL_SC__' and `__GNU_PASCAL__'; test/dialdef*.pas:
+          adjusted
+
+2002-11-25  Prof. Abimbola A. Olowofoyeku  <chiefsoft@bigfoot.com>
+2002-11-25  Russell Whitaker  <russ@ashlandhome.net>
+
+        * diffs/gcc-3.2.1.diff: new file
+
+2002-11-17  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+        * lang.c, parse.y: call pascal_init() immediately before
+          starting to parse, when the backend has been initialized
+          (problem with coff debug info)
+
+        * gpc-decl.c, gpc-typeck.c, module.c, objects.c: put object
+          methods in TYPE_METHODS rather than TYPE_FIELDS, to avoid
+          confusing the backend (problem with stabs debug info)
+
+2002-11-16  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * test/knownbugs: all files marked with `BUG' and moved to
+          test/todo; directory removed
+
+2002-11-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * config-lang.in: create a dummy Makefile.in if needed
+          (can't always be avoided, it seems)-: ...
+
+        * diffs/gcc-2.*.diff: patch the gcc configure to check if
+          <language>/Makefile.in exists before trying to use it
+          (code taken from the configure of gcc-3.1.1); similarly
+          for configure.lang
+
+        * Makefile.in: merged with Make-lang.in; file removed
+
+        * pexp.y: turned into a RD parser, integrated into gpcpp.c;
+          file removed
+
+2002-11-08  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in: renamed docdir to p_inst_docdir etc. to
+          avoid conflicts with a variable in gcc-3.1.1's
+          Makefile.in, including renaming DOC_DIR to P_DOC_DIR
+          (which is a user-overridable variable)
+
+2002-11-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * *.[chy]: fixed a lot of issues uncovered by the stricter
+          warnings when compiling with gcc-3.1.1 and gcc-2.95 with
+          `--enable-checking' (mostly consisting of invalid uses of
+          error_mark_node) and by gcc-3.2
+
+2002-11-01  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * script/gnumsg2spc: new script
+
+        * objects.c: check_object_pointer(): removed (also call from
+          parse.y). What was is useful for, anyway?
+
+2002-10-26  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in, Makefile.in: do the GCC version dependent
+          settings at make time, based on some GCC Makefile
+          variables with some tricks; config-lang.in: don't patch
+          Make-lang.in and Makefile.in anymore. Together with the
+          previous change below, this makes it possible to use the
+          same GPC source tree for building with several GCC
+          versions at the same time.
+
+        * Make-lang.in, Makefile.in, utils/Makefile, script/mkgpc,
+          script/cvsupdate: get rid of all occurrences of `..' that
+          go from the `p' to the `gcc' source directory. This makes
+          it possible to keep the GPC source tree as a symlink in
+          the GCC source tree.
+
+        * Make-lang.in: put the version number in gpc-run when
+          installing; build manpage using help2man
+
+2002-10-12  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * ChangeLog: changed the date to ISO YYYY-MM-DD format
+
+        * gpc.c: synced mostly with gcc-3.2's gcc.c
+
+        * parse.y, gpc.gperf: turned `published' from a keyword into
+          a regular identifier. With some parser tricks, we might be
+          able to do this with more directives, avoiding their
+          en-/disabling.
+
+        * script/make-acconfig-h.m4, script/make-library-interface:
+          moved to rts/ to make the RTS more self-contained
+
+2002-10-07  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+                 Frank Heckenbach <frank@pascal.gnu.de>
+
+        * gbe.h, gpc-decl.c, gpc.h, gpc-tree.h, gpc-typeck.c,
+          lang.c, Makefile.in, Make-lang.in, module.c, rtscall.c,
+          types.c: preparations for compiling with gcc-3.1.1;
+          p-tree.def: new file
+
+          - make internal calculations and generated code more
+            type-correct: introduce byte_integer_type distinct form
+            char_type, size calculatons use proper types
+
+          - size calculations do not modify constants, but generate
+            new ones
+
+          - tree access macros from 3.1 (gpc.h contains definitions
+            for 2.95.3)
+
+          - add new tree codes: p-tree.def; tree codes are added in
+            officially-approved way, the addition does not modify
+            any gcc sources, only a generated file (tree-checks.h)
+            is different (the C compiler binary will be the same)
+
+2002-10-05  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-typeck.c: build_modify_expr(): accept MODIFYCODE ==
+          INIT_EXPR for assignments in automatic initializations
+          (discriminants, VMTs, ...); otherwise check more strictly
+
+2002-10-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * Make-lang.in, Makefile.in: remove dependency on and
+          linking of c-aux-info.c, c-iterate.c and c-pragma.c (all
+          unused)
+
+        * util.c: prepare_for_modification(): new function;
+          typed_const_warning(), gpc-typeck.c: readonly_warning():
+          integrated into prepare_for_modification()
+
+        * *.[chy]: s/NULL_PTR/NULL/g; removed `register'; added many
+          `const's to `char *'
+
+        * gpc.c: removed GPC1_SPEC (`%3'), seems to be unused
+
+2002-09-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-decl.c: finish_struct(): align files, objects,
+          strings and the types `TimeStamp' and `BindingType' even
+          in packed records on systems with strict alignment
+          requirements (chief38.pas)
+
+2002-09-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * pexp.y: new file, derived from ../cexp.y; removed C-ish
+          features in conditional expressions: string and char
+          constants (as integers), `L' and `U' number suffixes, `0'
+          octal and `0x' hexadecimal integers, `,', `?:', `&', `|',
+          `^', `~' operators (`&&' etc. are still supported, so some
+          "common" conditional expressions can still be shared
+          between Pascal and C)
+
+        * gpc-common.c: removed `attribute (constructor)',
+          `attribute (destructor)' (Pascal has regular syntactic
+          means for defining those), `attribute (volatile)' and
+          `attribute (transparent_union)'
+
+        * Makefile.in: adjusted to the header changes and simplified
+
+        * lang.h, util.h, types.h, objects.h, rtscall.h, module.h,
+          gpc-tree.h: contents moved to gpc-defs.h (they were quite
+          mixed up and most C files included most of the headers,
+          anyway); files removed; gpc-defs.h: renamed to gpc.h
+
+        * lang-specs.h, module.c: adjusted to gpcpp changes
+
+        * gpcpp.c: removed many obsolete or C-only features,
+          including the default include directories
+          (STANDARD_INCLUDE_DIR, LOCAL_INCLUDE_DIR,
+          SYSTEM_INCLUDE_DIR, TOOL_INCLUDE_DIR, CROSS_INCLUDE_DIR,
+          GCC_INCLUDE_DIR) which are meant only for C headers, the
+          options `-dM', `-dN', `-dD', `-g3', `-H', `-ifoutput',
+          `-imacros', `-lang-asm', `-lang-c', `-lang-c89',
+          `-lang-c++', `-lang-objc', `-lang-objc++', `-lang-pascal'
+          (always on now), `-lint', `-nocharescape', `-noprecomp',
+          `-nostdinc', `-pcp', `-traditional', `-trigraphs',
+          `-A...', `-u...', `-$', `-+', `-C', `-Zomf',
+          `-Zc++-comments', `-ZC++-comments' and all `-M...' options
+          except for plain `-M' (whose output format was changed),
+          the directives `#sccs', `#ident', `#pragma', `#import',
+          `#assert', `#unassert' (also in the `{$...}' form), the
+          predefined macros `__PTRDIFF_TYPE__', `__SIZE_TYPE__',
+          `__WCHAR_TYPE__', `__REGISTER_PREFIX__',
+          `__USER_LABEL_PREFIX__', `__IMMEDIATE_PREFIX__',
+          `__STDC__', `__STDC_VERSION__', the usage of the
+          environment variables `CPATH', `C_INCLUDE_PATH',
+          `DEPENDENCIES_OUTPUT' and `SUNPRO_DEPENDENCIES', the file
+          name mapping with `header.gcc', the setting of
+          INCLUDE_DEFAULTS in the target config file (which is
+          mostly relevant for C/C++) as well as the VMS file name
+          handling (thereby reducing its size from 364 to 199 KB :-)
+
+        * gpc.c: hack_predefines(): moved this hack to gpcpp.c;
+          function removed
+
+2002-09-27  Marten Jan de Ruiter  <m.j.deruiter@wbmt.tudelft.nl>
+
+        * module.c: gpi_open(): mark a file as `#up to date' after
+          recompilation; check for `#up to date' before tentatively
+          opening an imported GPI file
+
+2002-09-26  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * test/future: directory renamed to todo
+
+2002-09-24  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * config-lang.in: symlink the diffs for gcc-2.95.3-8
+
+2002-09-15  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-defs.h: PASCAL_LANG_NON_TEXT_FILE,
+          PASCAL_LANG_TEXT_FILE: new TYPE_LANG_CODEs with new access
+          macros; TYPE_FILE_TEXT: removed; callers changed, all uses
+          of FILE_TYPE, size_of_file_type, size_unit_of_file_type
+          removed
+
+2002-09-04  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * gpc-common.c: build_pascal_binary_op(): handle comparisons
+          between signed and unsigned integers specially because
+          otherwise the backend gets them wrong (i.e., like in C)
+          (eike2.pas, fjf664.pas)
+
+2002-07-07  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * units/tfdd.pas, demos/tfdddemo.pas: new files
+
+2002-07-03  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * script/gpc-run: new options `-e FILE' and `-E FILE'
+
+2002-05-14  Frank Heckenbach  <frank@pascal.gnu.de>
+
+        * script/dvi-reorder: file removed
+
+        * Make-lang.in: gpc.dvi, gpc.pdf: don't call dvi-reorder;
+          add `-t @afourpaper' (for now, until this is possible via
+          a configure option or something); use `$(STAMP)' instead
+          of `touch'
+
+        * doc/*/gpc.texi: moved `@summarycontents' and `@contents'
+          to the right place; remove `@afourpaper'
+
+        * *.[chy]: replaced calls of bcmp, bcopy, bzero, index and
+          rindex by memcmp etc.; s/! /!/g; s/~ /~/g; insert ` '
+          after type casts

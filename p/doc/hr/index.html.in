@@ -1,0 +1,106 @@
+<table align=left><tr><td>
+<a href="h-resources.html#Drawing"><img src="../images/GnuPascal-small.png" alt="[Gnu i Blaise Pascal]" width=123 height=99></a>
+</td></tr></table>
+
+<div align=center>
+<h1>GNU Pascal</h1>
+<p><em>Dobrodo¹li na WWW home site GNU Pascala,<br>
+slobodnog 32/64-bitnog Pascal prevodioca (compilera)!</em></p>
+<p>Copyright &copy; 1987-2006
+<a href="http://www.gnu.org">Free Software Foundation</a>, Inc.</p>
+</div><br clear="all">
+
+<p>GNU Pascal je <a href="http://www.gnu.org/philosophy/free-sw.html">Free Software</a>
+(<a href="http://www.opensource.org">Open-Source Software</a>).
+Dobrodo¹li ste da ga redistribuirate i/ili modificirate pod uvjetima
+GNU General Public License - GNU opæe javne licence;
+vidi <a href="h-gnu.html"><em>GNU</em></a> za vi¹e detalja.</p>
+
+<h2>Sadr¾aj</h2>
+
+<ul>
+
+<li><strong><a name="about_toc" href="h-about.html">O GNU Pascalu</a></strong>
+<ul>
+  <li><a href="h-about.html#about">©to je GNU Pascal?</a>
+  <li><a href="h-about.html#lang">Jezièni standardi podr¾ani od GNU Pascala</a>
+  <li><a href="h-about.html#pro">Prednosti</a> i
+      <a href="h-about.html#contra">nedostaci</a>
+</ul>
+
+<li><strong><a name="news_toc" href="h-news.html">Novosti u GNU Pascalu</a></strong>
+<ul>
+  <li>©to je novo od zadnjeg izdanja?
+</ul>
+
+<li><strong><a name="download_toc" href="h-install.html">Gdje ga nabaviti</a></strong>
+<ul>
+  <li><a href="http://www.gnu-pascal.de/current/">Skinite GNU Pascal s na¹eg <em>http</em> servera!</a>
+  <li>O <a href="h-install.html#DJGPP">DJGPP-u</a>
+      i <a href="h-install.html#EMX">EMX-u</a>
+  <li><a name="libraries_toc" href="h-libraries.html">Biblioteke (libraries) koje mo¾ete koristiti s GPC-om</a>
+</ul>
+
+<li><strong><a name="support_toc" href="h-support.html">Kako do podr¹ke?</a></strong>
+<ul>
+  <li><em>GPC priruènik</em>
+    <ul>
+      <li>HTML formatu za online pregledavanje: <a href="../gpc-hr/index.html#Top">hrvatski</a>, <a href="../gpc/index.html#Top">engleski</a>, <a href="../gpc-es/index.html#Top">¹panjolski</a>
+      <li>tar.bz2 arhiva HTML stranica: <a href="../gpc-hr-html.tar.bz2">hrvatski</a>, <a href="../gpc-html.tar.bz2">engleski</a>, <a href="../gpc-es-html.tar.bz2">¹panjolski</a>
+      <li><a href="../gpc.pdf">PDF format (engleski)</a>
+      <li><a href="../gpc.ps.bz2">PostScript format (bzip2) (engleski)</a>
+          za ispis na ¹tampaè
+      <li><a href="../gpc.dvi.bz2">DVI format (bzip2) (engleski)</a>
+          (zahtijeva
+          <a href="../images/GnuPascal.eps">EPS datoteku GNU Pascal crte¾a</a>)
+    </ul>
+  <li>GNU Pascal standardi kodiranja: <a href="../h-gpcs-hr.html">hrvatski</a>, <a href="../h-gpcs-en.html">engleski</a>, <a href="../h-gpcs-de.html">njemaèki</a>, <a href="../h-gpcs-es.html">¹panjolski</a>
+  <li>Email i NewsGroup (USENET) podr¹ka
+  <li>GNU Service Directory
+</ul>
+
+<li><strong><a name="team_toc" href="h-team.html">GNU Pascal razvojni tim</a></strong>
+<ul>
+  <li>Tko su ti deèki (i cure, pardon) iza GNU Pascala?
+</ul>
+
+<li><strong><a name="gnu_toc" href="h-gnu.html">GNU projekt</a></strong>
+<ul>
+  <li>©to je Free Software?
+  <li>Va¹a prava i odgovornosti kod kori¹tenja, distribuiranja i modificiranja
+      GNU Pascala
+  <li>©to je GNU? - GNU is Not Unix!
+</ul>
+
+<li><strong><a name="todo_toc" href="h-todo.html">Stvari preostale za napraviti za GNU Pascal</a></strong>
+<ul>
+  <li>GNU Pascal To-Do ("za napraviti") lista
+  <li>Poznati bugovi
+  <li>Planirana svojstva, znaèajke, pogodnosti
+</ul>
+
+<li><strong><a name="resources_toc" href="h-resources.html">Resursi</a></strong>
+<ul>
+  <li><a href="h-resources.html#PENG">PENG</a> - Frank Heckenbachova
+      integrirana razvojna okolina (IDE) pogodna za pisanje i pisana u GNU
+      Pascalu, koja radi na svim platformama podr¾anim od GNU Pascala
+  <li><a href="h-resources.html#RHIDE">RHIDE</a> - Robert H&ouml;hneova
+      integrirana razvojna okolina (Robert H&ouml;hne's integrated
+      development environment) za GNU Pascal koja radi pod DOS-om (DJGPP)
+      i Linuxom
+  <li><a href="h-resources.html#GRX">GRX</a> - BP prete¾no kompatibilna
+      &quot;Graph&quot; jedinica (unit) za GNU Pascal
+  <li>Razlièiti programi, jedinice (units) i drugi resursi za GNU Pascal
+</ul>
+
+</ul>
+
+<hr>
+
+<p>Svi za¹titni znakovi kori¹teni na ovim WWW stranicama su vlasni¹tvo
+   njihovih pravnih nositelja.</p>
+
+<p>Crte¾: Copyright &copy; 1996 by Markus Gerwinski,<br>
+<a href="mailto:markus@gerwinski.de"><em>markus@gerwinski.de</em></a><br>
+Kolor gradijent: Copyright &copy; 1996, 2000, 2002 by
+Peter Gerwinski, Frank Heckenbach</p>

@@ -1,0 +1,194 @@
+#!/bin/sh
+
+# High level wrapper for cfgpc, mkgpc, etc.
+#
+# Copyright (C) 1998-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+scriptdir="$(cd "`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`"; pwd)"
+
+if [ x"$GPC_DEFAULT_PREFIX" = x ]; then
+  echo "GPC_DEFAULT_PREFIX must be set" >&2
+  exit 1
+fi
+
+if [ x"$GPC_SRCDIR" = x ]; then
+  echo "GPC_SRCDIR must be set" >&2
+  exit 1
+fi
+
+dose=i386-pc-msdosdjgpp
+if [ -e "$GPC_SRCDIR/gcc/p/gpc.c" ]; then
+  srcdir="$GPC_SRCDIR/gcc/p"
+  gccsubdir="./gcc"
+elif [ -e "$GPC_SRCDIR/p/gpc.c" ]; then
+  srcdir="$GPC_SRCDIR/p"
+  gccsubdir="."
+  dose=i386-pc-go32
+else
+  echo "Invalid GPC_SRCDIR" >&2
+  exit 1
+fi
+
+DJGPP_NO_OUT=""; export DJGPP_NO_OUT
+
+case "`gcc -v 2>&1 | tail -1`" in
+  gcc\ version\ 2\.8\.1) ;;
+  gcc\ version\ 2\.95*) ;;
+  gcc\ version\ 3*) ;;
+  *) echo "Better use GCC 2.8.1, 2.95.x or 3.x" >&2
+     exit 1
+esac
+
+silent=""
+if [ x"$1" = x"-s" ]; then
+  silent=y
+  shift
+fi
+export silent
+
+cmd="$1"
+if [ x"$cmd" != x"c" -a x"$cmd" != x"m" -a x"$cmd" != x"b" -a x"$cmd" != x"d" ]; then
+  echo "Usage: `basename "$0"` [-s] [c|m|b|d] ConfID[-ConfID] [...]
+  -s: silent
+  c: configure
+  m: make
+  b: make and make bindist
+  d: delete" >&2
+  exit 1
+fi
+
+if [ x"$GPC_BINDIR" = x -o ! -d "$GPC_BINDIR" ]; then
+  echo "GPC_BINDIR must be set (directories conf-host-target will be made below \$GPC_BINDIR)" >&2
+  exit 1
+fi
+
+if [ x"$2" = x ]; then
+  echo "Missing ConfID" >&2
+  exit 1
+fi
+
+while [ x"$2" != x ]; do
+  a="`echo "$2" | sed -e 's/^\([^-]*\)-.*$/\1/'`"
+  if [ x"$a" != x"$2" ]; then
+    e="`echo "$2" | sed -e 's/^.*-\([^-]*\)$/\1/'`"
+  else
+    e="$a"
+  fi
+  if echo "$a$e" | grep '[^0-9]' > /dev/null; then
+    echo "ConfIDs must be numeric" >&2
+    exit 1
+  fi
+  while [ "$a" -le "$e" ]; do
+    eval c=\"\$MG_CONF"$a"\"
+    if [ x"$c" = x ]; then echo "MG_CONF$a not set (host:target[:install-dir[:prefix[:libgcc1-compiler|libgcc1-path[:MakeFlags[:CFlags[:rts/config.cache]]]]]])" >&2; exit 1; fi
+           ah="`echo $c | cut -d : -f 1`"
+           at="`echo $c | cut -d : -f 2`"
+      instdir="`echo $c | cut -d : -f 3`"
+       prefix="`echo $c | cut -d : -f 4`"
+      libgcc1="`echo $c | cut -d : -f 5`"
+    makeflags="`echo $c | cut -d : -f 6`"
+       cflags="`echo $c | cut -d : -f 7`"
+    rtsccache="`echo $c | cut -d : -f 8`"
+    eval ch=\"\$MG_ALIAS_"$ah"\"
+    if [ x"$ch" = x ]; then echo "MG_ALIAS_$ah not set (full-machine-description for $ah)" >&2; exit 1; fi
+    eval ct=\"\$MG_ALIAS_"$at"\"
+    if [ x"$ct" = x ]; then echo "MG_ALIAS_$at not set (full-machine-description for $at)" >&2; exit 1; fi
+    if [ x"$ch" = x"$dose" ]; then
+      target_alias="$at"
+      exeext=.exe
+      mode=""
+    else
+      target_alias=""
+      exeext=""
+      mode=X
+    fi
+    dir="$GPC_BINDIR/$a-$ah-$at"
+    if [ x"$cmd" = x"d" ]; then
+      rm -rf "$dir"
+    elif [ x"$cmd" = x"c" ]; then
+      if [ ! -d "$dir" ]; then mkdir "$dir" || exit 1; fi
+      cd "$dir" || exit 1
+      cfgpc "$ct" "$ch" $target_alias "$prefix" || exit 1
+      if [ x"$rtsccache" != x ]; then
+        if [ -d p ]; then
+          rtsdir=p/rts
+        else
+          rtsdir=gcc/p/rts
+        fi
+        mkdir "$rtsdir" || exit 1
+        cp "$rtsccache" "$rtsdir/config.cache" || exit 1
+      fi
+    else
+      if [ x"$silent" = x ]; then echo "Making $ah-$at."; fi
+      if [ x"$cmd" = x"b" ]; then
+        bindist=-b
+      else
+        bindist=""
+      fi
+      if [ ! -d "$dir" ]; then mkdir "$dir" || exit 1; fi
+      cd "$dir" || exit 1
+      if [ x"$libgcc1" != x ]; then
+        if [ "`echo "$libgcc1" | sed -e 's/[0-9]*/0/'`" = 0 ]; then
+          "$scriptdir/`basename "$0"`" -s m "$libgcc1" || exit 1
+          eval c=\"\$MG_CONF"$libgcc1"\"
+          lah="`echo $c | cut -d : -f 1`"
+          lat="`echo $c | cut -d : -f 2`"
+          cp -pf "$GPC_BINDIR/$libgcc1-$lah-$lat/libgcc1.a" . || exit 1
+        elif [ -e "$libgcc1" ]; then
+          cp -pf "$libgcc1" libgcc1.a || exit 1
+        else
+          echo "libgcc1.a ($libgcc1) not found." >&2
+          exit 1
+        fi
+      fi
+      mkgpc $bindist "$makeflags" "$cflags" || exit 1
+      if [ x"$instdir" != x ]; then
+        (cd "$gccsubdir" && make -s $makeflags "libsubdir=$instdir" "docdir=$instdir/doc" pascal.install-units pascal.install-doc $MG_MAKEFLAGS) || exit 1
+        cp -pf "xgpc$exeext" "gpc$exeext" || exit 1
+        f="gpc$exeext gpc1$exeext gpcpp$exeext p/utils/binobj$exeext p/utils/gpidump$exeext libgpc.a"
+        chmod "u=rw$mode,go=r$mode" $f || exit 1
+        chmod u=rwx,go=rx "$instdir"/{doc,units} || exit 1
+        cp -pf $f "$instdir" || exit 1
+      fi
+    fi
+    a=$[a+1]
+  done
+  shift
+done

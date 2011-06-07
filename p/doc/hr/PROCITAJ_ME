@@ -1,0 +1,11 @@
+
+Provjeri da li su 'nasa' slova uzrok da se `makeinfo' blesira na authors.texi
+- provjerio i na engleskim originalima ispada dobro !??!?
+
+(Ustanovljeno kao bug u makeinfo-programu, ispravljeno u Texinfo-4.1(?))
+
+(2002/01/02)
+
+Ne, razlog je bio u tome sto sam pokupio '^M' <CR><LF> sekvencu kod
+premjestanja s DOS-a (Windowsa) ... :-P ... Makeinfo se definitivno blesira
+na <CR><LF> sekvenci kod @table @asis

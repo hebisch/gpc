@@ -1,0 +1,8 @@
+#!/bin/sh
+rm -f "$A_OUT"
+if echo "program foo; const OK='OK'; Failed='failed'; {"'$'"define OK Failed} begin WriteLn (OK) end." | $PC_WITHOUT_GP -o "$A_OUT" -Wall -Werror -x Preprocessed-Pascal - \
+     && [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

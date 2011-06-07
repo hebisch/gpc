@@ -1,0 +1,57 @@
+#!/bin/sh
+
+# Convert crt.inc to a C header. This is not a general-purpose
+# Pascal to C translator.
+#
+# Copyright (C) 1998-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+if [ $# != 2 ]; then
+  echo "Usage: `basename "$0"` crt-inc-file-name output-file-name" >&2
+  exit 1
+fi
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/find-sed`" || exit 1
+
+{
+  echo "/* Generated automatically from `echo "$1" | "$sed" -e 's,.*/,,'`" &&
+  echo '   DO NOT CHANGE THIS FILE MANUALLY! */' &&
+  echo '' &&
+  # NOTE: The `#*' should be `#\?', but not all `sed's understand `\?'.
+  #       Since several `#' in a row don't occur, this seems safe.
+  "$sed" -e '
+    1,/^const/d;
+    s/^ *\([^=]*\)= *#*\([^;]*\);.*$/#define \1 \2/;
+    /^{\$/{
+      s//#/
+      s/}//
+      s/and/\&\&/g
+      s/or/||/g
+      s/not */!/g
+      s/=/==/g
+      s/<>/!=/g
+      s/False/0/g
+      s/True/1/g
+    }
+  ' < "$1";
+} > "$2" || { rm -f "$2"; exit 1; }

@@ -1,0 +1,1651 @@
+diff -rc ../gcc-4.0.2.orig/gcc/dbxout.c gcc/dbxout.c
+*** ../gcc-4.0.2.orig/gcc/dbxout.c	Sat Sep 10 23:11:30 2005
+--- gcc/dbxout.c	Tue Mar 21 01:50:59 2006
+***************
+*** 1907,1913 ****
+  	  have_used_extensions = 1;
+  	  stabstr_S ("@s");
+  	  stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  stabstr_S (";-20;");
+  	}
+        else
+  	{
+--- 1907,1913 ----
+  	  have_used_extensions = 1;
+  	  stabstr_S ("@s");
+  	  stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  stabstr_S (";-20");
+  	}
+        else
+  	{
+***************
+*** 1925,1931 ****
+  	  have_used_extensions = 1;
+  	  stabstr_S ("@s");
+  	  stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  stabstr_S (";-16;");
+  	}
+        else /* Define as enumeral type (False, True) */
+  	stabstr_S ("eFalse:0,True:1,;");
+--- 1925,1931 ----
+  	  have_used_extensions = 1;
+  	  stabstr_S ("@s");
+  	  stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
+! 	  stabstr_S (";-16");
+  	}
+        else /* Define as enumeral type (False, True) */
+  	stabstr_S ("eFalse:0,True:1,;");
+***************
+*** 1969,1974 ****
+--- 1969,1991 ----
+  	}
+        break;
+  
++     case SET_TYPE:
++       if (use_gnu_debug_info_extensions)
++ 	{
++ 	  have_used_extensions = 1;
++ 	  stabstr_S ("@s");
++           stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
++           stabstr_C (';');
++ 
++ 	  /* Check if a bitstring type, which in Chill is
++ 	     different from a [power]set.  */
++ 	  if (TYPE_STRING_FLAG (type))
++ 	    stabstr_S ("@S;");
++ 	}
++       stabstr_C ('S');
++       dbxout_type (TYPE_DOMAIN (type), 0);
++       break;
++ 
+      case ARRAY_TYPE:
+        /* Make arrays of packed bits look like bitstrings for chill.  */
+        if (TYPE_PACKED (type) && use_gnu_debug_info_extensions)
+Only in gcc: dbxout.c~
+diff -rc ../gcc-4.0.2.orig/gcc/dwarf2out.c gcc/dwarf2out.c
+*** ../gcc-4.0.2.orig/gcc/dwarf2out.c	Thu Sep  1 16:04:38 2005
+--- gcc/dwarf2out.c	Tue Nov 22 04:46:44 2005
+***************
+*** 8060,8065 ****
+--- 8060,8066 ----
+      case OFFSET_TYPE:
+      case LANG_TYPE:
+      case VECTOR_TYPE:
++     case SET_TYPE:
+        return 0;
+  
+      default:
+***************
+*** 8849,8857 ****
+  {
+    dw_loc_descr_ref ret, ret1;
+    int have_address = 0;
+!   int unsignedp = TYPE_UNSIGNED (TREE_TYPE (loc));
+    enum dwarf_location_atom op;
+  
+    /* ??? Most of the time we do not take proper care for sign/zero
+       extending the values properly.  Hopefully this won't be a real
+       problem...  */
+--- 8850,8861 ----
+  {
+    dw_loc_descr_ref ret, ret1;
+    int have_address = 0;
+!   int unsignedp /* = TYPE_UNSIGNED (TREE_TYPE (loc)) */;
+    enum dwarf_location_atom op;
+  
++   gcc_assert (TREE_TYPE (loc));
++   unsignedp = TYPE_UNSIGNED (TREE_TYPE (loc));
++ 
+    /* ??? Most of the time we do not take proper care for sign/zero
+       extending the values properly.  Hopefully this won't be a real
+       problem...  */
+***************
+*** 9225,9230 ****
+--- 9229,9247 ----
+        }
+        break;
+  
++ #ifdef GPC
++     case REAL_CST:
++     case FLOAT_EXPR:
++     case RDIV_EXPR:
++     case STRING_CST:
++       /* In Pascal it's possible for array bounds to contain floating point
++          expressions (e.g., p/test/emil11c.pas). I don't know if it's
++          possible to represent them in dwarf2, but it doesn't seem terribly
++          important since this occurs quite rarely. -- Frank */
++       return 0;
++ #endif
++ 
++ 
+      case FIX_TRUNC_EXPR:
+      case FIX_CEIL_EXPR:
+      case FIX_FLOOR_EXPR:
+***************
+*** 10891,10896 ****
+--- 10908,10923 ----
+    add_type_attribute (array_die, element_type, 0, 0, context_die);
+  }
+  
++ static void
++ gen_set_type_die (tree type, dw_die_ref context_die)
++ {
++   dw_die_ref type_die
++     = new_die (DW_TAG_set_type, scope_die_for (type, context_die), type);
++ 
++   equate_type_number_to_die (type, type_die);
++   add_type_attribute (type_die, TREE_TYPE (type), 0, 0, context_die);
++ }
++ 
+  #if 0
+  static void
+  gen_entry_point_die (tree decl, dw_die_ref context_die)
+***************
+*** 12193,12198 ****
+--- 12220,12230 ----
+        gen_ptr_to_mbr_type_die (type, context_die);
+        break;
+  
++     case SET_TYPE:
++       gen_type_die (TYPE_DOMAIN (type), context_die);
++       gen_set_type_die (type, context_die);
++       break;
++ 
+      case FILE_TYPE:
+        gen_type_die (TREE_TYPE (type), context_die);
+        /* No way to represent these in Dwarf yet!  */
+Only in gcc: dwarf2out.c.orig
+diff -rc ../gcc-4.0.2.orig/gcc/expr.c gcc/expr.c
+*** ../gcc-4.0.2.orig/gcc/expr.c	Sat Sep 10 03:03:28 2005
+--- gcc/expr.c	Wed Mar  8 01:50:51 2006
+***************
+*** 4493,4498 ****
+--- 4493,4502 ----
+      case REFERENCE_TYPE:
+        return 1;
+  
++     case SET_TYPE:
++       /* @@@@@@ return something more accurate ... */
++       return -1;
++ 
+      case VOID_TYPE:
+      case METHOD_TYPE:
+      case FILE_TYPE:
+***************
+*** 4514,4519 ****
+--- 4518,4527 ----
+        HOST_WIDE_INT nz_elts, nc_elts, count, elts;
+        bool must_clear;
+  
++       if (TREE_TYPE (exp) && TREE_CODE (TREE_TYPE (exp)) == SET_TYPE)
++       /* If there are no ranges of true bits, it is all zero.  */
++         return CONSTRUCTOR_ELTS (exp) == NULL_TREE;
++ 
+        categorize_ctor_elements (exp, &nz_elts, &nc_elts, &count, &must_clear);
+        if (must_clear)
+  	return 1;
+***************
+*** 5135,5140 ****
+--- 5143,5371 ----
+  		      gen_rtx_PARALLEL (GET_MODE (target), vector)));
+  	break;
+        }
++ 
++     case SET_TYPE:
++     {
++       tree elt = CONSTRUCTOR_ELTS (exp);
++       unsigned HOST_WIDE_INT nbytes = int_size_in_bytes (type), nbits;
++       tree domain = TYPE_DOMAIN (type);
++       tree domain_min, domain_max, bitlength;
++ 
++       /* The default implementation strategy is to extract the constant
++          parts of the constructor, use that to initialize the target,
++          and then "or" in whatever non-constant ranges we need in addition.
++ 
++          If a large set is all zero or all ones, it is
++          probably better to set it using memset (if available) or bzero.
++          Also, if a large set has just a single range, it may also be
++          better to first clear all the first clear the set (using
++          bzero/memset), and set the bits we want.  */
++ 
++       /* Check for all zeros.  */
++       if (elt == NULL_TREE && size > 0)
++         {
++           if (!cleared)
++             clear_storage (target, GEN_INT (size), BLOCK_OP_NORMAL);
++           return;
++         }
++ 
++ #ifndef GPC
++       domain_min = convert (sizetype, TYPE_MIN_VALUE (domain));
++       domain_max = convert (sizetype, TYPE_MAX_VALUE (domain));
++ #else /* GPC */
++       domain_min = convert (sbitsizetype, TYPE_MIN_VALUE (domain));
++       domain_max = convert (sbitsizetype, TYPE_MAX_VALUE (domain));
++ 
++       /* Align the set.  */
++       if (set_alignment)
++         domain_min = size_binop (BIT_AND_EXPR, domain_min, sbitsize_int (-(int)
++ set_alignment));
++ 
++ #endif /* GPC */
++       bitlength = size_binop (PLUS_EXPR,
++                               size_binop (MINUS_EXPR, domain_max, domain_min),
++ #ifndef GPC
++                               ssize_int (1));
++ #else /* GPC */
++                               sbitsize_int (1));
++ #endif /* GPC */
++ 
++ #ifdef GPC
++       if (TREE_INT_CST_HIGH (bitlength)) {
++         error ("set size too big for host integers");
++         return;
++       }
++ #endif /* GPC */
++       nbits = tree_low_cst (bitlength, 1);
++ #ifdef GPC
++       bitlength = convert (sizetype, bitlength);
++ #endif /* GPC */
++ 
++       /* For "small" sets, or "medium-sized" (up to 32 bytes) sets that
++          are "complicated" (more than one range), initialize (the
++          constant parts) by copying from a constant.  */
++       if (GET_MODE (target) != BLKmode || nbits <= 2 * BITS_PER_WORD
++           || (nbytes <= 32 && TREE_CHAIN (elt) != NULL_TREE))
++         {
++ #ifndef GPC
++           unsigned int set_word_size = TYPE_ALIGN (TREE_TYPE (exp));
++ #endif /* not GPC */
++           enum machine_mode mode = mode_for_size (set_word_size, MODE_INT, 1);
++           char *bit_buffer = alloca (nbits);
++           HOST_WIDE_INT word = 0;
++           unsigned int bit_pos = 0;
++           unsigned int ibit = 0;
++           unsigned int offset = 0;  /* In bytes from beginning of set.  */
++ 
++           elt = get_set_constructor_bits (exp, bit_buffer, nbits);
++           for (;;)
++             {
++               if (bit_buffer[ibit])
++                 {
++ #ifndef GPC
++                   if (BYTES_BIG_ENDIAN)
++ #else /* GPC */
++                   if (set_words_big_endian)
++ #endif /* GPC */
++                     word |= (((HOST_WIDE_INT)1) << (set_word_size - 1 - bit_pos));
++                   else
++                     word |= ((HOST_WIDE_INT)1) << bit_pos;
++                 }
++ 
++               bit_pos++;  ibit++;
++               if (bit_pos >= set_word_size || ibit == nbits)
++                 {
++                   if (word != 0 || ! cleared)
++                     {
++                       rtx datum = gen_int_mode (word, mode);
++                       rtx to_rtx;
++ 
++                       /* The assumption here is that it is safe to use
++                          XEXP if the set is multi-word, but not if
++                          it's single-word.  */
++                       if (GET_CODE (target) == MEM)
++                         to_rtx = adjust_address (target, mode, offset);
++                       else if (offset == 0)
++                         to_rtx = target;
++                       else
++                         abort ();
++                       emit_move_insn (to_rtx, datum);
++                     }
++ 
++                   if (ibit == nbits)
++                     break;
++                   word = 0;
++                   bit_pos = 0;
++                   offset += set_word_size / BITS_PER_UNIT;
++                 }
++             }
++         }
++       else if (!cleared)
++    /* GPC expects bits outside the range to be cleared. (fjf1010.pas)
++       Though this check might be "dead" in this GCC version since it only
++       applies to single ranges with constant bounds, and those are apparently
++       always stored as constants anyway, not initialized via `__setbits'. */
++ #ifndef GPC
++         /* Don't bother clearing storage if the set is all ones.  */
++         if (TREE_CHAIN (elt) != NULL_TREE
++             || (TREE_PURPOSE (elt) == NULL_TREE
++                 ? nbits != 1
++                 : ( ! host_integerp (TREE_VALUE (elt), 0)
++                    || ! host_integerp (TREE_PURPOSE (elt), 0)
++                    || (tree_low_cst (TREE_VALUE (elt), 0)
++                        - tree_low_cst (TREE_PURPOSE (elt), 0) + 1
++                        != (HOST_WIDE_INT) nbits))))
++ #endif
++           clear_storage (target, expr_size (exp), BLOCK_OP_NORMAL);
++ 
++       for (; elt != NULL_TREE; elt = TREE_CHAIN (elt))
++         {
++           /* Start of range of element or NULL.  */
++           tree startbit = TREE_PURPOSE (elt);
++           /* End of range of element, or element value.  */
++           tree endbit   = TREE_VALUE (elt);
++           HOST_WIDE_INT startb, endb;
++           rtx bitlength_rtx, startbit_rtx, endbit_rtx, targetx;
++ 
++           bitlength_rtx = expand_expr (bitlength,
++                                        NULL_RTX, MEM, EXPAND_CONST_ADDRESS);
++ 
++           /* Handle non-range tuple element like [ expr ].  */
++           if (startbit == NULL_TREE)
++             {
++               startbit = save_expr (endbit);
++               endbit = startbit;
++             }
++ 
++ #ifndef GPC
++           startbit = convert (sizetype, startbit);
++           endbit = convert (sizetype, endbit);
++ #endif /* not GPC */
++           if (! integer_zerop (domain_min))
++             {
++ #ifdef GPC
++               startbit = convert (sbitsizetype, startbit);
++               endbit = convert (sbitsizetype, endbit);
++ #endif /* GPC */
++               startbit = size_binop (MINUS_EXPR, startbit, domain_min);
++               endbit = size_binop (MINUS_EXPR, endbit, domain_min);
++             }
++ #ifdef GPC
++           startbit = convert (sizetype, startbit);
++           endbit = convert (sizetype, endbit);
++ #endif /* GPC */
++           startbit_rtx = expand_expr (startbit, NULL_RTX, MEM,
++                                       EXPAND_CONST_ADDRESS);
++           endbit_rtx = expand_expr (endbit, NULL_RTX, MEM,
++                                     EXPAND_CONST_ADDRESS);
++ 
++           if (REG_P (target))
++             {
++               targetx
++                 = assign_temp
++                   ((build_qualified_type ((*lang_hooks.types.type_for_mode)
++                                           (GET_MODE (target), 0),
++                                           TYPE_QUAL_CONST)),
++                    0, 1, 1);
++               emit_move_insn (targetx, target);
++             }
++ 
++           else if (GET_CODE (target) == MEM)
++             targetx = target;
++           else
++             abort ();
++ 
++           /* Optimization:  If startbit and endbit are constants divisible
++              by BITS_PER_UNIT, call memset instead.  */
++           if (
++               TREE_CODE (startbit) == INTEGER_CST
++               && TREE_CODE (endbit) == INTEGER_CST
++               && (startb = TREE_INT_CST_LOW (startbit)) % BITS_PER_UNIT == 0
++               && (endb = TREE_INT_CST_LOW (endbit) + 1) % BITS_PER_UNIT == 0)
++             {
++               emit_library_call (memset_libfunc, LCT_NORMAL,
++                                  VOIDmode, 3,
++                                  plus_constant (XEXP (targetx, 0),
++                                                 startb / BITS_PER_UNIT),
++                                  Pmode,
++                                  constm1_rtx, TYPE_MODE (integer_type_node),
++                                  GEN_INT ((endb - startb) / BITS_PER_UNIT),
++                                  TYPE_MODE (sizetype));
++             }
++           else
++             emit_library_call (setbits_libfunc, LCT_NORMAL,
++                                VOIDmode, 4, XEXP (targetx, 0),
++                                Pmode, bitlength_rtx, TYPE_MODE (sizetype),
++                                startbit_rtx, TYPE_MODE (sizetype),
++                                endbit_rtx, TYPE_MODE (sizetype));
++ 
++           if (REG_P (target))
++           if (REG_P (target))
++             emit_move_insn (target, targetx);
++         }
++ 
++         break;
++     }
+        
+      default:
+        gcc_unreachable ();
+***************
+*** 5434,5441 ****
+--- 5665,5683 ----
+  	       index, then convert to sizetype and multiply by the size of
+  	       the array element.  */
+  	    if (! integer_zerop (low_bound))
++ #ifdef GPC
++             /* I think that address arithmetic should always be done on
++                sizetype or its variants -- for Pascal signed seems to be the
++                correct choice (and generates slightly better code). -- Waldek */
++             index = convert (sizetype, convert (bitsizetype,
++                       size_binop (MINUS_EXPR,
++                         convert (sbitsizetype, index),
++                         convert (sbitsizetype, low_bound))));
++ #else
++ 
+  	      index = fold (build2 (MINUS_EXPR, TREE_TYPE (index),
+  				    index, low_bound));
++ #endif
+  
+  	    offset = size_binop (PLUS_EXPR, offset,
+  			         size_binop (MULT_EXPR,
+***************
+*** 6545,6555 ****
+        /* Variables inherited from containing functions should have
+  	 been lowered by this point.  */
+        context = decl_function_context (exp);
+!       gcc_assert (!context
+  		  || context == current_function_decl
+  		  || TREE_STATIC (exp)
+  		  /* ??? C++ creates functions that are not TREE_STATIC.  */
+! 		  || TREE_CODE (exp) == FUNCTION_DECL);
+  
+        /* This is the case of an array whose size is to be determined
+  	 from its initializer, while the initializer is still being parsed.
+--- 6787,6804 ----
+        /* Variables inherited from containing functions should have
+  	 been lowered by this point.  */
+        context = decl_function_context (exp);
+! //      gcc_assert 
+!       if (!context
+  		  || context == current_function_decl
+  		  || TREE_STATIC (exp)
+  		  /* ??? C++ creates functions that are not TREE_STATIC.  */
+! 		  || TREE_CODE (exp) == FUNCTION_DECL)
+!         ;
+!       else
+!         {
+!           debug_tree (exp);
+!           gcc_unreachable ();
+!         }
+  
+        /* This is the case of an array whose size is to be determined
+  	 from its initializer, while the initializer is still being parsed.
+***************
+*** 8366,8372 ****
+  tree
+  string_constant (tree arg, tree *ptr_offset)
+  {
+!   tree array, offset;
+    STRIP_NOPS (arg);
+  
+    if (TREE_CODE (arg) == ADDR_EXPR)
+--- 8615,8621 ----
+  tree
+  string_constant (tree arg, tree *ptr_offset)
+  {
+!   tree array, offset, lb = size_zero_node;
+    STRIP_NOPS (arg);
+  
+    if (TREE_CODE (arg) == ADDR_EXPR)
+***************
+*** 8380,8385 ****
+--- 8629,8635 ----
+  	{
+  	  array = TREE_OPERAND (arg, 0);
+  	  offset = size_zero_node;
++           goto do_lb;
+  	}
+        else if (TREE_CODE (TREE_OPERAND (arg, 0)) == ARRAY_REF)
+  	{
+***************
+*** 8388,8393 ****
+--- 8638,8644 ----
+  	  if (TREE_CODE (array) != STRING_CST
+  	      && TREE_CODE (array) != VAR_DECL)
+  	    return 0;
++           lb = array_ref_low_bound (TREE_OPERAND (arg, 0));
+  	}
+        else
+  	return 0;
+***************
+*** 8416,8425 ****
+--- 8667,8692 ----
+  	}
+        else
+  	return 0;
++   do_lb:    
++       if (TREE_TYPE (array) && TREE_CODE (TREE_TYPE (array)) == ARRAY_TYPE)
++         {
++           tree domain_type = TYPE_DOMAIN (TREE_TYPE (array));
++           if (domain_type && TYPE_MIN_VALUE (domain_type))
++ #if 0
++             lb = SUBSTITUTE_PLACEHOLDER_IN_EXPR (
++                    TYPE_MIN_VALUE (domain_type), array);
++ #else
++           lb = TYPE_MIN_VALUE (domain_type);
++ #endif
++         }
+      }
+    else
+      return 0;
+  
++   if (! integer_zerop (lb))
++     offset = size_diffop (fold_convert (sizetype, offset),
++                           fold_convert (sizetype, lb));
++ 
+    if (TREE_CODE (array) == STRING_CST)
+      {
+        *ptr_offset = convert (sizetype, offset);
+Only in gcc: expr.c.orig
+Only in gcc: expr.c~
+diff -rc ../gcc-4.0.2.orig/gcc/fold-const.c gcc/fold-const.c
+*** ../gcc-4.0.2.orig/gcc/fold-const.c	Fri Sep  9 11:25:02 2005
+--- gcc/fold-const.c	Mon Mar 13 00:03:13 2006
+***************
+*** 5799,5804 ****
+--- 5799,5808 ----
+    HOST_WIDE_INT hpart;
+    int overflow;
+  
++   /* Overflow check does not work for unsigned numbers */
++   if (TYPE_UNSIGNED (TREE_TYPE (arg0)))
++     return NULL_TREE;
++ 
+    /* We have to do this the hard way to detect unsigned overflow.
+       prod = int_const_binop (MULT_EXPR, arg01, arg1, 0);  */
+    overflow = mul_double (TREE_INT_CST_LOW (arg01),
+Only in gcc: fold-const.c~
+diff -rc ../gcc-4.0.2.orig/gcc/function.c gcc/function.c
+*** ../gcc-4.0.2.orig/gcc/function.c	Thu Mar 10 16:11:04 2005
+--- gcc/function.c	Sat Mar 25 02:38:57 2006
+***************
+*** 3226,3232 ****
+--- 3226,3236 ----
+    if (TYPE_P (t))
+      {
+        if (POINTER_TYPE_P (t))
++ #ifndef GPC
+  	*walk_subtrees = 1;
++ #else
++ 	*walk_subtrees = 0;
++ #endif
+        else if (TYPE_SIZE (t) && !TREE_CONSTANT (TYPE_SIZE (t))
+  	       && !TYPE_SIZES_GIMPLIFIED (t))
+  	{
+Only in gcc: function.c~
+diff -rc ../gcc-4.0.2.orig/gcc/gcc.c gcc/gcc.c
+*** ../gcc-4.0.2.orig/gcc/gcc.c	Mon Jun  6 21:20:29 2005
+--- gcc/gcc.c	Thu Mar 23 00:04:41 2006
+***************
+*** 790,797 ****
+  "%{pg:%{fomit-frame-pointer:%e-pg and -fomit-frame-pointer are incompatible}}\
+   %1 %{!Q:-quiet} -dumpbase %B %{d*} %{m*} %{a*}\
+   %{c|S:%{o*:-auxbase-strip %*}%{!o*:-auxbase %b}}%{!c:%{!S:-auxbase %b}}\
+!  %{g*} %{O*} %{W*&pedantic*} %{w} %{std*&ansi&trigraphs}\
+!  %{v:-version} %{pg:-p} %{p} %{f*} %{undef}\
+   %{Qn:-fno-ident} %{--help:--help}\
+   %{--target-help:--target-help}\
+   %{!fsyntax-only:%{S:%W{o*}%{!o*:-o %b.s}}}\
+--- 790,797 ----
+  "%{pg:%{fomit-frame-pointer:%e-pg and -fomit-frame-pointer are incompatible}}\
+   %1 %{!Q:-quiet} -dumpbase %B %{d*} %{m*} %{a*}\
+   %{c|S:%{o*:-auxbase-strip %*}%{!o*:-auxbase %b}}%{!c:%{!S:-auxbase %b}}\
+!  %{g*} %{O*} %{f*&W*&pedantic*&w} %{std*&ansi&trigraphs}\
+!  %{v:-version} %{pg:-p} %{p} %{undef}\
+   %{Qn:-fno-ident} %{--help:--help}\
+   %{--target-help:--target-help}\
+   %{!fsyntax-only:%{S:%W{o*}%{!o*:-o %b.s}}}\
+Only in gcc: gcc.c~
+diff -rc ../gcc-4.0.2.orig/gcc/gimplify.c gcc/gimplify.c
+*** ../gcc-4.0.2.orig/gcc/gimplify.c	Fri Sep  2 17:34:38 2005
+--- gcc/gimplify.c	Fri Mar 24 22:44:52 2006
+***************
+*** 300,306 ****
+  
+  /* Create a new temporary name with PREFIX.  Returns an identifier.  */
+  
+! static GTY(()) unsigned int tmp_var_id_num;
+  
+  tree
+  create_tmp_var_name (const char *prefix)
+--- 300,306 ----
+  
+  /* Create a new temporary name with PREFIX.  Returns an identifier.  */
+  
+! static GTY(()) unsigned int tmp_var_id_num = 155419;
+  
+  tree
+  create_tmp_var_name (const char *prefix)
+***************
+*** 2563,2577 ****
+  	  cref = build (ARRAY_REF, array_elt_type, unshare_expr (object),
+  			purpose, NULL_TREE, NULL_TREE);
+  	}
+        else
+  	{
+! 	  gcc_assert (TREE_CODE (purpose) == FIELD_DECL);
+  	  cref = build (COMPONENT_REF, TREE_TYPE (purpose),
+  			unshare_expr (object), purpose, NULL_TREE);
+  	}
+  
+        if (TREE_CODE (value) == CONSTRUCTOR
+! 	  && TREE_CODE (TREE_TYPE (value)) != VECTOR_TYPE)
+  	gimplify_init_ctor_eval (cref, CONSTRUCTOR_ELTS (value),
+  				 pre_p, cleared);
+        else
+--- 2563,2597 ----
+  	  cref = build (ARRAY_REF, array_elt_type, unshare_expr (object),
+  			purpose, NULL_TREE, NULL_TREE);
+  	}
++ #if 0
++       else if (DECL_BIT_FIELD (purpose))
++         {
++           tree bioff = size_binop (PLUS_EXPR, 
++             DECL_FIELD_BIT_OFFSET (purpose),
++             size_binop (MULT_EXPR, 
++               bitsize_int (BITS_PER_UNIT),
++               convert (bitsizetype, DECL_FIELD_OFFSET (purpose))));
++           cref = build3 (BIT_FIELD_REF, TREE_TYPE (purpose),
++                       unshare_expr (object), bioff, 
++                       DECL_SIZE (purpose));
++           BIT_FIELD_REF_UNSIGNED (cref) = TYPE_UNSIGNED (TREE_TYPE (purpose));
++         }
++ #endif
+        else
+  	{
+! //	  gcc_assert (TREE_CODE (purpose) == FIELD_DECL);
+!           if (TREE_CODE (purpose) != FIELD_DECL)
+!             {
+!               debug_tree (purpose);
+!               gcc_unreachable ();
+!             }
+  	  cref = build (COMPONENT_REF, TREE_TYPE (purpose),
+  			unshare_expr (object), purpose, NULL_TREE);
+  	}
+  
+        if (TREE_CODE (value) == CONSTRUCTOR
+! 	  && TREE_CODE (TREE_TYPE (value)) != VECTOR_TYPE
+!           && TREE_CODE (TREE_TYPE (value)) != SET_TYPE)
+  	gimplify_init_ctor_eval (cref, CONSTRUCTOR_ELTS (value),
+  				 pre_p, cleared);
+        else
+***************
+*** 2602,2607 ****
+--- 2622,2633 ----
+    if (TREE_CODE (ctor) != CONSTRUCTOR)
+      return GS_UNHANDLED;
+  
++ #ifdef GPC
++   ret = lang_hooks.gimplify_expr (&TREE_OPERAND (*expr_p, 1), pre_p, post_p);
++   if (ret != GS_UNHANDLED)
++     return ret;
++ #endif
++   
+    ret = gimplify_expr (&TREE_OPERAND (*expr_p, 0), pre_p, post_p,
+  		       is_gimple_lvalue, fb_lvalue);
+    if (ret == GS_ERROR)
+***************
+*** 2643,2649 ****
+  	    DECL_INITIAL (object) = ctor;
+  	    TREE_STATIC (object) = 1;
+  	    if (!DECL_NAME (object))
+! 	      DECL_NAME (object) = create_tmp_var_name ("C");
+  	    walk_tree (&DECL_INITIAL (object), force_labels_r, NULL, NULL);
+  
+  	    /* ??? C++ doesn't automatically append a .<number> to the
+--- 2669,2675 ----
+  	    DECL_INITIAL (object) = ctor;
+  	    TREE_STATIC (object) = 1;
+  	    if (!DECL_NAME (object))
+! 	      DECL_NAME (object) = create_tmp_var_name ("c_C");
+  	    walk_tree (&DECL_INITIAL (object), force_labels_r, NULL, NULL);
+  
+  	    /* ??? C++ doesn't automatically append a .<number> to the
+***************
+*** 2686,2692 ****
+  
+  	    if (size > 0 && !can_move_by_pieces (size, align))
+  	      {
+! 		tree new = create_tmp_var_raw (type, "C");
+  
+  		gimple_add_tmp_var (new);
+  		TREE_STATIC (new) = 1;
+--- 2712,2718 ----
+  
+  	    if (size > 0 && !can_move_by_pieces (size, align))
+  	      {
+! 		tree new = create_tmp_var_raw (type, "r_C");
+  
+  		gimple_add_tmp_var (new);
+  		TREE_STATIC (new) = 1;
+***************
+*** 4113,4118 ****
+--- 4139,4146 ----
+  	      && decl_function_context (tmp) == current_function_decl
+  	      && !DECL_SEEN_IN_BIND_EXPR_P (tmp))
+  	    {
++               if (!(errorcount || sorrycount))
++                 debug_tree (tmp);
+  	      gcc_assert (errorcount || sorrycount);
+  	      ret = GS_ERROR;
+  	      break;
+***************
+*** 4366,4371 ****
+--- 4394,4403 ----
+    return ret;
+  }
+  
++ extern void (*lang_remember_gimplified_type)(tree);
++ 
++ void (*lang_remember_gimplified_type)(tree) = 0;
++ 
+  /* Look through TYPE for variable-sized objects and gimplify each such
+     size that we find.  Add to LIST_P any statements generated.  */
+  
+***************
+*** 4386,4391 ****
+--- 4418,4429 ----
+  
+    TYPE_SIZES_GIMPLIFIED (type) = 1;
+  
++   if (lang_remember_gimplified_type)
++     lang_remember_gimplified_type (type);
++   
++   gimplify_one_sizepos (&TYPE_SIZE (type), list_p);
++   gimplify_one_sizepos (&TYPE_SIZE_UNIT (type), list_p);
++ 
+    switch (TREE_CODE (type))
+      {
+      case INTEGER_TYPE:
+***************
+*** 4416,4427 ****
+  	if (TREE_CODE (field) == FIELD_DECL)
+  	  {
+  	    gimplify_one_sizepos (&DECL_FIELD_OFFSET (field), list_p);
+- 	    gimplify_type_sizes (TREE_TYPE (field), list_p);
+  	  }
+        break;
+  
+      case POINTER_TYPE:
+      case REFERENCE_TYPE:
+        gimplify_type_sizes (TREE_TYPE (type), list_p);
+        break;
+  
+--- 4454,4470 ----
+  	if (TREE_CODE (field) == FIELD_DECL)
+  	  {
+  	    gimplify_one_sizepos (&DECL_FIELD_OFFSET (field), list_p);
+  	  }
++       for (field = TYPE_FIELDS (type); field; field = TREE_CHAIN (field))
++         if (TREE_CODE (field) == FIELD_DECL)
++           gimplify_type_sizes (TREE_TYPE (field), list_p);
+        break;
+  
+      case POINTER_TYPE:
+      case REFERENCE_TYPE:
++ #ifdef GPC
++       break;
++ #endif
+        gimplify_type_sizes (TREE_TYPE (type), list_p);
+        break;
+  
+***************
+*** 4429,4437 ****
+        break;
+      }
+  
+-   gimplify_one_sizepos (&TYPE_SIZE (type), list_p);
+-   gimplify_one_sizepos (&TYPE_SIZE_UNIT (type), list_p);
+- 
+    for (t = TYPE_NEXT_VARIANT (type); t; t = TYPE_NEXT_VARIANT (t))
+      {
+        TYPE_SIZE (t) = TYPE_SIZE (type);
+--- 4472,4477 ----
+***************
+*** 4440,4445 ****
+--- 4480,4490 ----
+      }
+  }
+  
++ 
++ extern void (*lang_remember_gimplified_sizepos)(tree *);
++ 
++ void (*lang_remember_gimplified_sizepos)(tree *) = 0;
++ 
+  /* A subroutine of gimplify_type_sizes to make sure that *EXPR_P,
+     a size or position, has had all of its SAVE_EXPRs evaluated.
+     We add any required statements to STMT_P.  */
+***************
+*** 4449,4454 ****
+--- 4494,4507 ----
+  {
+    tree type, expr = *expr_p;
+  
++ #ifdef GPC
++   if (expr == NULL_TREE || TREE_CODE (expr) == INTEGER_CST)
++     return;
++ 
++   if (lang_remember_gimplified_sizepos)
++     lang_remember_gimplified_sizepos(expr_p);
++ #endif
++ 
+    /* We don't do anything if the value isn't there, is constant, or contains
+       A PLACEHOLDER_EXPR.  We also don't want to do anything if it's already
+       a VAR_DECL.  If it's a VAR_DECL from another function, the gimplifier
+***************
+*** 4479,4485 ****
+  
+        *expr_p = create_tmp_var (type, NULL);
+        tmp = build1 (NOP_EXPR, type, expr);
+!       tmp = build2 (MODIFY_EXPR, type, *expr_p, expr);
+        if (EXPR_HAS_LOCATION (expr))
+  	SET_EXPR_LOCUS (tmp, EXPR_LOCUS (expr));
+        else
+--- 4532,4538 ----
+  
+        *expr_p = create_tmp_var (type, NULL);
+        tmp = build1 (NOP_EXPR, type, expr);
+!       tmp = build2 (MODIFY_EXPR, type, *expr_p, tmp);
+        if (EXPR_HAS_LOCATION (expr))
+  	SET_EXPR_LOCUS (tmp, EXPR_LOCUS (expr));
+        else
+***************
+*** 4552,4560 ****
+--- 4605,4622 ----
+  	     a pointer to the array type.  We must allow this in order to
+  	     properly represent assigning the address of an array in C into
+  	     pointer to the element type.  */
++ /*
+  	  gcc_assert (TREE_CODE (otype) == ARRAY_TYPE
+  		      && POINTER_TYPE_P (ptype)
+  		      && cpt_same_type (TREE_TYPE (otype), dtype));
++ */
++           if (!(TREE_CODE (otype) == ARRAY_TYPE
++                       && POINTER_TYPE_P (ptype)
++                       && cpt_same_type (TREE_TYPE (otype), dtype)))
++             {
++               debug_tree (t);
++               gcc_unreachable ();
++             }
+  	  break;
+  	}
+        break;
+Only in gcc: gimplify.c.orig
+Only in gcc: gimplify.c.rej
+Only in gcc: gimplify.c~
+Only in gcc: p
+diff -rc ../gcc-4.0.2.orig/gcc/print-tree.c gcc/print-tree.c
+*** ../gcc-4.0.2.orig/gcc/print-tree.c	Thu Feb 24 19:53:40 2005
+--- gcc/print-tree.c	Tue Nov 22 04:46:44 2005
+***************
+*** 552,558 ****
+  
+        if (TREE_CODE (node) == ENUMERAL_TYPE)
+  	print_node (file, "values", TYPE_VALUES (node), indent + 4);
+!       else if (TREE_CODE (node) == ARRAY_TYPE)
+  	print_node (file, "domain", TYPE_DOMAIN (node), indent + 4);
+        else if (TREE_CODE (node) == VECTOR_TYPE)
+  	fprintf (file, " nunits %d", (int) TYPE_VECTOR_SUBPARTS (node));
+--- 552,558 ----
+  
+        if (TREE_CODE (node) == ENUMERAL_TYPE)
+  	print_node (file, "values", TYPE_VALUES (node), indent + 4);
+!       else if (TREE_CODE (node) == ARRAY_TYPE || TREE_CODE (node) == SET_TYPE)
+  	print_node (file, "domain", TYPE_DOMAIN (node), indent + 4);
+        else if (TREE_CODE (node) == VECTOR_TYPE)
+  	fprintf (file, " nunits %d", (int) TYPE_VECTOR_SUBPARTS (node));
+diff -rc ../gcc-4.0.2.orig/gcc/reload1.c gcc/reload1.c
+*** ../gcc-4.0.2.orig/gcc/reload1.c	Mon Aug 29 16:40:50 2005
+--- gcc/reload1.c	Fri Mar 24 21:28:38 2006
+***************
+*** 1243,1249 ****
+    reg_equiv_memory_loc = 0;
+  
+    if (offsets_known_at)
+!     free (offsets_known_at);
+    if (offsets_at)
+      free (offsets_at);
+  
+--- 1243,1252 ----
+    reg_equiv_memory_loc = 0;
+  
+    if (offsets_known_at)
+!     {
+!       free (offsets_known_at);
+!       offsets_known_at = 0;
+!     }
+    if (offsets_at)
+      free (offsets_at);
+  
+Only in gcc: reload1.c.orig
+Only in gcc: reload1.c~
+diff -rc ../gcc-4.0.2.orig/gcc/stor-layout.c gcc/stor-layout.c
+*** ../gcc-4.0.2.orig/gcc/stor-layout.c	Wed Dec 22 19:51:18 2004
+--- gcc/stor-layout.c	Mon Mar  6 05:24:32 2006
+***************
+*** 19,24 ****
+--- 19,25 ----
+  Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA.  */
+  
++ /* @@ PATCHED FOR GPC 20070903 @@ */
+  
+  #include "config.h"
+  #include "system.h"
+***************
+*** 56,61 ****
+--- 57,73 ----
+     called only by a front end.  */
+  static int reference_types_internal = 0;
+  
++ /* The word size of a bitstring or (power-)set value, in bits.
++    Must be non-zero.
++    May be overridden by front-ends.  */
++ unsigned int set_word_size = BITS_PER_UNIT;
++ 
++ /* If non-zero, bits in (power-)sets start with the highest bit.
++    May be overridden by front-ends.
++    In order to be backward-compatible, the Chill frontend should
++    initialize this to BYTES_BIG_ENDIAN.  */
++ unsigned int set_words_big_endian = 0;
++ 
+  static void finalize_record_size (record_layout_info);
+  static void finalize_type_size (tree);
+  static void place_union_field (record_layout_info, tree);
+***************
+*** 1763,1768 ****
+--- 1775,1824 ----
+        }
+        break;
+  
++     case SET_TYPE:  /* Used by Chill and Pascal.  */
++       if (TREE_CODE (TYPE_MAX_VALUE (TYPE_DOMAIN (type))) != INTEGER_CST
++           || TREE_CODE (TYPE_MIN_VALUE (TYPE_DOMAIN (type))) != INTEGER_CST)
++         abort ();
++       else
++         {
++           int alignment = set_alignment ? set_alignment : set_word_size;
++           tree lower_bound = convert (sbitsizetype,
++                         TYPE_MIN_VALUE (TYPE_DOMAIN (type)));
++           tree upper_bound = convert (sbitsizetype,
++                         TYPE_MAX_VALUE (TYPE_DOMAIN (type)));
++           tree size_in_bits, rounded_size;
++           if (set_alignment)
++             {
++               lower_bound = round_down (lower_bound, alignment);
++             }
++           size_in_bits = size_binop (PLUS_EXPR,
++                                 size_binop (MINUS_EXPR,
++                                         upper_bound,
++                                         lower_bound),
++                                 sbitsize_int(1));
++           rounded_size = round_up (size_in_bits, alignment);
++ 
++           if ( TREE_INT_CST_HIGH (rounded_size)
++                 || TREE_INT_CST_LOW (rounded_size) > (unsigned) alignment)
++             {
++                 TYPE_MODE (type) = BLKmode;
++             }
++           else
++             {
++                 TYPE_MODE (type) = mode_for_size (alignment, MODE_INT, 1);
++             }
++ 
++           TYPE_SIZE (type) = convert (bitsizetype, rounded_size);
++           TYPE_SIZE_UNIT (type) = convert (sizetype,
++                                 size_binop ( CEIL_DIV_EXPR,
++                                         rounded_size,
++                                         sbitsize_int (BITS_PER_UNIT)));
++           TYPE_ALIGN (type) = alignment;
++           TYPE_USER_ALIGN (type) = 0;
++           TYPE_PRECISION (type) = TREE_INT_CST_LOW (size_in_bits);
++         }
++       break;
++ 
+      case FILE_TYPE:
+        /* The size may vary in different languages, so the language front end
+  	 should fill in the size.  */
+***************
+*** 1867,1875 ****
+    t = build_distinct_type_copy (type);
+    /* We do want to use sizetype's cache, as we will be replacing that
+       type.  */
+!   TYPE_CACHED_VALUES (t) = TYPE_CACHED_VALUES (sizetype);
+!   TYPE_CACHED_VALUES_P (t) = TYPE_CACHED_VALUES_P (sizetype);
+!   TREE_TYPE (TYPE_CACHED_VALUES (t)) = type;
+    TYPE_UID (t) = TYPE_UID (sizetype);
+    TYPE_IS_SIZETYPE (t) = 1;
+    
+--- 1923,1931 ----
+    t = build_distinct_type_copy (type);
+    /* We do want to use sizetype's cache, as we will be replacing that
+       type.  */
+!   TYPE_CACHED_VALUES (t) = NULL_TREE /* TYPE_CACHED_VALUES (sizetype) */;
+!   TYPE_CACHED_VALUES_P (t) = 0 ; /* TYPE_CACHED_VALUES_P (sizetype);
+!   TREE_TYPE (TYPE_CACHED_VALUES (t)) = type; */
+    TYPE_UID (t) = TYPE_UID (sizetype);
+    TYPE_IS_SIZETYPE (t) = 1;
+    
+***************
+*** 1881,1891 ****
+    TYPE_NAME (t) = get_identifier ("bit_size_type");
+    /* We do want to use bitsizetype's cache, as we will be replacing that
+       type.  */
+!   TYPE_CACHED_VALUES (t) = TYPE_CACHED_VALUES (bitsizetype);
+!   TYPE_CACHED_VALUES_P (t) = TYPE_CACHED_VALUES_P (bitsizetype);
+    TYPE_PRECISION (t) = precision;
+    TYPE_UID (t) = TYPE_UID (bitsizetype);
+    TYPE_IS_SIZETYPE (t) = 1;
+    /* Replace our original stub bitsizetype.  */
+    memcpy (bitsizetype, t, tree_size (bitsizetype));
+    
+--- 1937,1948 ----
+    TYPE_NAME (t) = get_identifier ("bit_size_type");
+    /* We do want to use bitsizetype's cache, as we will be replacing that
+       type.  */
+!   TYPE_CACHED_VALUES (t) = NULL_TREE /* TYPE_CACHED_VALUES (bitsizetype) */;
+!   TYPE_CACHED_VALUES_P (t) = 0 ; /* TYPE_CACHED_VALUES_P (bitsizetype) */;
+    TYPE_PRECISION (t) = precision;
+    TYPE_UID (t) = TYPE_UID (bitsizetype);
+    TYPE_IS_SIZETYPE (t) = 1;
++   TYPE_MAIN_VARIANT (t) = bitsizetype;
+    /* Replace our original stub bitsizetype.  */
+    memcpy (bitsizetype, t, tree_size (bitsizetype));
+    
+Only in gcc: stor-layout.c~
+diff -rc ../gcc-4.0.2.orig/gcc/toplev.c gcc/toplev.c
+*** ../gcc-4.0.2.orig/gcc/toplev.c	Fri Sep  9 02:51:44 2005
+--- gcc/toplev.c	Tue Nov 22 05:01:53 2005
+***************
+*** 1258,1263 ****
+--- 1258,1275 ----
+  #ifndef __VERSION__
+  #define __VERSION__ "[?]"
+  #endif
++ #ifdef GPC
++   extern const char *lang_version_string;
++   fnotice (file,
++ #ifdef __GNUC__
++          "%s%s%s version %s%s (%s)\n%s\tcompiled by GNU C version %s.\n"
++ #else
++          "%s%s%s version %s%s (%s) compiled by CC.\n"
++ #endif
++          , indent, *indent != 0 ? " " : "",
++          lang_hooks.name, lang_version_string, version_string, TARGET_NAME,
++          indent, __VERSION__);
++ #else
+    fnotice (file,
+  #ifdef __GNUC__
+  	   "%s%s%s version %s (%s)\n%s\tcompiled by GNU C version %s.\n"
+***************
+*** 1267,1272 ****
+--- 1279,1285 ----
+  	   , indent, *indent != 0 ? " " : "",
+  	   lang_hooks.name, version_string, TARGET_NAME,
+  	   indent, __VERSION__);
++ #endif
+    fnotice (file, "%s%sGGC heuristics: --param ggc-min-expand=%d --param ggc-min-heapsize=%d\n",
+  	   indent, *indent != 0 ? " " : "",
+  	   PARAM_VALUE (GGC_MIN_EXPAND), PARAM_VALUE (GGC_MIN_HEAPSIZE));
+Only in gcc: toplev.c~
+diff -rc ../gcc-4.0.2.orig/gcc/tree-cfg.c gcc/tree-cfg.c
+*** ../gcc-4.0.2.orig/gcc/tree-cfg.c	Tue Sep  6 22:10:51 2005
+--- gcc/tree-cfg.c	Wed Dec 14 06:51:55 2005
+***************
+*** 3290,3296 ****
+  #define CHECK_OP(N, MSG) \
+    do { if (!CONSTANT_CLASS_P (TREE_OPERAND (t, N))		\
+           && !is_gimple_val (TREE_OPERAND (t, N)))		\
+!        { error (MSG); return TREE_OPERAND (t, N); }} while (0)
+  
+    switch (TREE_CODE (t))
+      {
+--- 3290,3296 ----
+  #define CHECK_OP(N, MSG) \
+    do { if (!CONSTANT_CLASS_P (TREE_OPERAND (t, N))		\
+           && !is_gimple_val (TREE_OPERAND (t, N)))		\
+!        { debug_tree (t); error (MSG); return TREE_OPERAND (t, N); }} while (0)
+  
+    switch (TREE_CODE (t))
+      {
+***************
+*** 3708,3716 ****
+--- 3708,3723 ----
+  	  if (decl_function_context (LABEL_EXPR_LABEL (stmt))
+  	      != current_function_decl)
+  	    {
++               tree ldecl = DECL_NAME (LABEL_EXPR_LABEL (stmt));
++               const char * ln = ldecl ? IDENTIFIER_POINTER (ldecl): "????";
++ #if 0
+  	      error ("Label %s has incorrect context in bb %d\n",
+  		     IDENTIFIER_POINTER (DECL_NAME (LABEL_EXPR_LABEL (stmt))),
+  		     bb->index);
++ #else
++               error ("Label %s has incorrect context in bb %d\n", ln,
++                       bb->index);
++ #endif
+  	      err = 1;
+  	    }
+  	}
+Only in gcc: tree-cfg.c.orig
+Only in gcc: tree-cfg.c~
+diff -rc ../gcc-4.0.2.orig/gcc/tree-inline.c gcc/tree-inline.c
+*** ../gcc-4.0.2.orig/gcc/tree-inline.c	Sat Jul  9 01:38:56 2005
+--- gcc/tree-inline.c	Fri Mar 10 06:17:07 2006
+***************
+*** 1438,1443 ****
+--- 1438,1444 ----
+        }
+      default:
+        /* Abort here se we know we don't miss any nodes.  */
++       debug_tree (x);
+        gcc_unreachable ();
+      }
+    return NULL;
+Only in gcc: tree-inline.c~
+diff -rc ../gcc-4.0.2.orig/gcc/tree-nested.c gcc/tree-nested.c
+*** ../gcc-4.0.2.orig/gcc/tree-nested.c	Mon Aug  8 19:31:57 2005
+--- gcc/tree-nested.c	Tue Nov 22 04:46:44 2005
+***************
+*** 1137,1142 ****
+--- 1137,1144 ----
+    if (!elt)
+      return NULL_TREE;
+    new_label = elt->new;
++   DECL_CONTEXT (new_label) = DECL_CONTEXT (label);
++ //  mark_decl_referenced (new_label);
+  
+    /* If there's any possibility that the previous statement falls through,
+       then we must branch around the new non-local label.  */
+Only in gcc: tree-nested.c.orig
+diff -rc ../gcc-4.0.2.orig/gcc/tree-sra.c gcc/tree-sra.c
+*** ../gcc-4.0.2.orig/gcc/tree-sra.c	Fri Aug  5 22:39:04 2005
+--- gcc/tree-sra.c	Wed Mar  8 05:42:30 2006
+***************
+*** 1365,1370 ****
+--- 1365,1373 ----
+  	      && (!can_completely_scalarize_p (elt)
+  		  || !type_can_instantiate_all_elements (elt->type)))
+  	    use_block_copy = true;
++           if (TREE_TYPE (elt->type)
++               && full_size != full_count*TYPE_PRECISION (TREE_TYPE (elt->type)))
++             use_block_copy = true;
+  	}
+        elt->use_block_copy = use_block_copy;
+  
+Only in gcc: tree-sra.c~
+diff -rc ../gcc-4.0.2.orig/gcc/tree-ssa-dom.c gcc/tree-ssa-dom.c
+*** ../gcc-4.0.2.orig/gcc/tree-ssa-dom.c	Fri Jul  1 21:01:25 2005
+--- gcc/tree-ssa-dom.c	Tue Nov 22 04:46:44 2005
+***************
+*** 2815,2826 ****
+        val_type = TREE_TYPE (val);
+  
+        /* While both types are pointers, get the type of the object
+! 	 pointed to.  */
+!       while (POINTER_TYPE_P (op_type) && POINTER_TYPE_P (val_type))
+! 	{
+! 	  op_type = TREE_TYPE (op_type);
+! 	  val_type = TREE_TYPE (val_type);
+! 	}
+  
+        /* Make sure underlying types match before propagating a constant by
+  	 converting the constant to the proper type.  Note that convert may
+--- 2815,2840 ----
+        val_type = TREE_TYPE (val);
+  
+        /* While both types are pointers, get the type of the object
+! 	 pointed to. Do not get trapped in cycles.  */
+!       {
+!         long cnt = 0, maxcnt = 11;
+!         tree op_type0 = op_type;
+!         while (POINTER_TYPE_P (op_type) && POINTER_TYPE_P (val_type))
+! 	  {
+! 	    op_type = TREE_TYPE (op_type);
+! 	    val_type = TREE_TYPE (val_type);
+!             if (op_type == op_type0)
+!               return false;
+!             cnt ++;
+!             if (cnt > maxcnt)
+!               {
+!                 op_type0 = op_type;
+!                 maxcnt += maxcnt;
+!                 if (maxcnt < 0)
+!                   return false;
+!               }
+! 	  }
+!       }
+  
+        /* Make sure underlying types match before propagating a constant by
+  	 converting the constant to the proper type.  Note that convert may
+Only in gcc: tree-ssa-dom.c.orig
+diff -rc ../gcc-4.0.2.orig/gcc/tree-ssa-loop-niter.c gcc/tree-ssa-loop-niter.c
+*** ../gcc-4.0.2.orig/gcc/tree-ssa-loop-niter.c	Thu Sep  8 12:08:40 2005
+--- gcc/tree-ssa-loop-niter.c	Fri Mar  3 03:28:54 2006
+***************
+*** 205,210 ****
+--- 205,214 ----
+      {
+        mmin = TYPE_MIN_VALUE (type);
+        mmax = TYPE_MAX_VALUE (type);
++       /* Would crash otherwise. 
++          @@@@@@@@ Maybe set then to NULL_TREE */
++       if (TREE_CODE (mmin) != INTEGER_CST || TREE_CODE (mmax) != INTEGER_CST)
++         return;
+      }
+  
+    /* Some more condition normalization.  We must record some assumptions
+Only in gcc: tree-ssa-loop-niter.c~
+diff -rc ../gcc-4.0.2.orig/gcc/tree.c gcc/tree.c
+*** ../gcc-4.0.2.orig/gcc/tree.c	Mon Sep 12 10:01:52 2005
+--- gcc/tree.c	Fri Mar 24 22:40:19 2006
+***************
+*** 658,666 ****
+--- 658,673 ----
+        if (t)
+  	{
+  	  /* Make sure no one is clobbering the shared constant.  */
++           if (!(TREE_TYPE (t) == type))
++             debug_tree (t);
+  	  gcc_assert (TREE_TYPE (t) == type);
++           if (!(TREE_INT_CST_LOW (t) == low))
++             debug_tree (t);
+  	  gcc_assert (TREE_INT_CST_LOW (t) == low);
++           if (!(TREE_INT_CST_HIGH (t) == hi))
++             debug_tree (t);
+  	  gcc_assert (TREE_INT_CST_HIGH (t) == hi);
++ 
+  	}
+        else
+  	{
+***************
+*** 1921,1926 ****
+--- 1928,1936 ----
+  	      || CONTAINS_PLACEHOLDER_P (TYPE_MAX_VALUE (type)));
+  
+      case ARRAY_TYPE:
++ #ifdef GPC
++     case SET_TYPE:
++ #endif
+        /* We're already checked the component type (TREE_TYPE), so just check
+  	 the index type.  */
+        return type_contains_placeholder_p (TYPE_DOMAIN (type));
+***************
+*** 2864,2870 ****
+--- 2874,2885 ----
+       Just return instead of wasting memory.  */
+    if (EXPR_LOCUS (node)
+        && (EXPR_FILENAME (node) == file
++ #ifndef GPC
+  	  || ! strcmp (EXPR_FILENAME (node), file))
++ #else
++ 	  || (EXPR_FILENAME (node) &&  file 
++                && ! strcmp (EXPR_FILENAME (node), file)))
++ #endif
+        && EXPR_LINENO (node) == line)
+      {
+        last_annotated_node = node;
+***************
+*** 2877,2883 ****
+--- 2892,2903 ----
+    if (last_annotated_node
+        && EXPR_LOCUS (last_annotated_node)
+        && (EXPR_FILENAME (last_annotated_node) == file
++ #ifndef GPC
+  	  || ! strcmp (EXPR_FILENAME (last_annotated_node), file))
++ #else
++ 	  || (EXPR_FILENAME (last_annotated_node) &&  file
++                && ! strcmp (EXPR_FILENAME (last_annotated_node), file)))
++ #endif
+        && EXPR_LINENO (last_annotated_node) == line)
+      {
+        SET_EXPR_LOCUS (node, EXPR_LOCUS (last_annotated_node));
+***************
+*** 4434,4439 ****
+--- 4454,4460 ----
+    TYPE_SIZE_UNIT (itype) = TYPE_SIZE_UNIT (type);
+    TYPE_ALIGN (itype) = TYPE_ALIGN (type);
+    TYPE_USER_ALIGN (itype) = TYPE_USER_ALIGN (type);
++   TYPE_UNSIGNED (itype) = TYPE_UNSIGNED (type);
+  
+    if (host_integerp (lowval, 0) && highval != 0 && host_integerp (highval, 0))
+      return type_hash_canon (tree_low_cst (highval, 0)
+***************
+*** 5384,5395 ****
+    tree vals;
+    HOST_WIDE_INT domain_min
+      = tree_low_cst (TYPE_MIN_VALUE (TYPE_DOMAIN (TREE_TYPE (init))), 0);
+    tree non_const_bits = NULL_TREE;
+  
+    for (i = 0; i < bit_size; i++)
+      buffer[i] = 0;
+  
+!   for (vals = TREE_OPERAND (init, 1);
+         vals != NULL_TREE; vals = TREE_CHAIN (vals))
+      {
+        if (!host_integerp (TREE_VALUE (vals), 0)
+--- 5405,5424 ----
+    tree vals;
+    HOST_WIDE_INT domain_min
+      = tree_low_cst (TYPE_MIN_VALUE (TYPE_DOMAIN (TREE_TYPE (init))), 0);
++   HOST_WIDE_INT low_limit = domain_min;
+    tree non_const_bits = NULL_TREE;
+  
++   if (set_alignment)
++     /* Note: `domain_min -= domain_min % set_alignment' would be wrong for negative
++        numbers (rounding towards 0, while we have to round towards -inf). */
++     domain_min &= -(int) set_alignment;
++ 
++   low_limit -= domain_min;
++ 
+    for (i = 0; i < bit_size; i++)
+      buffer[i] = 0;
+  
+!   for (vals = CONSTRUCTOR_ELTS (init);
+         vals != NULL_TREE; vals = TREE_CHAIN (vals))
+      {
+        if (!host_integerp (TREE_VALUE (vals), 0)
+***************
+*** 5405,5410 ****
+--- 5434,5445 ----
+  	  HOST_WIDE_INT hi_index
+  	    = tree_low_cst (TREE_VALUE (vals), 0) - domain_min;
+  
++           if (lo_index < low_limit || hi_index >= bit_size)
++             {
++               error ("invalid initializer for set");
++               return NULL_TREE;
++             }
++ 
+  	  gcc_assert (lo_index >= 0);
+  	  gcc_assert (lo_index < bit_size);
+  	  gcc_assert (hi_index >= 0);
+***************
+*** 5419,5425 ****
+  	    = tree_low_cst (TREE_VALUE (vals), 0) - domain_min;
+  	  if (index < 0 || index >= bit_size)
+  	    {
+! 	      error ("invalid initializer for bit string");
+  	      return NULL_TREE;
+  	    }
+  	  buffer[index] = 1;
+--- 5454,5460 ----
+  	    = tree_low_cst (TREE_VALUE (vals), 0) - domain_min;
+  	  if (index < 0 || index >= bit_size)
+  	    {
+! 	      error ("invalid initializer for set");
+  	      return NULL_TREE;
+  	    }
+  	  buffer[index] = 1;
+***************
+*** 5437,5445 ****
+--- 5472,5485 ----
+  get_set_constructor_bytes (tree init, unsigned char *buffer, int wd_size)
+  {
+    int i;
++ #ifdef GPC
++   int bit_size = wd_size * BITS_PER_UNIT;
++   unsigned int bit_pos = 0;
++ #else /* not GPC */
+    int set_word_size = BITS_PER_UNIT;
+    int bit_size = wd_size * set_word_size;
+    int bit_pos = 0;
++ #endif /* not GPC */
+    unsigned char *bytep = buffer;
+    char *bit_buffer = alloca (bit_size);
+    tree non_const_bits = get_set_constructor_bits (init, bit_buffer, bit_size);
+***************
+*** 5449,5454 ****
+--- 5489,5512 ----
+  
+    for (i = 0; i < bit_size; i++)
+      {
++ #ifdef GPC
++       if (bit_buffer[i])
++       {
++           int k = bit_pos / BITS_PER_UNIT;
++           if (WORDS_BIG_ENDIAN)
++             k = set_word_size / BITS_PER_UNIT - 1 - k;
++         if (set_words_big_endian)
++           bytep[k] |= (1 << (BITS_PER_UNIT - 1 - bit_pos % BITS_PER_UNIT));
++         else
++           bytep[k] |= (1 << (bit_pos % BITS_PER_UNIT));
++       }
++       bit_pos++;
++       if (bit_pos >= set_word_size)
++         {
++           bit_pos = 0;
++           bytep += set_word_size / BITS_PER_UNIT;
++         }
++ #else /* not GPC */
+        if (bit_buffer[i])
+  	{
+  	  if (BYTES_BIG_ENDIAN)
+***************
+*** 5459,5464 ****
+--- 5517,5523 ----
+        bit_pos++;
+        if (bit_pos >= set_word_size)
+  	bit_pos = 0, bytep++;
++ #endif
+      }
+    return non_const_bits;
+  }
+***************
+*** 6099,6104 ****
+--- 6158,6167 ----
+        if (elt == NULL_TREE)
+  	return true;
+  
++       /* Set is empty if it has no elements.  */
++       if (TREE_CODE (TREE_TYPE (init)) == SET_TYPE && elt)
++         return false;
++ 
+        for (; elt ; elt = TREE_CHAIN (elt))
+  	if (! initializer_zerop (TREE_VALUE (elt)))
+  	  return false;
+Only in gcc: tree.c.orig
+Only in gcc: tree.c~
+diff -rc ../gcc-4.0.2.orig/gcc/tree.def gcc/tree.def
+*** ../gcc-4.0.2.orig/gcc/tree.def	Sun Jan 23 16:05:34 2005
+--- gcc/tree.def	Tue Nov 22 04:46:44 2005
+***************
+*** 257,262 ****
+--- 257,268 ----
+  /* Used for Pascal; details not determined right now.  */
+  DEFTREECODE (FILE_TYPE, "file_type", tcc_type, 0)
+  
++ /* Types of sets for Pascal.  Special fields are the same as
++    in an array type.  The target type is always a boolean type.
++    Used for both bitstrings and powersets in Chill;
++    TYPE_STRING_FLAG indicates a bitstring.  */
++ DEFTREECODE (SET_TYPE, "set_type", tcc_type, 0)
++ 
+  /* This is a language-specific kind of type.
+     Its meaning is defined by the language front end.
+     layout_type does not know how to lay this out,
+diff -rc ../gcc-4.0.2.orig/gcc/tree.h gcc/tree.h
+*** ../gcc-4.0.2.orig/gcc/tree.h	Tue Aug 23 09:39:41 2005
+--- gcc/tree.h	Tue Nov 22 04:46:44 2005
+***************
+*** 671,676 ****
+--- 671,679 ----
+  #define NOT_RECORD_OR_UNION_CHECK(T) \
+    TREE_NOT_CHECK3 (T, RECORD_TYPE, UNION_TYPE, QUAL_UNION_TYPE)
+  
++ #define ARRAY_OR_SET_CHECK(T)            \
++   TREE_CHECK2 (T, ARRAY_TYPE, SET_TYPE)
++ 
+  #define NUMERICAL_TYPE_CHECK(T)					\
+    TREE_CHECK5 (T, INTEGER_TYPE, ENUMERAL_TYPE, BOOLEAN_TYPE,	\
+  	       CHAR_TYPE, REAL_TYPE)
+***************
+*** 1505,1511 ****
+  #define TYPE_SIZE_UNIT(NODE) (TYPE_CHECK (NODE)->type.size_unit)
+  #define TYPE_MODE(NODE) (TYPE_CHECK (NODE)->type.mode)
+  #define TYPE_VALUES(NODE) (ENUMERAL_TYPE_CHECK (NODE)->type.values)
+! #define TYPE_DOMAIN(NODE) (ARRAY_TYPE_CHECK (NODE)->type.values)
+  #define TYPE_FIELDS(NODE) (RECORD_OR_UNION_CHECK (NODE)->type.values)
+  #define TYPE_CACHED_VALUES(NODE) (TYPE_CHECK(NODE)->type.values)
+  #define TYPE_ORIG_SIZE_TYPE(NODE)			\
+--- 1508,1514 ----
+  #define TYPE_SIZE_UNIT(NODE) (TYPE_CHECK (NODE)->type.size_unit)
+  #define TYPE_MODE(NODE) (TYPE_CHECK (NODE)->type.mode)
+  #define TYPE_VALUES(NODE) (ENUMERAL_TYPE_CHECK (NODE)->type.values)
+! #define TYPE_DOMAIN(NODE) (ARRAY_OR_SET_CHECK (NODE)->type.values)
+  #define TYPE_FIELDS(NODE) (RECORD_OR_UNION_CHECK (NODE)->type.values)
+  #define TYPE_CACHED_VALUES(NODE) (TYPE_CHECK(NODE)->type.values)
+  #define TYPE_ORIG_SIZE_TYPE(NODE)			\
+***************
+*** 3223,3228 ****
+--- 3226,3238 ----
+  /* If nonzero, the alignment of a bitstring or (power-)set value, in bits.  */
+  extern unsigned int set_alignment;
+  
++ 
++ /* The word size of a bitstring or (power-)set value, in bits.  */
++ extern unsigned int set_word_size;
++ 
++ /* If non-zero, bits in (power-)sets start with the highest bit.  */
++ extern unsigned int set_words_big_endian;
++ 
+  /* Concatenate two lists (chains of TREE_LIST nodes) X and Y
+     by making the last node in X point to Y.
+     Returns X, except if X is 0 returns Y.  */
+diff -rc ../gcc-4.0.2.orig/gcc/varasm.c gcc/varasm.c
+*** ../gcc-4.0.2.orig/gcc/varasm.c	Fri Jul 22 21:32:58 2005
+--- gcc/varasm.c	Fri Mar 24 21:41:25 2006
+***************
+*** 2323,2328 ****
+--- 2323,2341 ----
+  	      + const_hash_1 (TREE_IMAGPART (exp)));
+  
+      case CONSTRUCTOR:
++ #ifdef GPC
++       if (TREE_CODE (TREE_TYPE (exp)) == SET_TYPE)
++         {
++           char *tmp;
++ 
++           len = int_size_in_bytes (TREE_TYPE (exp));
++           tmp = alloca (len);
++           get_set_constructor_bytes (exp, (unsigned char *) tmp, len);
++           p = tmp;
++           break;
++         }
++       else
++ #endif
+        {
+  	tree link;
+  	
+***************
+*** 2441,2446 ****
+--- 2454,2483 ----
+  	typecode = TREE_CODE (TREE_TYPE (t1));
+  	if (typecode != TREE_CODE (TREE_TYPE (t2)))
+  	  return 0;
++ #ifdef GPC
++       if (typecode == SET_TYPE)
++         {
++           int len = int_size_in_bytes (TREE_TYPE (t2));
++           unsigned char *tmp1, *tmp2;
++ 
++           if (TYPE_MAIN_VARIANT (TREE_TYPE (t1)) !=
++                 TYPE_MAIN_VARIANT (TREE_TYPE (t2)))
++             return 0;
++ 
++           if (int_size_in_bytes (TREE_TYPE (t1)) != len)
++             return 0;
++ 
++           tmp1 = alloca (len);
++           tmp2 = alloca (len);
++ 
++           if (get_set_constructor_bytes (t1, tmp1, len) != NULL_TREE)
++             return 0;
++           if (get_set_constructor_bytes (t2, tmp2, len) != NULL_TREE)
++             return 0;
++ 
++           return memcmp (tmp1, tmp2, len) == 0;
++         }
++ #endif
+  
+  	if (typecode == ARRAY_TYPE)
+  	  {
+***************
+*** 2572,2577 ****
+--- 2609,2619 ----
+  	for (tail = list; tail; tail = TREE_CHAIN (tail))
+  	  TREE_VALUE (tail) = copy_constant (TREE_VALUE (tail));
+  
++ #ifdef GPC
++         if (TREE_CODE (TREE_TYPE (exp)) == SET_TYPE)
++           for (tail = list; tail; tail = TREE_CHAIN (tail))
++             TREE_PURPOSE (tail) = copy_constant (TREE_PURPOSE (tail));
++ #endif
+  	return copy;
+        }
+  
+***************
+*** 3601,3607 ****
+  	/* Allow conversions to struct or union types if the value
+  	   inside is okay.  */
+  	if (TREE_CODE (dest_type) == RECORD_TYPE
+! 	    || TREE_CODE (dest_type) == UNION_TYPE)
+  	  return initializer_constant_valid_p (src, endtype);
+        }
+        break;
+--- 3643,3654 ----
+  	/* Allow conversions to struct or union types if the value
+  	   inside is okay.  */
+  	if (TREE_CODE (dest_type) == RECORD_TYPE
+! 	    || TREE_CODE (dest_type) == UNION_TYPE
+! #ifdef GPC
+!             || TREE_CODE (TREE_TYPE (value)) == ARRAY_TYPE
+! #endif
+!            )
+! 
+  	  return initializer_constant_valid_p (src, endtype);
+        }
+        break;
+***************
+*** 3851,3856 ****
+--- 3898,3921 ----
+  	abort ();
+        return;
+  
++ #ifdef GPC
++     case SET_TYPE:
++       if (TREE_CODE (exp) == INTEGER_CST)
++         assemble_integer (expand_expr (exp, NULL_RTX,
++                                        VOIDmode, EXPAND_INITIALIZER),
++                           thissize, align, 1);
++       else if (TREE_CODE (exp) == CONSTRUCTOR)
++         {
++           unsigned char *buffer = alloca (thissize);
++           if (get_set_constructor_bytes (exp, buffer, thissize))
++             abort ();
++           assemble_string ((char *) buffer, thissize);
++         }
++       else
++         error ("unknown set constructor type");
++       return;
++ #endif
++ 
+      case ERROR_MARK:
+        return;
+  
+Only in gcc: varasm.c.orig
+Only in gcc: varasm.c~
+diff -rc ../gcc-4.0.2.orig/gcc/version.c gcc/version.c
+*** ../gcc-4.0.2.orig/gcc/version.c	Wed Sep 21 05:58:56 2005
+--- gcc/version.c	Tue Nov 22 04:46:44 2005
+***************
+*** 14,17 ****
+     forward us bugs reported to you, if you determine that they are
+     not bugs in your modifications.)  */
+  
+! const char bug_report_url[] = "<URL:http://gcc.gnu.org/bugs.html>";
+--- 14,17 ----
+     forward us bugs reported to you, if you determine that they are
+     not bugs in your modifications.)  */
+  
+! const char bug_report_url[] = "<URL:http://www.gnu-pascal.de/todo.html>";

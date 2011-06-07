@@ -1,0 +1,182 @@
+#!/bin/sh
+
+# Create the GPC WWW home page. This is a very special-purpose
+# script. It is called from GPC's makefile.
+#
+# Copyright (C) 2000-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+if [ $# != 5 ]; then
+  echo "Usage: `basename "$0"` GPCVersion src-dir dest-dir lang lang-suffix" >&2
+  exit 1
+fi
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/find-sed`" || exit 1
+
+GPCVersion="$1"
+srcdir="$2"
+destdir="$3"
+lang="$4"
+lang_dir="$5"
+langsrcdir="$srcdir/$lang"
+progname="`basename "$0" | "$sed" -e 's,.*/,,'`"
+q='"'
+
+# Read in language-dependent texts
+. "$langsrcdir/homepage.def"
+
+home=""
+echo "$structure" | while read output input short title; do
+
+  exec > "$destdir/$lang_dir/h-$output.html" || exit 1
+
+  # Header
+  echo '<!doctype html public "-//W3C//DTD HTML 4.0 Transitional//EN">'
+  echo "<html lang=$q$lang$q><head>"
+  echo "<!-- Generated automatically by $progname"
+  echo "     DO NOT CHANGE THIS FILE MANUALLY! -->"
+  echo "<title>$title</title>"
+  if [ x"$charset" != x ]; then
+    echo "<meta http-equiv=$q""Content-Type$q content=$q""text/html; charset=$charset$q>"
+  fi
+  echo "</head>"
+  echo '<body background="../images/gradient.png" bgcolor="#ffcf7f" text="#000000" link="#cf0000" vlink="#7f0000" alink="#ff0000">'
+
+  cat << EOF
+<table align=right><tr><td bgcolor="#ffffff">
+<form method="get" action="/cgi-bin/htsearch-gpc">
+<input type="hidden" name="config" value="htdig">
+<input type="text" size="30" name="words" value="">
+<input type="submit" value="Search">
+</form>
+</td><td width=16>&nbsp;</td><td>
+EOF
+  # Language links
+  grep -v '^[#-]' "$srcdir/languages" | while read lang_dir2 lang2 message2; do
+    if [ x"$lang2" != x"$lang" ]; then
+      imgfile="$srcdir/images/$lang2.png"
+      if [ ! -e "$imgfile" ]; then
+        echo "$progname: $imgfile not found" >&2
+        exit 1
+      fi
+      size="`identify -ping "$imgfile" | sed -ne 's/.*[^0-9]\([0-9]\+\)x\([0-9]\+\).*/width=\1 height=\2/p'`"
+      if [ x"$size" = x ]; then
+        echo "$progname: cannot determine the size of $imgfile" >&2
+        echo "  (need \`identify' of ImageMagick)" >&2
+        exit 1
+      fi
+      echo "<a href=$q../$lang_dir2/h-$output.html$q><img src=$q../images/$lang2.png$q border=no alt=$q`echo "$message2" | sed -e 's/ /\&nbsp;/g'`$q $size></a>"
+    fi
+  done
+  if [ ${PIPESTATUS[0]} -ne 0 ]; then exit 1; fi
+  echo "</td></tr></table>"
+
+  # Top menu
+  echo "<div align=center><small>"
+  separator=" "
+  echo "$structure" | while read output2 input2 short2 title2; do
+    if [ x"$output2" = x"$output" ]; then
+      echo "$separator $short2"
+    else
+      echo "$separator <a href=$q""h-$output2.html$q>$short2</a>"
+    fi
+    separator="-"
+  done || exit 1
+
+  echo "</small><br>&nbsp;<br>"
+  echo "<a href=$q""http://www.gnu-pascal.de/current/$q>$todownloadarea</a>"
+  echo "&nbsp;&nbsp; - &nbsp;&nbsp; <a href=$q""http://www.gnu-pascal.de/crystal/gpc/en/$q>$mailinglistarchives</a>"
+  echo "</div><br clear=$q""all$q><hr>"
+
+  # Sub-header and link to the main page
+  if [ x"$home" != x ]; then
+    echo "<h2><a name=$q$output$q href=$q$home#$output""_toc$q>$title</a></h2>"
+  fi
+
+  # Contents
+  if echo "$input" | grep "^@" > /dev/null; then
+    node="`echo "$input" | "$sed" -e 's/^@//'`"
+    node_quoted="`echo "$node" | sed -e 's,[][\/*.^$],\&,g;s/ /\\\\(%20\\\\|-\\\\)/g'`"
+    href="`cd "$destdir/$lang_dir"; grep -li "^\(.*[:;]\)\?<a name=$q$node_quoted$q>" -- *`"
+    if [ x"$href" = x ]; then
+      echo "href for \`$node' not found." >&2
+      exit 1
+    fi
+    if [ `echo "$href" | wc -w` -gt 1 ]; then
+      echo "multiple hrefs for \`$node' found:" >&2
+      echo "$href" >&2
+      exit 1
+    fi
+    echo "<p>$manualref</p>" | sed -e "s/@REF@/$href/"
+    "$sed" -e '1,/<hr>/d;/<\/body>/,$d;/<!-MAKE-HOMEPAGE-CUT->/,$d' "$destdir/$lang_dir/$href"
+    echo "<hr>"
+  else
+    "$sed" -e "s/@GPCVersion@/$GPCVersion/" < "$langsrcdir/$input" || exit 1
+  fi
+
+  # Bottom menu
+  if [ x"$home" != x ]; then
+    echo "<ul>"
+    first=y
+    echo "$structure" | while read output2 input2 short2 title2; do
+      if [ x"$first" != x ]; then
+        first=""
+      elif [ x"$output2" = x"$output" ]; then
+        echo "<li>$title2"
+      else
+        echo "<li><a href=$q""h-$output2.html$q>$title2</a>"
+      fi
+    done || exit 1
+    if [ ${PIPESTATUS[1]} -ne 0 ]; then exit 1; fi
+    echo "</ul><ul>"
+    echo "<li><a href=$q$home$q>$returntomainpage</a>"
+    echo "</ul><hr>"
+  else
+    home="h-$output.html"
+  fi
+
+  # Footer
+  echo "$disclaimer" || exit 1
+  echo "</body>"
+  echo "</html>"
+
+done
+if [ ${PIPESTATUS[1]} -ne 0 ]; then exit 1; fi

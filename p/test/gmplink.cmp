@@ -1,0 +1,37 @@
+#!/bin/sh
+cat << EOF > dummy.c
+#include <gmp.h>
+#if __GNU_MP_VERSION <= 2
+#error foo
+#endif
+int main()
+{
+  return 0;
+}
+EOF
+if gcc dummy.c -lgmp > /dev/null 2>&1; then
+  FLAGS=""
+  cat << EOF > dummy.c
+  int main()
+  {
+    __gmpf_get_si ();
+    return 0;
+  }
+EOF
+  if gcc dummy.c -lgmp > /dev/null 2>&1; then
+    FLAGS="$FLAGS -DHAVE_GMP4"
+  else
+    FLAGS="$FLAGS -DHAVE_GMP3"
+  fi
+  rm -f "$A_OUT" dummy.c
+  $1 $2 $FLAGS
+  if [ -r "$A_OUT" ]; then
+    ./"$A_OUT"
+  else
+    echo "failed"
+  fi
+else
+  rm -f dummy.c
+  # A `SKIPPED' message is already produced by GMPTest. No need for another one.
+  echo "OK"
+fi

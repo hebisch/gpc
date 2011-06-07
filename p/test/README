@@ -1,0 +1,443 @@
+This file was generated automatically from support.texi.
+DO NOT CHANGE THIS FILE MANUALLY!
+
+Note: This file is the `README' file of the `test' directory in the GPC
+source distribution, _and_ the file `BUGS' in GPC binary distributions.
+
+GPC 2.1, 20070904
+
+1 The GPC Test Suite
+********************
+
+Here you can find information on where to find the most up-to-date
+information about GPC, how you can get support (professional or
+voluntary), how to use GPC's Test Suite, and how to report new bugs you
+might encounter.
+
+If you have problems with GNU Pascal, please read the relevant sections
+of the GPC Manual. The most current version of the manual is available
+at `http://www.gnu-pascal.de/gpc/index.html' for online browsing.  You
+can also download the complete manual in HTML format (tar.bz2)
+(`gpc-html.tar.bz2' on GPC's WWW home page).  The manual is also
+available in PDF (`gpc.pdf' on GPC's WWW home page), PostScript
+(compressed with bzip2) (`gpc.ps.bz2' on GPC's WWW home page) and DVI
+(compressed with bzip2) (`gpc.dvi.bz2' on GPC's WWW home page) formats
+for printing or online reading.
+
+If the manual doesn't help you, here is what we recommend you to do:
+
+   * Check the GPC FAQ (see the file `FAQ' or the GPC Manual)
+
+   * Join the GPC Mailing List
+
+   * Look in the Mailing List Archives
+
+   * Ask in a newsgroup
+
+   * Get individual support for GPC
+
+   * Find out how to report GPC bugs
+
+   * If you have GPC sources, learn how to run the Test Suite to test
+     your bugs reported
+
+1.1 The GPC Mailing List
+========================
+
+There is a mailing list devoted to GNU Pascal. You can write to the
+mailing list, e.g. if you have problems installing GPC or if you found
+a problem with GPC (please see *Note Reporting Bugs::). You can also
+use it to discuss suggestions for improving GPC and, most welcome, to
+offer your help or contribute code, documentation or other work. Mails
+to the list should be in English.
+
+To subscribe to the mailing list, send the command
+     subscribe gpc your@email.address
+in the body of a mail to <majordomo@gnu.de> (*not* to `gpc@gnu.de'!).
+The subject is ignored. (Please replace `your@email.address' with your
+real email address.) For more info, send a line `help' to
+<majordomo@gnu.de>.
+
+After subscribing, you can send a message to the mailing list by
+sending email to the list address <gpc@gnu.de> as if it were a person.
+
+To leave the mailing list, send the command
+     unsubscribe gpc your@email.address
+to <majordomo@gnu.de>.
+
+You can reach a human moderator at _gpc-owner@gnu.de_.
+
+There is a separate mailing list for discussions about GPC
+documentation, <gpc-doc@gnu.de>. To subscribe, send the command
+     subscribe gpc-doc your@email.address
+to <majordomo@gnu.de>.
+
+There is also a (low-traffic) announce list, <gpc-announce@gnu.de> that
+you can subscribe to stay up-to-date. To subscribe to the list, write
+an email with
+     subscribe gpc-announce your@email.address
+in the body to <majordomo@gnu.de>. If you like to announce a
+contribution, a service or an event related to GPC, you are invited to
+post to this list rather than `gpc@gnu.de', but please don't use the
+announce list for questions or discussions. Please note that all mail
+sent to the announce list is forwarded to the regular list, so you
+won't have to subscribe to both lists if you don't want to miss
+anything. For the same reason, please don't cross-post to both lists.
+
+There is also a German speaking mailing list, <gpc-de@gnu.de>. To
+subscribe send the command
+     subscribe gpc-de your@email.address
+in the body of a mail to <majordomo@gnu.de> (note the hints above).
+
+1.2 The GPC Mailing List Archives
+=================================
+
+Perhaps your problem was already discussed on the list. There is a
+searchable archive of the mailing list on the WWW. It can be browsed or
+searched at
+     `http://www.gnu-pascal.de/crystal/gpc/en/'
+
+The archive of the documentation list is at
+     `http://www.gnu-pascal.de/crystal/gpc-doc/en/'
+
+The archive of the announce list is at
+     `http://www.gnu-pascal.de/crystal/gpc-announce/en/'
+
+The archive of the German GPC list is at
+     `http://www.gnu-pascal.de/crystal/gpc-de/de/'
+
+1.3 Newsgroups relevant to GPC
+==============================
+
+To get support, you can also ask the Usenet newsgroups for help.  There
+are several Pascal related newsgroups, but none is dedicated just to
+GNU Pascal, so use the one which is most appropriate for your problem.
+For general Pascal questions, we recommend the following one:
+
+`news://comp.lang.pascal.misc'       Pascal in general and ungrouped
+                                     Pascals.
+
+Pascal syntax related questions may be appropriate in:
+
+`news://comp.lang.pascal.ansi-iso'   Pascal according to ANSI and ISO
+                                     standards.
+
+The next newsgroup is a haven for beginners, answering questions that
+would apply to almost any Pascal. However, if you have a GPC-specific
+question don't post there - use the GPC mailing list.  And when in
+doubt use the GPC mailing list.
+
+`news://comp.lang.pascal.borland'    Borland Pascal questions.
+
+Don't forget to give back what you have obtained. None of us is getting
+money for answering your questions (unless you pay us by yourself).
+Please do your part by answering the questions of others instead.
+
+1.4 Where to get individual support for GPC
+===========================================
+
+GPC is free software and comes *without any warranty*.
+
+If you want to get professional support, you can hire an individual or
+a company for providing such a service.
+
+G-N-U GmbH (http://www.g-n-u.de) is doing large parts of the
+development of GNU Pascal. This company offers special support for GPC
+and can be contacted at <info@g-n-u.de>.
+
+More generally, to find a company or an individual who offers support
+and other consulting services for free software, look into the GNU
+Service Directory (http://www.gnu.org/prep/service.html).
+
+1.5 If the compiler crashes ...
+===============================
+
+If the compiler crashes, you have discovered a bug. A reliable compiler
+never crashes. To help the maintainers fix this bug, it is important
+that you send us a problem report.
+
+If you're on Unix, you can find out where the compiler crashed if you
+enable coredumps, then load the compiler (`gpc1') plus the core file in
+the debugger (`gdb /your_path_here/gpc1 core'), then type `backtrace'
+to get a stacktrace. Include this stacktrace in your bug report.
+
+1.6 How to report GPC bugs
+==========================
+
+If you encounter a bug with GPC, please check whether it is one of the
+known bugs. If not, please report it to the GNU Pascal mailing list.
+That way, they always reach the maintainers. Please note the following
+points.
+
+   * Please send a description of the problem. Try to give as much
+     information as possible, with the full text of any error messages
+     encountered, or a description of how some output varies from the
+     expected output. Always specify the operating system type with
+     version and the machine type (try `uname -a' if unsure) as well as
+     the version of GPC which you get by typing `gpc -v'.
+
+   * A good article on submitting bug reports can be found at either
+     `http://www.chiark.greenend.org.uk/~sgtatham/bugs.html' or
+     `http://freshmeat.net/news/2000/02/26/951627540.html'
+
+     Another good article "How To Ask Questions The Smart Way" is
+     available as `http://www.catb.org/~esr/faqs/smart-questions.html'
+
+     *Please note that the authors of these articles have no relation
+     to GPC and will not help you with your problems! The articles
+     contain general hints about how to report problems well.*
+
+
+If the problem is with the compiler itself, not an installation problem
+or something like this, please provide a test program to reproduce the
+problem, and note the following hints. You can also contribute test
+programs for features that are working in GPC to ensure they will not
+break in future releases.
+
+   * The test program should be as short as possible, but *by all
+     means*, please send a *complete* program and *make sure* that it
+     still reproduces the problem before you send it. Too often, users
+     have sent code which contained obvious syntax errors far before
+     the actual problem, or just code fragments that we could only make
+     wild guesses about. This is unproductive for us and doesn't help
+     you get your problem solved.
+
+
+The preferred form for test programs is the form that the automated GPC
+Test Suite understands. Please, if at all possible, send your test
+programs in this form which should be easy to do, so we won't have to
+waste our time to bring them into this form, and can concentrate on
+fixing the problem.
+
+   * The file containing the main program _must_ have a name ending
+     with `.pas' and contain the keyword `program' (case-insensitively)
+     and a `;' in the same line to be recognized by the Test Suite at
+     all. Other files whose name ends in `.pas' (e.g., units or modules
+     needed by the program), must not contain this.
+
+   * Since the Test Suite must run under very ... nah ... strange
+     operating systems, too, file names must be distinguished in their
+     first eight characters (case-insensitively) and should not contain
+     anything but letters, numbers, hyphens, underscores and a single
+     dot. Furthermore, any ancillary files (units, modules, includes,
+     data files) should not be longer than "8+3" characters; the same
+     applies to the names of unit/module interfaces (because GPC will
+     create `.gpi' file names based on those). It is often a good idea
+     to use your name, nickname or initials followed by a number as the
+     file name.
+
+   * If your test program needs any units or modules, don't give them
+     (or their interfaces in case of modules) common names like `Test',
+     `Foo' or `MyUnit', unless you have very special reasons to,
+     because there might be subtle problems if several test programs
+     use the same name. Instead, it is recommended to prefix the
+     unit/module/interface names with the name of the main test program
+     or an abbreviation of it (if necessary because of the file name
+     restrictions). Furthermore, please avoid the use of units and
+     modules at all if the bug is not specific to them, in order to keep
+     the test as simple as possible.
+
+   * The test program, when run, should produce a line of output
+     consisting of the string `OK' (followed by a newline) if
+     everything went as expected, and something else (e.g. `failed',
+     possibly followed by the reason of failure) if something went
+     wrong.  In the latter case you might want to output additional
+     information such as the values of important variables or an
+     indication in which place the program failed if there are several
+     possible places.
+
+   * However, if the program is intended to check whether GPC catches an
+     (intentional) compile-time error in the program, place the string
+     `WRONG' somewhere in the test program, preferably in a comment in
+     the line that contains the intentional error. `WRONG' tests will
+     be run with the option `-w' to suppress all warnings, so only real
+     errors will be detected.
+
+     *Please note:* While it is possible to combine several `OK' tests
+     in a single test program (if you make sure that it outputs `OK'
+     only if all tests pass), you cannot put several `WRONG' tests into
+     one test program. This is because the compiler will fail (and the
+     test therefore be regarded as successful) already if _one_ error
+     occurs. So, for `WRONG' tests, do only one check per test program.
+     Also, try to keep such a test program as small and simple as
+     possible, to avoid the risk that it will fail because of other
+     problems (and therefore the test be mistakenly considered
+     successful).
+
+   * If the test should merely provoke a GPC warning, use `WARN'
+     instead of `WRONG'. This will run the test without `-w', but with
+     `-Werror'. However, such tests will also appear to succeed if they
+     produce a compiler error, not only a warning.  Therefore, when
+     checking for a warning, it is often a good idea to provide a
+     complementary test (with expected success) and with `-w' in `FLAG'
+     or a compiler directive `{$W-}' to make sure that it's really just
+     a warning, not an error.
+
+   * Runtime errors must be detected by the test itself. One way to do
+     so is to insert code like the following into your test program:
+
+          uses GPC;
+
+          procedure ExpectError;
+          begin
+            if ExitCode = 0 then
+              WriteLn ('failed')
+            else
+              begin
+                WriteLn ('OK');
+                Halt (0)
+              end
+          end;
+
+          begin
+            AtExit (ExpectError);
+            { Your code which should provoke a runtime error }
+          end.
+
+   * For a test that reproduces an existing problem (which is not
+     expected to be fixed soon), please put a comment at the top that
+     describes the problem in a few words, and start it with `BUG'.
+     This is not required by the test scripts, it's just to make it
+     easier for those who will try to fix the problem to see immediately
+     what the test is about. Tests for new (planned) features should not
+     say `BUG'.
+
+
+The following special features of the Test Suite may be helpful for
+constructing slightly unusual tests:
+
+   * If the expected output is something else than `OK', place it in a
+     file `<basename>.out' (where `<basename>' is the name of the test
+     program without the `.pas' extension).
+
+   * If the test program expects some input, place it in a file
+     `<basename>.in'. It will automatically be redirected to the
+     program's standard input.
+
+   * If the test needs some special flags to be given to the GPC command
+     line, place them in a comment preceded by `FLAG', e.g.:
+
+          { FLAG --extended-pascal -Werror }
+
+   * If the test program creates a file, use `.dat' as a file name
+     suffix and no directory (the Makefiles will remove such files in
+     the `mostlyclean' etc. targets) and do not assume that this file
+     exists, does not exist, or anything else about it when the test
+     starts. If possible, use an internal (unnamed) file, so these
+     issues will not apply.
+
+   * The source file name of the test program will be passed as the
+     first command-line argument to the test program run.
+
+   * If a test needs to be run in a special way, you can accompany the
+     program with a script `<basename>.run' that will do the actual
+     test after the test program was compiled. This script will be run
+     by `sh' (regardless of its first line). In order to be portable,
+     it should only use standard tools and features present in all `sh'
+     compatible shells (e.g., `ash', `bash', but not necessarily
+     `csh'). The source file name of the test program will be passed as
+     the first command-line argument to the run script in this case.
+     The compiled file is called `./a.out' on most systems, but, e.g.,
+     `./a.exe' on Cygwin. The environment variable `A_OUT' contains the
+     base name (i.e., `a.out' or `a.exe', so you can always invoke the
+     program as `./"$A_OUT"').
+
+   * If a test needs to be compiled in a special way (e.g., to decide
+     whether to skip the test), place the commands in a script
+     (preferably called `<basename>.cmp'), and put the file name of the
+     script (without directory) in a comment preceded by `COMPILE-CMD:'
+     into the source of the test program. The compile script will be
+     run *instead* of the compiler and any other action otherwise done
+     for this test program, so it gives you maximum flexibility to do
+     whatever you need to do. This script will be run by `sh'
+     (regardless of its first line). In order to be portable, it should
+     only use standard tools and features present in all `sh'
+     compatible shells (see above). The first command-line argument to
+     the compile script will be the compiler to use, including all
+     options. The second argument will be the source file name of the
+     test program. For some typical tests, there are standard compile
+     scripts, e.g. `asmtest.cmp' which will skip the test unless run on
+     a platform supported by the few tests that contain `asm'
+     statements. Of course, it's generally better not to have to use
+     such scripts when possible.
+
+   * In some cases you may want to write _randomized_ tests. This is
+     not usually recommended since it makes problems found harder to
+     reproduce, but sometimes it might be useful (e.g., if you want to
+     cover a large parameter space). In such a case, the following
+     strategy can be used:
+
+          ...
+
+          uses GPC;
+
+          var
+            RandomSeed: Integer;
+
+          begin
+            RandomSeed := Random (MaxInt);
+            SeedRandom (RandomSeed);
+
+            ... { do your normal tests }
+
+            { when printing an error message: }
+            if ... then
+              begin
+                WriteLn ('failed (', RandomSeed, ') ',
+                         ... { possibly additional information } );
+                Halt
+              end
+          end.
+
+     This is a little unnatural since a random number is used to
+     (re-)seed the random number generator, but there's currently no way
+     to retrieve the internal state of the random number generator (and
+     in fact, it's not represented by a single number, but by a large
+     array).
+
+     Given the value of `RandomSeed' in an error message, it should
+     then be possible to reproduce the problem by inserting this value
+     in place of the `Random (MaxInt)'. Just be sure to print this
+     value in *every* message of failure the program may produce.
+
+
+1.7 Running the GPC Test Suite
+==============================
+
+_Note:_ If you have installed a GPC binary distribution, you usually
+don't have the Test Suite installed (you can download the GPC source
+distribution to get it, however), so this section does not apply to
+you. Still, you can find in the section `Contributing Tests to the Test
+Suite' how to report GPC bugs in the form of new test programs so we
+can fix them as fast as possible.
+
+The files in the test directory and subdirectories are for testing GPC
+only and should not be of any other use.
+
+Note: A few of the tests do not make sense on all systems. They are
+equipped with checks and will be skipped if they find the system not
+suitable. Skipped tests do *not* indicate a GPC bug, unless you have a
+reason to be sure that the particular test should make sense on your
+system.
+
+   * To run the whole Test Suite, type `make' in the test directory (or
+     `make check' in the `p' object directory after building GPC).
+
+   * The output will show all errors encountered (hopefully none) and
+     tests skipped, and finally display a summary giving the number of
+     successful, failed and skipped tests. Any failed test indicates a
+     bug in GPC which should be reported to the GPC mailing list,
+     <gpc@gnu.de>. Don't forget to mention the operating system you ran
+     the test on and any other relevant information about what you did.
+
+   * You can also type `make pascal.check-long' to get a long output
+     which is a sequence of file names followed by `OK' for successful
+     tests, `SKIPPED' for skipped tests (both in capital letters), and
+     anything else for failed tests.
+
+   * To run only some of the tests, you can type something like `make
+     MASK="foo[1-7]*.pas"' or `make MASK="foo42.pas" pascal.check-long'.
+
+   * To clean up after running the tests, type `make clean'.
+
+

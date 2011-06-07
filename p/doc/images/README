@@ -1,0 +1,29 @@
+This directory contains images used in the GNU Pascal manual and web
+site.
+
+The following file formats are used for the files in this directory
+and should be used for future additions:
+
+- PNG for pixel graphics (computer drawings, and black/white scanned
+  images, etc.),
+
+- JPEG for color or gray-scale scanned photographs etc. (currently
+  no such files present),
+
+- EPS for PostScript versions of all images (pixel or vector), used
+  for the PS version of the manual,
+
+- PDF for PDF versions of vectorized graphics, used in the PDF
+  version of the manual. (Note: Since pdftex can read PNG and JPEG
+  files, it is not necessary to provide PDF versions of pixel
+  graphics.)
+
+GnuPascal.eps is a vectorized drawing, generated from the pixel
+graphic GnuPascal.png using AutoTrace. (GnuPascal.png was scanned
+from Markus' hand-drawing.) GnuPascal.pdf is also vectorized and was
+generated from GnuPascal.eps using ps2pdf.
+
+gradient.pdf was generated using demos/gradient.pas. gradient.eps
+was hand-written (using a PostScript loop to save space, while not
+requiring PostScript level 3 which has built-in gradient support).
+gradient.pdf was generated from it using ps2pdf.

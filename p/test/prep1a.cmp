@@ -1,0 +1,51 @@
+#!/bin/sh
+
+INFILE1=`$PC_WITHOUT_GP -M $2 | sed 's,\\\\,/,g'`
+INFILE2=`echo $2 | sed 's,\\\\,/,g;s/\\.pas$/.inc/'`
+
+if [ ! x"$INFILE1" = x"$INFILE2" ] ; then
+  echo '$1='$1
+  echo '$2='$2
+  echo failed 1: "$INFILE1"
+  exit 1
+fi
+$PC_WITHOUT_GP -M -o prep1a.inf $2
+read INFILE1 < prep1a.inf
+INFILE1=`echo $INFILE1 | sed 's,\\\\,/,g'`
+if [ ! x"$INFILE1" = x"$INFILE2" ] ; then
+  echo failed 2: "$INFILE1"
+  exit 1
+fi
+$PC_WITHOUT_GP -E $2 > prep1a.es
+$PC_WITHOUT_GP -E -o prep1a.eo $2
+if ! diff prep1a.es prep1a.eo ; then
+  echo failed 3
+  exit 1
+fi
+$1 -save-temps $2
+if ! diff prep1a.es prep1a.i ; then
+  echo failed 4
+  exit 1
+fi
+
+check_aout () {
+  if [ -r "$A_OUT" ] ; then
+    RES=`./"$A_OUT"`
+    if [ ! "$RES" = OK ] ; then
+      echo failed run: $1
+      exit 1
+    else
+      rm "$A_OUT"
+    fi
+  else
+    echo failed compile: $1
+    exit 1
+  fi
+}
+check_aout prep1a.pas
+$1 -x Pascal -fpreprocessed prep1a.i
+check_aout prep1a.i
+$1 prep1a.s
+check_aout prep1a.o
+$1 prep1a.o
+echo OK

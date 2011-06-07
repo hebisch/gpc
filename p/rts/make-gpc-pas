@@ -1,0 +1,260 @@
+#!/bin/sh
+
+# Create a Pascal library interface from a template and the
+# interfaces of the units that the library consists of. The units
+# and their comments must be formatted in a certain way. This is no
+# completely general tool. (The more general solution would be to
+# have the compiler write a GPI file for the library, but until GPC
+# can do that, this script is better than nothing.)
+#
+# Copyright (C) 2001-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+# Find a good awk.
+if test -z "$AWK"; then
+  for AWK in gawk nawk awk ""; do
+    if type "$AWK" 2>&1 | grep 'not found' > /dev/null 2>&1; then
+      :
+    else
+      break
+    fi
+  done
+fi
+if test -z "$AWK"; then
+  echo 'No awk found.' >&2
+  exit 1
+fi
+
+skel()
+{
+cat << EOF
+{ Pascal declarations of the GPC Run Time System that are visible to
+  each program.
+
+  This unit contains Pascal declarations of many RTS routines which
+  are not built into the compiler and can be called from programs.
+  Don't copy the declarations from this unit into your programs, but
+  rather include this unit with a \`uses' statement. The reason is
+  that the internal declarations, e.g. the linker names, may change,
+  and this unit will be changed accordingly. @@In the future, this
+  unit might be included into every program automatically, so there
+  will be no need for a \`uses' statement to make the declarations
+  here available.
+
+  Note about \`protected var' parameters:
+  Since \`const' parameters in GPC may be passed by value *or* by
+  reference internally, possibly depending on the system,
+  \`const foo *' parameters to C functions *cannot* reliably be
+  declared as \`const' in Pascal. However, Extended Pascal's
+  \`protected var' can be used since this guarantees passing by
+  reference.
+
+  Copyright (C) 1998-2006 Free Software Foundation, Inc.
+
+  Authors: Jukka Virtanen <jtv@hut.fi>
+           Peter Gerwinski <peter@gerwinski.de>
+           Frank Heckenbach <frank@pascal.gnu.de>
+           J.J. v.der Heijden <j.j.vanderheijden@student.utwente.nl>
+           Nicola Girardi <nicola@g-n-u.de>
+           Prof. Abimbola A. Olowofoyeku <African_Chief@bigfoot.com>
+           Emil Jerabek <jerabek@math.cas.cz>
+           Maurice Lombardi <Maurice.Lombardi@ujf-grenoble.fr>
+           Toby Ewing <ewing@iastate.edu>
+           Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+  This file is part of GNU Pascal.
+
+  GNU Pascal is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3, or (at your
+  option) any later version.
+
+  GNU Pascal is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with GNU Pascal; see the file COPYING. If not, write to the
+  Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA.
+
+  As a special exception, if you link this file with files compiled
+  with a GNU compiler to produce an executable, this does not cause
+  the resulting executable to be covered by the GNU General Public
+  License. This exception does not however invalidate any other
+  reasons why the executable file might be covered by the GNU
+  General Public License. }
+
+{\$gnu-pascal,I-}
+{\$if __GPC_RELEASE__ <> @VERSION@}
+{\$error
+Trying to compile gpc.pas with a non-matching GPC version is likely
+to cause problems.
+
+In case you are building the RTS separately from GPC, make sure you
+install a current GPC version previously. If you are building GPC
+now and this message appears, something is wrong -- if you are
+overriding the GCC_FOR_TARGET or GPC_FOR_TARGET make variables, this
+might be the problem. If you are cross-building GPC, build and
+install a current GPC cross-compiler first, sorry. If that's not the
+case, please report it as a bug.
+
+If you are not building GPC or the RTS currently, you might have
+installed things in the wrong place, so the compiler and RTS
+versions do not match.}
+{\$endif}
+
+{ Command-line options must not change the layout of RTS types
+  declared here. }
+{\$no-pack-struct, maximum-field-alignment 0}
+
+module GPC;
+
+export
+  GPC = all;
+  GPC_CP = (ERead { @@ not really, but an empty export doesn't work } );
+  GPC_EP = (ERead { @@ not really, but an empty export doesn't work } );
+  GPC_BP = (MaxLongInt, ExitCode, ErrorAddr, FileMode, Pos);
+  GPC_Delphi = (MaxLongInt, Int64, InitProc, EConvertError,
+                ExitCode, ErrorAddr, FileMode, Pos, SetString, StringOfChar,
+                TextFile, AssignFile, CloseFile);
+
+type
+  GPC_FDR = AnyFile;
+
+@interface rtsc.pas
+@interface math.pas
+@interface string1.pas
+@interface string2.pas
+@interface error.pas
+@interface time.pas
+@interface random.pas
+@interface fname.pas
+@interface files.pas
+@interface getopt.pas
+@interface sets.pas
+@interface heap.pas
+@interface move.pas
+@interface endian.pas
+@interface init.pas
+end;
+
+{\$ifndef HAVE_NO_RTS_CONFIG_H}
+{\$include "rts-config.inc"}
+{\$endif}
+{\$ifdef HAVE_LIBOS_HACKS}
+{\$L os-hacks}
+{\$endif}
+
+end.
+EOF
+}
+
+process_unit ()
+{
+  # This awk script should be DAU-awk safe ... :-/
+  "$AWK" '
+    BEGIN { d = ""; empty = 0; state = 0 }
+    # Handle states in reversed order, so that after setting a new state
+    # the new state is not handled for the same line.
+    state == 3 && /^implementation$/ { exit 0 }
+    state == 3 && /^ *{@internal}$/ { state = -state }
+    state == 3 && !/^uses/ {
+      line = $0
+      # Remove variable initializers and make the declarations external
+      i = index (line, ":")
+      j = index (line, "=")
+      l = index (line, "(")  # no schema types
+      if (i > 0 && j > i && (l == 0 || l > j))
+        {
+          while (j > 1 && substr (line, j - 1, 1) == " ") j--
+          while ((k = index (line, ";")) == 0)
+            {
+              getline
+              line = line " " $0
+            }
+          if (k > j)
+            line = substr (line, 1, j - 1) substr (line, k)
+        }
+      t = line
+      gsub ("\\{.*\\}", "", t)
+      if (t ~ /attribute \(name =/ || t ~ /attribute \([^)]*, *name =/)
+        line = line " external;"
+      # Do not print multiple empty lines in a row
+      if (!empty || line != "") print line
+      if (line == "")
+        empty = 1
+      else
+        empty = 0
+    }
+    state < 0 && /^ *{@endinternal}$/ { state = -state }
+    state == 2 && /^interface$/ { state = 3 }
+    state == 0 && /This file was generated automatically/ { state = 1 }
+    state == 0 {
+      sub ("^{ *", "")
+      if ($0 != "")
+        {
+          if (d != "") d = d "\n"
+          d = d $0
+        }
+    }
+    state == 0 && /^$/ {
+      print "{ " d ", from '"$1"' }"
+      state = 2;
+    }
+    state == 1 && /^$/ { state = 0 }
+  ' < "$1" || return 1
+}
+
+echo "{ This file was generated automatically by `basename $0`."
+echo "  DO NOT CHANGE THIS FILE MANUALLY! }"
+echo ""
+# Instead of the following bash/awk combination, we could do it
+# all within awk, but only GNU awk. Other versions of awk don't
+# support getline from secondary files, for instance ...
+ORIG_IFS="$IFS"
+skel | sed -e "s/@VERSION@/$1/" |
+while IFS=""; read -r line; do
+  IFS="$ORIG_IFS"
+  case "$line" in
+    @interface*) process_unit "`echo "$line" | sed -e 's/^@interface *//'`" || return 1;;
+    *) echo "$line";;
+  esac
+done

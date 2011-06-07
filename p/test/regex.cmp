@@ -1,0 +1,21 @@
+#!/bin/sh
+cat << EOF > dummy.c
+#include <stdlib.h>
+#include <rxposix.h>
+int main()
+{
+  return 0;
+}
+EOF
+if gcc dummy.c -lrx > /dev/null 2>&1; then
+  rm -f "$A_OUT" dummy.c
+  $1 $2
+  if [ -r "$A_OUT" ] ; then
+    ./"$A_OUT"
+  else
+    echo "failed"
+  fi
+else
+  rm -f dummy.c
+  echo "SKIPPED: librx not installed"
+fi

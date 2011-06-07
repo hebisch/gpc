@@ -1,0 +1,593 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+@include macros.texi
+
+@ifclear FAQONLY
+@ifclear TESTREADMEONLY
+@node Support
+@chapter Where to get support for GNU Pascal; how to report bugs.
+@cindex support
+@cindex help
+@cindex bugs
+@end ifclear
+
+@ifset TESTREADMEONLY
+@include version.texi
+@c Note: The following line gets inserted into the destination file,
+@c       it does not apply to this Texinfo file!
+This file was generated automatically from support.texi.@*
+@sc{DO NOT CHANGE THIS FILE MANUALLY!}
+
+@paragraphindent 0
+Note: This file is the @file{README} file of the @file{test}
+directory in the GPC source distribution, @emph{and} the file
+@file{BUGS} in GPC binary distributions.
+
+GPC @value{GPCMajor}.@value{GPCMinor}, @value{GPCVersion}
+
+@settitle The GPC Test Suite
+@node Top
+@chapter The GPC Test Suite
+@end ifset
+
+Here you can find information on where to find the most up-to-date
+information about GPC, how you can get support (professional or
+voluntary), how to use GPC's Test Suite, and how to report new bugs
+you might encounter.
+
+If you have problems with GNU Pascal, please read the relevant
+sections of the GPC Manual. The most current version of the manual
+is available at
+@uref{http://www.gnu-pascal.de/gpc/index.html}
+for online browsing.
+You can also download the
+@localuref{gpc-html.tar.bz2,complete manual in HTML format (tar.bz2)}.
+The manual is also available in
+@localuref{gpc.pdf,PDF},
+@localuref{gpc.ps.bz2,PostScript (compressed with bzip2)} and
+@localuref{gpc.dvi.bz2,DVI (compressed with bzip2)} formats for
+printing or online reading.
+
+If the manual doesn't help you, here is what we recommend you to do:
+
+@ifclear TESTREADMEONLY
+@noindent @ref{FAQ}                Check the GPC FAQ
+@end ifclear
+@ifset TESTREADMEONLY
+@itemize @bullet
+@item Check the GPC FAQ (see the file @samp{FAQ} or the GPC Manual)
+@item Join the GPC Mailing List
+@item Look in the Mailing List Archives
+@item Ask in a newsgroup
+@item Get individual support for GPC
+@item Find out how to report GPC bugs
+@item If you have GPC sources, learn how to run the Test Suite to test your bugs reported
+@end itemize
+@end ifset
+
+@menu
+* Mailing List::           Join the GPC Mailing List
+* Mailing List Archives::  Look in the Mailing List Archives
+* Newsgroups::             Ask in a newsgroup
+* Professional Support::   Get individual support for GPC
+* Compiler Crashes::       If the compiler crashes @dots{}
+* Reporting Bugs::         Find out how to report GPC bugs
+* Testing::                If you have GPC sources, learn how to run
+                           the Test Suite to test your bugs reported
+@end menu
+
+@end ifclear
+
+@node Mailing List
+@section The GPC Mailing List
+@cindex Mailing List
+
+There is a mailing list devoted to GNU Pascal. You can write to the
+mailing list, e.g. if you have problems installing GPC or if you
+found a problem with GPC (please see @ref{Reporting Bugs}). You can
+also use it to discuss suggestions for improving GPC and, most
+welcome, to offer your help or contribute code, documentation or
+other work. Mails to the list should be in English.
+
+To subscribe to the mailing list, send the command
+@smallexample
+subscribe gpc your@@email.address
+@end smallexample
+in the body of a mail to @email{majordomo@@gnu.de} (@strong{not} to
+@samp{gpc@@gnu.de}!). The subject is ignored. (Please replace
+@samp{your@@email.address} with your real email address.) For more
+info, send a line @samp{help} to @email{majordomo@@gnu.de}.
+
+After subscribing, you can send a message to the mailing list by
+sending email to the list address @email{gpc@@gnu.de} as if it were
+a person.
+
+To leave the mailing list, send the command
+@smallexample
+unsubscribe gpc your@@email.address
+@end smallexample
+to @email{majordomo@@gnu.de}.
+
+You can reach a human moderator at @emph{gpc-owner@@gnu.de}.
+
+There is a separate mailing list for discussions about GPC
+documentation, @email{gpc-doc@@gnu.de}. To subscribe, send the
+command
+@smallexample
+subscribe gpc-doc your@@email.address
+@end smallexample
+to @email{majordomo@@gnu.de}.
+
+There is also a (low-traffic) announce list,
+@email{gpc-announce@@gnu.de} that you can subscribe to stay
+up-to-date. To subscribe to the list, write an email with
+@smallexample
+subscribe gpc-announce your@@email.address
+@end smallexample
+in the body to @email{majordomo@@gnu.de}. If you like to announce a
+contribution, a service or an event related to GPC, you are invited
+to post to this list rather than @samp{gpc@@gnu.de}, but please
+don't use the announce list for questions or discussions. Please
+note that all mail sent to the announce list is forwarded to the
+regular list, so you won't have to subscribe to both lists if you
+don't want to miss anything. For the same reason, please don't
+cross-post to both lists.
+
+There is also a German speaking mailing list,
+@email{gpc-de@@gnu.de}. To subscribe send the command
+@smallexample
+subscribe gpc-de your@@email.address
+@end smallexample
+in the body of a mail to @email{majordomo@@gnu.de} (note the hints
+above).
+
+@node Mailing List Archives
+@section The GPC Mailing List Archives
+@cindex Mailing List Archives
+@cindex Archives, mailing list
+
+Perhaps your problem was already discussed on the list. There is a
+searchable archive of the mailing list on the WWW. It can be browsed
+or searched at
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc/en/}
+@end smallexample
+
+The archive of the documentation list is at
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc-doc/en/}
+@end smallexample
+
+The archive of the announce list is at
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc-announce/en/}
+@end smallexample
+
+The archive of the German GPC list is at
+@smallexample
+@uref{http://www.gnu-pascal.de/crystal/gpc-de/de/}
+@end smallexample
+
+@node Newsgroups
+@section Newsgroups relevant to GPC
+@cindex Newsgroups
+
+To get support, you can also ask the Usenet newsgroups for help.
+There are several Pascal related newsgroups, but none is dedicated
+just to GNU Pascal, so use the one which is most appropriate for
+your problem. For general Pascal questions, we recommend the
+following one:
+
+@multitable @columnfractions .5 .5
+@item @uref{news://comp.lang.pascal.misc} @tab Pascal in general and ungrouped Pascals.
+@end multitable
+
+Pascal syntax related questions may be appropriate in:
+
+@multitable @columnfractions .5 .5
+@item @uref{news://comp.lang.pascal.ansi-iso} @tab Pascal according to ANSI and ISO standards.
+@end multitable
+
+The next newsgroup is a haven for beginners, answering questions
+that would apply to almost any Pascal. However, if you have a
+GPC-specific question don't post there -- use the GPC mailing list.
+And when in doubt use the GPC mailing list.
+
+@multitable @columnfractions .5 .5
+@item @uref{news://comp.lang.pascal.borland} @tab Borland Pascal questions.
+@end multitable
+
+Don't forget to give back what you have obtained. None of us is
+getting money for answering your questions (unless you pay us by
+yourself). Please do your part by answering the questions of others
+instead.
+
+@node Professional Support
+@section Where to get individual support for GPC
+@cindex Professional Support
+@cindex Commercial Support
+@cindex Support, professional
+
+GPC is free software and comes @strong{without any warranty}.
+
+If you want to get professional support, you can hire an individual
+or a company for providing such a service.
+
+@uref{http://www.g-n-u.de,G-N-U GmbH} is doing large parts of the
+development of GNU Pascal. This company offers special support for
+GPC and can be contacted at @email{info@@g-n-u.de}.
+
+More generally, to find a company or an individual who offers
+support and other consulting services for free software, look into
+the
+@uref{http://www.gnu.org/prep/service.html,GNU Service Directory}.
+
+@node Compiler Crashes
+@section If the compiler crashes @dots{}
+@cindex Compiler Crashes
+@cindex Crash, of the compiler
+
+If the compiler crashes, you have discovered a bug. A reliable
+compiler never crashes. To help the maintainers fix this bug, it is
+important that you send us a problem report.
+
+If you're on Unix, you can find out where the compiler crashed if
+you enable coredumps, then load the compiler (@file{gpc1}) plus the
+core file in the debugger (@samp{gdb /your_path_here/gpc1 core}),
+then type @samp{backtrace} to get a stacktrace. Include this
+stacktrace in your bug report.
+
+@node Reporting Bugs
+@section How to report GPC bugs
+@cindex Reporting Bugs
+@cindex Bugs, reporting
+@cindex Test Suite, writing tests
+
+If you encounter a bug with GPC, please check whether it is one of
+the known bugs@c
+@ifclear TESTREADMEONLY
+@ifclear FAQONLY
+ (@pxref{Known Bugs})@c
+@end ifclear
+@end ifclear
+. If not, please report it to the GNU Pascal mailing list@c
+@ifclear TESTREADMEONLY
+ (@pxref{Mailing List})@c
+@end ifclear
+. That way, they always reach the maintainers. Please note the
+following points.
+
+@itemize @bullet
+
+@item
+Please send a description of the problem. Try to give as much
+information as possible, with the full text of any error messages
+encountered, or a description of how some output varies from the
+expected output. Always specify the operating system type with
+version and the machine type (try @samp{uname -a} if unsure) as well
+as the version of GPC which you get by typing @samp{gpc -v}.
+
+@item
+A good article on submitting bug reports can be found at either@*
+@uref{http://www.chiark.greenend.org.uk/~sgtatham/bugs.html} or@*
+@uref{http://freshmeat.net/news/2000/02/26/951627540.html}
+
+Another good article ``How To Ask Questions The Smart Way'' is
+available as
+@uref{http://www.catb.org/~esr/faqs/smart-questions.html}
+
+@strong{Please note that the authors of these articles have no
+relation to GPC and will not help you with your problems! The
+articles contain general hints about how to report problems well.}
+
+@end itemize
+
+If the problem is with the compiler itself, not an installation
+problem or something like this, please provide a test program to
+reproduce the problem, and note the following hints. You can also
+contribute test programs for features that are working in GPC to
+ensure they will not break in future releases.
+
+@itemize @bullet
+
+@item
+The test program should be as short as possible, but
+@strong{by all means}, please send a @strong{complete} program and
+@strong{make sure} that it still reproduces the problem before you
+send it. Too often, users have sent code which contained obvious
+syntax errors far before the actual problem, or just code fragments
+that we could only make wild guesses about. This is unproductive for
+us and doesn't help you get your problem solved.
+
+@end itemize
+
+@ifclear FAQONLY
+
+The preferred form for test programs is the form that the automated
+GPC Test Suite understands. Please, if at all possible, send your
+test programs in this form which should be easy to do, so we won't
+have to waste our time to bring them into this form, and can
+concentrate on fixing the problem.
+
+@itemize @bullet
+
+@item
+The file containing the main program @emph{must} have a name ending
+with @file{.pas} and contain the keyword @samp{program}
+(case-insensitively) and a @samp{;} in the same line to be
+recognized by the Test Suite at all. Other files whose name ends in
+@file{.pas} (e.g., units or modules needed by the program), must not
+contain this.
+
+@item
+Since the Test Suite must run under very @dots{} nah @dots{} strange
+operating systems, too, file names must be distinguished in their
+first eight characters (case-insensitively) and should not contain
+anything but letters, numbers, hyphens, underscores and a single
+dot. Furthermore, any ancillary files (units, modules, includes,
+data files) should not be longer than ``8+3'' characters; the same
+applies to the names of unit/module interfaces (because GPC will
+create @file{.gpi} file names based on those). It is often a good
+idea to use your name, nickname or initials followed by a number as
+the file name.
+
+@item
+If your test program needs any units or modules, don't give them (or
+their interfaces in case of modules) common names like @samp{Test},
+@samp{Foo} or @samp{MyUnit}, unless you have very special reasons
+to, because there might be subtle problems if several test programs
+use the same name. Instead, it is recommended to prefix the
+unit/module/interface names with the name of the main test program
+or an abbreviation of it (if necessary because of the file name
+restrictions). Furthermore, please avoid the use of units and
+modules at all if the bug is not specific to them, in order to keep
+the test as simple as possible.
+
+@item
+The test program, when run, should produce a line of output
+consisting of the string @samp{OK} (followed by a newline) if
+everything went as expected, and something else (e.g. @samp{failed},
+possibly followed by the reason of failure) if something went wrong.
+In the latter case you might want to output additional information
+such as the values of important variables or an indication in which
+place the program failed if there are several possible places.
+
+@item
+However, if the program is intended to check whether GPC catches an
+(intentional) compile-time error in the program, place the string
+@samp{WRONG} somewhere in the test program, preferably in a comment
+in the line that contains the intentional error. @samp{WRONG} tests
+will be run with the option @samp{-w} to suppress all warnings, so
+only real errors will be detected.
+
+@strong{Please note:} While it is possible to combine several
+@samp{OK} tests in a single test program (if you make sure that it
+outputs @samp{OK} only if all tests pass), you cannot put several
+@samp{WRONG} tests into one test program. This is because the
+compiler will fail (and the test therefore be regarded as
+successful) already if @emph{one} error occurs. So, for @samp{WRONG}
+tests, do only one check per test program. Also, try to keep such a
+test program as small and simple as possible, to avoid the risk that
+it will fail because of other problems (and therefore the test be
+mistakenly considered successful).
+
+@item
+If the test should merely provoke a GPC warning, use @samp{WARN}
+instead of @samp{WRONG}. This will run the test without @samp{-w},
+but with @samp{-Werror}. However, such tests will also appear to
+succeed if they produce a compiler error, not only a warning.
+Therefore, when checking for a warning, it is often a good idea to
+provide a complementary test (with expected success) and with
+@samp{-w} in @samp{FLAG} or a compiler directive @samp{@{$W-@}} to
+make sure that it's really just a warning, not an error.
+
+@item
+Runtime errors must be detected by the test itself. One way to do so
+is to insert code like the following into your test program:
+
+@smallexample
+uses GPC;
+
+procedure ExpectError;
+begin
+  if ExitCode = 0 then
+    WriteLn ('failed')
+  else
+    begin
+      WriteLn ('OK');
+      Halt (0)
+    end
+end;
+
+begin
+  AtExit (ExpectError);
+  @{ Your code which should provoke a runtime error @}
+end.
+@end smallexample
+
+@item
+For a test that reproduces an existing problem (which is not
+expected to be fixed soon), please put a comment at the top that
+describes the problem in a few words, and start it with @samp{BUG}.
+This is not required by the test scripts, it's just to make it
+easier for those who will try to fix the problem to see immediately
+what the test is about. Tests for new (planned) features should not
+say @samp{BUG}.
+
+@end itemize
+
+The following special features of the Test Suite may be helpful for
+constructing slightly unusual tests:
+
+@itemize @bullet
+
+@item
+If the expected output is something else than @samp{OK}, place it in
+a file @file{<basename>.out} (where @file{<basename>} is the name of
+the test program without the @file{.pas} extension).
+
+@item
+If the test program expects some input, place it in a file
+@file{<basename>.in}. It will automatically be redirected to the
+program's standard input.
+
+@item
+If the test needs some special flags to be given to the GPC command
+line, place them in a comment preceded by @samp{FLAG}, e.g.:
+
+@smallexample
+@{ FLAG --extended-pascal -Werror @}
+@end smallexample
+
+@item
+If the test program creates a file, use @file{.dat} as a file name
+suffix and no directory (the Makefiles will remove such files in the
+@samp{mostlyclean} etc. targets) and do not assume that this file
+exists, does not exist, or anything else about it when the test
+starts. If possible, use an internal (unnamed) file, so these issues
+will not apply.
+
+@item
+The source file name of the test program will be passed as the first
+command-line argument to the test program run.
+
+@item
+If a test needs to be run in a special way, you can accompany the
+program with a script @file{<basename>.run} that will do the actual
+test after the test program was compiled. This script will be run by
+@file{sh} (regardless of its first line). In order to be portable,
+it should only use standard tools and features present in all
+@file{sh} compatible shells (e.g., @samp{ash}, @samp{bash}, but not
+necessarily @samp{csh}). The source file name of the test program
+will be passed as the first command-line argument to the run script
+in this case. The compiled file is called @file{./a.out} on most
+systems, but, e.g., @file{./a.exe} on Cygwin. The environment
+variable @samp{A_OUT} contains the base name (i.e., @file{a.out} or
+@file{a.exe}, so you can always invoke the program as
+@samp{./"$A_OUT"}).
+
+@item
+If a test needs to be compiled in a special way (e.g., to decide
+whether to skip the test), place the commands in a script
+(preferably called @file{<basename>.cmp}), and put the file name of
+the script (without directory) in a comment preceded by
+@samp{COMPILE-CMD:} into the source of the test program. The compile
+script will be run @strong{instead} of the compiler and any other
+action otherwise done for this test program, so it gives you maximum
+flexibility to do whatever you need to do. This script will be run
+by @file{sh} (regardless of its first line). In order to be
+portable, it should only use standard tools and features present in
+all @file{sh} compatible shells (see above). The first command-line
+argument to the compile script will be the compiler to use,
+including all options. The second argument will be the source file
+name of the test program. For some typical tests, there are standard
+compile scripts, e.g. @file{asmtest.cmp} which will skip the test
+unless run on a platform supported by the few tests that contain
+`asm' statements. Of course, it's generally better not to have to
+use such scripts when possible.
+
+@item
+In some cases you may want to write @emph{randomized} tests. This is
+not usually recommended since it makes problems found harder to
+reproduce, but sometimes it might be useful (e.g., if you want to
+cover a large parameter space). In such a case, the following
+strategy can be used:
+
+@smallexample
+@dots{}
+
+uses GPC;
+
+var
+  RandomSeed: Integer;
+
+begin
+  RandomSeed := Random (MaxInt);
+  SeedRandom (RandomSeed);
+
+  @dots{} @{ do your normal tests @}
+
+  @{ when printing an error message: @}
+  if @dots{} then
+    begin
+      WriteLn ('failed (', RandomSeed, ') ',
+               @dots{} @{ possibly additional information @} );
+      Halt
+    end
+end.
+@end smallexample
+
+This is a little unnatural since a random number is used to
+(re-)seed the random number generator, but there's currently no way
+to retrieve the internal state of the random number generator (and
+in fact, it's not represented by a single number, but by a large
+array).
+
+Given the value of @samp{RandomSeed} in an error message, it should
+then be possible to reproduce the problem by inserting this value in
+place of the @samp{Random (MaxInt)}. Just be sure to print this
+value in @strong{every} message of failure the program may produce.
+
+@end itemize
+
+@node Testing
+@section Running the GPC Test Suite
+@cindex Test Suite, Running
+
+@emph{Note:} If you have installed a GPC binary distribution, you
+usually don't have the Test Suite installed (you can download the
+GPC source distribution to get it, however), so this section does
+not apply to you. Still, you can find in the section
+@samp{Contributing Tests to the Test Suite} how to report GPC bugs
+in the form of new test programs so we can fix them as fast as
+possible.
+
+The files in the test directory and subdirectories are for testing
+GPC only and should not be of any other use.
+
+Note: A few of the tests do not make sense on all systems. They are
+equipped with checks and will be skipped if they find the system not
+suitable. Skipped tests do @strong{not} indicate a GPC bug, unless
+you have a reason to be sure that the particular test should make
+sense on your system.
+
+@itemize @bullet
+
+@item
+To run the whole Test Suite, type @samp{make} in the test directory
+(or @samp{make check} in the @samp{p} object directory after
+building GPC).
+
+@item
+The output will show all errors encountered (hopefully none) and
+tests skipped, and finally display a summary giving the number of
+successful, failed and skipped tests. Any failed test indicates a
+bug in GPC which should be reported to the GPC mailing list,
+@email{gpc@@gnu.de}. Don't forget to mention the operating system
+you ran the test on and any other relevant information about what
+you did.
+
+@item
+You can also type @samp{make pascal.check-long} to get a long output
+which is a sequence of file names followed by @samp{OK} for
+successful tests, @samp{SKIPPED} for skipped tests (both in capital
+letters), and anything else for failed tests.
+
+@item
+To run only some of the tests, you can type something like
+@samp{make MASK="foo[1-7]*.pas"} or
+@samp{make MASK="foo42.pas" pascal.check-long}.
+
+@item
+To clean up after running the tests, type @samp{make clean}.
+
+@end itemize
+
+@end ifclear

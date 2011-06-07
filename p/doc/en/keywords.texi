@@ -1,0 +1,63 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-01-30 (file up to date)
+
+@node Keywords
+@chapter Pascal keywords and operators supported by GNU Pascal.
+
+This chapter lists all keywords understood by GNU Pascal. The
+keywords are taken from the following standards and dialects:
+
+@itemize @bullet
+@item ISO 7185 Pascal (CP)
+@item ISO 10206 Extended Pascal (EP)
+@item ANSI draft Object Pascal (OP)
+@item UCSD Pascal (UCSD)
+@item Borland Pascal 7.0 (BP)
+@item Borland Delphi (BD)
+@item Pascal-SC (PXSC, Pascal eXtensions for Scientific Calculations)
+@item VAX Pascal (VP)
+@item Sun Pascal (SP)
+@item Traditional Macintosh Pascal (MP)
+@item GNU Pascal extensions (GPC)
+@end itemize
+
+The table below lists all known keywords with short descriptions.
+The links point to the longer descriptions in the reference.
+
+By default (using GPC extensions) all keywords are enabled. Only
+those are marked @samp{GPC} in the table below that are valid
+@emph{only} in the GPC extensions.
+
+All keywords that are specific to some dialects (i.e., not marked
+``any'') can also be used as identifiers (with a few exceptions, see
+below). Then, however, they generally cannot be used as keywords
+anymore. So you can compile code from dialects that use them as
+keywords and code that uses them as identifiers, i.e., you do not
+have to modify your correct ISO 7185 programs in order to compile
+them with GPC without any dialect option. Some words can even be
+used as keywords and identifiers in parallel, including
+@samp{forward} (according to ISO 7185 Pascal), and @samp{near} and
+@samp{far} (according to Borland Pascal).
+
+The exceptions are:
+
+@itemize @bullet
+
+@item The keyword @samp{uses} can't be used @emph{immediately} after
+an @samp{import} part: using @samp{import} or @samp{uses} consistently
+or putting some other declaration between @samp{import} and  @samp{uses}
+helps.
+@end itemize
+
+A dialect option turns off all keywords that do not belong to this
+dialect. Besides, any keyword can be enabled and disabled with the
+compiler options @samp{@{$enable-keyword@}} and
+@samp{@{$disable-keyword@}}.
+
+@include keyword.texi

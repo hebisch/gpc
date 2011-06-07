@@ -1,0 +1,326 @@
+# Autoconf configure script for GPC, the GNU Pascal compiler.
+# Copyright 1995-2006 Free Software Foundation, Inc.
+#
+# Authors: J.J. van der Heijden <j.j.vanderheijden@student.utwente.nl>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#          Peter Gerwinski <peter@gerwinski.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# Process this file with autoconf to produce a configure script.
+# This file is also processed with make-acconfig-h.m4 to produce
+# acconfig.h.
+
+AC_PREREQ(2.12)
+AC_INIT(rts.c)
+AC_CONFIG_HEADER(rts-config.h:rts-config.in)
+
+# Checks for programs.
+AC_PROG_CC
+
+test "$AR" || AR=ar
+AC_SUBST(AR)
+
+if test "$RANLIB"; then :
+  AC_SUBST(RANLIB)
+else
+  RANLIB_TEST=true
+  AC_PROG_RANLIB
+fi
+AC_SUBST(RANLIB_TEST)
+
+AC_ARG_WITH(shared, [  --with-shared           build shared RTS library], with_shared=${withval})
+AC_SUBST(with_shared)
+
+# GPC_DEFINE(NAME)
+# Define $1 in upper case
+AC_DEFUN(GPC_DEFINE,[AC_DEFINE(translit($1, [abcdefghijklmnopqrstuvwxyz ], [ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
+
+# The second parameter is used by make-acconfig-h.m4
+ifdef([GPC_MSG_CHECKING],,[AC_DEFUN([GPC_MSG_CHECKING],[AC_MSG_CHECKING([$1])])])
+
+# Checks for header files
+AC_HEADER_STDC
+AC_CHECK_HEADERS(crt_externs.h ctype.h errno.h fcntl.h fnmatch.h glob.h \
+                 limits.h locale.h math.h os-hacks.h process.h pwd.h signal.h \
+                 stdio.h unistd.h utime.h termio.h termios.h \
+                 bsd/signal.h sys/file.h sys/mman.h sys/mount.h sys/param.h \
+                 sys/resource.h sys/select.h sys/stat.h sys/statvfs.h \
+                 sys/time.h sys/types.h sys/utime.h sys/utsname.h sys/vfs.h)
+AC_HEADER_DIRENT
+AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
+
+# Checks for libraries
+# Make sure -lm is used when checking for sinl, ...
+AC_CHECK_LIB(m,sin)
+AC_CHECK_LIB(iconv,libiconv) # must be checked *before* intl (e.g., for DJGPP)
+AC_CHECK_LIB(intl,gettext)
+AC_CHECK_LIB(os-hacks,main)
+
+# Defines used before including system headers (consistent with rts.c)
+AC_DEFUN(GPC_GLOBAL_DEFINES,[
+#define _GNU_SOURCE
+#define _LARGEFILE64_SOURCE
+#define _FILE_OFFSET_BITS 64
+])
+
+# Checks for field declarations
+# GPC_CHECK_FIELD(TYPE, FIELD, STRUCT, HEADERS, HEADER_MSG)
+# Check whether struct $3 contains field $2 of type $1
+AC_DEFUN(GPC_CHECK_FIELD,
+  [GPC_MSG_CHECKING(for $2 in $3,if $3 in $5 contains a $2 field)
+   AC_CACHE_VAL(gpc_cv_field_$2,
+   [AC_TRY_COMPILE(
+     GPC_GLOBAL_DEFINES[$4
+     volatile $3 p; volatile $1 c;],
+     [c = p.$2;],
+     gpc_cv_field_$2=yes,
+     gpc_cv_field_$2=no)])
+   AC_MSG_RESULT($gpc_cv_field_$2)
+   if test $gpc_cv_field_$2 = yes; then
+     GPC_DEFINE(HAVE_$2)
+   fi
+  ])
+GPC_CHECK_FIELD(char *,pw_gecos,struct passwd,[#include <pwd.h>],<pwd.h>)
+GPC_CHECK_FIELD(char *,pw_passwd,struct passwd,[#include <pwd.h>],<pwd.h>)
+GPC_CHECK_FIELD(char *,domainname,struct utsname,[#include <sys/utsname.h>],<sys/utsname.h>)
+GPC_CHECK_FIELD(int,tm_isdst,struct tm,[#include <time.h>],<time.h>)
+GPC_CHECK_FIELD(long int,tm_gmtoff,struct tm,[#include <time.h>],<time.h>)
+
+# Checks for typedefs
+# GPC_CHECK_TYPE(TYPE, HEADERS, HEADER_MSG)
+# Check whether the type $1 exists in $2
+AC_DEFUN(GPC_CHECK_TYPE,
+  [define([gpc_cv_type_tmp],translit([gpc_cv_type_$1], [ ], [_]))
+   GPC_MSG_CHECKING(for $1 type in $3,if type $1 is declared in $3)
+   AC_CACHE_VAL(gpc_cv_type_tmp,
+   [AC_TRY_COMPILE(
+   GPC_GLOBAL_DEFINES[$2
+   volatile int a;],
+   [a = sizeof ($1);],
+   gpc_cv_type_tmp=yes,
+   gpc_cv_type_tmp=no)])
+   AC_MSG_RESULT($gpc_cv_type_tmp)
+   if test $gpc_cv_type_tmp = yes; then
+     GPC_DEFINE(HAVE_$1)
+   fi
+  ])
+GPC_CHECK_TYPE(ssize_t,  [#include <stdlib.h>
+                          #include <sys/types.h>],<stdlib.h> or <sys/types.h>)
+GPC_CHECK_TYPE(off_t,    [#include <stdlib.h>
+                          #include <sys/types.h>],<stdlib.h> or <sys/types.h>)
+GPC_CHECK_TYPE(off64_t,  [#include <stdlib.h>
+                          #include <sys/types.h>],<stdlib.h> or <sys/types.h>)
+GPC_CHECK_TYPE(__off64_t,[#include <stdlib.h>
+                          #include <sys/types.h>],<stdlib.h> or <sys/types.h>)
+GPC_CHECK_TYPE(loff_t,   [#include <stdlib.h>
+                          #include <sys/types.h>],<stdlib.h> or <sys/types.h>)
+GPC_CHECK_TYPE(offset_t, [#include <stdlib.h>
+                          #include <sys/types.h>],<stdlib.h> or <sys/types.h>)
+GPC_CHECK_TYPE(struct stat64, [#include <sys/stat.h>],<sys/stat.h>)
+
+# Checks for variables
+# GPC_CHECK_VAR(TYPE, VAR)
+# Check whether variable $1 of type $2...$3/$4 exists, including $5
+AC_DEFUN(GPC_CHECK_VAR,
+  [GPC_MSG_CHECKING(for $1 variable,if you have ARTICLE($1) variable)
+   AC_CACHE_VAL(gpc_cv_var_$1,
+   [AC_TRY_LINK(
+     [$5
+      #undef $1
+      extern $2 $1 $3;
+      volatile $4 tmp;],
+     [tmp = $1;],
+     gpc_cv_var_$1=yes,
+     gpc_cv_var_$1=no)])
+   AC_MSG_RESULT($gpc_cv_var_$1)
+   if test $gpc_cv_var_$1 = yes; then
+     GPC_DEFINE(HAVE_$1)
+   fi
+  ])
+GPC_CHECK_VAR(errno, int, , int)
+GPC_CHECK_VAR(environ, char **, , char **)
+GPC_CHECK_VAR(__environ, char **, , char **)
+GPC_CHECK_VAR(sys_siglist, char **, , char **)
+GPC_CHECK_VAR(_sys_siglist, char **, , char **)
+GPC_CHECK_VAR(_sys_nsig, int, , int)
+GPC_CHECK_VAR(tzname, char *, [[2]], char **, [#include <time.h>])
+GPC_CHECK_VAR(timezone, long int, , long int, [#include <time.h>])
+GPC_CHECK_VAR(_timezone, long int, , long int, [#include <time.h>])
+
+# Checks for functions
+AC_CHECK_FUNCS(abort alarm acosl asinl atanl chdir chmod chown cosl dup2 \
+               endpwent executable_path expl fcntl fnmatch frexpl fstat \
+               fstat64 fsync ftruncate ftruncate64 getcwd getegid getenv \
+               geteuid getgid getpid getpgid getpgrp getpwent getpwnam \
+               getpwuid getrusage gettimeofday gettmpdir getuid glob hypot \
+               isatty isinfl isnanl kill llseek log1p logl lseek lseek64 lstat \
+               lstat64 malloc_init mmap mkdir munmap open64 powl putenv \
+               readlink realpath rename rmdir select setenv setgid \
+               setlocale setpgid setpwent setregid setreuid setuid \
+               sigaction sigblock siginterrupt signal sigprocmask \
+               sigsetmask sigvec sinl sleep _sleep sqrtl stat stat64 \
+               statfs statvfs strerror strftime strsignal tcgetattr \
+               tcgetpgrp tcsetattr tcsetpgrp time ttyname umask \
+               uname unlink unsetenv usleep utime vfork waitpid)
+
+# Checks for arguments
+GPC_MSG_CHECKING(whether mkdir accepts two arguments,if mkdir accepts two arguments)
+AC_CACHE_VAL(gpc_cv_mkdir_twoarg,
+[AC_TRY_COMPILE(
+  GPC_GLOBAL_DEFINES
+  [#ifdef HAVE_SYS_STAT_H
+   #include <sys/stat.h>
+   #endif
+   #ifdef HAVE_SYS_TYPES_H
+   #include <sys/types.h>
+   #endif
+   #ifdef HAVE_FCNTL_H
+   #include <fcntl.h>
+   #endif
+   #ifdef HAVE_UNISTD_H
+   #include <unistd.h>
+   #endif],
+  [mkdir ("tmpdir", 0777);],
+  gpc_cv_mkdir_twoarg=yes,
+  gpc_cv_mkdir_twoarg=no)])
+AC_MSG_RESULT($gpc_cv_mkdir_twoarg)
+if test $gpc_cv_mkdir_twoarg = yes; then
+  GPC_DEFINE(MKDIR_TWOARG)
+fi
+GPC_MSG_CHECKING(whether getpgrp takes an argument,if getpgrp takes an argument)
+AC_CACHE_VAL(gpc_cv_getpgrp_arg,
+[AC_TRY_COMPILE(
+  GPC_GLOBAL_DEFINES
+  [#ifdef HAVE_UNISTD_H
+   #include <unistd.h>
+   #endif],
+  [getpgrp (0);],
+  gpc_cv_getpgrp_arg=yes,
+  gpc_cv_getpgrp_arg=no)])
+AC_MSG_RESULT($gpc_cv_getpgrp_arg)
+if test $gpc_cv_getpgrp_arg = yes; then
+  GPC_DEFINE(GETPGRP_ARG)
+fi
+
+# Checks for variable declarations
+# GPC_CHECK_DECL(VAR, USAGE, HEADERS, HEADER_MSG)
+# Check whether variable $1 is declared in $4 and can be used like $3 with global declaration $2
+AC_DEFUN(GPC_CHECK_DECL,
+  [GPC_MSG_CHECKING(for $1 declaration in $5,if the $1 variable is declared in $5)
+   AC_CACHE_VAL(gpc_cv_decl_$1,
+   [AC_TRY_COMPILE(
+     GPC_GLOBAL_DEFINES[$4
+     $2],
+     [$3],
+     gpc_cv_decl_$1=yes,
+     gpc_cv_decl_$1=no)])
+   AC_MSG_RESULT($gpc_cv_decl_$1)
+   if test $gpc_cv_decl_$1 = yes; then
+     GPC_DEFINE($1_DECLARED)
+   fi
+  ])
+GPC_CHECK_DECL(errno, [volatile int tmp;], [tmp = -errno;],
+  [#ifdef HAVE_ERRNO_H
+   #include <errno.h>
+   #endif], <errno.h>)
+GPC_CHECK_DECL(environ, [volatile char *tmp;], [tmp = *(environ + 1);], [#include <unistd.h>], <unistd.h>)
+GPC_CHECK_DECL(__environ, [volatile char *tmp;], [tmp = *(__environ + 1);], [#include <unistd.h>], <unistd.h>)
+GPC_CHECK_DECL(_sys_siglist, [volatile char *tmp;], [tmp = *(_sys_siglist + 1);],
+  [#include <sys/types.h>
+   #include <signal.h>
+   #ifdef HAVE_UNISTD_H
+   #include <unistd.h>
+   #endif], <signal.h> or <unistd.h>)
+AC_DECL_SYS_SIGLIST
+GPC_CHECK_DECL(_sys_nsig, [volatile int tmp;], [tmp = -_sys_nsig;], [#include <signal.h>], <signal.h>)
+GPC_CHECK_DECL(tzname, [volatile char *tmp;], [tmp = *(tzname + 1);], [#include <time.h>], <time.h>)
+GPC_CHECK_DECL(timezone, [volatile long int tmp;], [tmp = -timezone;], [#include <time.h>], <time.h>)
+GPC_CHECK_DECL(_timezone, [volatile long int tmp;], [tmp = -_timezone;], [#include <time.h>], <time.h>)
+# NOTE: Perform some arithmetic operations with the variables tested,
+#       so that functions of the same name are not mistaken as variables.
+
+# Checks for function declarations
+# GPC_CHECK_FUNC_DECL(FUNC, HEADERS, HEADER_MSG, FNTYPE)
+# Check whether function $1 is declared in $2
+AC_DEFUN(GPC_CHECK_FUNC_DECL,
+  [GPC_MSG_CHECKING(for $1 declaration in $3,if the $1 function is declared in $3)
+   AC_CACHE_VAL(gpc_cv_decl_$1,
+   [gpc_save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -Werror"
+    AC_TRY_COMPILE(
+     GPC_GLOBAL_DEFINES[$2
+     typedef ]ifelse([$4],,[void (*fntype)],[$4])[;
+     volatile fntype tmp;],
+     [tmp = ]ifelse([$4],,[(void (*))])[ $1;],
+     gpc_cv_decl_$1=yes,
+     gpc_cv_decl_$1=no)])
+    CFLAGS="$gpc_save_CFLAGS"
+   AC_MSG_RESULT($gpc_cv_decl_$1)
+   if test $gpc_cv_decl_$1 = yes; then
+     GPC_DEFINE($1_DECLARED)
+   fi
+  ])
+GPC_CHECK_FUNC_DECL(sinl,        [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(cosl,        [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(sqrtl,       [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(logl,        [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(expl,        [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(powl,        [#include <math.h>],     <math.h>, long double (*fntype) (long double, long double))
+GPC_CHECK_FUNC_DECL(asinl,       [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(acosl,       [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(atanl,       [#include <math.h>],     <math.h>, long double (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(frexpl,      [#include <math.h>],     <math.h>, long double (*fntype) (long double, int *))
+GPC_CHECK_FUNC_DECL(isinfl,      [#include <math.h>],     <math.h>, int (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(isnanl,      [#include <math.h>],     <math.h>, int (*fntype) (long double))
+GPC_CHECK_FUNC_DECL(sleep,       [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(llseek,      [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(usleep,      [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(setenv,      [#include <stdlib.h>],   <stdlib.h>)
+GPC_CHECK_FUNC_DECL(setregid,    [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(setreuid,    [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(unsetenv,    [#include <stdlib.h>],   <stdlib.h>)
+GPC_CHECK_FUNC_DECL(fstat64,     [#include <sys/stat.h>], <sys/stat.h>)
+GPC_CHECK_FUNC_DECL(ftruncate64, [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(lseek64,     [#include <unistd.h>],   <unistd.h>)
+GPC_CHECK_FUNC_DECL(lstat64,     [#include <sys/stat.h>], <sys/stat.h>)
+GPC_CHECK_FUNC_DECL(open64,      [#include <fcntl.h>],    <fcntl.h>)
+GPC_CHECK_FUNC_DECL(stat64,      [#include <sys/stat.h>], <sys/stat.h>)
+GPC_CHECK_FUNC_DECL(strsignal,
+  [#include <string.h>
+   #ifdef HAVE_SIGNAL_H
+   #include <signal.h>
+   #endif], <string.h> or <signal.h>)
+
+GPC_MSG_CHECKING(whether __builtin_return_address supports a non-zero argument,if __builtin_return_address supports a non-zero argument)
+AC_CACHE_VAL(gpc_cv_return_address_non_zero,
+[CFLAGS_SAVE="$CFLAGS"
+ CFLAGS="$CFLAGS -Werror"
+ AC_TRY_COMPILE(
+  GPC_GLOBAL_DEFINES,
+  [void *p = __builtin_return_address (1);],
+  gpc_cv_return_address_non_zero=yes,
+  gpc_cv_return_address_non_zero=no)
+ CFLAGS="$CFLAGS_SAVE"])
+AC_MSG_RESULT($gpc_cv_return_address_non_zero)
+if test $gpc_cv_return_address_non_zero = yes; then
+  GPC_DEFINE(HAVE_RETURN_ADDRESS_NON_ZERO)
+fi
+
+AC_OUTPUT(Makefile)

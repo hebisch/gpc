@@ -1,0 +1,13 @@
+Starting in the Pascal main program.
+PascalProgramVariable is 17.
+Calling CRoutine.
+C routine called from Pascal code.
+c_variable is 42.
+Calling pascal_program_routine.
+Routine in Pascal program called from C code.
+Decrementing CVariable.
+Back in C routine.
+c_variable is now 41.
+Setting pascal_program_variable to 12345.
+Back in the Pascal main program.
+PascalProgramVariable is now 12345.

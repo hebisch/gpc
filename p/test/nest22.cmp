@@ -1,0 +1,7 @@
+#!/bin/sh
+result=`$1 $2 2>&1`
+if [ "$result" = "Foo  Bar" ]; then
+  echo "OK"
+else
+  echo "failed: $result"
+fi

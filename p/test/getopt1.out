@@ -1,0 +1,14 @@
+long option `optarg'
+option `r' with argument `foo'
+dummy: unrecognized option `-x'
+(incorrect long option)
+option `o'
+option `n'
+option `o' with argument `bar'
+long option `noarg'
+long option `reqarg' with argument `foo'
+long option `optarg' with argument `bar'
+option `x'
+Remaining arguments:
+baz
+qux

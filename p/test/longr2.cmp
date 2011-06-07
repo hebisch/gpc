@@ -1,0 +1,30 @@
+#!/bin/sh
+TMPFILE=dummy.pas
+rm -f $TMPFILE
+# We have to test the availability of long reals at all and of a
+# working SqRt on them. E.g., IA32 provides long reals, but DJGPP
+# (as of 2.0.3) does not provide long real math routines.
+echo '{ Automatically generated temp program. No test program. May be deleted. }' > $TMPFILE
+# Break up the word pro-gram so the Makefile with MASK=*
+# doesn't try to compile *this* file!
+echo 'pro''gram Foo; var a : LongReal = 4.2e250; begin if a = a + a then Halt (1) end.' >> $TMPFILE
+rm -f "$A_OUT"
+if $1 -Wall -Werror "$TMPFILE" 2> /dev/null && "./$A_OUT" 2> /dev/null; then
+  echo '{ Automatically generated temp program. No test program. May be deleted. }' > $TMPFILE
+  echo 'pro''gram Foo; var a : LongReal; begin a := SqRt (17.64e500); if a = a + a then Halt (1) end.' >> $TMPFILE
+  rm -f "$A_OUT"
+  if $1 -Wall -Werror "$TMPFILE" 2> /dev/null && "./$A_OUT" 2> /dev/null; then
+    rm -f "$A_OUT"
+    $1 $2
+    if [ -r "$A_OUT" ]; then
+      ./"$A_OUT"
+    else
+      echo "failed"
+    fi
+  else
+    echo "SKIPPED: no LongReal math routines available"
+  fi
+else
+  echo "SKIPPED: range of LongReal not sufficient for test"
+fi
+rm -f $TMPFILE

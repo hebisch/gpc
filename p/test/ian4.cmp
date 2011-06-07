@@ -1,0 +1,8 @@
+#!/bin/sh
+BASEDIR="`echo $2 | sed -e 's,[^/]*$,,'`"
+rm -f "$A_OUT"
+if $1 $2 -I "$BASEDIR" && [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

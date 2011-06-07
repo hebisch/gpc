@@ -1,0 +1,51 @@
+@c Copyright (C) 1995-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Jukka Virtanen <jtv@hut.fi>
+@c          J.J. van der Heijden <j.j.vanderheijden@student.utwente.nl>
+@c          Peter Gerwinski <peter@gerwinski.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+The purpose of the GNU Pascal project is to produce a Pascal
+compiler (called GNU Pascal or GPC) which
+
+@itemize @bullet
+@item combines the clarity of Pascal with powerful tools suitable
+for real-life programming,
+
+@item supports both the Pascal standard and the Extended Pascal
+standard as defined by ISO, ANSI and IEEE (ISO 7185:1990, ISO/IEC
+10206:1991, ANSI/IEEE 770X3.160-1989),
+
+@item supports other Pascal standards (UCSD Pascal, Borland Pascal,
+parts of Borland Delphi, Mac Pascal and Pascal-SC) in so far as this
+serves the goal of clarity and usability,
+
+@item may be distributed under GNU license conditions, and
+
+@item can generate code for and run on any computer for which the
+GNU C compiler can generate code and run on.
+@end itemize
+
+Pascal was originally designed for teaching. GNU Pascal provides a
+smooth way to proceed to challenging programming tasks without
+learning a completely different language.
+
+The current release implements Standard Pascal (ISO 7185, levels 0
+and 1), most of Extended Pascal (ISO 10206, aiming for full
+compliance), is highly compatible to Borland Pascal (version 7.0),
+has some features for compatibility to other compilers (such as VAX
+Pascal, Sun Pascal, Mac Pascal, Borland Delphi and Pascal-SC).
+
+It provides a lot of useful GNU extensions not found in other Pascal
+compilers, e.g. to ease the interfacing with C and other languages
+in a portable way, and to work with files, directories, dates and
+more, mostly independent of the underlying operating system.
+
+Included units provide support for regular expressions, arithmetic
+with integer, rational and real numbers of unlimited size,
+internationalization, inter-process communication, message digests
+and more. Demo programs show the usage of these units and of many
+compiler features.

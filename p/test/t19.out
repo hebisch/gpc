@@ -1,0 +1,12 @@
+o <> z
+o >= z
+o > z
+z < o
+z <= o
+z <> o
+o <= o
+o = o
+o >= o
+z <= z
+z = z
+z >= z

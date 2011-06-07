@@ -1,0 +1,8 @@
+winstl32.dll
+begin
+Handle=42
+42 Chief32DllVersion
+V is assigned=True
+Version=99
+DLL Unloaded=42
+True

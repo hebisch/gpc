@@ -1,0 +1,459 @@
+This file was generated automatically from news.texi.
+DO NOT CHANGE THIS FILE MANUALLY!
+
+1 GPC News
+**********
+
+GPC's new or changed features since the last (non alpha/beta) GPC
+release are listed here. Items without further description refer to new
+routines, variables or options.
+
+Features implemented for compatibility to other compilers are marked
+with, e.g., `(B)' for BP compatibility.
+
+A few old and obsolete features have been dropped or replaced by
+cleaner, more flexible or otherwise more useful ones. This might lead
+to minor problems with old code, but we suppose they're rare and easy
+to overcome. Backward-incompatible changes are marked with `(@)'.
+
+   * support building libgpc as Mach shared library
+
+   * `GPC_Initialize' and `GPC_Finalize' available as user routines (to
+     help building shared libraries)
+
+   * better warnings for unexpected results of string comparisons
+
+   * handle `volatile' attribute on types
+
+   * allow `asm' in any dialect (if the `asm' keyword is enabled)
+
+   * support for gcc-4.1.x
+
+   * preliminary support for gcc-4.0.x
+
+   * handle named exit from a method
+
+   * check string parameters more strictly (@)
+
+   * use at least integer precision for arithmetic (@)
+
+   * refuse `--executable-file-name' on names without a suffix
+
+   * do not create `.gpi' files from incorrect input
+
+   * `CWordBool' type
+
+   * allow passing variant selector by reference in default mode
+
+   * `noinline' attribute
+
+   * check for identifier redeclaration in records and parameter lists
+     (@)
+
+   * set constants are compatible with packed sets
+
+   * `ReadString' and `StringOf' predefined routines (M)
+
+   * pass discriminated string schema by value (@)
+
+   * `const var' parameters
+
+   * preliminary support for OOE class views (test/view1[a-g].pas)
+
+   * `--iso-goto-restrictions' option
+
+   * `--preprocessed' option
+
+   * integrated preprocessor (@)
+
+   * `--longjmp-all-nonlocal-labels' is on by default on Darwin/PPC
+
+   * preliminary support for Delphi classes and Mac objects (D) (M)
+     (delphi1[bc].pas, peter5[a-g].pas)
+
+   * new options `--[no]-objects-require-override',
+     `--[no]-delphi-method-shadowing', `--[no]-objects-are-references'
+     (off by default) (D) (M)
+
+   * new options `--gnu-objects' (default), `--ooe-objects',
+     `--mac-objects', `--borland-objects' which choose object model
+
+   * `uses' can not directly follow `import' (@)
+
+   * handle `+' and `-' as Mac Pascal does (M) (@)
+
+   * new options `--[no]-nonlocal-exit' (default in `--ucsd-pascal' and
+     `--mac-pascal') (fjf988[fijk].pas, fjf1062*.pas) (U) (M)
+
+   * new options `--[no]-object-checking' (on by default) to check on
+     virtual method calls if VMT pointer is not nil and has matchin
+     `Size' and `NegatedSize' entries, new options
+     `--[no]-range-and-object-checking' which are now equivalent to
+     `$R[+-]' (fjf1053*.pas) (B)
+
+   * new options `--[no]-pointer-checking',
+     `--[no]-pointer-checking-user-defined'; new variable
+     `ValidatePointerPtr' (fjf1052*.pas, pcerrorc.pas) (these options
+     are _off_ by default!)
+
+   * new options `--[no]-implicit-result' (fjf1022*.pas) (on by default
+     *only* in `--delphi' mode!) (D) (@)
+
+   * new options `--{en,dis}able-predefined-identifier' (fjf1037*.pas)
+
+   * `import' within a routine (mod15[c-e].pas)
+
+   * the option `--no-debug-info' was renamed to
+     `--disable-debug-info', and `--no-default-paths' was renamed to
+     `--disable-default-paths' (@)
+
+   * qualified identifiers (chief18.pas, fjf260*.pas, fjf921*.pas,
+     grp1.pas, kurzw1.pas, mod{9,10,13..17}*.pas) (@)
+
+   * with `-Wnested-comments' and without `--nested-comments' warn
+     about comment openers found within comments (fjf1017*.pas)
+
+   * new options `--[no-]case-value-checking' (fjf1012*.pas)
+
+   * optimize arithmetic with a complex and a real operand
+     <20020118143553.B28837@artax.karlin.mff.cuni.cz>
+
+   * range checking
+     <Pine.LNX.4.21.0012091605570.8168-100000@rusty.russwhit.com>
+     (chuck5.pas, fjf446.pas, fjf989*.pas, fjf992*.pas,
+     fsc{01..37}*.pas, miklos1[bc].pas,
+     mir{016,021..028,030..047}*.pas, ole[12]*.pas, russ4*.pas)
+
+   * `Exit' with an argument (non-local exits not yet supported)
+     (fjf988*.pas) (U) (M)
+
+   * new options `--[no-]propagate-units' (on by default with
+     `--mac-pascal', off in other dialects) (fjf987*.pas) (M); this
+     also covers the item "unit inheritance"
+
+   * enable `Pointer' in `--mac-pascal' mode (Mac Pascal has a
+     `Pointer' function which does the same as a type-cast to
+     `Pointer'; though adding `Pointer' as a type allows more, it's
+     backward-compatible) (M)
+
+   * `&' and `|' (shortcut `and' and `or') (fjf981*.pas) (M)
+
+   * `Leave' and `Cycle' (equivalent to `Break' and `Continue')
+     (avo3.pas) (M)
+
+   * optimize `WriteLn (... STRING_CONSTANT)' and `Write (...
+     STRING_CONSTANT, STRING_CONSTANT ...)'
+
+   * `BindingType' is now a packed record as EP demands (fjf975a.pas)
+     (E)
+
+   * EP structured initializers (fjf964*.pas, fjf967*.pas, fjf968*.pas)
+     (E)
+
+   * EP record, array, set values (constdef.pas, fjf966*.pas,
+     fjf971*.pas) (E)
+
+   * `gp': `PC' now sets the compiler for both Pascal and C unless `CC'
+     is set explicitly
+
+   * `Discard'
+
+   * `Integer', `Word', `Cardinal' are now equivalent to `PtrInt',
+     `PtrWord', `PtrCard', no more (necessarily) to C's `int' and
+     `unsigned int' (@)
+
+   * new types `CInteger', `CWord', `CCardinal'
+
+   * new make variable `GPC_PAGESIZE' to set the page size when
+     building the manual (PDF, PostScript, DVI)
+
+   * `qualified' and import lists are no more allowed after `uses'
+     (only after `import', as EP demands) (@)
+
+   * the `GMP' unit doesn't support gmp-2.x anymore (if you used it,
+     just upgrade to a newer GMP version) (@)
+
+   * conflicts between object fields/methods and ancestor type names
+     are detected as required by OOE (fjf945*.pas) (@) (O)
+
+   * repeated function headings (in `forward' declarations and
+     interfaces) are checked stricter: if one has a result variable, so
+     must the other (according to the OOE draft) (@) (O)
+
+   * the `Pipe' unit was renamed to `Pipes' because of a name conflict
+     (@)
+
+   * empty parameter lists can be written as `()' (chief54*.pas,
+     delphi6*.pas) (D)
+
+   * GMP unit: `mpf_sin', `mpf_cos'
+
+   * the test suite output is now by default stored in DejaGnu
+     compatible files `gpc.log' and `gpc.sum' in the `p/test/'
+     directory; other available test targets are `pascal.check-short'
+     and `pascal.check-long' (@)
+
+   * new options `-W[no-]dynamic-arrays' (fjf931*.pas)
+
+   * new argument to `_p_initialize' (@)
+
+   * `UMask'
+
+   * new option `--no-debug-source'
+
+   * new lexer (no directly user-visible difference, but should allow
+     for better handling of lexer-based problems in the future)
+
+   * `CompilerAssert' (fjf904*.pas)
+
+   * options `--[no]-assert' renamed to `--[no]-assertions' (necessary
+     to avoid a conflict with GCC) (@)
+
+   * new options `--[no-]range-checking', also as short compiler
+     directives `{$R+}'/`{$R-}' (default is on) (C, E, B, @)
+
+   * new options `--[no-]methods-always-virtual' (fjf903*.pas) (M)
+
+   * new options `--[no-]pointer-arithmetic',
+     `--[no-]cstrings-as-strings', `-W[no-]absolute' (all of which
+     `--[no-]extended-syntax' implies)
+
+   * `Integer2StringBase', `Integer2StringBaseExt'
+
+   * new constants `NumericBaseDigits', `NumericBaseDigitsUpper'
+
+   * allow assigning, passing by value and returning objects, with
+     assignments of an object of derived type to one of a base type
+     (chief35[ab].pas, fjf451*.pas, fjf696[ef].pas, fjf884*.pas), BP
+     compatible except for a bug in the BP feature itself (see the
+     comment in `p/test/fjf451h.pas') (B)
+
+   * new options `-W[no-]object-assignment'
+
+   * warn (except in `--borland-pascal') if a virtual method overrides
+     a non-virtual one (chief52*.pas)
+
+   * warn when an non-abstract object type has virtual methods, but no
+     constructor (chief51*.pas)
+
+   * `--maximum-field-alignment' does not apply to `packed' records
+
+   * `ArcSin', `ArcCos'
+
+   * trimming string relations as functions (`EQPad' etc.) (fjf873.pas)
+
+   * new options `-W[no-]interface-file-name'
+
+   * `SeekEOF' and `SeekEOLn' use `Input' implicitly when no file is
+     given (fjf871.pas) (B)
+
+   * tagging feature for `with' statements (tom6.pas)
+     <200012022215.eB2MFD614424@wsinpa16.win.tue.nl> (Sun Pascal)
+
+   * new option `--sun-pascal'
+
+   * field names and array indices in initalizers are recognized
+     (waldek5*.pas) (options `-W[no-]field-name-problem' removed, @)
+
+   * object directives `published', `public' (both equivalent),
+     `protected' (scope limited to object type and derived object
+     types), `private' (scope limited to current unit/module)
+     (fjf864*.pas) (options `-W[no-]object-directives' removed, @)
+
+   * the operator precedence and associativity of `+' and `-' is now as
+     defined in EP by default (and as in BP with `--borland-pascal')
+     <Pine.LNX.4.44.0210251249500.6181-100000@duch.mimuw.edu.pl>
+     (fjf863*.pas) (@)
+
+   * `Integer (16)' etc. changed to `Integer attribute (Size = 16)'
+     (works for integer and Boolean types) (fjf861.pas) (@)
+
+   * types can have attributes (note: no preceding `;') (fjf860*.pas)
+
+   * dynamic object methods (fjf859.pas) (B)
+
+   * in `--borland-pascal' mode, `Assign' unconditionally
+     (re-)initializes its file parameter (fjf858.pas) (B)
+
+   * GPC doesn't use `gpm' files anymore (instead, each module has an
+     implicit `MODULENAME-all.gpi' interface which is a regular `gpi'
+     file)
+
+   * make the program/module/unit finalizers non-public (`static' in C
+     sense), omit them if easily possible
+
+   * new options `-W[no-]parentheses' (fjf848*.pas)
+
+   * non-`interface' modules with empty implementation part (pmod1.pas,
+     fjf843.pas)
+
+   * `maximum-field-alignment' and `[no-]field-widths' work as local
+     compiler directives now (fjf842.pas)
+
+   * dropped `{$debug-statement}' (should not be necessary anymore, now
+     that debug info mostly works)
+
+   * new options `--[no-]longjmp-all-nonlocal-labels'
+
+   * object methods can have attributes (fjf826*.pas)
+
+   * new attributes `iocritical' (fjf824*.pas), `ignorable'
+     (fjf839*.pas) for routines
+
+   * dropped computed `goto' (never worked for nonlocal `goto' into the
+     main program, implementing it would be quite difficult, probably
+     not worth it) (@)
+
+   * new type `AnyFile' for parameters and pointer targets (fjf821*.pas)
+
+   * `TimeStamp' is now a packed record as EP demands (fjf975b.pas) (E)
+
+   * Mac Pascal specific features are supported according to the
+     dialect options (M)
+
+   * `--interface-only' does not require `-S' or `-c' anymore (and does
+     not create an object file)
+
+   * `initialization', `finalization' (D)
+
+   * `TimeZone' in `TimeStamp' counts seconds _east_ of UTC now (not
+     west, as before) (datetimedemo.pas) (@)
+
+   * `export FOO = all (...)' (fjf811*.pas)
+
+   * new options `-W[no-]local-external' (implied by `-Wall')
+
+   * type-casts are BP compatible now, in particular, value type-casts
+     between ordinal and real or complex types don't work anymore (B)
+     (@)
+
+   * all non-ISO-7185 keywords can be used as identifiers (with two
+     small exceptions) (fjf440.pas)
+
+   * `pack-struct' does not imply bit-level packing anymore (only
+     explicit `packed' records and arrays do) (@)
+
+   * new options `--[no-]ignore-packed' (`--ignore-packed' is the
+     default in BP mode) (fjf796*.pas) (B) (@)
+
+   * new option `--maximum-field-alignment=N'
+
+   * new options `{$[no-]pack-struct}' as a compiler directive
+
+   * `attribute' for routines doesn't imply `forward' anymore (so you
+     don't have to declare routines twice in a program or
+     implementation part when setting the linker name or some other
+     attribute) (@)
+
+   * `static', `volatile' and `register' for variables and `inline' for
+     routines are no prefix-directives anymore, but `attribute's (@)
+
+   * combining several dialect options (such as `--extended-pascal
+     --borland-pascal') doesn't work anymore (what should this mean,
+     anyway? Combine the features, but also the warnings from
+     both!?!?!?) (@)
+
+   * `external' without `name' defaults to all-lowercase now (@)
+
+   * `c', `c_language' and `asmname' are deprecated (@)
+
+   * `external name 'foo'' (fjf780.pas), `external 'libname' name
+     'foo'' (where `libname' is ignored) (B)
+
+   * Mac Pascal directives `definec', `macro', `undefc', `ifc',
+     `ifoptc', `elsec', `elifc', `endc', `errorc' (treated as
+     equivalent to the corresponding existing ones) (M)
+
+   * units without `implementation' part (M)
+
+   * new options `--vax-pascal', `--mac-pascal'
+
+   * attributes `const' for variables and `name' for variables,
+     routines and modules; assembler names and module/unit file names
+     can now be expressions (which must yield string constants)
+     (fjf781*.pas, fjf809*.pas)
+
+   * the utilities `gpidump' and `binobj' are installed with GPC (B)
+
+   * new options `-W[no-]identifier-case',
+     `-W[no-]identifier-case-local' (fjf751*.pas)
+
+   * new compiler directive `$R foo', equivalent to `$L foo.resource'
+     (B)
+
+   * dropped `--[no-]borland-char-constants' (now simply coupled to
+     dialect options) (@)
+
+   * test suite: support progress messages (`TEST_RUN_FLAGS=-p' from
+     the Makefile; `-p' in testgpc); see
+     `http://fjf.gnu.de/misc/progress-messages.tar.gz'
+
+   * `=' and `<>' comparisons of structures (arrays, records, ...)
+     except strings and sets are forbidden now (@) (E)
+
+   * irrelevant operands and arguments (e.g.: `foo in []'; `bar * []';
+     `Im (baz)' if `baz' is of real type) are not necessarily evaluated
+     anymore (which is allowed by the standard); instead, a warning is
+     given if they have side-effects (@)
+
+   * accept only one program, unit, module interface or implementation
+     or a module interface and the implementation of the same module in
+     one file; new options `--[no-]ignore-garbage-after-dot'
+     (fjf735*.pas) (@)
+
+   * new options `-W[no-]implicit-io' (fjf734*.pas)
+
+   * new options `--enable-keyword', `--disable-keyword' (fjf733*.pas)
+
+   * `CBoolean' (fjf727.pas)
+
+   * dropped the usage of `GetMem' as a function with one parameter
+     (only the BP compatible usage as a procedure with two parameters
+     remains) (@)
+
+   * accessing the variable `FileMode' now requires using the `GPC'
+     (or, for BP compatibility, the `System') unit (@)
+
+   * `DupHandle'
+
+   * dropped the predefined dialect symbols `__CLASSIC_PASCAL__',
+     `__STANDARD_PASCAL__', `__EXTENDED_PASCAL__', `__OBJECT_PASCAL__',
+     `__UCSD_PASCAL__', `__BORLAND_PASCAL__', `__DELPHI__',
+     `__PASCAL_SC__' and `__GNU_PASCAL__' (one can use `{$ifopt
+     borland-pascal}' etc. instead) (@)
+
+   * `Succ', `Pred', `Inc', `Dec' for real numbers (fjf714*.pas)
+
+   * use environment variables `GPC_UNIT_PATH', `GPC_OBJECT_PATH'
+
+   * new options `-W[no-]float-equal'
+
+   * new option `--ucsd-pascal'
+
+   * dropped the syntax `type foo = procedure (Integer, Real)' (i.e.,
+     without parameter names) (@)
+
+   * CRT: new argument `On' to `CRTSavePreviousScreen'
+
+   * `SetUserID', `SetGroupID'
+
+   * `HeapChecking'
+
+   * new built-in procedure `Assert'; new options `--[no]-assert' (also
+     `{$C+}', `{$C-}' for Delphi compatibility) (fjf665*.pas) (D)
+
+   * `ProcessGroup'
+
+   * StringUtils: `QuoteEnum'
+
+   * `CurrentRoutineName' (fjf752.pas)
+
+   * TFDD: new unit
+
+   * gpc-run: new options `-e FILE' and `-E FILE' (redirect/append
+     standard error)
+
+Have fun,
+
+The GNU Pascal Development Team
+

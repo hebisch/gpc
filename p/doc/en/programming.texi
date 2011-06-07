@@ -1,0 +1,5226 @@
+@c Copyright (C) 1997-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c          Dominik Freche <dominik.freche@mailbox.tu-dresden.de>
+@c          Peter N Lewis <peter@stairways.com.au>
+@c
+@c Last modification: 2006-01-30 (file partly up to date)
+
+@node Programming
+@chapter The Programmer's Guide to GPC
+@cindex programming in GPC
+
+@strong{This chapter is still under development.}
+
+This chapter tells you how the source of a valid GNU Pascal program
+should look like.  You can use it as tutorial about the GNU Pascal
+language, but since the main goal is to document all special GPC
+features, implementation-dependent stuff, etc., expect a steep
+learning curve.
+
+This chapter does @emph{not} cover how to compile your programs and
+to produce an executable -- this is discussed above in
+@ref{Invoking GPC}.
+
+@menu
+* Source Structures::    Programs, Units and Modules.
+* Data Types::           Standard and non-standard data types.
+* Operators::            Built-in and user-definable operators.
+* Parameters::           Procedure And Function Parameters
+* Pointer Arithmetics::  How pointer arithmetics works in Pascal.
+* String Slice Access::  Accessing parts of strings (and other arrays)
+* Type Casts::           Explicit and emulated type casting in GPC.
+* OOP::                  How object-oriented programming is implemented.
+* Compiler Directives::  Compiler Directives And The Preprocessor
+* Library Routines::     Routines Built-in or in the Run Time System
+* Other Languages::      How to share libraries with other languages.
+* Notes for Debugging::  Problems and caveats when debugging GPC programs.
+* I18N::                 How to use Internationalization in your programs
+* Run Time System::      Pascal declarations for GPC's Run Time System library.
+* GPC Units::            Units included with GPC
+@end menu
+
+
+@c ============================================================================
+
+
+@node Source Structures
+@section Source Structures
+@cindex source structures
+
+A source file accepted by GNU Pascal may contain up to one program,
+zero or more ISO-style modules, and/or zero or more UCSD-style units.
+Units and modules can be mixed in one project.
+
+@menu
+* The Program::             The Source Structure of Programs
+* Label Declaration::
+* Constant Declaration::
+* Type Declaration::
+* Variable Declaration::
+* Subroutine Declaration::  Procedures, Functions and Operators
+* Statements::              Loops and Conditional Statements
+* Modules and Units::       Import Part and Module/Unit Concept
+@end menu
+
+One trivial example for a valid GPC source file follows. Note that
+the code below may either be in one source file, or else the unit
+and the program may be in separate source files.
+
+@smallexample
+unit DemoUnit;
+
+interface
+
+procedure Hello;
+
+implementation
+
+procedure Hello;
+begin
+  WriteLn ('Hello, world!')
+end;
+
+end.
+@end smallexample
+
+@smallexample
+program UnitDemo;
+
+uses
+  DemoUnit;
+
+begin
+  Hello
+end.
+@end smallexample
+
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c -Source Structures/The Program/---------------------------------------------
+
+
+@node The Program
+@subsection The Source Structure of Programs
+@cindex Programs, source structure
+
+A generic GNU Pascal program looks like the following:
+
+@smallexample
+program @var{name} (Input, Output);
+
+@var{import_part}
+
+@var{declaration_part}
+
+begin
+  @var{statement_part}
+end.
+@end smallexample
+
+The @code{program} headline may be omitted in GPC, but a warning
+will be given except in @samp{--borland-pascal} mode.
+
+While the program parameters (usually @samp{Input}, @samp{Output})
+are obligatory in ISO Pascal if you want to use @samp{ReadLn} and
+@samp{WriteLn}, they are optional in GNU Pascal. GPC will warn about
+such missing parameters in @samp{--extended-pascal} mode. However if
+you give parameters to the program headline, they work like ISO
+requires.
+
+The @var{import_part} consists either of an ISO-style @samp{import}
+specification or a UCSD/Borland-style @samp{uses} clause. While
+@samp{import} is intended to be used with interfaces exported by
+ISO 10206 Extended Pascal modules, and @samp{uses} is intended to be
+used with units, this is not enforced. (See also @ref{uses},
+@ref{import}.)
+
+The @var{declaration_part} consists of label, constant, type,
+variable or subroutine declarations in free order. However, every
+identifier must be declared before it is used. The only exception
+are type identifiers pointing to another type identifier which may
+be declared below.
+
+The @var{statement_part} consists of a sequence of statements.
+
+As an extension, GPC supports a ``declaring statement'' which can be
+used in the statement part to declare variables (see @ref{var}).
+
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Label declaration/=======================================
+
+
+@node Label Declaration
+@subsection Label Declaration
+@cindex Label Declaration, Source Structures
+
+A label declaration has the following look:
+
+@smallexample
+label
+  @var{label_name}, @dots{}, @var{label};
+@end smallexample
+
+A label declaration part starts with the reserved word @code{label},
+which contains a list of labels.
+
+@subheading See also
+@ref{label}, @ref{goto}
+
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Constant Declaration/====================================
+
+
+@node Constant Declaration
+@subsection Constant Declaration
+@cindex Constant Declaration, Source Structures
+
+A constant declaration has the following look:
+
+@smallexample
+const
+  @var{constant_identifier} = @var{constant_expression};
+  @dots{}
+  @var{constant_identifier} = @var{constant_expression};
+@end smallexample
+
+A constant declaration part starts with the reserved word @code{const}.
+It declares a @var{constant_identifier} which is defined by
+@var{constant_expression}. This expression has to be evaluatable during
+compilation time, i.e. it can include numbers, parentheses, predefined
+operators, sets and type casts (the last, however, is a Borland extension).
+In ISO 7185 Pascal, @var{constant_expression} must be a constant or
+a set. All Pascal Dialects but ISO-Pascal allow the use of these
+intrinsic functions in @var{constant_expression}:
+
+@ref{Abs}, @ref{Round}, @ref{Trunc}, @ref{Chr}, @ref{Ord},
+@ref{Length}, @ref{Pred}, @ref{Succ}, @ref{SizeOf}, @ref{Odd}.
+
+In Borland Pascal, in the constant declaration part variables can be
+declared as well, which are given an initial value. These variables
+are called ``typed constants''. It is good style to avoid this use,
+especially since Extended Pascal and GNU Pascal allow to initialize
+a variable in variable declaration part or give a type a preset
+value on declaration.
+
+@smallexample
+const
+  FiveFoo      = 5;
+  StringFoo    = 'string constant';
+  AlphabetSize = Ord ('Z') - Ord ('A') + 1;
+
+type
+  PInteger     = ^Integer;     @{ Define a pointer to an Integer @}
+
+const
+  @{ Constant which holds a pointer to an Integer at address 1234 @}
+  AddressFoo   = PInteger (1234);
+@end smallexample
+
+@itemize @bullet
+
+@item
+BP does not know initialized variables, only typed constants. Even
+worse, it allows them to be misused as variables, without even
+warning. GPC supports this (unwillingly ;@minus{}), and warns unless
+in @samp{--borland-pascal} mode.
+
+An example of a typed constant:
+
+@smallexample
+const
+  i: Integer = 0;
+@end smallexample
+
+If you want to use it as a constant only, that's perfectly fine.
+However, if you modify @samp{i}, we suggest to translate the
+declaration to an initialized variable. The EP syntax is:
+
+@smallexample
+var
+  i: Integer value 0;
+@end smallexample
+
+GPC supports this as well as the following mixture of dialects:
+
+@smallexample
+var
+  i: Integer = 0;
+@end smallexample
+
+Furthermore, you can also assign initialization values to types:
+
+@smallexample
+program InitTypeDemo;
+
+type
+  MyInteger = Integer value 42;
+
+var
+  i: MyInteger;
+
+begin
+  WriteLn (i)
+end.
+@end smallexample
+
+Here, all variables of type MyInteger are automatically initialized
+to 42 when created.
+
+@item
+Arrays initializers look like this in BP:
+
+@smallexample
+program BPArrayInitDemo;
+
+const
+  MyStringsCount = 5;
+
+type
+  Ident = String [20];
+
+const
+  MyStrings: array [1 .. MyStringsCount] of Ident =
+    ('export', 'implementation', 'import',
+     'interface', 'module');
+
+begin
+end.
+@end smallexample
+
+And the following way in EP:
+
+@smallexample
+program EPArrayInitDemo;
+
+const
+  MyStringsCount = 5;
+
+type
+  Ident = String (20);
+
+var
+  MyStrings: array [1 .. MyStringsCount] of Ident value
+    [1: 'export'; 2: 'implementation'; 3: 'import';
+     4: 'interface'; 5: 'module'];
+
+begin
+end.
+@end smallexample
+
+There seem to be pros and cons to each style. GPC supports both as
+well as just about any thinkable mixture of them.
+
+Some folks don't like having to specify an index since it requires
+renumbering if you want to add a new item to the middle. However, if
+you index by an enumerated type, you might be able to avoid major
+renumbering by hand.
+
+@end itemize
+
+@subheading See also
+@ref{Subroutine Parameter List Declaration}
+
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Type declaration/========================================
+
+
+@node Type Declaration
+@subsection Type Declaration
+@cindex Type Declaration, Source Structures
+
+A type declaration looks like this:
+
+@smallexample
+type
+  @var{type_identifier} = @var{type_definition};
+  @dots{}
+  @var{type_identifier} = @var{type_definition};
+@end smallexample
+or, with preset content:
+@smallexample
+type
+  @var{type_identifier} = @var{type_definition} value @var{constant_expression};
+  @dots{}
+  @var{type_identifier} = @var{type_definition} value @var{constant_expression};
+@end smallexample
+
+A type declaration part begins with the reserved word @code{type}.
+It declares a @var{type_identifier} which is defined by @var{type_definition}.
+A type definition either can be an array, a record, a schema, a set, an
+object, a subrange, an enumerated type, a pointer to another type_identifier
+or simply another type_identifier which is to alias.
+If a schema type is to be declared, @var{type_identifier} is followed by a
+discriminant enclosed in parentheses:
+
+@smallexample
+@var{type_identifier} (@var{discriminant}) = @var{schema_type_definition};
+@end smallexample
+
+If @code{value} is specified, followed by a constant satisfying
+the type definition, every variable of this type is initialized with
+@var{constant_expression}, unless it is initialized by @code{value} itself.
+The reserved word @code{value} can be replaced by @samp{=}, however
+@code{value} is not allowed in ISO-Pascal and Borland Pascal, and the
+replacement by @samp{=} is not allowed in Extended Pascal.
+
+@subheading Type declaration example
+
+@smallexample
+type
+  @{ This side is the @}     @{ That side is the @}
+  @{ type declaration @}     @{ type definition  @}
+
+  Arrayfoo            = array [0 .. 9] of Integer;  @{ array definition @}
+  Recordfoo           = record                      @{ record definition @}
+                          Bar: Integer;
+                        end;
+
+       @{ schema def with discriminants ``x, y: Integer'' @}
+  SchemaFoo (x, y: Integer) = array [x .. y] of Integer;
+  CharSetFoo          = set of Char;              @{ Def of a set @}
+  ObjectFoo           = object                    @{ Def of an object @}
+                          procedure DoAction;
+                          constructor Init;
+                          destructor Done;
+                        end;
+  SubrangeFoo         = -123..456;                @{ subrange def @}
+
+  EnumeratedFoo       = (Pope,John,the,Second);   @{ enum type def @}
+       @{ Def of a pointer to another type identifier @}
+  PInteger            = ^arrayfoo;
+       @{ Def of an alias name for another type identifier @}
+  IdentityFoo         = Integer;
+       @{ Def of an integer which was initialized by 123 @}
+  InitializedFoo      = Integer value 123;
+@end smallexample
+
+@subheading See also
+@ref{Type Definition}, @ref{Data Types}, @ref{Variable Declaration}
+
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Variable declaration/====================================
+
+@node Variable Declaration
+@subsection Variable Declaration
+@cindex Variable Declaration, Source Structures
+
+A variable declaration looks like this:
+
+@smallexample
+var
+  @var{var_identifier}: @var{type_identifier};
+  @dots{}
+  @var{var_identifier}: @var{type_identifier};
+@end smallexample
+or
+@smallexample
+var
+  @var{var_identifier}: @var{type_definition};
+  @dots{}
+  @var{var_identifier}: @var{type_definition};
+@end smallexample
+and with initializing value:
+@smallexample
+var
+  @var{var_identifier}: @var{type_identifier} value @var{constant_expression};
+  @dots{}
+  @var{var_identifier}: @var{type_identifier} value @var{constant_expression};
+@end smallexample
+or
+@smallexample
+var
+  @var{var_identifier}: @var{type_definition} value @var{constant_expression};
+  @dots{}
+  @var{var_identifier}: @var{type_definition} value @var{constant_expression};
+@end smallexample
+
+A variable declaration part begins with the reserved word @code{var}.
+It declares a @var{var_identifier} whose type
+either can be specified by a type identifier, or by a type definion which
+either can be an array, a record, a set, a subrange, an enumerated type
+or a pointer to an type identifier.
+If @code{value} is specified followed by a constant expression satisfying
+the specified type, the variable declared is initialized with
+@var{constant_expression}.
+The reserved word @code{value} can be replaced by @samp{=}, however
+@code{value} is not allowed in ISO-Pascal and Borland Pascal, and the
+replacement by @samp{=} is not allowed in Extended Pascal.
+
+@subheading See also
+@ref{Type Definition}, @ref{Type Declaration}, @ref{Data Types},
+@ref{The Declaring Statement}, @ref{Subroutine Parameter List Declaration}
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Subroutine Declaration/==================================
+
+
+@node Subroutine Declaration
+@subsection Subroutine Declaration
+@cindex Subroutine Declaration, Source Structures
+
+@menu
+* The Procedure::
+* The Function::
+* The Operator::
+* Subroutine Parameter List Declaration::
+@end menu
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Subroutine Declaration/Procedures/=======================
+
+@node The Procedure
+@subsubsection The Procedure
+@cindex procedure, Subroutine Declaration, Source Structure
+
+@smallexample
+procedure @var{procedure_identifier};
+@var{declaration_part}
+begin
+  @var{statement_part}
+end;
+@end smallexample
+or with a parameter list:
+@smallexample
+procedure @var{procedure_identifier} (@var{parameter_list});
+@var{declaration_part}
+begin
+  @var{statement_part}
+end;
+@end smallexample
+
+A procedure is quite like a sub-program: The @var{declaration_part}
+consists of label, constant, type, variable or subroutine declarations
+in free order. The @var{statement_part} consists of a sequence of
+statements. If @var{parameter_list} is specified, parameters can be passed
+to the procedure and can be used in @var{statement_part}. A recursive
+procedure call is allowed.
+
+@subheading See also
+@ref{The Function}, @ref{Subroutine Parameter List Declaration}
+
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Subroutine Declaration/Functions/========================
+
+@node The Function
+@subsubsection The Function
+@cindex function, Subroutine Declaration, Source Structure
+
+@smallexample
+function @var{function_identifier}: @var{function_result_type};
+@var{declaration_part}
+begin
+  @var{statement_part}
+end;
+@end smallexample
+or with a parameter list:
+@smallexample
+function @var{function_identifier} (@var{parameter_list}): @var{result_type};
+@var{declaration_part}
+begin
+  @var{statement_part}
+end;
+@end smallexample
+
+A function is a subroutine which has a return value of type
+@var{function_result_type}. It is structured like the program: the
+@var{declaration_part} consists of label, constant, type, variable or
+subroutine declarations in free order. The @var{statement_part} consists
+of a sequence of statements. If @var{parameter_list} is specified,
+parameters can be passed to the function and can be used in
+@var{statement_part}. The result is set via an assignment:
+@smallexample
+@var{function_identifier} := @var{expression}
+@end smallexample
+Recursive function calls are allowed. Concerning the result type,
+ISO 7185 Pascal and Borland Pascal only allow the intrinsic types,
+subranges, enumerated types and pointer types to be returned. In Extended
+Pascal, @var{function_result_type} can be every assignable type.
+Of course, there are no type restrictions in GNU Pascal as well.
+If extended syntax is switched on, functions can be called like procedures
+via procedure call statement.
+
+@subheading See also
+@ref{The Procedure}, @ref{Subroutine Parameter List Declaration},
+@ref{Data Types}
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Subroutine Declaration/Operators/========================
+
+@node The Operator
+@subsubsection The Operator
+@cindex operator, Subroutine Declaration, Source Structure
+
+GNU Pascal allows to define operators which can be used the infix style in
+expressions. For a more detailed description, see @ref{Operators}
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Subroutine Declaration/Subroutine Parameter List Declarat
+
+@node Subroutine Parameter List Declaration
+@subsubsection Subroutine Parameter List Declaration
+@cindex Parameter List, Subroutine Declaration, Source Structure
+
+@smallexample
+@var{parameter}; @dots{}; @var{parameter}
+@end smallexample
+
+Each parameter can start with a prefix (see below) describing how
+the parameters are passed, followed by a comma seperated list of one
+or more @var{parameter_identifiers} and an optional
+@var{parameter_type}.
+
+@smallexample
+procedure DoIt (var x, y, z: OneType; a, b: AnotherType; var q);
+@end smallexample
+
+To understand parameter passing, first some definitions.
+
+@table @asis
+@item actual parameter
+  the parameter passed in to the routine.
+@item formal parameter
+  the parameter as used inside the procedure.
+@item by value
+  the value of the actual parameter is copied on to the stack.
+@item by reference
+  the address of the actual parameter is copied on to the stack.
+@item L-value
+  (left hand of a @samp{:=} statement) something that can be assigned
+  to (not a constant, or const or protected variable or other
+  immutable item).
+@item R-value
+  (right hand of a @samp{:=} statement) anything you can get the
+  value of (could be a constant, an expression, a variable (whether
+  const or protected or not) or just about anything.
+@item addressable
+  something you can get the address of (not a field of a packed
+  structure or a variable with `attribute (register)' (GPC
+  extension)).
+@item aliasing
+  accessing memory via two different names (e.g. a global variable
+  passed by reference to a procedure can be accessed either as the
+  global variable or the formal paramater). Generally this is very
+  bad practice.
+@end table
+
+Technical note: Parameters are not always passed on the stack, they
+may also be passed in registers, especially on RISC machines.
+
+The prefix defines how a variable is passed on the stack and how you
+can access the @var{formal_parameter} inside the procedure.  The
+prefix can be one of:
+
+@table @asis
+@item nothing
+@smallexample
+procedure DoIt (x: @var{SomeType});
+@end smallexample
+
+Technical: The actual parameter is passed by value or reference, but
+if passed by reference, it is then copied to a local copy on the
+stack. Aliasing has no effect on x.
+
+What it means: you can modify @samp{x} inside the routine, but your
+changes will not affect the actual parameter (and vice versa). The
+actual parameter can be a constant or other immutable object, or a
+protected or const variable.
+
+@item protected
+@smallexample
+procedure DoIt (protected x: @var{SomeType});
+@end smallexample
+
+Technical: The actual parameter is passed by value or reference, but
+if passed by reference, it is then copied to a local copy on the
+stack. Aliasing has no effect on x. @code{protected} is a Extended
+Pascal extension.
+
+What it means: if you modify the actual parameter, this will not
+affect @samp{x} inside the routine. The actual parameter can be a
+constant or other immutable object, or a protected or const
+variable. You are forbidden from modifying x inside the routine.
+
+@item var
+@smallexample
+procedure DoIt (var x: @var{SomeType});
+@end smallexample
+
+Technical: The actual parameter is passed by reference.  Aliasing
+will definitely change @samp{x}.
+
+What it means: modifications to @samp{x} inside the routine will
+change the actual parameter passed in. The actual parameter must be
+an addressable L-value (ie, it must be something you can take the
+address of and assign to).
+
+A parameter of this kind is called variable parameter and internally
+corresponds to an L-value pointer (to the specified type identifier
+if any). This declaration is necessary if the parameter is to be
+modified within the routine and to hold its value still after
+return.
+
+@item const
+@smallexample
+procedure DoIt (const x: @var{SomeType});
+@end smallexample
+
+Technical: The actual parameter is passed by value or reference.
+The compiler will make a copy of the actual parameter to have
+something it can address if the actual parameter is not addressable.
+You are forbidden from modifying @samp{x} inside the routine, and
+therefore you cannot modify the actual parameter. Aliasing may or
+may not change @samp{x}. @code{const} is a Borland Pascal extension.
+
+What it means: You can pass any R-value. You cannot modify @samp{x}
+inside the routine. If you change the actual parameter while inside
+the routine, @samp{x} will have an undefined value.
+
+@item protected var
+@smallexample
+procedure DoIt (protected var x: @var{SomeType});
+@end smallexample
+
+Technical: The actual parameter is passed by reference. The compiler
+will never make a copy of the actual parameter. You are forbidden
+from modifying @samp{x} inside the routine, and therefore you cannot
+modify the actual parameter. Aliasing will definitely change
+@samp{x}.
+
+What it means: You can pass anything addressable. You cannot modify
+@samp{x} inside the routine. If you change the actual parameter
+while inside the routine, @samp{x} will change as well.
+
+In GPC, the @code{protected var} mode guarantees that the parameter
+is always passed by reference, making it the correct choice for
+calling C routines with @samp{const} pointer parameters.
+
+@end table
+
+If you omit the formal parameter type specification, then any type
+may be passed to that parameter. Generally this is a bad idea, but
+occasionally it can be useful, especially for low level code.
+
+As an Extended Pascal extension, you can also declare procedural
+parameters directly:
+@smallexample
+procedure @var{parameter_identifier}
+@end smallexample
+or:
+@smallexample
+function @var{parameter_identifier}: @var{parameter_identifier_result_type}
+@end smallexample
+
+Example for parameter lists:
+@smallexample
+program ParameterDemo;
+
+procedure Foo (var Bar; var Baz: Integer; const Fred: Integer);
+
+  procedure Glork1 (function Foo: Integer; procedure Bar (Baz: Integer));
+  begin
+    Bar (Foo)
+  end;
+
+begin
+  Baz := Integer (Bar) + Fred
+end;
+
+var
+  a, b, c: Integer;
+
+begin
+  Foo (a, b, c)
+end.
+@end smallexample
+
+@subheading See also
+@ref{Data Types}, @ref{var}, @ref{const}, @ref{protected}
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/==============================================
+
+
+@node Statements
+@subsection Statements
+@cindex Statements, Source Structures
+
+@menu
+* Assignment::
+* begin end Compound Statement::
+* if Statement::
+* case Statement::
+* for Statement::
+* while Statement::
+* repeat Statement::
+* asm Inline::
+* with Statement::
+* goto Statement::
+* Procedure Call::
+* The Declaring Statement::
+* Loop Control Statements::
+@end menu
+
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/Assignment/===================================
+
+@node Assignment
+@subsubsection Assignment
+@cindex Assignment, Statements, Source Structure
+
+The way an assignment looks like:
+@smallexample
+@var{L-value} := @var{expression};
+@end smallexample
+
+This statement assigns any valid expression to @var{L-value}. Make sure
+that the result of @var{expression} is compatible with @var{L-value},
+otherwise an compilation error is reported. The @samp{:=} is called
+assignment operator. As long as @var{L-value} and @var{expression} are
+type compatible, they are assignment compatible for @emph{any definable type}
+as well.
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/begin end compound statement/=================
+
+@node begin end Compound Statement
+@subsubsection begin end Compound Statement
+@cindex begin end, Statements, Source Structure
+
+It looks like that:
+@smallexample
+begin
+  @var{statement};
+  @var{statement};
+  @dots{}
+  @var{statement}
+end
+@end smallexample
+
+This statement joins several @var{statements} together into one compound
+statement which is treated as a single statement by the compiler. The
+finishing semicolon before @samp{end} can be left out.
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/if statement/=================================
+
+@node if Statement
+@subsubsection if Statement
+@cindex if, Statements, Source Structure
+
+This statement has the following look:
+@smallexample
+if @var{boolean_expression} then
+  @var{statement}
+@end smallexample
+or with an alternative statement:
+@smallexample
+if @var{boolean_expression} then
+  @var{statement1}
+else
+  @var{statement2}
+@end smallexample
+
+The @samp{if} @dots{} @samp{then} statement consists of a boolean expression
+and a @var{statement}, which is conditionally executed if the
+evaluation of @var{boolean_expression} yields true.
+
+If @samp{if} @dots{} @samp{then} @dots{} @samp{else} is concerned,
+@var{statement1} is executed depending on @var{boolean_expression} being
+true, otherwise @var{statement2} is executed alternatively. Note: the
+statement before else @emph{must not} finish with a semicolon.
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/case Statemtent/==============================
+
+@node case Statement
+@subsubsection case Statement
+@cindex case, Statements, Source Structure
+
+@smallexample
+case @var{expression} of
+  @var{selector}: @var{statement};
+  @dots{}
+  @var{selector}: @var{statement};
+end
+@end smallexample
+or, with alternative statement sequence:
+@smallexample
+case @var{ordinal_expression} of
+  @var{selector}: @var{statement};
+  @dots{}
+  @var{selector}: @var{statement};
+otherwise                   @{ ``else'' instead of ``otherwise'' allowed @}
+  @var{statement};
+  @dots{}
+  @var{statement};
+end
+@end smallexample
+or, as part of the invariant @code{record} type definition:
+@smallexample
+type
+  foo = record
+    @var{field_declarations}
+  case bar: @var{variant_type} of
+    @var{selector}: (@var{field_declarations});
+    @var{selector}: (@var{field_declarations});
+    @dots{}
+  end;
+@end smallexample
+or, without a variant selector field,
+@smallexample
+type
+  foo = record
+    @var{field_declarations}
+  case @var{variant_type} of
+    @var{selector}: (@var{field_declarations});
+    @var{selector}: (@var{field_declarations});
+    @dots{}
+  end;
+@end smallexample
+
+The @code{case} statement compares the value of @var{ordinal_expression}
+to each @var{selector}, which can be a constant, a subrange, or a list of
+them separated by commas, being compatible with the result of
+@var{ordinal_expression}.
+Note: duplicate selectors or range crossing is not allowed unless
+@{$borland-pascal@} is specified. In case of
+equality the corresponding statement is executed. If @code{otherwise}
+is specified and no appropriate selector matched the expression, the
+series of statements following @code{otherwise} is executed. As a synonym
+for @code{otherwise}, @code{else} can be used. The semicolon before
+@code{otherwise} is optional.
+
+@@@@ ????
+The expression @emph{must} match one of the selectors in order to continue,
+unless an alternative statement series is specified.
+
+For @code{case} in a variant record type definition, see @ref{Record Types}.
+
+@subheading See also
+@ref{if Statement}
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/for statment/=================================
+
+@node for Statement
+@subsubsection for Statement
+@cindex for, Statements, Source Structure
+
+For ordinal index variables:
+@smallexample
+for @var{ordinal_variable} := @var{initial_value} to @var{final_value} do
+  @var{statement}
+@end smallexample
+or
+@smallexample
+for @var{ordinal_variable} := @var{initial_value} downto @var{final_value} do
+  @var{statement}
+@end smallexample
+
+For sets:
+@smallexample
+for @var{set_element_type_variable} in @var{some_set} do
+  @var{statement}
+@end smallexample
+
+For pointer index variables:
+@smallexample
+for @var{pointer_variable} := @var{initial_address} to @var{final_address} do
+  @var{statement}
+@end smallexample
+or
+@smallexample
+for @var{pointer_variable} := @var{initial_address} downto @var{final_address} do
+  @var{statement}
+@end smallexample
+
+
+The @var{for} statement is a control statement where an index
+variable assumes every value of a certain range and for every value
+the index variable assumes @var{statement} is executed. The range
+can be specified by two bounds (which must be of the same type as
+the index variable, i.e. ordinal or pointers) or by a set.
+
+For ordinal index variables:
+@itemize @minus
+@item If @samp{to} is specified, the index counter is increased by
+one as long as @var{initial_value} is less or equal to @var{final
+value},
+@item if @samp{downto} is specified, it is decreased by one as long
+as @var{initial_value} is greater or equal to @var{final_value}.
+@end itemize
+
+For pointer index variables:
+@itemize @minus
+@item If @samp{to} is specified, the index counter is increased by
+the size of the type the index variable points to (if it is a typed
+pointer, otherwise by one if it is typeless) as long as
+@var{initial_address} is less or equal to @var{final_address},
+@item if @samp{downto} is specified, it is decreased by a
+corresponding value as long as @var{initial_address} is greater or
+equal to @var{final_address}.
+@end itemize
+
+Since gpc provides a flat memory modell, all addresses are linear,
+so they can be compared. Still, such loops should be used (if at
+all) only for iterating through successive elements of an array.
+
+For sets:
+@itemize @minus
+@item @var{statement} is executed with the index variable (which
+must be ordinal and of the same type as the set elements) assuming
+every element in @var{some_set}, however note that a set is a
+not-ordered structure.
+@end itemize
+
+@strong{Please note:} A modification of the index variable may
+result in unpredictable action.
+
+@subheading See also
+@ref{Set Types}, @ref{Pointer Arithmetics},
+@ref{repeat Statement}, @ref{for Statement}
+
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/while statment/===============================
+
+@node while Statement
+@subsubsection while Statement
+@cindex while, Statements, Source Structure
+
+The while loop has the following form
+@smallexample
+while @var{boolean_expression} do
+  @var{statement}
+@end smallexample
+
+The @code{while} statement declares a loop which is executed while
+@var{boolean_expression} is true. Since the terminating condition is
+checked before execution of the loop body, @var{statement} may never
+be executed.
+
+@subheading See also
+@ref{repeat Statement}, @ref{for Statement}
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/repeat Statement/=============================
+
+@node repeat Statement
+@subsubsection repeat Statement
+@cindex repeat, Statements, Source Structure
+
+@smallexample
+repeat
+  @var{statement};
+  @dots{}
+  @var{statement};
+until @var{boolean_expression}
+@end smallexample
+
+The @code{repeat} @dots{} @code{until} statement declares a loop which is
+repeated until @var{boolean_expression} is true. Since the terminating
+condition is checked after execution of the loop body, the statement
+sequence is executed at least once.
+
+@subheading See also
+@ref{while Statement}, @ref{for Statement}
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/asm Statement/================================
+
+@node asm Inline
+@subsubsection asm Inline
+@cindex asm, Statements, Source Structure
+
+@@@@ ????
+@smallexample
+asm (StatementList: String);
+@end smallexample
+
+The @code{asm} inline statement is a GNU Pascal extension. It
+requires its parameter to be AT&T-noted assembler statements, and
+therefore it is not compatible with that one of Borland Pascal.
+@var{statementlist} is a string containing asm statements separated
+by semicolons.
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/with Statement/===============================
+
+@node with Statement
+@subsubsection with Statement
+@cindex with, Statements, Source Structure
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/goto statement/===============================
+
+@node goto Statement
+@subsubsection goto Statement
+@cindex goto, Statements, Source Structure
+
+@@@@ ????
+This statement looks like this:
+@smallexample
+goto @var{label}
+@end smallexample
+
+(Under construction.)
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/Procedure Call/===============================
+
+@node Procedure Call
+@subsubsection Procedure Call
+@cindex Procedure Call, Statements, Source Structure
+
+@smallexample
+@var{subroutine_name};
+@end smallexample
+
+This statement calls the subroutine @var{subroutine_name} which can either
+be a procedure or, if GNU extended syntax is turned on, a function. In this
+case, the result is ignored.
+
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/the declaring statement/======================
+
+@node The Declaring Statement
+@subsubsection The Declaring Statement
+@cindex var, Statements, Source Structure
+
+This statement allows to declare a variable within a statement part. It
+looks like this:
+@smallexample
+var
+  @var{var_identifier}: @var{type_identifier};
+@end smallexample
+or
+@smallexample
+var
+  @var{var_identifier}: @var{type_definition};
+@end smallexample
+and with initializing value:
+@smallexample
+var
+  @var{var_identifier}: @var{type_identifier} value @var{expression};
+@end smallexample
+or
+@smallexample
+var
+  @var{var_identifier}: @var{type_definition} value @var{expression};
+@end smallexample
+
+Unlike in declaration parts, the initializing @var{expression} does
+not have to be a constant expression. Note that every declaring
+statement has to start with @code{var}. The name space of the
+variable extends from its declaration to the end of the current
+matching statement sequence (which can be a statement part (of the
+program, a function, a procedure or an operator) or, within that
+part, a begin end compound statement, a repeat loop, or the else
+branch of a case statement). This statement is a GNU Pascal
+extension.
+
+@subheading See also
+@ref{Type Definition}, @ref{Data Types}
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Statements/Loop Control Statements/======================
+
+@node Loop Control Statements
+@subsubsection Loop Control Statements
+@cindex Loops, Loop Control Statements
+
+These are
+@smallexample
+Continue;
+@end smallexample
+and
+@smallexample
+Break;
+@end smallexample
+
+
+These simple statements @emph{must not} occur outside a loop, i.e. a
+@samp{for}, @samp{while} or @samp{repeat} statement. @samp{Continue}
+transfers control to the beginning of the loop right by its call,
+@samp{Break} exits the current loop turn and continues loop execution.
+
+@c ----------------------------------------------------------------------------
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Import Part and Module/==================================
+
+
+@node Modules and Units
+@subsection Import Part and Module/Unit Concept
+@cindex Import Part, Source Structures
+
+@menu
+* Modules::  The source structure of ISO 10206 Extended Pascal Modules.
+* Units::    The source structure of UCSD/Borland Pascal Units.
+@end menu
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Import Part and Module/Module Concept/===================
+
+
+@node Modules
+@subsubsection The Source Structure of ISO 10206 Extended Pascal Modules
+@cindex Modules, source structure
+@cindex import part
+
+@@@@ Description missing here
+
+A module can have one or more @samp{export} clauses and the name of
+an @samp{export} clause doesn't have to be equal to the name of the
+module.
+
+Sample module code with separate @code{interface} and
+@code{implementation} parts:
+
+@smallexample
+module DemoModule interface;  @{ interface part @}
+
+export DemoModule = (FooType, SetFoo, GetFoo);
+
+type
+  FooType = Integer;
+
+procedure SetFoo (f: FooType);
+function  GetFoo: FooType;
+
+end.
+
+module DemoModule implementation;  @{ implementation part @}
+
+import
+  StandardInput;
+  StandardOutput;
+
+var
+  Foo: FooType;
+
+@{ Note: the effect is the same as a `forward' directive would have:
+  parameter lists and result types are not allowed in the
+  declaration of exported routines, according to EP. In GPC, they
+  are allowed, but not required. @}
+procedure SetFoo;
+begin
+  Foo := f
+end;
+
+function GetFoo;
+begin
+  GetFoo := Foo
+end;
+
+to begin do
+  begin
+    Foo := 59;
+    WriteLn ('Just an example of a module initializer. See comment below')
+  end;
+
+to end do
+  begin
+    Foo := 0;
+    WriteLn ('Goodbye')
+  end;
+
+end.
+@end smallexample
+
+Alternatively the module interface and implementation may
+be combined as follows:
+
+@smallexample
+module DemoMod2;  @{ Alternative method @}
+
+export Catch22 = (FooType, SetFoo, GetFoo);
+
+type
+  FooType = Integer;
+
+procedure SetFoo (f: FooType);
+function  GetFoo: FooType;
+
+end; @{ note: this `end' is required here, even if the
+       module-block below would be empty. @}
+
+var
+  Foo: FooType;
+
+procedure SetFoo;
+begin
+  Foo := f
+end;
+
+function GetFoo;
+begin
+  GetFoo := Foo
+end;
+
+end.
+@end smallexample
+
+Either one of the two methods may be used like this:
+
+@smallexample
+program ModuleDemo (Output);
+
+import DemoModule;
+
+begin
+  SetFoo (999);
+  WriteLn (GetFoo);
+end.
+@end smallexample
+
+@smallexample
+program ModDemo2 (Output);
+
+import Catch22 in 'demomod2.pas';
+
+begin
+  SetFoo (999);
+  WriteLn (GetFoo);
+end.
+@end smallexample
+
+Somewhat simpler GPC modules are also supported. @strong{Please
+note:} This is not supported in the Extended Pascal standard.
+
+This is a simpler module support that does not require exports,
+imports, module headers etc.
+
+These non-standard simple GPC modules look like the following
+example. They do not have an export part, do not have a separate
+module-block, do not use import/export features.
+
+Instead, you have to emulate the exporting/importing yourself using
+@samp{attribute} and @samp{external name}.
+
+@smallexample
+module DemoMod3;
+
+type
+  FooType = Integer;
+
+var
+  Foo: FooType;
+
+procedure SetFoo (f: FooType); attribute (name = 'SetFoo');
+begin
+  Foo := f
+end;
+
+function GetFoo: FooType; attribute (name = 'GetFoo');
+begin
+  GetFoo := Foo;
+end;
+
+end.
+@end smallexample
+
+@smallexample
+program ModDemo3 (Output);
+
+@{$L demomod3.pas@}  @{ explicitly link module @}
+
+@{ Manually do the "import" from DemoMod3 @}
+type
+  FooType = Integer;
+
+procedure SetFoo (f: FooType); external name 'SetFoo';
+function  GetFoo: FooType;     external name 'GetFoo';
+
+begin
+  SetFoo (999);
+  WriteLn (GetFoo)
+end.
+@end smallexample
+
+Module initialization and finalization:
+
+The @code{to begin do} module initialization and @code{to end do}
+module finalization constructs now work on @emph{every} target.
+
+By the way: The ``GPC specific'' module definition is almost
+identical to the PXSC standard. With an additional keyword `global'
+which puts a declaration into an export interface with the name of
+the module, it will be the same. @@@@This is planned.
+
+
+@c ----------------------------------------------------------------------------
+@c =Source Structures/Import Part and Module/Unit Concept/=====================
+
+@node Units
+@subsubsection The Source Structure of UCSD/Borland Pascal Units
+@cindex Units, source structure
+@cindex import part
+
+A generic GNU Pascal unit looks like the following:
+
+@smallexample
+unit @var{name};
+
+interface
+
+@var{import_part}
+
+@var{interface_part}
+
+implementation
+
+@var{implementation_part}
+
+@var{initialization_part}
+
+end.
+@end smallexample
+
+The @var{name} of the unit should coincide with the name of the file
+with the extension stripped. (If not, you can tell GPC the file name
+with @samp{uses foo in 'bar.pas'}, see @ref{uses}.)
+
+The @var{import_part} is either empty or contains a @samp{uses}
+clause to import other units. It may also consist of an ISO-style
+@samp{import} specification. Note that the implementation part is
+not preceeded by a second import part in GPC (see @ref{import}).
+
+The @var{interface_part} consists of constant, type, and variable
+declarations, procedure and function headings which may be freely
+mixed.
+
+The @var{implementation_part} is like the declaration part of a
+program, but the headers of procedures and functions may be
+abbreviated: Parameter lists and function results may be omitted for
+procedures and functions already declared in the interface part.
+
+The @var{initialization_part} may be missing, or it may be a
+@samp{begin} followed by one or more statements, such that the unit
+has a statement part between this @samp{begin} and the final
+@samp{end}. Alternatively, a unit may have ISO-style module
+initializers and finalizers, see @ref{to begin do}, @ref{to end do}.
+
+Note that GPC does @emph{not} yet check whether all interface
+declarations are resolved in the same unit. The implementation of
+procedures and functions which are in fact not used may be omitted,
+and/or procedures and functions may be implemented somewhere else,
+even in a different language. However, relying on a GPC bug (that
+will eventually be fixed) is not a good idea, so this is not
+recommended. Instead, declare such routines as @samp{external}.
+
+A unit exports everything declared in the interface section. The
+exported interface has the name of the unit and is compatible with
+Extended Pascal module interfaces since GPC uses the same code to
+handle both.
+
+
+@c ============================================================================
+
+
+@node Data Types
+@section Data Types
+
+@menu
+* Type Definition::                The Declaration Part
+* Ordinal Types::                  Built-in Ordinal Types
+* Integer Types::                  Built-in Integer Types
+* Real Types::                     Built-in Real Types
+* String Types::                   Built-in Character and String Types
+* Character Types::                Built-in Chararacter Types. See Ordinal Types
+* Enumerated Types::               Enumerated Types. See also Ordinal Types
+* File Types::                     Built-in Types for File Handling
+* Boolean (Intrinsic)::            Built-in Type for Boolean values.
+* Pointer (Intrinsic)::            The Intrinsic Pointer Type
+* Type Definition Possibilities::  User-defined Types
+* Machine-dependencies in Types::  Differences in Implementation
+@end menu
+
+
+@c ----------------------------------------------------------------------------
+@c =Data Types/Type Definition and Type Declaration/===========================
+
+@node Type Definition
+@subsection Type Definition
+@cindex Data Types, Definition
+
+As described in @ref{Type Declaration}, a type declaration part looks like this:
+@smallexample
+type
+   @var{type_identifier} = @var{type_definition};
+   @dots{}
+   @var{type_identifier} = @var{type_definition};
+@end smallexample
+where the left side is the type declaration and the right one the
+type definition side. GNU Pascal offers various possibilities to
+implement highly specialized and problem-specific data types.
+
+@c ----------------------------------------------------------------------------
+@c =Data Types/Ordinal Types ==================================================
+
+
+@node Ordinal Types
+@subsection Ordinal Types
+@cindex Ordinal Types, Intrinsic, Data Types
+
+An ordinal type is one that can be mapped to a range of whole numbers.
+It includes integer types, character types, enumerated types and subrange
+types of them.
+
+A character type is represented by the intrinsic type @samp{Char}
+which can hold elements of the operating system's character set
+(usually ASCII). Conversion between character types and integer
+types is possible with the intrinsic functions @code{Ord} and
+@code{Chr}.
+
+An enumerated type defines a range of elements which are referred to
+by identifiers. Conversion from enumerated types to integer types is
+possible with the intrinsic function @code{Ord}. Conversion from
+integer to ordinal types is only possible by type-casting or using
+the extended form of @samp{Succ}.
+
+@smallexample
+var
+  Foo: Char;       @{ foo can hold a character @}
+  Num: '0' .. '9'; @{ Can hold decimal digits, is a subrange type of Char @}
+  Day: (Monday, Tuesday, Wednesday, Thursday,
+        Friday, Saturday, Sunday);  @{ Can hold weekdays @}
+@end smallexample
+
+@subheading See also
+@ref{Ord}, @ref{Chr}, @ref{Type Casts}
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Integer Types
+@subsection Integer Types
+@cindex types, Integer
+@cindex Integer types
+
+Besides @samp{Integer}, GNU Pascal supports a large zoo of integer
+types. Some of them you will find in other compilers, too, but most
+are GNU Pascal extensions, introduced for particular needs. Many of
+these types are synonyms for each other. In total, GPC provides 20
+built-in integer types, plus seven families you can play with. (Four
+of these ``families'' are signed and unsigned, packed and unpacked
+subrange types; the others are explained below.)
+
+@menu
+* Natural Integer Types::
+* Main Branch Integer Types::
+* Integer Types with Specified Size::
+* Integer Types and Compatibility::
+* Summary of Integer Types::
+@end menu
+
+See also: @ref{Subrange Types}.
+
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@node Natural Integer Types
+@subsubsection The CPU's Natural Integer Types
+@cindex integer types, natural
+
+For most purposes, you will always use @samp{Integer}, a signed
+integer type which has the ``natural'' size of such types for the
+machine. On most machines GPC runs on, this is a size of 32 bits, so
+@samp{Integer} usually has a range of @samp{-2147483648..2147483647}
+(see @ref{Integer}).
+
+If you need an unsigned integer type, the ``natural'' choice is
+@samp{Cardinal}, also called @samp{Word}. Like @samp{Integer}, it
+has 32 bits on most machines and thus a range of
+@samp{0..4294967295} (see @ref{Cardinal}, @ref{Word}).
+
+These natural integer types should be your first choice for best
+performance. For instance on an IA32 CPU operations with
+@samp{Integer} usually work faster than operations with shorter
+integer types like @samp{ShortInt} or @samp{ByteInt} (see below).
+
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@node Main Branch Integer Types
+@subsubsection The Main Branch of Integer Types
+@cindex integer types, main branch
+
+@samp{Integer}, @samp{Cardinal}, and @samp{Word} define the three
+``main branches'' of GPC's integer types. You won't always be able
+to deal with the natural size; sometimes something smaller or longer
+will be needed. Especially when interfacing with libraries written
+in other languages such as C, you will need equivalents for their
+integer types.
+
+The following variants of integer types (plus one Boolean type) are
+guaranteed to be compatible to the respective types of GNU C as
+listed below (whereas @samp{Integer}, @samp{Cardinal} and
+@samp{Word} themselves are @emph{not} guaranteed to be compatible to
+any given C type). The sizes given, however, are @emph{not}
+guaranteed. They are just typical values currently used on some
+platforms, but they may be actually shorter or longer on any given
+platform.
+
+@c @group
+@multitable {xxxxxxxxxxxx}       {xxxxxxxxxx}       {xxxxxxxxxxxxxx}       {xxxxxxxxxxxxxxxxxxxxxxxxx}       {xxxxxxxxxxxxx}
+@item     @b{signed}      @tab @b{unsigned}  @tab @b{also unsigned} @tab @b{GNU C equivalent}         @tab @b{size in bits (example)}
+@item     @t{ByteInt}     @tab @t{ByteCard}  @tab @t{Byte}          @tab @t{[un]signed char}          @tab @t{8}
+@item     @t{ShortInt}    @tab @t{ShortCard} @tab @t{ShortWord}     @tab @t{[unsigned] short int}     @tab @t{16}
+@item     @t{CInteger}    @tab @t{CCardinal} @tab @t{CWord}         @tab @t{[unsigned] int}           @tab @t{32}
+@item     @t{MedInt}      @tab @t{MedCard}   @tab @t{MedWord}       @tab @t{[unsigned] long int}      @tab @t{32}
+@item     @t{LongInt}     @tab @t{LongCard}  @tab @t{LongWord}      @tab @t{[unsigned] long long int} @tab @t{64}
+@item     ---             @tab @t{SizeType}  @tab ---               @tab @t{size_t}                   @tab @t{32}
+@item     @t{PtrDiffType} @tab ---           @tab ---               @tab @t{ptrdiff_t}                @tab @t{32}
+@item     @t{PtrInt}      @tab @t{PtrCard}   @tab @t{PtrWord}       @tab ---                          @tab @t{32}
+@item     ---             @tab @t{CBoolean}  @tab ---               @tab @t{_Bool}, @t{bool}          @tab @t{8}
+@end multitable
+@c @end group
+
+Since we don't know whether @samp{LongInt} will always remain the
+``longest'' integer type available -- maybe GNU C will get
+@samp{long long long int}, one day, which we will support as
+@samp{LongLongInt} -- we have added the synonym @samp{LongestInt}
+for the longest available singed integer type, and the same holds
+for @samp{LongestCard} and @samp{LongestWord}.
+
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@node Integer Types with Specified Size
+@subsubsection Integer Types with Specified Size
+@cindex integer types, specified size
+
+In some situations you will need an integer type of a well-defined
+size. For this purpose, GNU Pascal provides type attributes
+(@pxref{attribute}). The type
+
+@smallexample
+Integer attribute (Size = 42)
+@end smallexample
+
+@noindent
+is guaranteed to have a precision of 42 bits. In a realistic
+context, you will most often give a power of two as the number of
+bits, and the machine you will need it on will support variables of
+that size. If this is the case, the specified precision will
+simultaneously be the amount of storage needed for variables of this
+type.
+
+In short: If you want to be sure that you have a signed integer with
+32 bits width, write @samp{Integer attribute (Size = 32)}, not just
+@samp{Integer} which might be bigger. The same works with unsigned
+integer types such as @samp{Cardinal} and @samp{Word} and with
+Boolean types.
+
+This way, you @emph{can't} get a higher precision than that of
+@samp{LongestInt} or @samp{LongestCard} (see
+@ref{Main Branch Integer Types}). If you need higher precision, you
+can look at the @samp{GMP} unit (@pxref{GMP}) which provides integer
+types with arbitrary precision, but their usage is different from
+normal integer types.
+
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@node Integer Types and Compatibility
+@subsubsection Integer Types and Compatibility
+@cindex integer types, compatibility
+
+If you care about ISO compliance, @emph{only} use @samp{Integer} and
+subranges of @samp{Integer}.
+
+Some of GPC's non-ISO integer types exist in Borland Pascal, too:
+@samp{Byte}, @samp{ShortInt}, @samp{Word}, and @samp{LongInt}. The
+sizes of these types, however, are not the same as in Borland
+Pascal. Even for @samp{Byte} this is not guaranteed (while probable,
+though).
+
+When designing GNU Pascal, we thought about compatibility to Borland
+Pascal. Since GNU Pascal is (at least) a 32-bit compiler,
+@samp{Integer} @emph{must} have (at least) 32 bits. But what to do
+with @samp{Word}? Same size as @samp{Integer} (like in BP) or 16
+bits (like in BP)? We decided to make @samp{Word} the
+``natural-sized'' unsigned integer type, thus making it (at least)
+32 bits wide. Similarly, we decided to give @samp{LongInt} twice the
+size of @samp{Integer} (like in BP) rather than making it 32 bits
+wide (like in BP). So @samp{LongInt} has 64 bits, and
+@samp{ShortInt} has 16 bits on the IA32 platform.
+
+On the other hand, to increase compatibility to Borland Pascal and
+Delphi, GPC provides the alias name @samp{Comp} for @samp{LongInt}
+(64 bits on IA32) and @samp{SmallInt} for @samp{ShortInt} (16 bits
+on IA32). Note that BP treats @samp{Comp} as a ``real'' type and
+allows assignments like @samp{MyCompVar := 42.0}. Since we don't
+consider this a feature, GPC does not copy this behaviour.
+
+
+@c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@node Summary of Integer Types
+@subsubsection Summary of Integer Types
+@cindex integer types, summary
+
+Here is a summary of all integer types defined in GPC. The sizes and
+ranges are only @emph{typical} values, valid on some, but not all
+platforms. Compatibility to GNU C however @emph{is} guaranteed.
+
+@table @ref
+@item ByteInt
+  signed 8-bit integer type, @samp{-128..128}, @*
+  compatible to @samp{signed char} in GNU C.
+@item ByteCard, Byte
+  unsigned 8-bit integer type, @samp{0..255}, @*
+  compatible to @samp{unsigned char} in GNU C.
+@item ShortInt
+  signed 16-bit integer type, @samp{-32768..32767}, @*
+  compatible to @samp{short int} in GNU C.
+@item ShortCard, ShortWord
+  unsigned 16-bit integer type, @samp{0..65535}, @*
+  compatible to @samp{unsigned short int} in GNU C.
+@item Integer
+  signed 32-bit integer type, @samp{-2147483648..2147483647}, @*
+  compatible to @samp{int} in GNU C.
+@item Cardinal, Word
+  unsigned 32-bit integer type, @samp{0..4294967295}, @*
+  compatible to @samp{unsigned int} in GNU C.
+@item MedInt
+  signed 32-bit integer type, @samp{-2147483648..2147483647}, @*
+  compatible to @samp{long int} in GNU C.
+@item MedCard, MedWord
+  unsigned 32-bit integer type, @samp{0..4294967295}, @*
+  compatible to @samp{unsigned long int} in GNU C.
+@item LongInt
+  signed 64-bit integer type, @samp{-9223372036854775808..9223372036854775807}, @*
+  compatible to @samp{long long int} in GNU C.
+@item LongCard, LongWord
+  unsigned 64-bit integer type, @samp{0..18446744073709551615}, @*
+  compatible to @samp{unsigned long long int} in GNU C.
+@item LongestInt
+  signed 64-bit integer type, @samp{-9223372036854775808..9223372036854775807}.
+@item LongestCard, LongestWord
+  unsigned 64-bit integer type, @samp{0..18446744073709551615}.
+@item Comp
+  signed 64-bit integer type, @samp{-9223372036854775808..9223372036854775807}.
+@item SmallInt
+  signed 16-bit integer type, @samp{-32768..32767}.
+@item SizeType
+  integer type (usually unsigned) to represent the size of objects
+  in memory
+@item PtrDiffType
+  signed integer type to represent the difference between two
+  positions in memory
+@item PtrInt
+  signed integer type of the same size as a pointer
+@item PtrCard, PtrWord
+  unsigned integer type of the same size as a pointer
+@end table
+
+To specify the number of bits definitely, use type attributes,
+@ref{attribute}.
+
+@smallexample
+program IntegerTypesDemo (Output);
+
+var
+  ByteVar: Byte;
+  ShortIntVar: ShortInt;
+  Foo: MedCard;
+  Big: LongestInt;
+
+begin
+  ShortIntVar := 1000;
+  Big := MaxInt * ShortIntVar;
+  ByteVar := 127;
+  Foo := 16#deadbeef
+end.
+@end smallexample
+
+See also: @ref{Subrange Types}.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Real Types
+@subsection Built-in Real (Floating Point) Types
+@cindex types, real
+@cindex ShortReal
+@cindex Real
+@cindex LongReal
+@cindex Single
+@cindex Double
+@cindex Extended
+
+GPC has three built-in floating point types to represent real
+numbers. Each of them is available under two names (for
+compatibility to other compilers and languages).
+
+For most purposes, you will always use @samp{Real} which is the only
+one of them that is part of Standard and Extended Pascal. If memory
+constraints apply, you might want to choose @samp{ShortReal} for
+larger arrays. On the other hand, if high precision is needed, you
+can use @samp{LongReal}. When interfacing with libraries written in
+other languages such as C, you will need the equivalents for their
+real types.
+
+Note that not all machines support longer floating point types, so
+@samp{LongReal} is the same as @samp{Real} on these machines. Also,
+some machines may support a longer type, but not do all arithmetic
+operations (e.g. the @samp{Sin} function, @ref{Sin}) in a precision
+higher than that of @samp{Real}. If you need higher precision, you
+can look at the @samp{GMP} unit (@pxref{GMP}) which provides
+rational and real numbers with arbitrary precision, but their usage
+is different from normal real types.
+
+The following real types are guaranteed to be compatible to the real
+types of GNU C. The sizes given, however, are @emph{not} guaranteed.
+They are just typical values used on any IEEE compatible floating
+point hardware, but they may be different on some machines.
+
+@c @group
+@multitable {xxxxxxxxxx}       {xxxxxxxxxxxxxxxxx}        {xxxxxxxxxxxxxxxxx}       {xxxxxxxxxxxxxxxxxxxxxxxxx}
+@item     @b{type name} @tab @b{alternative name}  @tab @b{GNU C equivalent} @tab @b{size in bits (typically)}
+@item     @t{ShortReal} @tab @t{Single}            @tab @t{float}            @tab @t{32}
+@item     @t{Real}      @tab @t{Double}            @tab @t{double}           @tab @t{64}
+@item     @t{LongReal}  @tab @t{Extended}          @tab @t{long double}      @tab @t{80}
+@end multitable
+@c @end group
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node String Types
+@subsection Strings Types
+@cindex String, Intrinsic, Data Types
+
+There are several ways to use strings in GNU Pascal. One of them is
+the use of the intrinsic string type @samp{String} which is a
+predefined schema type. The schema discriminant of this type holds
+the maximal length, which is of type Integer, so values up to
+@code{MaxInt} can be specified. For @samp{String}, an assignment is
+defined. There are many built-in functions and procedures for
+comfortable strings handling.
+
+@@@@ ???? String procedures and functions.
+
+Another way to use strings is to use arrays of type @samp{Char}. For
+these, an intrinsic assignment is defined as well. Besides,
+@samp{String} and @samp{Char} are assignment compatible. The
+preferred way, however, is @samp{String} because of the numerous
+possibilities for string handling.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Character Types
+@subsection Character Types
+@cindex Char, Intrinsic, Data Types
+
+Character types are a special case of ordinal types.
+
+@subheading See also
+@ref{Ordinal Types}, @ref{Chr}, @ref{Ord}, @ref{Pred}, @ref{Succ}.
+
+@c ----------------------------------------------------------------------------
+
+
+@node Enumerated Types
+@subsection Enumerated Types
+@cindex Data Types
+
+@smallexample
+type
+  @var{enum_type_identifier} = (@var{identifier}, @dots{}, @var{identifier});
+@end smallexample
+
+An enumerated type is a a special case of ordinal types and
+defines a range of elements which are referred to by
+identifiers. Enumerated types are ordered by occurence in the identifier
+list. So, they can be used as index types in an array
+definition, and it is possible to define subranges of them. Since they are
+ordered, they can be compared to one another. The intrinsic function
+@code{Ord} applied to @var{name_identifier} returns the number of occurence
+in the identifier list (beginning with zero), @code{Pred} and @code{Succ}
+return the predecessor and successor of @var{name_identifier}.
+@samp{Boolean} is a special case of an enumerated type.
+
+@subheading See also
+@ref{Ordinal Types}, @ref{Array Types}, @ref{Subrange Types}, @ref{Ord},
+@ref{Boolean}, @ref{Char}, @ref{Pred}, @ref{Succ}.
+
+@c ----------------------------------------------------------------------------
+
+
+@node File Types
+@subsection File Types
+@cindex File Types, Intrinsic, Data Types
+@cindex untyped files
+@cindex Text
+
+Files are used to store data permanently, normally on hard drives
+or floppies. There are tree types of files available: text files,
+typed and untyped files.
+
+Text files are used to store text in them, where typed files are
+used to store many entries of the same type in them, e.g.
+addresses. Text files and typed files are accessible by
+@samp{Read} and @samp{Write} operations and do not need the
+parameter @samp{BlockSize} in @samp{Reset} or @samp{Rewrite}.
+On the other hand, untyped files are used to store any type
+of information in them but you need to use @samp{BlockWrite}
+or @samp{BlockRead} to store or retrieve data out of this file.
+
+
+@smallexample
+var
+  F1: Text;   @{ a textfile @}
+  F2: file of Real;   @{ a typed filed used to store real values in it @}
+  F3: File;   @{ an untyped file @}
+@end smallexample
+
+
+@subheading See also
+@ref{File Routines}, @ref{Write}, @ref{Read}, @ref{BlockRead},
+@ref{BlockWrite}, @ref{Reset}, @ref{Rewrite}
+
+@c ----------------------------------------------------------------------------
+
+
+@node Boolean (Intrinsic)
+@subsection Boolean (Intrinsic)
+@cindex Boolean, Intrinsic, Data Types
+
+The intrinsic Boolean represents boolean values, i.e. it can only assume
+true and false (which are predefined constants). This type corresponds to
+the enumerated type
+@smallexample
+type
+  Boolean = (False, True);
+@end smallexample
+Since it is declared this way, it follows:
+@smallexample
+Ord (False) = 0
+Ord (True) = 1
+False < True
+@end smallexample
+ There are four intrinsic logical operators. The logical @code{and},
+ @code{or} and @code{not}. In Borland Pascal and GNU Pascal, there is
+ a logical ``exclusive or'' @code{xor}.
+
+@subheading See also
+@ref{Enumerated Types}, @ref{and}, @ref{or}, @ref{not}, @ref{xor}
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Pointer (Intrinsic)
+@subsection Pointer (Intrinsic)
+@cindex Pointer, Intrinsic, Data Types
+
+The intrinsic Pointer Type is a so-called unspecified or typeless pointer
+(i.e. a pointer which does not point to any type but holds simply a
+memory address).
+
+@subheading See also
+@ref{Pointer Types}, @ref{nil}
+
+
+@c ----------------------------------------------------------------------------
+@c -Data Types/Type Definition Possibilities/----------------------------------
+
+
+@node Type Definition Possibilities
+@subsection Type Definition Possibilities
+@cindex Type Definition Possibilities
+
+
+@menu
+* Subrange Types::     Packed and non-packed Subranges
+* Array Types::        Fields (Array Types)
+* Record Types::       Structured Types (Record Types)
+* Variant Records::    Record Types with Varying Fields
+* Schema Types::       Schema Types
+* Set Types::          Set Types
+* Pointer Types::      Pointer Types
+* Procedural Types::   Procedures Types
+* Object Types::       Types for Object-Oriented Programming
+* Type Initializers::  Types Carrying an Initial Value for Variables
+* Restricted Types::   Hiding Internal Information about Types
+@end menu
+
+
+@c ----------------------------------------------------------------------------
+@c =Data Types/Type Definition Possibilities/Subrange Types/===================
+
+
+@node Subrange Types
+@subsubsection Subrange Types
+@cindex types, subrange
+@cindex subrange types
+
+GNU Pascal supports Standard Pascal's subrange types:
+
+@smallexample
+program SubrangeDemo;
+type
+  MonthInt = 1 .. 12;
+  Capital = 'A' .. 'Z';
+  ControlChar = ^A .. ^Z;  @{ `^A' = `Chr (1)' is a BP extension @}
+begin
+end.
+@end smallexample
+Also possible: Subranges of enumerated types:
+@smallexample
+program EnumSubrangeDemo;
+type
+  @{ This is an enumerated type. @}
+  Days = (Mon, Tue, Wed, Thu, Fri, Sat, Sun);
+
+  @{ This is a subrange of `Days'. @}
+  Working = Mon .. Fri;
+
+begin
+end.
+@end smallexample
+
+To increase performance, variables of such a type are aligned in a
+way which makes them fastest to access by the CPU. As a result,
+@samp{1 .. 12} occupies 4 bytes of storage on an IA32 CPU.
+
+For the case you want to save storage at the expense of speed, GPC
+provides a @samp{packed} variant of these as an extension:
+
+@smallexample
+program PackedSubrangeDemo;
+type
+  MonthInt = packed 1 .. 12;
+begin
+end.
+@end smallexample
+
+A variable of this type occupies the shortest possible (i.e.,
+addressable) space in memory -- one byte on an IA32 compatible CPU.
+
+See also: @ref{packed}.
+
+
+@c =Data Types/Type Definition Possibilities/Array Types/======================
+
+
+@node Array Types
+@subsubsection Array Types
+@cindex Array Types, Data Types
+
+@smallexample
+type
+  @var{array_type_identifier} = array [@var{index_type}] of @var{element_type}
+@end smallexample
+or
+@smallexample
+type
+  @var{array_type_identifier} = array [@var{index_type}, @dots{}, @var{index_type}] of @var{element_type}
+@end smallexample
+
+The reserved word @code{array} defines an array type. @var{index_type}
+has to be an ordinal type, subrange type or an enumerated type, where
+several index types, separated by commas, are allowed. @var{element_type}
+is an arbitrary type. An element of an array is accessed
+by @var{array_type_variable} [@var{index_number}]. The upper and
+lower index bounds can be determined by the intrinsic functions @code{High}
+and @code{Low}.
+
+@smallexample
+type
+  IntArray = array [1 .. 20] of Integer;
+  Foo      = array [(Mo, Tu, We, Th, Fr, Sa, Su)] of Char;
+  Bar      = array [0 .. 9, 'a' .. 'z', (Qux, Glork1, Fred)] of Real;
+  Baz1     = array [1 .. 10] of IntArray;
+  @{ equal (but declared differently): @}
+  Baz2     = array [1 .. 10, 1 .. 20] of Integer;
+@end smallexample
+
+@subheading See also
+@ref{High}, @ref{Low}
+
+
+@c =Data Types/Type Definition Possibilities/Record Types/=====================
+
+
+@node Record Types
+@subsubsection Record Types
+@cindex Record Types, Data Types
+
+@smallexample
+type
+  @var{record_type_identifier} = record
+    @var{field_identifier}: @var{type_definition};
+    @dots{}
+    @var{field_identifier}: @var{type_definition};
+  end;
+@end smallexample
+
+or, with a variant part,
+
+@smallexample
+type
+  @var{record_type_identifier} = record
+    @var{field_identifier}: @var{type_definition};
+    @dots{}
+    @var{field_identifier}: @var{type_definition};
+  case bar: @var{variant_type} of
+    @var{selector}: (@var{field_declarations});
+    @var{selector}: (@var{field_declarations});
+    @dots{}
+  end;
+@end smallexample
+
+or, without a variant selector field,
+
+@smallexample
+type
+  @var{record_type_identifier} = record
+    @var{field_identifier}: @var{type_definition};
+    @dots{}
+    @var{field_identifier}: @var{type_definition};
+  case @var{variant_type} of
+    @var{selector}: (@var{field_declarations});
+    @var{selector}: (@var{field_declarations});
+    @dots{}
+  end;
+@end smallexample
+
+The reserved word @code{record} defines a structure of fields.
+Records can be @samp{packed} to save memory usage at the expense of
+speed.
+
+@c The variants of a variant record share one location in memory
+@c (inside the record) and thus can be used to emulate type casting
+@c without violating ISO 7185 Pascal.
+@c NO!!! This is NOT guaranteed (and not true for some cases in GPC)! -- Frank
+
+The reserved word @samp{record} and record types are defined in
+ISO 7185 Pascal. According to ISO Pascal, the variant type must be
+an identifier. GNU Pascal, like UCSD and Borland Pascal, also allows
+a subrange here.
+
+A record field is accessed by
+@var{record_type_variable} . @var{field_identifier}
+
+See also: @ref{packed}, @ref{case Statement}.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Variant Records
+@subsubsection Variant Records
+@cindex types, variant records
+@cindex record, variant
+
+GPC supports variant records like in EP and BP. The following
+construction is not allowed in Extended Pascal, but in BP and GPC:
+
+@smallexample
+program BPVariantRecordDemo;
+
+type
+  PersonRec = record
+    Age: Integer;
+  case EyeColor: (Red, Green, Blue, Brown) of
+    Red, Green : (WearsGlasses: Boolean);
+    Blue, Brown: (LengthOfLashes: Integer);
+  end;
+
+begin
+end.
+@end smallexample
+
+In EP, the variant field needs a type identifier, which, of course,
+also works in GPC:
+
+@smallexample
+program EPVariantRecordDemo;
+
+type
+  EyeColorType = (Red, Green, Blue, Brown);
+
+  PersonRec = record
+    Age: Integer;
+  case EyeColor: EyeColorType of
+    Red, Green : (WearsGlasses: Boolean);
+    Blue, Brown: (LengthOfLashes: Integer);
+  end;
+
+begin
+end.
+@end smallexample
+
+
+@c =Data Types/Type Definition Possibilities/Schema Types/=====================
+
+
+@node Schema Types
+@subsubsection EP's Schema Types including @samp{String}
+@cindex types, schemata
+@cindex schemata
+@cindex types, schema
+
+Schemata are types that depend on one or more variables, called
+@dfn{discriminants}. They are an ISO 10206 Extended Pascal feature.
+
+@smallexample
+type
+  RealArray (n: Integer) = array [1 .. n] of Real;
+  Matrix (n, m: PositiveInteger) = array [1 .. n, 1 .. m] of Integer;
+@end smallexample
+
+The type @samp{RealArray} in this example is called a Schema with the
+discriminant @samp{n}.
+
+To declare a variable of such a type, write:
+
+@smallexample
+var
+  Foo: RealArray (42);
+@end smallexample
+
+The discriminants of every global or local schema variable are
+initialized at the beginning of the procedure, function or program
+where the schema variable is declared.
+
+Schema-typed variables ``know'' about their discriminants. Discriminants
+can be accessed just like record fields:
+
+@smallexample
+program Schema1Demo;
+type
+  PositiveInteger = 1 .. MaxInt;
+  RealArray (n: Integer) = array [1 .. n] of Real;
+  Matrix (n, m: PositiveInteger) = array [1 .. n, 1 .. m] of Integer;
+
+var
+  Foo: RealArray (42);
+
+begin
+  WriteLn (Foo.n)  @{ yields 42 @}
+end.
+@end smallexample
+
+Schemata may be passed as parameters. While types of schema
+variables must always have specified discriminants (which may be
+other variables), formal parameters (by reference or by value) may
+be of a schema type without specified discriminant. In this, the
+actual parameter may posses any discriminant. The discriminants of
+the parameters get their values from the actual parameters.
+
+Also, @emph{pointers} to schema variables may be declared without a
+discriminant:
+
+@smallexample
+program Schema2Demo;
+type
+  RealArray (n: Integer) = array [1 .. n] of Real;
+  RealArrayPtr = ^RealArray;
+var
+  Bar: RealArrayPtr;
+begin
+end.
+@end smallexample
+
+When applying @samp{New} to such a pointer, you must specify the
+intended value of the discriminant as a parameter:
+
+@smallexample
+New (Bar, 137)
+@end smallexample
+
+As a GNU Pascal extension, the above can also be written as
+
+@smallexample
+Bar := New (RealArrayPtr, 137)
+@end smallexample
+
+The allocated variable behaves like any other schema variable:
+
+@smallexample
+program Schema3Demo;
+type
+  RealArray (n: Integer) = array [1 .. n] of Real;
+  RealArrayPtr = ^RealArray;
+var
+  Bar: RealArrayPtr;
+  i: Integer;
+begin
+  Bar := New (RealArrayPtr, 137);
+  for i := 1 to Bar^.n do
+    Bar^[i] := 42
+end.
+@end smallexample
+
+Since the schema variable ``knows'' its size, pointers to schemata
+can be disposed just like other pointers:
+
+@smallexample
+Dispose (Bar)
+@end smallexample
+
+Schemata are not limited to arrays. They can be of any type that
+normally requires constant values in its definition, for instance
+subrange types, or records containing arrays etc. (Sets do not yet
+work.)
+
+References to the schema discriminants are allowed, and the
+@code{with} statement is also allowed, so one can say:
+
+@smallexample
+program SchemaWithDemo;
+type
+  RealArray (n: Integer) = array [1 .. n] of Real;
+var
+  MyArray: RealArray (42);
+begin
+  WriteLn (MyArray.n);  @{ writes 42 @}
+  with MyArray do
+    WriteLn (n);        @{ writes 42 @}
+end.
+@end smallexample
+
+Finally, here is a somewhat exotic example. Here, a
+@samp{ColoredInteger} behaves just like an ordinary integer, but it
+has an additional property @samp{Color} which can be accessed like a
+record field.
+
+@smallexample
+program SchemaExoticDemo;
+
+type
+  ColorType = (Red, Green, Blue);
+  ColoredInteger (Color: ColorType) = Integer;
+
+var
+  Foo: ColoredInteger (Green);
+
+begin
+  Foo := 7;
+  if Foo.Color = Red then
+    Inc (Foo, 2)
+  else
+    Foo := Foo div 3
+end.
+@end smallexample
+
+An important schema is the predefined @samp{String} schema
+(according to Extended Pascal). It has one predefined discriminant
+identifier @code{Capacity}. GPC implements the @code{String} schema
+as follows:
+
+@smallexample
+type
+  String (Capacity: Cardinal) = record
+    Length: 0 .. Capacity;
+    Chars: packed array [1 .. Capacity + 1] of Char
+  end;
+@end smallexample
+
+The @code{Capacity} field may be directly referenced by the user,
+the @code{Length} field is referenced by a predefined string
+function @code{Length (Str)} and contains the current string length.
+@code{Chars} contains the chars in the string. The @code{Chars} and
+@code{Length} fields cannot be directly referenced by a user
+program.
+
+If a formal value parameter is of type @samp{String} (with or
+without discriminant), the actual parameter may be either a
+@code{String} schema, a fixed string (character array), a single
+character, a string literal or a string expression. If the actual
+parameter is a @samp{String} schema, it is copied for the parameter
+in the usual way. If it is not a schema, a @samp{String} schema is
+created automatically, the actual parameter is copied to the new
+variable and the @code{Capacity} field of the new variable is set to
+the length of the actual parameter.
+
+Actual parameters to @samp{var} parameters of type @samp{String}
+must be @samp{String} schemata, not string literals or character
+arrays.
+
+@smallexample
+program StringDemo (Output);
+
+type
+  SType = String (10);
+  SPtr  = ^String;
+
+var
+  Str : SType;
+  Str2: String (100000);
+  Str3: String (20) value 'string expression';
+  DStr: ^String;
+  ZStr: SPtr;
+  Len : Integer value 256;
+  Ch  : Char value 'R';
+
+@{ `String' accepts any length of strings @}
+procedure Foo (z: String);
+begin
+  WriteLn ('Capacity: ', z.Capacity);
+  WriteLn ('Length  : ', Length (z));
+  WriteLn ('Contents: ', z);
+end;
+
+@{ Another way to use dynamic strings @}
+procedure Bar (SLen: Integer);
+var
+  LString: String (SLen);
+  FooStr: type of LString;
+begin
+  LString := 'Hello world!';
+  Foo (LString);
+  FooStr := 'How are you?';
+  Foo (FooStr);
+end;
+
+begin
+  Str  := 'KUKKUU';
+  Str2 := 'A longer string variable';
+  New (DStr, 1000);  @{ Select the string Capacity with `New' @}
+  DStr^ := 'The maximum length of this is 1000 chars';
+  New (ZStr, Len);
+  ZStr^ := 'This should fit here';
+  Foo (Str);
+  Foo (Str2);
+  Foo ('This is a constant string');
+  Foo ('This is a ' + Str3);
+  Foo (Ch);  @{ A char parameter to string routine @}
+  Foo ('');  @{ An empty string @}
+  Foo (DStr^);
+  Foo (ZStr^);
+  Bar (10000);
+end.
+@end smallexample
+
+In the above example, the predefined procedure @code{New} was used
+to select the capacity of the strings. Procedure @code{Bar} also has
+a string whose size depends of the parameter passed to it and
+another string whose type will be the same as the type of the first
+string, using the @code{type of} construct.
+
+All string and character types are compatible as long as the
+destination string is long enough to hold the source in assignments.
+If the source string is shorter than the destination, the
+destination is automatically blank padded if the destination string
+is not of string schema type.
+
+
+@c =Data Types/Type Definition Possibilities/Set Types/========================
+
+
+@node Set Types
+@subsubsection Set Types
+@cindex Set Types, Data Types
+
+@smallexample
+@var{set_type_identifier} = set of @var{set_element_type};
+@end smallexample
+
+@var{set_type_identifier} is a set of elements from @var{set_element_type}
+which is either an ordinal type, an enumerated type or a subrange type.
+Set element representatives are joined together into a set by brackets:
+@smallexample
+[@var{set_element}, @dots{}, @var{set_element}]
+@end smallexample
+@samp{[]} indicates the empty set, which is compatible with all set types.
+Note: Borland Pascal restricts the maximal set size (i.e. the range of the
+set element type) to 256, GNU Pascal has no such restriction.
+The number of elements a set variable is holding can be determined by
+the intrinsic set function Card (which is a GNU Pascal extension, in
+Extended Pascal and Borland Pascal you can use SizeOf instead but note
+the element type size in bytes, then) to the set.
+There are four intrinsic binary set operations: the
+union @samp{+}, the intersection @samp{*} and the difference
+@samp{-}. The symmetric difference @samp{><} is an Extended Pascal
+extension.
+
+@subheading See also
+@ref{Card}, @ref{SizeOf}
+
+
+@c =Data Types/Type Definition Possibilities/Pointer Types/====================
+
+
+@node Pointer Types
+@subsubsection Pointer Types
+@cindex types, pointer
+@cindex pointer types
+
+@smallexample
+@var{pointer_type_identifier} = ^@var{type_identifier};
+@end smallexample
+
+A pointer of the type @var{pointer_type_identifier} holds the
+address at which data of the type @var{type_identifier} is situated.
+Unlike other identifier declarations, where all identifiers in
+definition part have to be declared before, in a pointer type
+declaration @var{type_identifier} may be declared after
+@var{pointer_type_identifier}. The data pointed to is accessed by
+@samp{@var{pointer_type_variable}^}. To mark an unassigned pointer,
+the @samp{nil} constant (which stands for ``not in list'') has to be
+assigned to it, which is compatible with all pointer types.
+
+@smallexample
+type
+  ItselfFoo = ^ItselfFoo;  @{ possible but mostly senseless @}
+
+  PInt      = ^Integer;    @{ Pointer to an Integer @}
+
+  PNode     = ^TNode;      @{ Linked list @}
+  TNode     = record
+    Key     : Integer;
+    NextNode: PNode;
+  end;
+
+var
+  Foo, Bar: PInt;
+
+begin
+  Foo := Bar;  @{ Modify address which foo is holding @}
+  Foo^ := 5;   @{ Access data foo is pointing to @}
+end.
+@end smallexample
+
+GPC also suports pointers to procedures or function and calls
+through them. This is a non-standard feature.
+
+@smallexample
+program ProcPtrDemo (Output);
+
+type
+  ProcPtr = ^procedure (i: Integer);
+
+var
+  PVar: ProcPtr;
+
+procedure WriteInt (i: Integer);
+begin
+  WriteLn ('Integer: ', i : 1)
+end;
+
+begin
+  @{ Let PVar point to function WriteInt @}
+  PVar := @@WriteInt;
+
+  @{ Call the function by dereferencing the function pointer @}
+  PVar^ (12345)
+end.
+@end smallexample
+
+See also: @ref{Pointer (Intrinsic)}.
+
+
+@c =Data Types/Type Definition Possibilities/Procedural Types/=================
+
+
+@node Procedural Types
+@subsubsection Procedural and Functional Types
+@cindex types, procedural
+@cindex types, functional
+@cindex procedural type
+@cindex functional type
+
+For procedures without a parameter list:
+@smallexample
+@var{procedure_type_identifier} = procedure @var{name_identifier};
+@end smallexample
+or functions:
+@smallexample
+@var{function_type_identifier} =
+       function @var{name_identifier}: @var{function_result_type};
+@end smallexample
+
+For procedures with a parameter list:
+@smallexample
+@var{procedure_type_identifier} =
+       procedure @var{name_identifier} (@var{parameter_list});
+@end smallexample
+or functions:
+@smallexample
+@var{function_type_identifier} =
+       function @var{name_identifier} (@var{parameter_list}): @var{function_result_type};
+@end smallexample
+
+Procedural types can be used as procedures or functions
+respectively, but also a value can be assigned to them. Procedural
+types are a Borland Pascal extension. In Borland Pascal,
+@var{function_result_type} can only be one of these types: ordinal
+types, real types, pointer types, the intrinsic @samp{String} type.
+In GNU Pascal every function result type for procedural types is
+allowed.
+
+BP has procedural and functional types:
+
+@smallexample
+type
+  CompareFunction = function (Key1, Key2: String): Integer;
+
+function Sort (Compare: CompareFunction);
+begin
+  ...
+end;
+@end smallexample
+
+Standard Pascal has procedural and functional parameters:
+
+@smallexample
+function Sort (function Compare (Key1, Key2: String): Integer);
+begin
+  ...
+end;
+@end smallexample
+
+Both ways have pros and cons, e.g.@: in BP you can save, compare,
+trade, etc.@: procedural values, or build arrays of them, while the
+SP way does not require a type declaration and prevents problems
+with uninitialized or invalid pointers (which in BP will usually
+crash the program).
+
+GPC supports both ways. An important feature of Standard Pascal (but
+not BP) that GPC also supports is the possibility to pass
+@emph{local} routines as procedural or functional parameters, even
+if the called routine is declared far remote. The called routine can
+then call the passed local routine and it will have access to the
+original caller's local variables.
+
+@smallexample
+program LocalProceduralParameterDemo;
+
+procedure CallProcedure (procedure Proc);
+begin
+  Proc
+end;
+
+procedure MainProcedure;
+var LocalVariable: Integer;
+
+  procedure LocalProcedure;
+  begin
+    WriteLn (LocalVariable)
+  end;
+
+begin
+  LocalVariable := 42;
+  CallProcedure (LocalProcedure)
+end;
+
+begin
+  MainProcedure
+end.
+@end smallexample
+
+See also: @ref{The Procedure}, @ref{The Function},
+@ref{Subroutine Parameter List Declaration}, @ref{Procedure Call}.
+
+
+@c =Data Types/Type Definition Possibilities/Object Types/=====================
+
+
+@node Object Types
+@subsubsection Object Types
+@cindex Object Types, Data Types
+
+@c @@@@ ???? I think that's something for someone who might know what he is doing
+@c I think there's stuff about OOP in several other places already ... -- Frank
+@c Just a short description and a link to an OOP-Section --Eike
+
+Object types are used to encapsulate data and methods.
+Furthermore, they implement a mechanism for inheritance.
+
+@subheading See also
+@ref{OOP}
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Type Initializers
+@subsubsection Initial values to type denoters
+@cindex types, initializers
+
+A type may be initialized to a value of expression when it is
+declared, like a variable, as in:
+
+@smallexample
+program TypeVarInitDemo;
+type
+  Int10   = Integer value 10;
+  FooType = Real;
+  MyType  = Char value Pred ('A');
+  EType   = (a, b, c, d, e, f, g) value d;
+
+const
+  Answer = 42;
+
+var
+  ii : Int10;                    @{ Value of ii set to 10 @}
+  ch : MyType  value Pred ('z');
+  aa : Integer value Answer + 10;
+  foo: FooType value Sqr (Answer);
+  e1 : EType;                    @{ value set to d @}
+  e2 : EType value g;            @{ value set to g @}
+begin
+end.
+@end smallexample
+
+Extended Pascal requires the type initializers to be constant
+expressions. GPC allows any valid expression.
+
+Note, however, that the expressions that affect the size of storage
+allocated for objects (e.g.@: the length of arrays) may contain
+variables only inside functions or procedures.
+
+GPC evaluates the initial values used for the type when an
+identifier is declared for that type. If a variable is declared with
+a type-denoter that uses a type-name which already has an initial
+value the latter initialization has precedence.
+
+@@@@ GPC does not know how to calculate constant values for math
+functions in the runtime library at compile time, e.g.@: @samp{Exp
+(Sin (2.4567))}, so you should not use these kind of expressions in
+object size expressions. (Extended Pascal allows this.)
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Restricted Types
+@subsubsection Restricted Types
+@cindex types, restricted
+
+GPC supports @samp{restricted} types, defined in Extended Pascal. A
+value of a restricted type may be passed as a value parameter to a
+formal parameter possessing its underlying type, or returned as the
+result of a function. A variable of a restricted type may be passed
+as a variable parameter to a formal parameter possessing the same
+type or its underlying type. No other operations, such as accessing
+a component of a restricted type value or performing arithmetic, are
+possible.
+
+@smallexample
+program RestrictedDemo;
+
+type
+  UnrestrictedRecord = record
+    a: Integer;
+  end;
+  RestrictedRecord = restricted UnrestrictedRecord;
+
+var
+  r1: UnrestrictedRecord;
+  r2: RestrictedRecord;
+  i: restricted Integer;
+  k: Integer;
+
+function AccessRestricted (p: UnrestrictedRecord): RestrictedRecord;
+var URes: UnrestrictedRecord;
+begin
+  @{ The parameter is treated as unrestricted, even though the actual
+    parameter may be restricted @}
+  URes.a := p.a;
+  @{ It is allowed to assign a function result @}
+  AccessRestricted := URes;
+end;
+
+begin
+  r1.a := 354;
+
+  @{ Assigning a restricted function result to a restricted variable @}
+  @{ @@@@ Verify if this should really be allowed????? @}
+  r2 := AccessRestricted (r1);
+
+  @{ Passing a restricted value to unrestricted formal parameter is ok @}
+  r2 := AccessRestricted (r2);
+
+  @{$ifdef BUG@}
+  @{ *** The following statements are not allowed *** @}
+  k := r2.a;      @{ field access (reading) @}
+  r2.a := 100;    @{ field access (writing) @}
+  r1 := r2;       @{ assignment source is restricted @}
+  r2 := r1;       @{ assignment target is restricted @}
+  r1 := AccessRestricted (r2); @{ assigning a restricted function
+                                 result to an unrestricted object @}
+  i  := 16#ffff;  @{ assignment target is restricted @}
+  k  := i + 2;    @{ arithmetic with restricted value @}
+  @{$endif@}
+end.
+@end smallexample
+
+
+@c ----------------------------------------------------------------------------
+@c =Data Types/Machine-dependencies in Types/==================================
+
+
+@node Machine-dependencies in Types
+@subsection Machine-dependencies in Types
+@cindex Machine-dependencies in Types
+
+@menu
+* Endianness::  How Integer Types are Stored on Different Machines
+* Alignment::   How Variables are Placed in Memory
+@end menu
+
+
+@c =Data Types/Machine-dependencies in Types/Endianness/=======================
+
+
+@node Endianness
+@subsubsection Endianness
+@cindex endianness
+
+Endianness means the order in which the bytes of a value larger than
+one byte are stored in memory. This affects, e.g., integer values
+and pointers while, e.g., arrays of single-byte characters are not
+affected. The GPC @samp{String} schema, however, contains
+@samp{Capacity} and @samp{Length} fields before the character array.
+These fields are integer values larger than one byte, so the
+@samp{String} schema @emph{is} affected by endianness.
+
+Endianness depends on the hardware, especially the CPU. The most
+common forms are:
+
+@itemize @bullet
+
+@item @dfn{Little-endian}
+
+Little-endian machines store the least significant byte on the
+lowest memory address (the word is stored @dfn{little-end-first}).
+
+E.g., if the 32 bit value @code{$deadbeef} is stored on memory
+address @code{$1234} on a little-endian machine, the following bytes
+will occupy the memory positions:
+
+@c @group
+@multitable {xxxxxxxxxxx}    {xxxxxxxx}
+@item     @b{Address} @tab @b{Value}
+@item     @t{$1234}   @tab @t{$ef}
+@item     @t{$1235}   @tab @t{$be}
+@item     @t{$1236}   @tab @t{$ad}
+@item     @t{$1237}   @tab @t{$de}
+@end multitable
+@c @end group
+
+Examples for little-endian machines are IA32 and compatible
+microprocessors and Alpha processors.
+
+@item @dfn{Big-endian}
+
+Big-endian machines store the most significant byte on the lowest
+memory address (the word is stored @dfn{big-end-first}).
+
+E.g., if the 32 bit value @code{$deadbeef} is stored on memory
+address @code{$1234} on a big-endian machine, the following bytes
+will occupy the memory positions:
+
+@c @group
+@multitable {xxxxxxxxxxx}    {xxxxxxxx}
+@item     @b{Address} @tab @b{Value}
+@item     @t{$1234}   @tab @t{$de}
+@item     @t{$1235}   @tab @t{$ad}
+@item     @t{$1236}   @tab @t{$be}
+@item     @t{$1237}   @tab @t{$ef}
+@end multitable
+@c @end group
+
+Examples for big-endian machines are the Sparc and Motorola m68k CPU
+families and most RISC processors. Big-endian byte order is also
+used in the Internet protocols.
+
+@end itemize
+
+@emph{Note:} There are processors which can run in both
+little-endian and big-endian mode, e.g.@: the MIPS processors. A
+single program, however, (unless it uses special machine code
+instructions) will always run in one endianness.
+
+Under normal circumstances, programs do not need to worry about
+endianness, the CPU handles it by itself. Endianness becomes
+important when exchanging data between different machines, e.g.@:
+via binary files or over a network. To avoid problems, one has to
+choose the endianness to use for the data exchange. E.g., the
+Internet uses big-endian data, and most known data formats have a
+specified endianness (usually that of the CPU on which the format
+was originally created). If you define your own binary data format,
+you're free to choose the endianness to use.
+
+To deal with endianness, GPC predefines the symbol
+@samp{__BYTES_LITTLE_ENDIAN__} on little-endian machines and
+@samp{__BYTES_BIG_ENDIAN__} on big-endian machines. Besides, the Run
+Time System defines the constant @samp{BytesBigEndian} as False on
+little-endian machines and True on big-endian machines.
+
+There are also the symbols @samp{__BITS_LITTLE_ENDIAN__},
+@samp{__BITS_BIG_ENDIAN__}, @samp{__WORDS_LITTLE_ENDIAN__},
+@samp{__WORDS_BIG_ENDIAN__} and the constants @samp{BitsBigEndian}
+and @samp{WordsBigEndian} which concern the order of bits within a
+byte (e.g., in packed records) or of words within multiword-numbers,
+but these are usually less important.
+
+The Run Time System also contains a number of routines to convert
+endianness and to read or write data from/to binary files in a given
+endianness, independent of the CPU's endianness. These routines are
+described in the RTS reference (@pxref{Run Time System}), under
+@samp{endianness}. The demo program @file{endiandemo.pas} contains
+an example on how to use these routines.
+
+
+@c =Data Types/Machine-dependencies in Types/Alignment/========================
+
+
+@node Alignment
+@subsubsection Alignment
+@cindex Alignment, Type Implementation
+
+(Under construction.)
+@@@@ ????
+
+
+@c ----------------------------------------------------------------------------
+@c =Operators/=================================================================
+
+
+@node Operators
+@section Operators
+@cindex Operators
+
+GNU Pascal supports all operators of ISO Pascal and Borland Pascal.
+In addition, you can define your own operators according to the
+Pascal-SC (PXSC) syntax.
+
+@menu
+* Built-in Operators::
+* User-defined Operators::
+@end menu
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Built-in Operators
+@subsection Built-in Operators
+@cindex operators, built-in
+
+The following table lists all built-in GNU Pascal operators, ordered
+by precedence: @samp{<} etc. have the lowest precedence, @samp{not}
+etc. the highest. As usual, the precedence of operators can be
+superseded with parentheses.
+
+In an assignment statement, @samp{:=} has lower precedence than all
+operators. (This is rather obvious from the syntax of assignment
+statements, and is merely noted for programmers familiar with C
+where @samp{=} is an operator.)
+
+@smallexample
+<    =    >    in   <>   >=   <=
++    -    or   +<   -<   +>   ->
+*    /    div  mod  and  shl  shr  xor  *<   /<   *>   />
+pow  **   ><
+not  @@
+@end smallexample
+
+The Pascal-SC (PXSC) operators @samp{+<}, @samp{-<}, @samp{+>}, @samp{->},
+@samp{*<}, @samp{/<}, @samp{*>}, and @samp{/>} are not yet implemented into
+GNU Pascal but may be defined by the user (see below).
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node User-defined Operators
+@subsection User-defined Operators
+@cindex operators, user-defined
+
+GNU Pascal allows the (re-)definition of binary operators according
+to the Pascal-SC (PXSC) syntax. The following vector addition
+example illustrates how to do this:
+
+@smallexample
+program OperatorDemo;
+
+type
+  Vector3 = record
+    x, y, z: Real;
+  end;
+
+var
+  a, b, c: Vector3 = (1, 2, 3);
+
+operator + (u, v: Vector3) w: Vector3;
+begin
+  w.x := u.x + v.x;
+  w.y := u.y + v.y;
+  w.z := u.z + v.z;
+end;
+
+begin
+  c := a + b
+end.
+@end smallexample
+
+Between the closing parenthesis of the argument list and the result
+variable (@samp{w} in the above example), GPC allows an optional
+equal sign. This is not allowed in PXSC, but it is consistent with
+Extended Pascal's function result variable definitions, where the
+equal sign is obligatory (but also optional in GPC).
+
+The argument types needn't be equal, and the name of the operator
+may be an identifier instead of a known symbol. You cannot define
+@emph{new} symbols in GPC.
+
+The PXSC operators @samp{+>}, @samp{+<}, etc.@: for exact numerical
+calculations currently are not implemented in GPC, but you can
+define them. Also, the other real-type operators do @emph{not} meet
+the requirements of PXSC; a module which fixes that would be a
+welcome contribution.
+
+
+@c ============================================================================
+
+
+@node Parameters
+@section Procedure And Function Parameters
+
+@menu
+* Protected Parameters::  Parameters declared @samp{protected} or @samp{const}
+* Conformant Arrays::     The Standard way to pass arrays of variable size
+* Open Arrays::           BP's alternative to Conformant Arrays
+@end menu
+
+
+@c ----------------------------------------------------------------------------
+
+@node Protected Parameters
+@subsection Parameters declared as @samp{protected} or @samp{const}
+@cindex parameter, protected
+@cindex protected, parameter
+
+All the following works in GPC:
+
+@smallexample
+procedure Foo (protected a, b, c: Integer);    @{ 3 arguments @}
+procedure Foo (a, b, c, protected: Integer);   @{ 4 arguments @}
+procedure Foo (a, b, protected, c: Integer);   @{ 4 arguments @}
+procedure Foo (protected: Integer);            @{ 1 argument  @}
+procedure Foo (var protected: Integer);        @{ 1 argument  @}
+procedure Foo (protected protected: Integer);  @{ 1 argument  @}
+@end smallexample
+
+Furthermore, GPC supports @code{const}, according to BP, which is
+equivalent to either @code{protected} or @code{protected var}, up to
+the compiler's discretion.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Conformant Arrays
+@subsection The Standard way to pass arrays of variable size
+@cindex array, conformant
+
+@@@@ (Under construction.)
+
+A feature of Standard Pascal level 1.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Open Arrays
+@subsection BP's alternative to Conformant Arrays
+@cindex array, open
+
+Borland Pascal ``open array'' formal parameters are implemented into
+GPC. Within the function body, they have integer type index with
+lower bound 0.
+
+In constrast to conformant arrays (which are not supported by BP),
+open arrays allow any ordinal type as the index of the actual
+parameter (which is useful, e.g., if you want to be able to pass
+values of any enumeration type). However, they lose information
+about the lower bound (which is a problem, e.g., if you want to
+return information to the caller that relates to the actual array
+index, like the function @samp{IOSelect} in the Run Time System
+does).
+
+
+@c ============================================================================
+
+
+@node String Slice Access
+@section Accessing parts of strings (and other arrays)
+@cindex string, slice access
+@cindex array, slice access
+@cindex Slice access
+
+GPC allows the access of parts (``slices'') of strings as defined in
+Extended Pascal. For example:
+
+@smallexample
+program StringSliceDemo;
+
+const
+  HelloWorld = 'Hello, world!';
+
+begin
+  WriteLn (HelloWorld[8 .. 12])  @{ yields `world' @}
+end.
+@end smallexample
+
+As an extension, it also allows write access to a string slice:
+
+@smallexample
+program SliceWriteDemo;
+
+var
+  s: String (42) = 'Hello, world!';
+
+begin
+  s[8 .. 12] := 'folks';
+  WriteLn (s)  @{ yields `Hello, folks!' @}
+end.
+@end smallexample
+
+As a further extension, GPC allows slice access also to non-string
+arrays. However, the usefulness of this feature is rather limited
+because of Pascal's strict type checking rules: If you have, e.g.,
+an @samp{array [1 .. 10] of Integer} and take a slice
+@samp{[1 .. 5]} of it, it will not be compatible to another
+@samp{array [1 .. 5] of Integer} because distinct array types are
+not compatible in Pascal, even if they look the same.
+
+However, array slice access can be used in connection with
+conformant or open array parameters. See the program
+@file{arrayslicedemo.pas} (in the @file{demos} directory) for an
+example.
+
+
+@c ============================================================================
+
+
+@node Pointer Arithmetics
+@section Pointer Arithmetics
+@cindex pointer arithmetics
+
+GPC allows to increment, decrement, compare, and subtract pointers
+or to use them in @samp{for} loops just like the C language.
+
+GPC implements the address operator @code{@@} (a Borland Pascal
+extension).
+
+@smallexample
+program PointerArithmeticDemo;
+var
+  a: array [1 .. 7] of Char;
+  p, q: ^Char;
+  i: Integer;
+
+@{$X+@}  @{ We need extended syntax for pointer arithmetic @}
+
+begin
+  for p := @@a[1] to @@a[7] do
+    p^ := 'x';
+
+  p := @@a[7];
+  q := @@a[3];
+  while p > q do
+    begin
+      p^ := 'y';
+      Dec (p)
+    end;
+
+  p := @@a[7];
+  q := @@a[3];
+  i := q - p;    @{ yields 4 @}
+end.
+@end smallexample
+
+Incrementing a pointer by one means to increment the address it
+contains by the size of the variable it is pointing to. For typeless
+pointers (@samp{Pointer}), the address is incremented by one
+instead.
+
+Similar things hold when decrementing a pointer.
+
+Subtracting two pointers yields the number of variables pointed to
+between both pointers, i.e.@: the difference of the addresses
+divided by the size of the variables pointed to. The pointers must
+be of the same type.
+
+
+@c ============================================================================
+
+
+@node Type Casts
+@section Type Casts
+@cindex type casts
+
+In some cases, especially in low-level situations, Pascal's strong
+typing can be an obstacle. To temporarily circumvent this, GPC
+defines explicit ``type casts'' in a Borland Pascal compatible way.
+
+There are two kinds of type casts, value type casts and variable type
+casts.
+
+Value type casts
+
+To convert a value of one data type into another type, you can use
+the target type like the name of a function that is called. The
+value to be converted can be a variable or an expression. Both the
+value's type and the destination type must be ordinal or pointer
+types. The ordinal value (extended to pointers to mean the address)
+is preserved in the cast.
+
+An example:
+
+@smallexample
+program TypeCastDemo;
+
+var
+  Ch: Char;
+  i: Integer;
+
+begin
+  i := Integer (Ch)
+end.
+@end smallexample
+
+Another, more complicated, example:
+
+@smallexample
+program TypeCst2Demo;
+
+type
+  CharPtr = ^Char;
+  CharArray = array [0 .. 99] of Char;
+  CharArrayPtr = ^CharArray;
+
+var
+  Foo1, Foo2: CharPtr;
+  Bar: CharArrayPtr;
+
+@{$X+@} @{ We need extended syntax in order to use ``Succ'' on a pointer @}
+
+begin
+  Foo1 := CharPtr (Bar);
+  Foo2 := CharPtr (Succ (Bar))
+end.
+@end smallexample
+
+However, because of risks involved with type casts, explained below,
+and because type-casts are non-standard, you should try to avoid
+type casts whenever possible -- and it should be possible in most
+cases. For instance, the first example above could use the built-in
+function ``Ord'' instead of the type cast:
+
+@smallexample
+i := Ord (Ch);
+@end smallexample
+
+The assignments in the second example could be written in the
+following way without any type casts:
+
+@smallexample
+Foo1 := @@Bar^[0];
+Foo2 := @@Bar^[1];
+@end smallexample
+
+Note: In the case of pointers, a warning is issued if the
+dereferenced target type requires a bigger alignment than the
+dereferenced source type (see @ref{Alignment}).
+
+Variable type casts
+
+It is also possible to temporarily change the type of a variable
+(more generally, any ``lvalue'', i.e. something whose address can be
+taken), without converting its contents in any way. This is called
+variable type casting.
+
+The syntax is the same as for value type casting. The type-casted
+variable is still the same variable (memory location) as the
+original one, just with a different type. Outside of the type cast,
+the variable keeps its original type.
+
+There are some important differences between value and variable type
+casting:
+
+@itemize @bullet
+
+@item
+Variable type casting only works on lvalues, not on expressions.
+
+@item
+The result of a variable type casting is still an lvalue, so it can
+be used, e.g., on the left side of an assignment, or as the operand
+of an address operator, or passed by reference to a procedure.
+
+@item
+No values are converted in variable type-casting. The contents of
+the variable, seen as a raw bit pattern, are just interpreted
+according to the new type.
+
+@item
+Because bit patterns are just interpreted differently, the source
+and target type must have the same size. If this is not the case,
+GPC will give a warning.
+
+@item
+Beware: Variable type casts might have unexpected effects on
+different platforms since you cannot rely on a specific way the data
+is stored (e.g.@: see @ref{Endianness}).
+
+@end itemize
+
+There are cases where a type-cast could be either a value or a
+variable cast. This is when both types are ordinal or pointer, and
+of the same size, and the value is an lvalue. Fortunately, in those
+cases, the results of both forms are the same, since the same
+ordinal values (or pointer addresses) are represented by the same
+bit patterns (when of the same size). Therefore, it doesn't matter
+which form of type-casting is actually used in these cases.
+
+When dealing with objects (see @ref{OOP}), it is sometimes necessary
+to cast a polymorphic pointer to an object into a pointer to a more
+specialized (derived) object (after checking the actual type).
+However, the @samp{as} operator is a safer approach, so type-casts
+should be used there only for backward-compatibility (e.g., to BP).
+
+See also: @ref{absolute}, @ref{Alignment}, @ref{Endianness},
+@ref{OOP}, @ref{Ord}, @ref{Chr}, @ref{Round}, @ref{Trunc}.
+
+
+@c ============================================================================
+
+
+@node OOP
+@section Object-Oriented Programming
+@cindex OOP
+@cindex object-oriented programming
+
+GNU Pascal allows multiple object models. The oldest one follows the object
+model of Borland Pascal 7.0. The BP
+object extensions are almost fully implemented into GPC. This
+includes inheritance, virtual and non-virtual methods, constructors,
+destructors, pointer compatibility, extended `New' syntax (with
+constructor call and/or as a Boolean function), extended `Dispose'
+syntax (with destructor call).
+
+The Borland object model is different from the ISO draft, but 
+now we have also partial support of ISO draft (plus the
+Borland Delphi Object Extensions which are quite similar to the ISO
+draft). Moreover most of traditional Mac Pascal object model is
+covered.
+
+The syntax for an object type declaration is as follows:
+
+@smallexample
+program ObjectDemo;
+
+type
+  Str100 = String (100);
+
+  FooParentPtr = ^FooParent;
+  FooPtr = ^Foo;
+
+  FooParent = object
+    constructor Init;
+    destructor Done; virtual;
+    procedure Bar (c: Real); virtual;
+    function Baz (b, a, z: Char) = s: Str100;  @{ not virtual @}
+  end;
+
+  Foo = object (FooParent)
+    x, y: Integer;
+    constructor Init (a, b: Integer);
+    destructor Done; virtual;
+    procedure Bar (c: Real); virtual;  @{ overrides `FooParent.Bar' @}
+    z: Real;  @{ GPC extension: data fields after methods @}
+    function Baz: Boolean;  @{ new function @}
+  end;
+
+constructor FooParent.Init;
+begin
+  WriteLn ('FooParent.Init')
+end;
+
+destructor FooParent.Done;
+begin
+  WriteLn ('I''m also done.')
+end;
+
+procedure FooParent.Bar (c: Real);
+begin
+  WriteLn ('FooParent.Bar (', c, ')')
+end;
+
+function FooParent.Baz (b, a, z: Char) = s: Str100;
+begin
+  WriteStr (s, 'FooParent.Baz (', b, ', ', a, ', ', z, ')')
+end;
+
+constructor Foo.Init (a, b: Integer);
+begin
+  inherited Init;
+  x := a;
+  y := b;
+  z := 3.4;
+  FooParent.Bar (1.7)
+end;
+
+destructor Foo.Done;
+begin
+  WriteLn ('I''m done.');
+  inherited Done
+end;
+
+procedure Foo.Bar (c: Real);
+begin
+  WriteLn ('Foo.Bar (', c, ')')
+end;
+
+function Foo.Baz: Boolean;
+begin
+  Baz := True
+end;
+
+var
+  Ptr: FooParentPtr;
+
+begin
+  Ptr := New (FooPtr, Init (2, 3));
+  Ptr^.Bar (3);
+  Dispose (Ptr, Done);
+  New (Ptr, Init);
+  with Ptr^ do
+    WriteLn (Baz ('b', 'a', 'z'))
+end.
+@end smallexample
+
+Remarks:
+
+@itemize @bullet
+@item
+The ordering of data fields and methods can be mixed.
+
+@item
+GPC supports the @samp{public} and @samp{private} declarations like
+BP, and in addition also @samp{protected} (scope limited to the
+current type and its descendants).
+
+@item
+Constructors and destructors are ordinary functions, internally.
+When a constructor is called, GPC creates some inline code to
+initialize the object; destructors do nothing special.
+@end itemize
+
+A pointer to @samp{FooParent} may be assigned the address of a
+@samp{Foo} object. A @samp{FooParent} formal @samp{var} parameter
+may get a @samp{Foo} object as the actual parameter. In such cases,
+a call to a @samp{virtual} method calls the child's method, whereas
+a call to a non-@samp{virtual} method selects the parent's one:
+
+@smallexample
+var
+  MyFooParent: FooParentPtr;
+  SomeFoo: Foo;
+
+[...]
+
+  SomeFoo.Init (4, 2);
+  MyFooParent := @@SomeFoo;
+  MyFooParent^.bar (3.14);  @{ calls `foo.bar' @}
+  MyFooParent^.baz ('b', 'a', 'z');  @{ calls `fooParent.baz' @}
+  if SomeFoo.baz then  @{ calls `foo.baz' @}
+    WriteLn ('Baz!');
+@end smallexample
+
+In a method, an overwritten method of a parent object can be called
+either prefixing it with the parent type name, or using the keyword
+@samp{inherited}:
+
+@smallexample
+procedure Foo.Bar (c: Real);
+begin
+  z := c;
+  inherited bar (z)  @{ or: FooParent.Bar (z) @}
+end;
+@end smallexample
+
+@cindex inherited
+Use @samp{FooParent.bar (z)} if you want to be sure that @emph{this}
+method is called, even if somebody decides not to derive @samp{foo}
+directly from @samp{fooParent} but to have some intermediate object.
+If you want to call the method @samp{bar} of the immediate parent --
+whether it be @samp{fooParent} or whatever -- use
+@samp{inherited bar (z)}.
+
+@cindex New
+To allocate an object on the heap, use @samp{New} in one of the
+following manners:
+
+@smallexample
+var
+  MyFoo: FooPtr;
+
+  [...]
+
+  New (MyFoo, Init (4, 2));
+
+  MyFooParent := New (FooPtr, Init (4, 2))
+@end smallexample
+
+The second possibility has the advantage that @samp{MyFoo} needn't
+be a @samp{FooPtr} but can also be a @samp{FooParentPtr}, i.e.@: a
+pointer to an ancestor of @samp{foo}.
+
+Destructors can and should be called within Dispose:
+
+@smallexample
+Dispose (MyFooParent, Fini)
+@end smallexample
+
+
+@c ============================================================================
+
+
+@node Compiler Directives
+@section Compiler Directives And The Preprocessor
+@cindex compiler directives
+@cindex preprocessor
+
+GPC, like UCSD Pascal and BP, treats comments beginning with a
+@samp{$} immediately following the opening @samp{@{} or @samp{(*} as
+a compiler directive. As in Borland Pascal, @code{@{$@dots{}@}} and
+@code{(*$@dots{}*)} are equivalent. When a single character plus a
+@samp{+} or @samp{-} follows, this is also called a compiler switch.
+All of these directives are case-insensitive (but some of them have
+case-sensitive arguments). Directives are local and can be changed
+during one compilation (except include files etc. where this makes
+no sense).
+
+In general, compiler directives are compiler-dependent. (E.g., only
+the include directive @code{@{$I FileName@}} is common to UCSD and
+BP.) Because of BP's popularity, GPC supports all of BP's compiler
+directives (and ignores those that are unnecessary on its platforms
+-- these are those not listed below), but it knows a lot more
+directives.
+
+Some BP directives are -- of course not by chance -- just an
+alternative notation for C preprocessor directives. But there are
+differences: BP's @dfn{conditional} definitions
+(@samp{@{$define Foo@}}) go into another name space than the
+program's definitions. Therefore you can define conditionals and
+check them via @code{@{$ifdef Foo@}}, but the program will not see
+them as an identifier @samp{Foo}, so macros do not exist in Borland
+Pascal.
+
+GPC does support macros, but disables this feature when the
+@samp{--no-macros} option or the dialect option
+@samp{--borland-pascal} or @samp{--delphi} is given, to mimic BP's
+behaviour. Therefore, the following program will react differently
+when compiled with GPC either without special options or with, e.g.,
+the @samp{--borland-pascal} option (and in the latter case, it
+behaves the same as when compiled with BP).
+
+@smallexample
+program MacroDemo;
+
+const Foo = 'Borland Pascal';
+
+@{$define Foo 'Default'@}
+
+begin
+  WriteLn (Foo)
+end.
+@end smallexample
+
+Of course, you should not rely on such constructs in your programs.
+To test if the program is compiled with GPC, you can test the
+@samp{__GPC__} conditional, and to test the dialect used in GPC, you
+can test the dialect, e.g., with @samp{@{$ifopt borland-pascal@}}.
+
+In general, almost every GPC specific command line option
+(@pxref{GPC Command Line Options}) can be turned into a compiler
+directive (exceptions are those options that contain directory
+names, such as @samp{--unit-path}, because they refer to the
+installation on a particular system, and therefore should be set
+system-wide, rather than in a source file):
+
+@smallexample
+--foo       @{$foo@}
+--no-foo    @{$no-foo@}
+-Wbar       @{$W bar@}     @{ note the space after the @samp{W} @}
+-Wno-bar    @{$W no-bar@}
+@end smallexample
+
+The following table lists some such examples as well as all those
+directives that do not correspond to command-line options or have
+syntactical alternatives (for convenience and/or BP compatibility).
+
+@smallexample
+--[no-]short-circuit   $B+ $B- like in Borland Pascal:
+                               $B- means short-circuit Boolean
+                               operators; $B+ complete evaluation
+
+--[no-]io-checking     $I+ $I- like in Borland Pascal:
+                               enable/disable I/O checking
+
+--[no-]range-checking  $R+ $R- like in Borland Pascal:
+                               enable/disable range checking
+
+--[no-]stack-checking  $S+ $S- like in Borland Pascal:
+                               enable/disable stack checking
+
+--[no-]typed-address   $T+ $T- like in Borland Pascal:
+                               make the result of the address
+                               operator and the Addr function a
+                               typed or untyped pointer
+
+-W[no-]warnings        $W+ $W- enable/disable warnings. Note: in
+                               @samp{--borland-pascal} mode, the
+                               short version is disabled because
+                               $W+/$W- has a different meaning in
+                               Borland Pascal (which can safely be
+                               ignored in GPC), but the long version
+                               is still available.
+
+--[no-]extended-syntax $X+ $X- mostly like in Borland Pascal:
+                               enable/disable extended syntax
+                               (ignore function resuls, operator
+                               definitions, @samp{PChar}, pointer
+                               arithmetic, ...)
+
+--borland-pascal               disable or warn about GPC features
+--extended-pascal              not supported by the standard or
+--pascal-sc                    dialect given, do not warn about its
+etc.                           ``dangerous'' features (especially BP).
+                               The dialect can be changed during one
+                               compilation via directives like,
+                               e.g., @samp{@{$borland-pascal@}}.
+
+@{$M Hello!@}                    write message @samp{Hello!} to
+                               standard error during compilation. In
+                               @samp{--borland-pascal} mode, it is
+                               ignored it if only numbers follow
+                               (for compatibility to Borland
+                               Pascal's memory directive)
+
+@{$define FOO@}                  like in Borland Pascal:
+or                             define @var{FOO} (for conditional compilation)
+@{$CIDefine FOO@}                (case-insensitively)
+
+--cidefine=FOO                 the same on the command line
+
+@{$CSDefine FOO@}                define @var{FOO} case-sensitively
+
+-D FOO                         the same on the command line
+or                             Note: @samp{--define} on the command
+--csdefine=FOO                 line is case-sensitive like in GCC,
+or                             but @samp{@{$define@}} in the source code
+--define=FOO                   is case-insensitive like in BP
+
+@{$define loop while True do@}   define @samp{loop} to be @samp{while True do}
+or                             as a macro like in C. The name of the
+@{$CIDefine loop ...@}           macro is case-insensitive. Note:
+                               Macros are disabled in
+                               @samp{--borland-pascal} mode because BP
+                               doesn't support macros.
+
+--cidefine="loop=..."          the same on the command line
+
+@{$CSDefine loop ...@}           define a case-sensitive macro
+
+--csdefine="loop=..."          the same on the command line
+or
+--define="loop=..."
+
+@{$I FileName@}                  like in Borland Pascal:
+                               include @file{filename.pas}
+                               (the name is converted to lower case)
+
+@{$undef FOO@}                   like in Borland Pascal: undefine FOO
+
+@{$ifdef FOO@}                   conditional compilation
+  ...                          (like in Borland Pascal).
+@{$else@}                        Note: GPC predefines the symbol
+  ...                          @samp{__GPC__} (with two leading
+@{$endif@}                       and trailing underscores).
+
+@{$include "filename.pas"@}      include (case-sensitive)
+
+@{$include <filename.pas>@}      the same, but don't search in the
+                               current directory
+@end smallexample
+@dots{}and all the other C preprocessor directives.
+
+You also can use the preprocessor directives in C style, e.g.@:
+@samp{#include}, but this is deprecated because of possible
+confusion with Borland Pascal style @samp{#42} character constants.
+Besides, in the Pascal style, e.g.@: @samp{@{$include "foo.bar"@}},
+there may be more than one directive in the same line.
+
+
+@c ============================================================================
+
+@node Library Routines
+@section Routines Built-in or in the Run Time System
+@cindex Run Time Library
+@cindex Run Time System
+@cindex Built-in
+@cindex procedures, predefined
+@cindex functions, predefined
+@cindex routines, predefined
+
+In this section we describe the routines and other declarations that
+are built into the compiler or part of the Run Time System, sorted
+by topics.
+
+@menu
+* File Routines::
+* String Operations::
+* Accessing Command Line Arguments::
+* Memory Management Routines::
+* Operations for Integer and Ordinal Types::
+* Complex Number Operations::
+* Set Operations::
+* Date And Time Routines::
+@end menu
+
+@c ----------------------------------------------------------------------------
+
+@node File Routines
+@subsection File Routines
+@cindex operations, files
+@cindex files, operations
+@cindex SeekRead
+@cindex SeekWrite
+@cindex SeekUpdate
+@cindex Update
+@cindex Position
+@cindex LastPosition
+@cindex Get
+@cindex Put
+@cindex Bind
+@cindex Unbind
+@cindex Binding
+
+Extended Pascal treats files quite differently from Borland Pascal.
+GPC supports both forms, even in mixed ways, and provides many
+extensions.
+
+@@@@ A lot missing here
+
+@c I've not worked with binary files enough, so no advice yet on how
+@c to access them, but you access them much the same. -- Berend
+
+@itemize @bullet
+
+@item
+An example of getting the size of a file (though a @samp{FileSize}
+function is already built-in).
+
+@smallexample
+function FileSize (FileName : String) : LongInt;
+var
+  f: bindable file [0 .. MaxInt] of Char;
+  b: BindingType;
+begin
+  Unbind (f);
+  b := Binding (f);
+  b.Name := FileName;
+  Bind(f, b);
+  b := Binding(f);
+  SeekRead (f, 0);
+  if Empty (f) then
+    FileSize := 0
+  else
+    FileSize := LastPosition (f) + 1;
+  Unbind(f);
+end;
+@end smallexample
+
+Prospero's Extended Pascal has a bug in this case. Replace the
+MaxInt in the type definition of f by a sufficiently large
+integer. GNU Pascal works correct in this case.
+
+@item
+GPC implements @dfn{lazy} text file I/O, i.e. does a @code{Put} as
+soon as possible and a @code{Get} as late as possible. This should
+avoid most of the problems sometimes considered to be the most
+stupid feature of Pascal. When passing a file buffer as parameter
+the buffer is validated when the parameter is passed.
+@c @@@@ Perhaps it would be nice to hack it to be validated when the
+@c var parameter is referenced ...
+@c Forget it, this is not realistic. -- Frank
+
+@item
+GPC supports direct access files. E.g., declaring a type for a file that
+contains 100 integers.
+
+@smallexample
+program DirectAccessFileDemo;
+type
+  DFile = file [1 .. 100] of Integer;
+var
+  F: DFile;
+  P, N: 1 .. 100;
+begin
+  Rewrite (F);
+  P := 42;
+  N := 17;
+  SeekWrite (F, P);
+  Write (F, N)
+end.
+@end smallexample
+
+The following direct access routines may be applied to a direct
+access file:
+
+@table @code
+@item SeekRead   (F, N);      @{ Open file in inspection mode, seek to record N @}
+@item SeekWrite  (F, N);      @{ Open file in generation mode, seek to record N @}
+@item SeekUpdate (F, N);      @{ Open file in update mode, seek to record N @}
+@item Update (F);             @{ Writes F^, position not changed. F^ kept. @}
+@item p := Position (F);      @{ Yield the current record number @}
+@item p := LastPosition (F);  @{ Yield the last record number in file @}
+@end table
+
+If the file is open for inspection or update, @code{Get} may be applied.
+If the file is open for generation or update, @code{Put} may be applied.
+
+@item
+In BP, you can associate file variables with files using the
+@samp{Assign} procedure which GPC supports.
+
+@smallexample
+program AssignTextDemo;
+var
+  t: Text;
+  Line: String (4096);
+begin
+  Assign (t, 'mytext.txt');
+  Reset (t);
+  while not EOF (t) do
+    begin
+      ReadLn (t, Line);
+      WriteLn (Line)
+    end
+end.
+@end smallexample
+
+@item
+In Extended Pascal, files are considered entities external to your
+program. External entities, which don't need to be files, need to be
+bound to a variable your program. Any variable to which external
+entities can be bound needs to be declared @samp{bindable}. Extended
+Pascal has the @samp{Bind} function that binds a variable to an
+external entity as well as @samp{Unbind} to undo a binding and the
+function @samp{Binding} to get the current binding of a variable.
+
+GPC supports these routines when applied to files. The compiler will
+reject binding of other object types.
+
+Only the fields @samp{Bound} and @samp{Name} of the predefined
+record type @samp{BindingType} are required by Extended Pascal.
+Additionally, GPC implements some extensions. For the full
+definition of @samp{BindingType}, see @ref{BindingType}.
+
+The following is an example of binding:
+
+@smallexample
+program BindingDemo (Input, Output, f);
+
+var
+  f: bindable Text;
+  b: BindingType;
+
+procedure BindFile (var f: Text);
+var
+  b: BindingType;
+begin
+  Unbind (f);
+  b := Binding (f);
+  repeat
+    Write ('Enter a file name: ');
+    ReadLn (b.Name);
+    Bind (f, b);
+    b := Binding (f);
+    if not b.Bound then
+      WriteLn ('File not bound -- try again.')
+  until b.Bound
+end;
+
+begin
+  BindFile (f);
+  @{ Now the file f is bound to an external file. We can use the
+    implementation defined fields of BindingType to check if the
+    file exists and is readable, writable or executable. @}
+  b := Binding (f);
+  Write ('The file ');
+  if b.Existing then
+    WriteLn ('exists.')
+  else
+    WriteLn ('does not exist.');
+  Write ('It is ');
+  if not b.Readable then Write ('not ');
+  Write ('readable, ');
+  if not b.Writable then Write ('not ');
+  Write ('writable and ');
+  if not b.Executable then Write ('not ');
+  WriteLn ('executable.')
+end.
+@end smallexample
+
+@end itemize
+
+Note that Prospero's Pascal defaults to creating the file if it does
+not exists! You need to use Prospero's local addition of setting
+@code{b.Existing} to @code{True} to work-around this. GPC does not
+behave like this.
+
+@c ----------------------------------------------------------------------------
+
+@node String Operations
+@subsection String Operations
+@cindex operations, string
+@cindex strings, operations
+@cindex +
+@cindex Concat
+
+In the following description, @code{s1} and @code{s2} may be
+arbitrary string expressions, @code{s} is a variable of string type.
+
+@table @code
+@item WriteStr (s, write-parameter-list)
+@item ReadStr (s1, read-parameter-list)
+Write to a string and read from a string.
+The parameter lists are identical to @samp{Write}/@samp{Read} from
+@code{Text} files. The semantics is closely modeled after file I/O.
+
+@item Index (s1, s2)
+If @code{s2} is empty, return 1 else if @code{s1} is empty return 0
+else returns the position of @code{s2} in @code{s1} (an integer).
+
+@item Length (s1)
+Return the length of @code{s1} (an integer from @code{0 .. s1.Capacity}).
+
+@item Trim (s1)
+Returns a new string with spaces stripped of the end of @code{s}.
+
+@item SubStr (s1, i)
+@item SubStr (s1, i, j)
+Return a new substring of @code{s1} that contains @code{j}
+characters starting from @code{i}. If @code{j} is missing, return
+all the characters starting from @code{i}.
+
+@item EQ (s1, s2)
+@item NE (s1, s2)
+@item LT (s1, s2)
+@item LE (s1, s2)
+@item GT (s1, s2)
+@item GE (s1, s2)
+Lexicographic comparisons of @code{s1} and @code{s2}. Returns
+a boolean result. Strings are not padded with spaces.
+
+@item s1 =  s2
+@item s1 <> s2
+@item s1 <  s2
+@item s1 <= s2
+@item s1 >  s2
+@item s1 >= s2
+Lexicographic comparisons of @code{s1} and @code{s2}. Returns a
+boolean result. The shorter string is blank padded to length of the
+longer one, but only in @samp{--extended-pascal} mode.
+@end table
+
+GPC supports string catenation with the @code{+} operator or the
+@samp{Concat} function. All string-types are compatible, so you may
+catenate any chars, fixed length strings and variable length
+strings.
+
+@smallexample
+program ConcatDemo (Input, Output);
+
+var
+  Ch  : Char;
+  Str : String (100);
+  Str2: String (50);
+  FStr: packed array [1 .. 20] of Char;
+
+begin
+   Ch := '$';
+   FStr := 'demo';  @{ padded with blanks @}
+   Write ('Give me some chars to play with: ');
+   ReadLn (Str);
+   Str := '^' + 'prefix:' + Str + ':suffix:' + FStr + Ch;
+   WriteLn (Concat ('Le', 'ng', 'th'), ' = ', Length (Str));
+   WriteLn (Str)
+end.
+@end smallexample
+
+Note: The length of strings in GPC is limited only by the range of
+@samp{Integer} (at least 32 bits, i.e., 2 GB, on most platforms), or
+the available memory, whichever is smaller).
+
+When trying to write programs portable to other EP compilers, it is
+however safe to assume a limit of about 32 KB. At least Prospero's
+Extended Pascal compiler limits strings to 32760 bytes. DEC Pascal
+limits strings to 65535 bytes.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Accessing Command Line Arguments
+@subsection Accessing Command Line Arguments
+@cindex arguments, command line
+@cindex command line arguments
+@cindex ParamCount
+@cindex ParamStr
+
+GPC supports access to the command line arguments with the
+BP compatible @code{ParamStr} and @code{ParamCount} functions.
+
+@itemize @bullet
+@item @code{ParamStr[0]} is the program name,
+@item @code{ParamStr[1] .. ParamStr[ParamCount]} are the arguments.
+@end itemize
+
+The program below accesses the command line arguments.
+
+@smallexample
+program CommandLineArgumentsDemo (Output);
+
+var
+  Counter: Integer;
+
+begin
+  WriteLn ('This program displays command line arguments one per line.');
+  for Counter := 0 to ParamCount do
+    WriteLn ('Command line argument #', Counter, ' is `',
+             ParamStr (Counter), '''')
+end.
+@end smallexample
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Memory Management Routines
+@subsection Memory Management Routines
+@cindex memory management
+@cindex New
+@cindex Dispose
+@cindex GetMem
+@cindex FreeMem
+
+Besides the standard @samp{New} and @samp{Dispose} routines, GPC
+also allows BP style dynamic memory management with @code{GetMem}
+and @code{FreeMem}:
+
+@smallexample
+GetMem (MyPtr, 1024);
+FreeMem (MyPtr, 1024);
+@end smallexample
+
+One somehow strange feature of Borland is @strong{not} supported:
+You cannot free parts of a variable with @code{FreeMem}, while the
+rest is still used and can be freed later by another @code{FreeMem}
+call:
+
+@smallexample
+program PartialFreeMemDemo;
+
+type
+  Vector = array [0 .. 1023] of Integer;
+  VecPtr = ^Vector;
+
+var
+  p, q: VecPtr;
+
+begin
+  GetMem (p, 1024 * SizeOf (Integer));
+  q := VecPtr (@@p^[512]);
+
+  @{ ... @}
+
+  FreeMem (p, 512 * SizeOf (Integer));
+
+  @{ ... @}
+
+  FreeMem (q, 512 * SizeOf (Integer));
+end.
+@end smallexample
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Operations for Integer and Ordinal Types
+@subsection Operations for Integer and Ordinal Types
+@cindex integer, operations
+@cindex ordinal, operations
+@cindex operations, integer and ordinal
+@cindex shl
+@cindex shr
+@cindex and
+@cindex or
+@cindex xor
+@cindex not
+@cindex Succ
+@cindex Pred
+@cindex Inc
+@cindex Dec
+@cindex Min
+@cindex Max
+
+@itemize @bullet
+@item
+Bit manipulations: The BP style bit shift operators @code{shl} and
+@code{shr} exist in GPC as well as bitwise @code{and}, @code{or},
+@code{xor} and @code{not} for integer values.
+
+@smallexample
+2#100101 and (1 shl 5) = 2#100000
+@end smallexample
+
+GPC also supports @code{and}, @code{or}, @code{xor} and @code{not}
+as procedures:
+
+@smallexample
+program BitOperatorProcedureDemo;
+var x: Integer;
+begin
+  x := 7;
+  and (x, 14);  @{ sets x to 6 @}
+  xor (x, 3);   @{ sets x to 5 @}
+end.
+@end smallexample
+
+@item Succ, Pred:
+The standard functions @samp{Succ} and @samp{Pred} exist in GPC and
+accept a second parameter.
+
+@item Increment, decrement:
+The BP built-in Procedures @code{Inc} and @code{Dec} exist in GPC.
+
+@smallexample
+program IncDecDemo;
+var
+  i: Integer;
+  c: Char;
+begin
+  Inc (i);     @{ i := i + 1; @}
+  Dec (i, 7);  @{ i := i - 7; @}
+  Inc (c, 3);  @{ c := Succ (c, 3); @}
+end.
+@end smallexample
+
+@item @code{Min}, @code{Max}:
+These are a GNU Pascal extension and work for reals as well as for
+ordinal types. Mixing reals and integers is okay, the result is real
+then.
+
+@end itemize
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Complex Number Operations
+@subsection Complex Number Operations
+@cindex operations, complex numbers
+@cindex complex numbers, operations
+@cindex +
+@cindex -
+@cindex *
+@cindex /
+@cindex pow
+@cindex **
+@cindex Sqr
+@cindex SqRt
+@cindex Exp
+@cindex Ln
+@cindex Sin
+@cindex Cos
+@cindex ArcSin
+@cindex ArcCos
+@cindex ArcTan
+@cindex Re
+@cindex Im
+@cindex Arg
+@cindex Cmplx
+@cindex Polar
+
+@@@@ A lot of details missing here
+
+@itemize @bullet
+@item binary operators @code{+}, @code{-}, @code{*}, @code{/} and
+unary @code{-}, @code{+}
+@item exponentiation operators (@code{pow} and @code{**})
+@item functions (@code{Sqr}, @code{SqRt}, @code{Exp}, @code{Ln},
+@code{Sin}, @code{Cos}, @code{ArcSin}, @code{ArcCos}, @code{ArcTan})
+@item number info with @code{Re}, @code{Im} and @code{Arg} functions
+@item numbers constructed by @code{Cmplx} or @code{Polar}
+@end itemize
+
+The following sample programs illustrates most of the @code{Complex}
+type operations.
+
+@smallexample
+program ComplexOperationsDemo (Output);
+
+var
+  z1, z2: Complex;
+  Len, Angle: Real;
+
+begin
+  z1 := Cmplx (2, 1);
+  WriteLn;
+  WriteLn ('Complex number z1 is: (', Re (z1) : 1, ',', Im (z1) : 1, ')');
+  WriteLn;
+  z2 := Conjugate(z1); @{ GPC extension @}
+  WriteLn ('Conjugate of z1 is: (', Re (z2) : 1, ',', Im (z2) : 1, ')');
+  WriteLn;
+  Len   := Abs (z1);
+  Angle := Arg (z1);
+  WriteLn ('The polar representation of z1 is: Length=', Len : 1,
+           ', Angle=', Angle : 1);
+  WriteLn;
+  z2 := Polar (Len, Angle);
+  WriteLn ('Converting (Length, Angle) back to (x, y) gives: (',
+           Re (z2) : 1, ',', Im (z2) : 1, ')');
+  WriteLn;
+  WriteLn ('The following operations operate on the complex number z1');
+  WriteLn;
+  z2 := ArcTan (z1);
+  WriteLn ('ArcTan (z1) = (', Re (z2), ', ', Im (z2), ')');
+  WriteLn;
+  z2 := z1 ** 3.141;
+  WriteLn ('z1 ** 3.141 =', Re (z2), ', ', Im (z2), ')');
+  WriteLn;
+  z2 := Sin (z1);
+  WriteLn ('Sin (z1) = (', Re (z2), ', ', Im (z2), ')');
+  WriteLn ('(Cos, Ln, Exp, SqRt and Sqr exist also.)');
+  WriteLn;
+  z2 := z1 pow 8;
+  WriteLn ('z1 pow 8 = (', Re (z2), ', ', Im (z2), ')');
+  WriteLn;
+  z2 := z1 pow (-8);
+  WriteLn ('z1 pow (-8) = (', Re (z2), ', ', Im (z2), ')');
+end.
+@end smallexample
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Set Operations
+@subsection Set Operations
+@cindex operations, sets
+@cindex sets, operations
+@cindex =
+@cindex <>
+@cindex <
+@cindex <=
+@cindex >
+@cindex >=
+@cindex in
+@cindex +
+@cindex -
+@cindex *
+@cindex ><
+@cindex Card
+
+GPC supports Standard Pascal set operations. In addition it supports
+the Extended Pascal set operation symmetric difference
+(@code{set1 >< set2}) operation whose result consists of those
+elements which are in exactly one of the operannds.
+
+It also has a function that counts the elements in the set:
+@samp{a := Card (set1)}.
+
+In the following description, S1 and S2 are variables of set type,
+s is of the base type of the set.
+
+@table @code
+@item S1 := S2
+Assign a set to a set variable.
+@item S1 + S2
+Union of sets.
+@item S1 - S2
+Difference between two sets.
+@item S1 * S2
+Intersection of two sets.
+@item S1 >< S2
+Symmetric difference
+@item S1 = S2
+Comparison between two sets. Returns boolean result. @code{True} if
+@code{S1} has the same elements as @code{S2}.
+@item S1 <> S2
+Comparison between two sets. Returns boolean result. @code{True} if
+@code{S1} does not have the same elements as @code{S2}.
+@item S1 < S2
+@item S2 > S1
+Comparison between two sets. Returns boolean result. @code{True} if
+@code{S1} is a strict subset of @code{S2}.
+@item S1 <= S2
+@item S2 >= S1
+Comparison between two sets. Returns boolean result. @code{True} if
+@code{S1} is a subset of (or equal to) @code{S2}.
+@item s in S1
+Set membership test between an element @code{s} and a set. Returns
+boolean result. @code{True} if @code{s} is an element of @code{S1}.
+@end table
+
+The following example demonstrates some @code{set} operations. The results
+of the operations are given in the comments.
+
+@smallexample
+program SetOpDemo;
+
+type
+  TCharSet = set of Char;
+
+var
+  S1, S2, S3: TCharSet;
+  Result: Boolean;
+
+begin
+  S1 := ['a', 'b', 'c'];
+  S2 := ['c', 'd', 'e'];
+  S3 := S1 + S2;       @{ S3 = ['a', 'b', 'c', 'd', 'e'] @}
+  S3 := S1 * S2;       @{ S3 = ['c'] @}
+  S3 := S1 - S2;       @{ S3 = ['a', 'b'] @}
+  S3 := S1 >< S2;      @{ S3 = ['a', 'b', 'd', 'e'] @}
+
+  S1 := ['c', 'd', 'e'];
+  Result := S1 = S2;   @{ False @}
+  Result := S1 < S2;   @{ False @}
+  Result := S1 <= S2;  @{ True @}
+
+  S1 := ['c', 'd'];
+  Result := S1 <> S2;  @{ True @}
+  Result := S2 > S1;   @{ True @}
+  Result := S2 >= S1   @{ True @}
+end.
+@end smallexample
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Date And Time Routines
+@subsection Date And Time Routines
+@cindex GetTimeStamp
+@cindex Date
+@cindex Time
+
+@table @code
+@item procedure GetTimeStamp (var t: TimeStamp);
+@item function Date (t: TimeStamp): packed array [1 .. DateLength] of Char;
+@item function Time (t: TimeStamp): packed array [1 .. TimeLength] of Char;
+@end table
+
+@code{DateLength} and @code{TimeLength} are implementation dependent
+constants.
+
+@code{GetTimeStamp (t)} fills the record @samp{t} with values. If
+they are valid, the Boolean flags are set to True.
+
+@code{TimeStamp} is a predefined type in the Extended Pascal
+standard. It may be extended in an implementation, and is indeed
+extended in GPC. For the full definition of @samp{TimeStamp}, see
+@ref{TimeStamp}.
+
+
+@c ============================================================================
+
+
+@node Other Languages
+@section Interfacing with Other Languages
+@cindex GPC and other languages
+@cindex C
+
+The standardized GNU compiler back-end makes it relatively easy to
+share libraries between GNU Pascal and other GNU compilers. On
+Unix-like platforms (@emph{not} on Dos-like platforms), the GNU
+compiler back-end usually complies to the standards defined for that
+system, so communication with other compilers should be easy, too.
+
+In this chapter we discuss how to import libraries written in other
+languages, and how to import libraries written in GNU Pascal from
+other languages. While the examples will specialize to compatibility
+to GNU C, generalization is straightforward if you are familiar with
+the other language in question.
+
+@menu
+* Importing Libraries from Other Languages::
+* Exporting GPC Libraries to Other Languages::
+@end menu
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Importing Libraries from Other Languages
+@subsection Importing Libraries from Other Languages
+@cindex external
+@cindex name
+
+To use a function written in another language, you need to provide
+an external declaration for it -- either in the program, or in the
+interface part of a unit, or a module.
+
+Let's say you want to use the following C library from Pascal:
+
+@smallexample
+File `callc.c':
+
+#include <unistd.h>
+#include "callc.h"
+
+int foo = 1;
+
+void bar (void)
+@{
+  sleep (foo);
+@}
+@end smallexample
+
+@smallexample
+File `callc.h':
+
+/* Actually, we wouldn't need this header file, and could instead
+   put these prototypes into callc.c, unless we want to use callc.c
+   also from other C source files. */
+
+extern int foo;
+extern void bar (void);
+@end smallexample
+
+Then your program can look like this:
+
+@smallexample
+program CallCDemo;
+
+@{$L callc.c@}  @{ Or: `callc.o' if you don't have the source @}
+
+var
+  MyFoo: CInteger; external name 'foo';
+
+procedure Bar; external name 'bar';
+
+begin
+  MyFoo := 42;
+  Bar
+end.
+@end smallexample
+
+Or, if you want to provide a @samp{CallCUnit} unit:
+
+@smallexample
+unit CallCUnit;
+
+interface
+
+var
+  MyFoo: CInteger; external name 'foo';
+
+procedure Bar; external name 'bar';
+
+implementation
+
+@{$L callc.c@}  @{ Or: `callc.o' if you don't have the source @}
+
+end.
+@end smallexample
+
+@smallexample
+program CallCUDemo;
+
+uses CallCUnit;
+
+begin
+  MyFoo := 42;
+  Bar
+end.
+@end smallexample
+
+@cindex linking
+
+You can either link your program manually with @samp{callc.o} or put
+a compiler directive @samp{@{$L callc.o@}} into your program or
+unit, and then GPC takes care of correct linking. If you have the
+source of the C library (you always have it if it is Free Software),
+you can even write @samp{@{$L callc.c@}} in the program (like
+above). Then GPC will also link with @file{callc.o}, but in addition
+GPC will run the C compiler whenever @file{callc.c} has changed if
+@samp{--automake} is given, too.
+
+While it is often convenient, there is no must to give the C
+function @samp{bar} the name @samp{Bar} in Pascal; you can name it
+as you like (e.g., the variable @samp{MyFoo} has a C name of
+@samp{foo} in the example above).
+
+If you omit the @samp{name}, the default is the Pascal identifier,
+converted to lower-case. So, in this example, the @samp{name} could
+be omitted for @samp{Bar}, but not for @samp{MyFoo}.
+
+It is important that data types of both languages are mapped
+correctly onto each other. C's @samp{int}, for instance, translates
+to GPC's @samp{CInteger}, and C's @samp{unsigned long} to
+@samp{MedCard}. For a complete list of integer types with their C
+counterparts, see @ref{Integer Types}.
+
+@cindex protected
+In some cases it can be reasonable to translate a C pointer
+parameter to a Pascal @samp{var} parameter.  Since const parameters
+in GPC can be passed by value @emph{or} by reference internally,
+possibly depending on the system, @samp{const foo *} parameters to C
+functions @emph{cannot} reliably be declared as @samp{const} in
+Pascal. However, Extended Pascal's @samp{protected var} can be used
+since this guarantees passing by reference.
+
+@cindex --gpc-main
+@cindex main program
+Some libraries provide a @samp{main} function and require your
+program's ``main'' to be named differently. To achive this with GPC,
+invoke it with an option @samp{--gpc-main="GPCmain"} (where
+@samp{GPCmain} is an example how you might want to name the
+program). You can also write it into your source as a directive
+@samp{@{$gpc-main="GPCmain"@}}.
+
+
+@c ----------------------------------------------------------------------------
+
+
+@node Exporting GPC Libraries to Other Languages
+@subsection Exporting GPC Libraries to Other Languages
+
+The @file{.o} files produced by GPC are in the same format as those of all
+other GNU compilers, so there is no problem in writing libraries for other
+languages in Pascal. To use them, you will need to write kind of
+interface -- a header file in C. However there are some things to take
+into account, especially if your Pascal unit exports objects:
+
+@itemize @bullet
+
+@item
+By default, GPC capitalizes the first letter (only) of each
+identifier, so @samp{procedure FooBAR} must be imported as
+@samp{extern void Foobar()} from C.
+
+@item
+If you want to specify the external name explicitly, use
+@samp{attribute}:
+
+@smallexample
+procedure FooBAR; attribute (name = 'FooBAR');
+begin
+  WriteLn ('FooBAR')
+end;
+@end smallexample
+
+This one can be imported from C with @samp{extern void FooBar()}.
+
+@item
+@cindex Objects
+@cindex VMT
+Objects are ``records'' internally.  They have an implicit @samp{vmt} field
+which contains a pointer to the ``virtual method table''.  This table is
+another record of the following structure:
+
+@smallexample
+type
+  VMT = record
+    ObjectSize: PtrInt;     @{ Size of object in bytes @}
+    NegObjectSize: PtrInt;  @{ Negated size @}
+    Methods: array [1 .. n] of procedure;
+      @{ Pointers to the virtual methods. The entries are of the
+         repective procedure or function types. @}
+  end;
+@end smallexample
+
+You can call a virtual method of an object from C if you explicitly
+declare this @samp{struct} and explicitly dereference the @samp{Fun}
+array. The VMT of an object @samp{FooBAR} is an external (in C
+sense) variable @samp{vmt_Foobar} internally.
+
+@item
+Methods of objects are named @samp{Myobject_Mymethod} (with exactly
+two capital letters) internally.
+
+@c @item
+@c @cindex main program
+@c The main program is just another procedure; @samp{program FooBAR} produces
+@c @samp{procedure FooBAR; attribute (name = 'program_Foobar')} (without
+@c parameters) internally.  There is a separate function @samp{main} which
+@c stores the command-line arguments in global variables and then calls this
+@c ``main procedure''.
+@c
+@c This has changed, needs to be documented again. -- Frank
+
+@item
+If you want to put a program in a library for some reason, and you
+want to give the @samp{main} program an internal name different from
+@samp{main}, call GPC with the command-line option
+@samp{--gpc-main="GPCmain"} (see the previous subsection).
+
+@end itemize
+
+
+@c ============================================================================
+
+
+@node Notes for Debugging
+@section Notes for Debugging
+@cindex debugging
+
+@itemize @bullet
+@item
+The GNU debugger, @samp{gdb}, does not yet understand Pascal sets,
+files or subranges. Now @samp{gdb} allows you to debug these things,
+even though it does not yet understand some stabs.
+
+@item
+Forward referencing pointers generate debug info that appears as
+generic pointers.
+
+@item
+No information of @samp{with} statements is currently given to the
+debugger.
+
+@item
+When debugging, please note that the Initial Letter In Each
+Identifier Is In Upper Case And The Rest Are In Lower Case, unless
+explicitly overriden with @samp{name} (@pxref{name}). This is to
+reduce name clashes with libc and other possible libraries.
+
+@item
+All visible GPC Run Time System routines have linker names starting
+with @samp{_p_}.
+
+@item
+The linker name of the main program is @samp{pascal_main_program}.
+This is done because ISO Standard wants to have the program name in
+a separate name space.
+@end itemize
+
+
+@c ============================================================================
+
+
+@node I18N
+@section How to use I18N in own programs
+@cindex I18N
+@cindex Internationalization
+@cindex GetText
+@cindex FormatString
+
+This chapter discusses shortly how to use the Internationalization (I18N)
+features of GNU Pascal.
+
+
+@subheading Prerequisite
+
+You need to have gettext installed. Try to compile
+@file{demos/gettextdemo.pas}. Furthermore, you should download a tool
+named @samp{pas2po} from @uref{http://www.gnu-pascal.org/contrib/eike/}.
+
+@subheading The source
+We would like to translate the messages provided with this simple
+example different languages (here: German) without touching the source
+for each language:
+
+@smallexample
+program Hello1;
+
+begin
+  WriteLn ('Hello, World!');
+  WriteLn ('The answer of the questions is: ', 42)
+end.
+@end smallexample
+
+
+@subheading Preparing the source
+To do so, we must prepare the source to use gettext:
+
+@smallexample
+program Hello2;
+
+uses GPC, Intl;
+
+var s: TString;
+
+begin
+  Discard (BindTextDomain ('hello2', '/usr/share/locale/'));
+  Discard (TextDomain ('hello2'));
+  WriteLn (GetText ('Hello, World!'));
+  s := FormatString (GetText ('The answer of the questions is %s'), 42);
+  WriteLn (s)
+end.
+@end smallexample
+
+@samp{BindTextDomain} sets the path to find our message catalogs
+in the system. This path is system dependent. @samp{TextDomain} tells
+the program to use this catalog. @samp{GetText} looks up the given
+string in the catalog and returns a translated string within
+the current locale settings. @samp{FormatString} replaces some
+format specifiers with the following argument. @samp{%s} is the first
+following argument. After this step is done, we do not need to touch
+the sourcefile any longer. The output of this program is as follows:
+
+@smallexample
+Hello, World!
+The answer of the questions is 42
+@end smallexample
+
+
+@subheading Getting the translatable strings
+
+There are lots of strings in the above example, but
+only those surrounded with @samp{GetText} should be translated. We use
+@samp{pas2po hello2.pas -o hello2.po} to extract the messages. The
+output is:
+
+@smallexample
+# This file was created by pas2po with 'hello2.pas'.
+# Please change this file manually.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2003-04-27 20:48+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#hello2.pas:10
+msgid "Hello, World!"
+msgstr ""
+
+#hello2.pas:11
+msgid "The answer of the questions is %s"
+msgstr ""
+@end smallexample
+
+Now we translate the message ids into German language,
+and set some needful informations at their appropriate
+places. The following steps must be repeated for each
+language we would like to support:
+
+@smallexample
+# This file was created by pas2po with 'hello2.pas'.
+# Copyright (C) 2003 Free Software Foundation, Inc.
+# Eike Lange  <eike@@g-n-u.de>, 2003.
+msgid ""
+msgstr ""
+"Project-Id-Version: Hello2 1.0\n"
+"POT-Creation-Date: 2003-04-27 12:00+0200\n"
+"PO-Revision-Date: 2003-04-27 12:06+0200\n"
+"Last-Translator: Eike Lange <eike@@g-n-u.de>\n"
+"Language-Team: de <de@@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#hello2.pas:10
+msgid "Hello, World!"
+msgstr "Hallo, Welt!"
+
+#hello2.pas:11
+msgid "The answer of the questions is %s"
+msgstr "'%s' lautet die Antwort auf die Frage."
+@end smallexample
+
+Please note that we swapped text and numeric arguments and
+added some single quotes arround the first argument. We compile the
+message catalog with @samp{msgfmt -vv hello2.po -o hello2.mo} and
+install the file @file{hello2.mo} at @file{/usr/share/locale/de/LC_MESSAGES/}
+With a german locale setting, the output should be as follows:
+
+@smallexample
+Hallo, Welt!
+'42' lautet die Antwort auf die Frage.
+@end smallexample
+
+
+@subheading System dependent notes:
+
+The topmost path where message catalogs reside is system dependent:
+
+@table @asis
+@item for DJGPP:
+@samp{GetEnv ('$DJDIR') + '/share/locale'}
+@item for Mac OS X:
+@file{/usr/share/locale} or @file{/sw/share/locale}
+@item for Linux, *BSD:
+@file{/usr/share/locale} or @file{/usr/local/share/locale}
+@end table
+
+
+@subheading See also
+@ref{Gettext,,,gettext}, @ref{FormatString}, @ref{Intl}.
+
+
+@c ============================================================================
+
+
+@node Run Time System
+@section Pascal declarations for GPC's Run Time System
+@cindex Run Time Library
+@cindex Run Time System
+
+Below is a Pascal source of the declarations in GPC's Run Time
+System (RTS). A file @file{gpc.pas} with the same contents is
+included in the GPC distribution in a @file{units} subdirectory of
+the directory containing @file{libgcc.a}. (To find out the correct
+directory for your installation, type
+@samp{@w{gpc --print-file-name=units}} on the command line.)
+
+@include gpcpas.texi
+
+
+@c ============================================================================
+
+
+@node GPC Units
+@section Units included with GPC
+@cindex units, included with GPC
+@cindex standard units
+
+GPC distributions now include a number of useful Pascal units and a
+complete set of BP compatibility units -- except for the
+@samp{Graph} unit (which is currently distributed separately due to
+its license) and the OOP stuff. The main use of these units is to
+provide a way to port BP programs to GPC as easily as possible. Some
+of the units also implement functionaliy not available otherwise.
+
+Most of the BP compatibility units -- except @samp{CRT} and
+@samp{Printer} -- are merely meant to let programs written for BP
+compile with GPC as easily as possible. They should not be used in
+newly written code, and for code ported from BP to GPC, it is
+suggested to replace them successively with the more powerful -- and
+often easier to use -- alternatives that GPC's Run Time System
+(@pxref{Run Time System}) offers.
+
+The following sections describe all units included with GPC (besides
+the @samp{GPC} module which describes the interface to the Run Time
+System, @ref{Run Time System}).
+
+@menu
+* CRT::          BP compatibility: CRT & WinCRT, portable, with many extensions
+* Dos::          BP compatibility: Dos
+* DosUnix::      Overcome some differences between Dos and Unix
+* FileUtils::    Higher level file and directory handling
+* GMP::          Arithmetic with unlimited size and precision
+* GPCUtil::      Turbo Power compatibility, etc.
+* HeapMon::      Primitive heap checking
+* Intl::         Internationalization
+* MD5::          @samp{MD5} Message Digests
+* Overlay::      BP compatibility: Overlay
+* Pipes::        Start a child process, connected with pipes, also on Dos
+* Ports::        BP compatibility (partly): @samp{Port}, @samp{PortW} arrays
+* Printer::      BP compatibility: Printer, portable
+* RegEx::        Regular Expression matching and substituting
+* Strings::      BP compatibility: Strings
+* StringUtils::  Higher level string handling
+* System::       BP compatibility: System
+* TFDD::         Some text file tricks
+* Trap::         Trap runtime errors
+* Turbo3::       BP compatibility: Turbo3
+* WinDos::       BP compatibility: WinDos
+@end menu
+
+@node CRT
+@subsection BP compatibility: CRT & WinCRT, portable, with many extensions
+@cindex CRT
+@cindex curses
+@cindex ncurses
+@cindex PDCurses
+
+The following listing contains the interface of the CRT unit.
+
+@samp{CRT} is a @samp{curses} based unit for text screen handling.
+It is compatible to BP's @samp{CRT} unit, even in a lot of minor
+details like the values of function key codes and includes some
+routines for compatibility with TP5's @samp{Win} unit as well as
+BP's @samp{WinCRT} and Turbo Power's @samp{TPCrt} units, and some
+extensions.
+
+The unit has been extended by many functions that were lacking in
+BP's unit and required assembler code or direct memory/port access
+to be implemented under BP. The GPC version is now fully suited for
+portable, real-world programming without any dirty tricks.
+
+The unit is also available as @samp{WinCRT}, completely identical to
+@samp{CRT}. The only purpose of this ``feature'' is to let programs
+written for TPW or BP, with a @samp{uses WinCRT} directive, compile
+without changes. Unlike TPW/BP's @samp{WinCRT} unit, GPC's unit is
+not crippled, compared to @samp{CRT}.
+
+To use this unit, you will need the @samp{ncurses} (version 5.0 or
+newer) or @samp{PDCurses} library which can be found in
+@uref{http://www.gnu-pascal.de/libs/}.
+
+@include crt.texi
+
+@node Dos
+@subsection BP compatibility: Dos
+@cindex Dos
+
+The following listing contains the interface of the Dos unit.
+
+This is a portable implementation of most routines from BP's
+@samp{Dos} unit. A few routines that are Dos -- or even IA32 real
+mode -- specific, are only available if
+@samp{__BP_UNPORTABLE_ROUTINES__} is defined,
+@ref{BP Incompatibilities}.
+
+The same functionality and much more is available in the Run Time
+System, @ref{Run Time System}. In some cases, the RTS routines have
+the same interface as the routines in this unit (e.g.@:
+@samp{GetEnv}, @samp{FSplit}, @samp{FExpand}, @samp{FSearch}), in
+other cases, they have different names and/or easier and less
+limiting interfaces (e.g.@: @samp{ReadDir} etc. vs. @samp{FindFirst}
+etc.), and are often more efficient.
+
+Therefore, using this unit is not recommended in newly written
+programs.
+
+@include dos.texi
+
+@node DosUnix
+@subsection Overcome some differences between Dos and Unix
+@cindex DosUnix
+
+The following listing contains the interface of the DosUnix unit.
+
+This unit is there to overcome some of those differences between Dos
+and Unix systems that are not automatically hidden by GPC and the
+Run Time System. Currently features translation of bash style
+input/output redirections (@samp{foo 2>&1}) into @samp{redir} calls
+for DJGPP (@samp{redir -eo foo}) and a way to read files with Dos
+CR/LF pairs on any system.
+
+When necessary, new features will be added to the unit in future
+releases.
+
+@include dosunix.texi
+
+@node FileUtils
+@subsection Higher level file and directory handling
+@cindex FileUtils
+
+The following listing contains the interface of the FileUtils unit.
+
+This unit provides some routines for file and directory handling on
+a higher level than those provided by the RTS.
+
+@include fileutils.texi
+
+@node GMP
+@subsection Arithmetic with unlimited size and precision
+@cindex GMP
+
+The following listing contains the interface of the GMP unit.
+
+This unit provides an interface to the GNU Multiprecision Library to
+perform arithmetic on integer, rational and real numbers of
+unlimited size and precision.
+
+To use this unit, you will need the @samp{gmp} library which can be
+found in
+@uref{http://www.gnu-pascal.de/libs/}.
+
+@include gmp.texi
+
+@node GPCUtil
+@subsection Turbo Power compatibility, etc.
+@cindex GPCUtil
+
+The following listing contains the interface of the GPCUtil unit.
+
+This unit provides some utility routines for compatibility to some
+units available for BP, like some @cite{Turbo Power} units.
+
+@include gpcutil.texi
+
+@node HeapMon
+@subsection Primitive heap checking
+@cindex HeapMon
+
+The following listing contains the interface of the HeapMon unit.
+
+This unit provide a rather primitive means to watch the heap, i.e.
+check if all pointers that were allocated are released again. This
+is meant as a debugging help for avoiding memory leaks.
+
+More extensive heap checking is provided by libraries like
+@samp{efence} which can be used in GPC programs without special
+provisions.
+
+@include heapmon.texi
+
+@node Intl
+@subsection Internationalization
+@cindex Intl
+
+The following listing contains the interface of the Intl unit.
+
+This unit provides national language support via locales and
+@file{.mo} files.
+
+@include intl.texi
+
+@node MD5
+@subsection @samp{MD5} Message Digests
+@cindex MD5
+
+The following listing contains the interface of the MD5 unit.
+
+This unit provides functions to compute @samp{MD5} message digest of
+files or memory blocks, according to the definition of @samp{MD5} in
+@cite{RFC 1321} from April 1992.
+
+@include md5.texi
+
+@node Overlay
+@subsection BP compatibility: Overlay
+@cindex Overlay
+
+The following listing contains the interface of the Overlay unit.
+
+This is just a dummy replacement for BP's @samp{Overlay} unit, since
+GPC doesn't need overlays.
+
+@include overlay.texi
+
+@node Pipes
+@subsection Start a child process, connected with pipes, also on Dos
+@cindex Pipes
+
+The following listing contains the interface of the Pipes unit.
+
+This unit provides routines to start a child process and write
+to/read from its Input/Output/StdErr via pipes. All of this is
+emulated transparently under Dos as far as possible.
+
+@include pipes.texi
+
+@node Ports
+@subsection BP compatibility (partly): @samp{Port}, @samp{PortW} arrays
+@cindex Ports
+
+The following listing contains the interface of the Ports unit.
+
+This unit provides access routines for the hardware ports on the
+IA32, as a partial replacement for BP's @samp{Port} and @samp{PortW}
+pseudo arrays.
+
+Since port access is platform-specific, this unit cannot be used in
+code intended to be portable. Even on the IA32, its use can often be
+avoided -- e.g.@: Linux provides a number of @samp{ioctl} functions,
+and DJGPP provides some routines to achieve things that would
+require port access under BP. Therefore, it is recommended to avoid
+using this unit whenever possible.
+
+@include ports.texi
+
+@node Printer
+@subsection BP compatibility: Printer, portable
+@cindex Printer
+
+The following listing contains the interface of the Printer unit.
+
+This unit provides printer access, compatible to BP's @samp{Printer}
+unit, for Dos (using printer devices) and Unix systems (using
+printer utilities).
+
+For BP compatibility, the variable @samp{Lst} is provided, but for
+newly written programs, it is recommended to use the
+@samp{AssignPrinter} procedure on a text file, and close the file
+when done (thereby committing the printer job). This method allows
+for sending multiple printer jobs in the same program.
+
+@include printer.texi
+
+@node RegEx
+@subsection Regular Expression matching and substituting
+@cindex RegEx
+@cindex rx
+
+The following listing contains the interface of the RegEx unit.
+
+This unit provides routines to match strings against regular
+expressions and perform substitutions using matched subexpressions.
+Regular expressions are strings with some characters having special
+meanings. They describe (match) a class of strings. They are similar
+to wild cards used in file name matching, but much more powerful.
+
+To use this unit, you will need the @samp{rx} library which can be
+found in
+@uref{http://www.gnu-pascal.de/libs/}.
+
+@include regex.texi
+
+@node Strings
+@subsection BP compatibility: Strings
+@cindex Strings
+
+The following listing contains the interface of the Strings unit.
+
+This is a compatibility unit to BP's @samp{Strings} unit to handle C
+style @samp{#0}-terminated strings.
+
+The same functionality and much more is available in the Run Time
+System, @ref{Run Time System}, under clearer names (starting with a
+@samp{CString} prefix),
+
+Moreover, the use of @samp{#0}-terminated C-style strings
+(@samp{PChar} or @samp{CString}) is generally not recommended in
+GPC, since GPC provides ways to deal with Pascal-style strings of
+arbitrary and dynamic size in a comfortable way, as well as
+automatic conversion to C-style strings in order to call external C
+functions.
+
+Therefore, using this unit is not recommended in newly written
+programs.
+
+@include strings.texi
+
+@node StringUtils
+@subsection Higher level string handling
+@cindex StringUtils
+
+The following listing contains the interface of the StringUtils
+unit.
+
+This unit provides some routines for string handling on a higher
+level than those provided by the RTS.
+
+@include stringutils.texi
+
+@node System
+@subsection BP compatibility: System
+@cindex System
+
+The following listing contains the interface of the System unit.
+
+This unit contains only BP's more exotic routines which are not
+recommended to be used in new programs. Most of their functionality
+can be achieved by more standard means already.
+
+@emph{Note:} @samp{MemAvail} and @samp{MaxAvail}, provided in this
+unit, cannot easily be achieved by other means. However, it is not
+recommended to use them on any multi-tasking system at all, where
+memory is a shared resource. The notes in the unit give some hints
+about how to avoid using them.
+
+On special request, i.e., by defining the conditionals
+@samp{__BP_TYPE_SIZES__}, @samp{__BP_RANDOM__} and/or
+@samp{__BP_PARAMSTR_0__}, the unit also provides BP compatible
+integer type sizes, a 100% BP compatible pseudo random number
+generator and/or BP compatible @samp{ParamStr (0)} behaviour (the
+latter, however, only on some systems).
+
+@include system.texi
+
+@node TFDD
+@subsection Some text file tricks
+@cindex TFDD
+
+The following listing contains the interface of the TFDD unit.
+
+This unit provides some tricks with text files, e.g. a ``tee'' file
+which causes everything written to it to be written to two other
+files.
+
+@include tfdd.texi
+
+@node Trap
+@subsection Trap runtime errors
+@cindex Trap
+
+The following listing contains the interface of the Trap unit.
+
+This unit allows you to trap runtime errors, so a runtime error will
+not abort the program, but pass the control back to a point within
+the program. Use with care, and read the notes in the interface,
+please.
+
+@include trap.texi
+
+@node Turbo3
+@subsection BP compatibility: Turbo3
+@cindex Turbo3
+
+The following listing contains the interface of the Turbo3 unit.
+
+This is a compatibility unit to BP's @samp{Turbo3} compatibility
+unit to TP3. ;@minus{}) It is not meant to be used in any newly
+written code.
+
+@include turbo3.texi
+
+@node WinDos
+@subsection BP compatibility: WinDos
+@cindex WinDos
+
+The following listing contains the interface of the WinDos unit.
+
+This is a portable implementation of most routines from BP's
+@samp{WinDos} unit. A few routines that are Dos -- or even IA32 real
+mode -- specific, are only available if
+@samp{__BP_UNPORTABLE_ROUTINES__} is defined,
+@ref{BP Incompatibilities}.
+
+The same functionality and much more is available in the Run Time
+System, @ref{Run Time System}. The RTS routines usually have
+different names and/or easier and less limiting interfaces (e.g.@:
+@samp{ReadDir} etc. vs. @samp{FindFirst} etc.), and are often more
+efficient.
+
+Therefore, using this unit is not recommended in newly written
+programs.
+
+@include windos.texi

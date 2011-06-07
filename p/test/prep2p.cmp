@@ -1,0 +1,20 @@
+#!/bin/sh
+trap 'if [ $? -ne 0 ] ; then echo failed ; fi' 0
+rm -f ress_p ress_c
+OUR_GPC="$PC $PFLAGS_NO_PATHS"
+$OUR_GPC $2
+if [ -r "$A_OUT" ] ; then
+  ./"$A_OUT" > ress_p || exit 1
+fi
+rm "$A_OUT"
+CVER1=`echo $2 | sed 's,p\.pas$,c.c,'`
+CVER2=`echo $2 | sed 's,p\.pas$,b.c,'`
+$OUR_GPC $CVER1 $CVER2
+if [ -r "$A_OUT" ] ; then
+  ./"$A_OUT" > ress_c || exit 1
+fi
+if diff ress_p ress_c ; then
+  echo OK
+else
+  exit 1
+fi

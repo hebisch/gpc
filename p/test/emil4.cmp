@@ -1,0 +1,22 @@
+#!/bin/sh
+TMPFILE=dummy.pas
+rm -f $TMPFILE
+
+# Some platforms (e.g. dec-alpha-osf) don't support infinity.
+echo '{ Automatically generated temp program. No test program. May be deleted. }' > $TMPFILE
+
+# Break up the word pro-gram so the Makefile with MASK=*
+# doesn't try to compile *this* file!
+echo 'pro''gram Foo; var a : Real = MaxReal; begin a := 2 * a end.' >> $TMPFILE
+rm -f "$A_OUT"
+OPT=""
+if $1 -Wall -Werror "$TMPFILE" && "./$A_OUT" 2> /dev/null; then
+  OPT="-DHAVE_INF"
+fi
+rm -f $TMPFILE "$A_OUT"
+$1 $2 $OPT
+if [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

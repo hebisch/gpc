@@ -1,0 +1,95 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+@node Keywords
+@chapter Pascalove kljuène rijeèi i operatori podr¾ani u GNU Pascalu.
+
+Ovo poglavlje daje popis svih kljuènih rijeèi koje GNU Pascal razumije.
+
+@c Bez posebnih specificiranih opcija, kljuène rijeèi mogu biti redefinirane
+@c kako bi se uèinilo moguæim da se svaki korektni ISO 7185 program uspje¹no
+@c prevede. Meðutim, mo¾ete koristiti prekidaèe prevodioèevog (engl. compiler)
+@c dijalekta (npr. @code{--extended-pascal} ili @code{--borland-pascal} da bi
+@c se naznaèilo GPC-u da se rijeèi danog standarda ne smiju redefinirati.
+
+Kljuène rijeèi su preuzete iz slijedeæih standarda:
+
+@itemize @bullet
+@item ISO 7185 Pascal (CP)
+@item ISO 10206 Extended Pascal (EP)
+@item ANSI preliminarni Object Pascal (OP)
+@item Borland Pascal 7.0 (BP)
+@item Borland Delphi (BD)
+@item Pascal-SC (PXSC, Pascal eXtensions for Scientific Calculations - Pascal
+pro¹irenja za znanstvene proraèune)
+@item VAX Pascal (VP)
+@item Sun Pascal (SP)
+@item Traditional Macintosh Pascal (MP)
+@item GNU Pascal pro¹irenja (GPC)
+@end itemize
+
+Tablica ni¾e navodi sve poznate kljuène rijeèi s kratkim opisom svake.
+Link pokazuje prema duljem opisu u referentnom priruèniku.
+
+Inicijalno (uz kori¹tenje GPC ekstenzija) su sve rijeèi omoguæene.
+Samo one oznaèene sa @samp{GPC} su ispravne @emph{samo} u GPC ekstenzijama.
+
+Sve kljuène rijeèi koje su specifiène za neke dijalekte (odnosno nisu
+oznaèene sa ``svi'' mogu se takoðer koristiti kao identifikatori (uz
+nekoliko izuzetaka, vidi ni¾e). Ipak, one se opæenito vi¹e ne mogu
+koristiti kao kljuène rijeèi nakon toga. Tako mo¾ete prevoditi kod iz dijalekata
+koji ih koriste kao kljuène rijeèi i kod koji ih koristi kao identifikatore,
+tj. ne morate modificirati va¹e korektne ISO 7185 programe da biste ih
+preveli s GPC-om bez ijedne opcije za dijalekt. Neke rijeèi se èak mogu
+koristiti kao kljuène rijeèi i kao identifikatori paralelno, ukljuèujuæi
+@samp{forward} (prema ISO 7185 Pascalu), te @samp{near} i @samp{far}
+(prema Borland Pascalu).
+
+Izuzeci su:
+
+@itemize bullet
+
+@item @samp{Operator} ne mo¾e biti kori¹ten kao tip, netipizirana konstanta
+niti kao eksportirano suèelje, tj. tamo gdje bi bio @samp{=} iza njega
+(ako nije zabranjen kao kljuèna rijeè ili opcijom dijalekta, vidi ni¾e).
+Ovo je zbog konflikta s definicijom operatora @samp{=}. (Mo¾e se koristiti
+kao tipizirana konstanta, ali bi moglo stvoriti konfuziju ako je poslije
+uèinite netipiziranom, dakle koristiti vrlo pa¾ljivo.)
+
+@item Prva naredba nakon @samp{initialization} (Delphi-specifièna
+inicijalizacija) ne smije zapoèeti sa @samp{(}. (Naredbe koje
+zapoèinju s @samp{(} su ionako rijetke, ali ne i nemoguæe.) Ovo ne
+ogranièava kori¹tenje @samp{Initialization} kao identifikatora.
+
+@item Slijedeæe kljuène rijeèi ne mogu biti kori¹tene @emph{neposredno}
+nakon @samp{import} dijela: @samp{uses}, @samp{implementation},
+@samp{operator}, @samp{constructor}, @samp{destructor}. Tu poma¾e
+kori¹tenje @samp{uses} umjesto @samp{import}, ili stavljanje druge
+deklaracije izmeðu @samp{import} i problematiène kljuène rijeèi.
+
+@end itemize
+
+@c GPC dozvoljava da slobodno re-definirate sve ¹to nije rezervirana rijeè u
+@c ISO 7185 Pascalu u va¹em programu ili izabranom dijalektu. Npr. ne morate
+@c mijenjati svoj kod ako koristite ime poput @code{Restricted} ili @code{Value}
+@c ili neko slièno, osim ako prevodite sa @samp{--extended-pascal} opcijom.
+@c
+@c U slijedeæoj je tablici popis svih poznatih kljuènih rijeèi s kratkim
+@c opisom. Linkovi upuæuju na du¾e opise u referentnom priruèniku.
+
+Opcija dijalekta onemoguæuje sve kljuène rijeèi koje ne pripadaju dotiènom
+dijalektu. Osim toga, svaka kljuèna rijeè mo¾e biti omoguæena i onemoguæena
+opcijama prevodioca @samp{@{$enable-keyword@}} i
+@samp{@{$disable-keyword@}}.
+
+(Napomena: Tablica nije prevedena jer se generira automatski, kao i zbog
+struènosti termina i izraza, za koje je te¹ko pronaæi adekvatni prijevod).
+
+@include keyword.texi

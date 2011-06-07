@@ -1,0 +1,20 @@
+#!/bin/sh
+
+cat << EOF > dummy.c
+extern int setenv (char *, char *, int);
+int main()
+{
+  setenv ("foo", "bar", 1);
+}
+EOF
+OPTIONS=""
+if gcc dummy.c > /dev/null 2>&1; then
+  OPTIONS="-DHAVE_SETENV"
+fi
+rm -f "$A_OUT" dummy.c
+$1 $2 $OPTIONS
+if [ -r "$A_OUT" ] ; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

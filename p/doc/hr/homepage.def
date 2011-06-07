@@ -1,0 +1,55 @@
+# Language-dependent texts for the GPC homepage
+
+# Structure of the web pages. Each line must contain the following fields:
+# HTML file name
+# HTML input file name or `@' and manual node name
+# Short title
+# Full title
+structure=\
+'index     index.html.in      Home       GNU Pascal
+about      @Naglasci          About      O GNU Pascalu
+news       @News              News       Nove moguænosti u GNU Pascalu
+faq        @FAQ               FAQ        Èesto postavljana pitanja
+install    @Installation      Install    Kako instalirati GNU Pascal
+libraries  @Libraries         Libraries  Biblioteke koje mo¾ete koristiti uz GPC
+support    @Support           Podr\¹ka   Kako dobiti podr¹ku za GNU Pascal
+team       @Acknowledgments   Tim        GNU Pascal razvojni tim
+gnu        @GNU               GNU        GNU projekt
+todo       @To\ Do            To\ Do     Stvari preostale za napraviti u GNU Pascalu
+resources  @Resursi           Resursi    Resursi za kori¹tenje s GPC-om.'
+
+charset='iso-8859-2'
+
+manualref='Ova stranica je direktan izvadak iz GPC priruènika.
+Ako ¾elite pregledavati priruènik mo¾ete poèeti na
+<a href="index.html#Top">vrhu priruènika</a> ili na
+<a href="@REF@">odgovarajuæoj stranici u priruèniku</a>.'
+
+returntomainpage='Povratak na vrh'
+
+todownloadarea='Download'
+mailinglistarchives='Arhive mailing listi'
+
+disclaimer='
+<table align=right><tr><td>
+<a href="http://www.anybrowser.org/campaign/"><img src="../images/dsh_anybrowser.png" border="no" alt="Best Viewed With Any Browser" width=88 height=31></a><br>&nbsp;<br>
+<a href="http://validator.w3.org"><img src="../images/vh40.png" border="no" alt="Valid HTML 4.0" width=88 height=31></a>
+</td></tr></table>
+<p><small>Copyright &copy; 1996-2006 GNU Pascal development team</small></p>
+<p><small>Verbatim copying and distribution is permitted in any medium,
+provided that this notice and the disclaimer below are
+preserved.</small></p>
+<p><small>This information is provided in the hope that it will be useful,
+but without any warranty. We disclaim any liability for the accuracy
+of this information.</small></p>
+<p><small>We are not responsible for the contents of web pages referenced
+by this site.</small></p>
+<hr>
+<p><small>Copyright &copy; 1996-2006 GNU Pascal development team</small></p>
+<p><small>Kopiranje bez izmjena i distribucija je dozvoljena na svakom mediju,
+uz uvjet da je ova obavijest i ograda ni¾e saèuvana.</small></p>
+<p><small>Ova informacija je pru¾ena u nadi da æe biti korisna, ali bez
+ikakve garancije. Negiramo svaku pravnu odgovornost za toènost ove
+informacije.</small></p>
+<p><small>Nismo odgovorni za sadr¾aj web stranica referenciranih s na¹eg
+sitea.</small></p>'

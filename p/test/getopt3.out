@@ -1,0 +1,13 @@
+option `o'
+option `r' with argument `foo'
+option `x'
+option `o'
+option `n'
+option `o' with argument `bar'
+option `n'
+option `r' with argument `foo'
+option `o' with argument `bar'
+option `x'
+Remaining arguments:
+baz
+qux

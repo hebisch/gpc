@@ -1,0 +1,2 @@
+#ifdef __GPC__
+defined (__GPC__)

@@ -1,0 +1,2 @@
+#!/bin/sh
+if [ -r "$A_OUT" ]; then ./"$A_OUT" OK; else echo failed; fi

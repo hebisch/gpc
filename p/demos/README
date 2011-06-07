@@ -1,0 +1,10 @@
+GPC Demo Programs
+*****************
+
+These are demo programs for some of GPC's interesting features. Some
+of them serve a useful purpose, and can be used as the basis for
+your own programs. Others are just demos of concepts.
+
+If you like to find out more about the features, please look into
+the GPC Manual. The short demo programs you find printed in the
+manual are stored in the directory `docdemos'.

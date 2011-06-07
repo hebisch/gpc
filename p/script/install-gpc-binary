@@ -1,0 +1,107 @@
+#!/bin/sh
+
+# Script to create the environment variable settings to run a GPC
+# binary in a directory other than that for which it was compiled.
+#
+# Copyright (C) 1999-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; see the file COPYING. If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+
+cat << EOF
+This script is to help you install a GPC binary in an arbitrary
+directory. Run this script AFTER unpacking the GPC binary archive.
+
+You will need this script if you want to install a GPC BINARY
+distribution in a directory OTHER THAN that for which it was
+compiled.
+
+You DON'T need this script if you compile GPC yourself, or if you
+install a GPC binary in the directory for which it was compiled,
+which is the directory given in the file names contained in the
+archive. In other words, if you unpack the archive from the root
+directory (/), you don't need this script, but if you unpack it from
+another directory (e.g., your home directory), you do need it.
+
+EOF
+
+GPC_PATH="`pwd`"
+GPC_LIB="`echo $GPC_PATH/lib/gcc-lib/*/*`"
+
+if [ ! -x "$GPC_PATH"/bin/gpc ]; then
+cat << EOF >&2
+Could not find executable $GPC_PATH/bin/gpc.
+Please run this script after installing a GPC binary distribution
+and changing into the "main" directory of the GPC installation,
+i.e. the directory that contains subdirectories like \`bin' and \`lib'.
+EOF
+exit 127
+fi
+
+if echo "$GPC_LIB" | grep '\*' > /dev/null; then
+cat << EOF >&2
+Could not find directory $GPC_PATH/lib/gcc-lib/<target>/<version>.
+Please run this script after installing a GPC binary distribution
+and changing into the "main" directory of the GPC installation,
+i.e. the directory that contains subdirectories like \`bin' and \`lib'.
+EOF
+exit 127
+fi
+
+if [ `echo "$GPC_LIB" | wc -w` -ne 1 ]; then
+cat << EOF >&2
+Found multiple $GPC_PATH/lib/gcc-lib/<target>/<version> directories.
+Please run this script after installing *exactly one* GPC binary
+distribution and changing into the "main" directory of the GPC
+installation, i.e. the directory that contains subdirectories like
+\`bin' and \`lib'.
+EOF
+exit 127
+fi
+
+for file in "$GPC_LIB"/gpc1 "$GPC_LIB"/gpcpp "$GPC_LIB"/libgpc.a; do
+if [ ! -r $file ]; then
+cat << EOF >&2
+Could not find $file.
+Please run this script after installing a complete  GPC binary
+distribution and changing into the "main" directory of the GPC
+installation, i.e. the directory that contains subdirectories
+like \`bin' and \`lib'.
+EOF
+exit 127
+fi
+done
+
+cat << EOF
+GPC found!
+
+Please add the directory $GPC_PATH/bin
+to your PATH (if it isn't there already),
+and set the environment variable GPC_EXEC_PREFIX to
+$GPC_LIB/ (note the trailing \`/'!). This is done as follows:
+
+If you use sh or bash as your shell, add the following to ~/.profile
+or ~/.bashrc:
+
+PATH="\$PATH":$GPC_PATH/bin
+GPC_EXEC_PREFIX=$GPC_LIB/
+export GPC_EXEC_PREFIX
+
+If you use csh or tcsh, add the following to ~/.cshrc or ~/.tcshrc:
+
+setenv PATH "\$PATH":$GPC_PATH/bin
+setenv GPC_EXEC_PREFIX $GPC_LIB/
+EOF

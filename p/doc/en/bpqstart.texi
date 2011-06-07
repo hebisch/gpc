@@ -1,0 +1,1737 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Peter Gerwinski <peter@gerwinski.de>
+@c          Berend de Boer <berend@pobox.com>
+@c          Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+@node Borland Pascal
+@chapter A QuickStart Guide from Borland Pascal to GNU Pascal.
+
+This chapter is intended to be a QuickStart guide for programmers
+who are familiar with Borland Pascal.
+
+Throughout the manual, we talk of ``Borland Pascal'' or ``BP'' for
+short, to refer to Borland Pascal version 7 for Dos protected mode.
+Other versions of Borland Pascal and Turbo Pascall don't differ too
+much, but this one was the very last Dos version Borland has
+published, so in most if not all cases, you can safely substitute
+the version you're familiar with.
+
+``Borland Pascal'' and ``Turbo Pascal'' are registered trademarks of
+Borland Inc.
+
+@menu
+* BP Compatibility::
+* BP Incompatibilities::
+* IDE versus command line::
+* Comments::
+* BP Compatible Compiler Directives::
+* Units; GPI files and Automake::
+* Optimization::
+* Debugging::
+* Objects::
+* Strings in BP and GPC::
+* Typed Constants::
+* Bit; Byte and Memory Manipulation::
+* User-defined Operators in GPC::
+* Data Types in BP and GPC::
+* BP Procedural Types::
+* Files::
+* Built-in Constants::
+* Built-in Operators in BP and GPC::
+* Built-in Procedures and Functions::
+* Special Parameters::
+* Miscellaneous::
+* BP and Extended Pascal::
+* Portability hints::
+@end menu
+
+@c ----------------------------------------------------------------------------
+
+@node BP Compatibility
+@section BP Compatibility
+
+GNU Pascal (GPC) is compatible to version 7 of Borland Pascal (BP)
+to a large extent and comes with portable replacements of the
+BP standard units.
+
+However, BP is a 16-bit compiler while GPC is a 32/64-bit compiler,
+so the size of the @samp{Integer} type, for instance, is 16 bits in
+BP, but at least 32 bits in GPC. If a BP program has been designed
+with portability in mind from the ground up, it may work with GPC
+without any change. Programs which rely on byte order, on the
+internals or sizes of data types or which use unportable things like
+interrupts and assembler code, will need to be changed. The
+following section lists the possible problems with solutions.
+
+The GPC Run Time System (RTS) is fairly complete, and you can use
+all libraries written for GNU C from GNU Pascal, so there is much
+less need to use unportable constructs than there was in BP. (For
+example, BP's Turbo Vision library uses assembler to call a local
+procedure through a pointer. With GPC you can do this in Pascal just
+as with global procedures.) Please do not throw away the advantage
+of full portability by sticking to those workarounds.
+
+We have successfully ported real-world projects (with several 10000s
+of lines) from BP to GPC, so this is possible for you, too.
+
+@c ----------------------------------------------------------------------------
+
+@node BP Incompatibilities
+@section BP Incompatibilities
+
+This sections lists the remaining incompatibilities of GPC to BP,
+and the problems you might encounter when porting BP programs from
+16-bit Dos to other platforms, and gives solutions for them.
+
+By @dfn{incompatibilites} we mean problems that can arise when
+trying to compile a valid BP program with GPC. Of course, there are
+many features in GPC that BP doesn't know, but we call them
+extensions unless they can break valid BP programs, so they are not
+mentioned here. The subsequent sections of the @samp{Borland Pascal}
+chapter mention a number of useful extensions that you might want to
+know about but which will not break your BP code.
+
+@menu
+* String type::
+* Qualified identifiers::
+* Assembler::
+* Move; FillChar::
+* Real type::
+* Graph unit::
+* OOP units::
+* Keep; GetIntVec; SetIntVec::
+* TFDDs::
+* Mem; Port; Ptr; Seg; Ofs; PrefixSeg; etc.::
+* Endianness assumptions::
+@end menu
+
+Some of the differences can be ``overcome'' by command-line
+switches. As a summary:
+
+@c @group
+@smallexample
+--borland-pascal -w --uses=System -D__BP_TYPE_SIZES__ --pack-struct
+-D__BP_RANDOM__ -D__BP_UNPORTABLE_ROUTINES__ -D__BP_PARAMSTR_0__
+@end smallexample
+@c @end group
+
+But please read the following notes, and don't use these switches
+indiscriminately when not necessary. There are reasons why they are
+not GPC's defaults.
+
+@menu
+* - -borland-pascal - disable GPC extensions::
+* -w - disable all warnings::
+* - -uses=System - Swap; HeapError; etc.::
+* -D__BP_TYPE_SIZES__ - small integer types etc.::
+* - -pack-struct - disable structure alignment::
+* -D__BP_RANDOM__ - BP compatible pseudo random number generator::
+* -D__BP_UNPORTABLE_ROUTINES__ - Intr; DosVersion; etc.::
+* -D__BP_PARAMSTR_0__ - BP compatible ParamStr (0) behaviour::
+@end menu
+
+@node String type
+@subsection String type
+
+GPC's internal string format (Extended Pascal string schema) is
+different from BP's. BP compatible @dfn{short strings} will be
+implemented in GPC soon, but in the meantime, you'll have to live
+with the difference. In general, GPC's format has many advantages
+(no length limit of 255 characters, constant and reference
+parameters always know about their capacity, etc.), but you will see
+differences if you:
+
+@itemize @minus
+@item
+declare a variable as @samp{String} without a capacity. However, GPC
+will assume 255 then (like BP) and only warn about it (and not even
+this when using @samp{--borland-pascal}, see below), so that's not a
+real problem. The ``clean'' way, however, is to declare
+@samp{String [255]} when you mean so (but perhaps you'll prefer
+@samp{String (2000)}? :@minus{}).
+
+@item
+access ``character 0'' which happens to hold the length in BP. This
+does not work with string schemata. Use @samp{Length} to get the
+length, and @samp{SetLength} to modify it.
+
+@item
+try to @samp{FillChar} a string, e.g.
+@samp{FillChar (StringVar, 256, 0);}, which would overwrite the
+@samp{Capacity} field. Using
+@samp{FillChar (StringVar[1], @dots{});} is alright since it
+accesses the characters of the string, not the @samp{Capacity} and
+@samp{Length} fields. If you want to set the length to zero, use
+@samp{SetLength} (see above) or simply assign an empty string
+(@samp{StringVar := ''}). This is more efficient than clearing all
+the characters, anyway, and has the same effect for all normal
+purposes.
+
+@item
+try to read or write strings from/to @emph{binary} files
+(@samp{Text} files are no problem). You will have to rewrite the
+code. If you also want to get rid of the 255 character limit and
+handle endianness issues (see below) in one go, you can use the
+@samp{ReadStringLittleEndian} etc. routines
+(@pxref{Run Time System}), but if you need BP compatible strings
+(i.e., with a one-byte length field) in data files, you cannot use
+them (but you can easily modify them for this purpose).
+@end itemize
+
+@node Qualified identifiers
+@subsection Qualified identifiers
+
+GPC supports @dfn{qualified identifiers}, liek BP does. (In
+addition, it also supports Extended Pascal style qualified
+identifiers which behave a little differently for units and modules
+imported with @samp{import} rather than @samp{uses}.)
+
+@node Assembler
+@subsection Assembler
+
+GPC's inline assembler is not compatible to BP's. It uses
+@dfn{AT&T syntax}, supports a large variety of processors and works
+together with GPC's optimizer. So, either convert your inline
+assembly to AT&T syntax, or (usually better) to Pascal, or put it
+into an external file which you can assemble with your favourite
+(32 bit) assembler. A tutorial for using the GPC inline assembler is
+available at@*
+@uref{http://www.gnu-pascal.de/contrib/misc/gpcasm.zip}
+
+Since many things you usually do with assembler in BP are provided
+by GPC's Run Time System (RTS), you will not need the inline
+assembler as often as in BP. (See @ref{Portability hints}.)
+
+The same applies to BP's @samp{inline} directive for hand-written
+machine code. GPC's @samp{inline} directive works for Pascal
+routines (@pxref{Miscellaneous}), so you'll have to convert any
+hand-written machine code to Pascal (and thereby make it more
+readable, portable and easier to maintain while still getting the
+performance of inline code).
+
+@node Move; FillChar
+@subsection Move; FillChar
+
+GPC supports @samp{Move} and @samp{FillChar}, and they're fully BP
+compatible. However, some data structures have different internal
+formats which may become relevant when using these procedures. E.g.,
+using @samp{Move} on file variables does not work in GPC (there are
+reasons why assigning file variables with @samp{:=} is not allowed
+in Pascal, and circumventing this restriction with @samp{Move} is
+not a good idea). For other examples, see @ref{String type},
+@ref{Real type}, and @ref{Endianness assumptions}.
+
+@node Real type
+@subsection Real type
+
+GPC does not support BP's 6-byte @samp{Real} type. It supports
+@samp{Single}, @samp{Double} and @samp{Extended} which, at least on
+the IA32 and some other processors, are compatible to BP.
+
+For BP's 6-byte @samp{Real} type, GPC's @samp{System} unit provides
+an emulation, called @samp{BPReal}, as well as conversion routines
+to GPC's @samp{Real} type (which is the same as @samp{Double}),
+called @samp{RealToBPReal} and @samp{BPRealToReal}. You'll probably
+only need them when reading or writing binary files containing
+values of the BP 6-byte real type. There are no operators (e.g.,
+@samp{+}) available for @samp{BPReal}, but since GPC supports
+operator overloading, you could define them yourself (e.g., convert
+to @samp{Real}, do the operation, and convert back). Needless to say
+that this is very inefficient and should not be done for any serious
+computations. Better convert your data after reading them from the
+file and before writing them back, or simply convert your data files
+once (the other types are more efficient even with BP on any
+non-prehistoric processor, anyway).
+
+@node Graph unit
+@subsection Graph unit
+
+A mostly BP compatible @samp{Graph} unit exists as part of the
+@samp{GRX} package. It is known to work under DJGPP, Cygwin, mingw,
+Linux/IA32 with svgalib, and should work under any Unix system with
+X11 (tested under Linux, Solaris, AIX, etc.).
+
+There is a small difference in the color numbering, but it should be
+easy to work-around: You can't assume, e.g., that color 1 is always
+blue, and 2 is green, etc. On a system with 15 or more bits of color
+depth (i.e., 32768 or more colors, which most PCs today have), they
+will all be very dark shades of blue. This is not really a bug, but
+simply a property of modern high-color modes (whereas BP's
+@samp{Graph} unit was only designed for 16 and 256 color modes).
+
+However, the names @samp{Blue}, @samp{Green} etc. stand for the
+correct colors in the @samp{Graph} unit of GRX. They are no
+constants, but functions (because the color depth is in general not
+known until runtime), so you can't use them in contexts where
+constants are expected. Also, they might conflict with the
+identifiers of the @samp{CRT} unit if you use both units at the same
+time. If you want to use computed color values in the range 0
+@dots{} 15, you can translate them to the correct colors using the
+@samp{EGAColor} function.
+
+@node OOP units
+@subsection OOP units
+
+The OOP stuff (Turbo Vision etc.) is not yet completed, but work on
+several projects is underway. If you want information about the
+current status or access to development source, please contact the
+GPC mailing list.
+
+@node Keep; GetIntVec; SetIntVec
+@subsection Keep; GetIntVec; SetIntVec
+
+The routines @samp{Keep}, @samp{GetIntVec} and @samp{SetIntVec} in
+the @samp{Dos} unit do not even make sense on DJGPP (32 bit Dos
+extender). If your program uses these, it is either a low-level Dos
+utility for which porting to a 32 bit environment might cause bigger
+problems (because the internal issues of DPMI become relevant which
+are usually hidden by DJGPP), or it installs interrupt handlers
+which will have to be thought about more carefully because of things
+like locking memory, knowing about and handling the differences
+between real and protected mode interrupts, etc. For these kinds of
+things, we refer you to the DJGPP FAQ
+(@pxref{Top,,DJGPP FAQ,djgppfaq,the DJGPP FAQ}).
+
+@node TFDDs
+@subsection TFDDs
+@cindex TFDD
+
+The internal structure of file variables (@samp{FileRec} and
+@samp{TextRec} in BP's @samp{Dos} unit and @samp{TFileRec} and
+@samp{TTextRec} in BP's @samp{WinDos} unit) is different in GPC.
+However, as far as @dfn{Text File Device Drivers} (TFDDs) are
+concerned, GPC offers a more powerful mechanism. Please see the RTS
+reference (@pxref{Run Time System}), under @samp{AssignTFDD}.
+
+@node Mem; Port; Ptr; Seg; Ofs; PrefixSeg; etc.
+@subsection Mem; Port; Ptr; Seg; Ofs; PrefixSeg; etc.
+
+Those few routines in the @samp{System} unit that deal with
+segmented pointers (e.g., @samp{Ptr}) are emulated in such a way
+that such ugly BP constructs like
+@smallexample
+PInteger (Ptr (Seg (a), Ofs (a) + 6 * SizeOf (Integer)))^ = 42
+@end smallexample
+work in GPC, but they do not provide access to absolute memory
+addresses. Neither do @samp{absolute} variables (which take a simple
+address in the program's address space in GPC, rather than a
+segmented address), and the @samp{Mem} and @samp{Port} arrays don't
+exist in GPC.
+
+As a replacement for @samp{Port} on IA32 processors, you can use the
+routines provided in the @samp{Ports} unit, @ref{Ports}. If you want
+to access absolute memory addresses in the first megabyte under
+DJGPP, you can't do this with normal pointers because DJGPP programs
+run in a protected memory environment, unless you use a dirty trick
+called @dfn{near pointer hack}. Please see the DJGPP FAQ
+(@pxref{Top,,DJGPP FAQ,djgppfaq,the DJGPP FAQ}) for this and for
+other ways.
+
+For similar reasons, the variable @samp{PrefixSeg} in the
+@samp{System} unit is not supported. Apart from @dfn{TSR}s, its only
+meaningful use in BP might be the setting of environment variables.
+GPC provides the @samp{SetEnv} and @samp{UnSetEnv} procedures for
+this purpose which you can use instead of any BP equivalents based
+on @samp{PrefixSeg}. (However note that they will modify the
+program's own and its childs' environment, not its parent's
+environment. This is a property -- most people call it a feature --
+of the environments, including DJGPP, that GPC compiled programs run
+in.)
+
+@node Endianness assumptions
+@subsection Endianness assumptions
+
+GPC also runs on big-endian systems (@pxref{Endianness}). This is,
+of course, a feature of GPC, but might affect your programs when
+running on a big-endian system if they make assumptions about
+endianness, e.g., by using type casts (or @samp{absolute}
+declarations or variant records misused as type casts) in certain
+ways. Please see the demo program @file{absdemo.pas} for an example
+and how to solve it.
+
+Endianness is also relevant (the more common case) when exchanging
+data between different machines, e.g. via binary files or over a
+network. Since the latter is not easily possible in BP, and the
+techniques to solve the problems are mostly the same as for files,
+we concentrate on files here.
+
+First, you have to choose the endianness to use for the file. Most
+known data formats have a specified endianness (usually that of the
+processor on which the format was originally created). If you define
+your own binary data format, you're free to choose the endianness to
+use.
+
+Then, when reading or writing values larger than one byte from/to
+the file, you have to convert them. GPC's Run Time System supports
+this by some routines. E.g., you can read an array from a
+little-endian file with the procedure @samp{BlockReadLittleEndian},
+or write one to a big-endian file with @samp{BlockWriteBigEndian}.
+@emph{Note:} The endianness in the procedure names refers to the
+file, not the system -- the routines know about the endianness of
+the system they run on, but you have to tell them the endianness of
+the file to use. This means you do not have to (and must not) use an
+@samp{ifdef} to use the version matching the system's endianness.
+
+When reading or writing records or other more complicated
+structures, either read/write them field by field using
+@samp{BlockReadBigEndian} etc., or read/write them with the regular
+@samp{BlockRead} and @samp{BlockWrite} procedures and convert each
+field after reading or before writing using procedures like
+@samp{ConvertFromBigEndian} or @samp{ConvertToLittleEndian} (but
+remember, when writing, to undo the conversion afterwards, if you
+want to keep using the data -- this is not necessary with
+@samp{BlockWriteLittleEndian} etc.).
+
+Especially for strings, there are ready-made procedures like
+@samp{ReadStringBigEndian} or @samp{WriteStringLittleEndian} which
+will read/write the length as a 64 bit value (much space for really
+long strings :@minus{}) in the given endianness, followed by the
+characters (which have no endianness problem).
+
+All these routines are described in detail in the RTS reference
+(@pxref{Run Time System}), under @samp{endianness}. The demo program
+@file{endiandemo.pas} contains an example on how to use these
+routines.
+
+@node - -borland-pascal - disable GPC extensions
+@subsection - -borland-pascal - disable GPC extensions
+
+GPC warns about some BP constructs which are especially ``dirty'',
+like misusing typed constants as initialized variables. GPC also
+supports some features that may conflict with BP code, like macros.
+The command line option @samp{--borland-pascal} disables both, so
+you might want to use it for a first attempt to compile your BP code
+under GPC. However, we suggest you try compiling without this switch
+and fixing any resulting problems as soon as you've become
+acquainted with GPC.
+
+@node -w - disable all warnings
+@subsection -w - disable all warnings
+
+Even in @samp{--borland-pascal} mode, GPC may warn about some
+dangerous things. To disable @strong{all} warnings, you can use the
+@samp{-w} option (note: lower-case @samp{w}!). This is not
+recommended at all, but you may consider it more BP compatible @dots{}
+
+@node - -uses=System - Swap; HeapError; etc.
+@subsection - -uses=System - Swap; HeapError; etc.
+
+A few exotic BP routines and declarations (e.g., @samp{Swap} and
+@samp{HeapError}) are contained in a @samp{System} unit,
+@ref{System}, which GPC (unlike BP) does not automatically use in
+each program. To use it, you can add a @samp{uses System;} clause to
+your program. If you don't want to change your code, the command
+line option @samp{--uses=System} will do the same.
+
+@node -D__BP_TYPE_SIZES__ - small integer types etc.
+@subsection -D__BP_TYPE_SIZES__ - small integer types etc.
+
+Since GPC runs on 32 and 64 bit platforms, integer types have larger
+sizes than in BP. However, if you use the @samp{System} unit
+(@pxref{- -uses=System - Swap; HeapError; etc.}) and define the
+symbol @samp{__BP_TYPE_SIZES__} (by giving
+@samp{-D__BP_TYPE_SIZES__} on the command line), it will redeclare
+the types to the sizes used by BP. This is less efficient and more
+limiting, but might be necessary if your program relies on the exact
+type sizes.
+
+@node - -pack-struct - disable structure alignment
+@subsection - -pack-struct - disable structure alignment
+
+GPC by default aligns fields of records and arrays suitably for
+higher performance, while BP doesn't. If you don't want the
+alignment (e.g., because the program relies on the internal format
+of your structures), give the @samp{--pack-struct} option.
+
+@node -D__BP_RANDOM__ - BP compatible pseudo random number generator
+@subsection -D__BP_RANDOM__ - BP compatible pseudo random number generator
+
+GPC uses a more elaborate pseudo random number generator than BP
+does. Using the @samp{Random} and @samp{Randomize} functions works
+the same way, but there is no @samp{RandSeed} variable (but a
+@samp{SeedRandom} procedure). However, if you use the @samp{System}
+unit (@pxref{- -uses=System - Swap; HeapError; etc.}) and define the
+symbol @samp{__BP_RANDOM__} (by giving @samp{-D__BP_RANDOM__} on the
+command line), it will provide a 100% BP compatible pseudo random
+number generator, including the @samp{RandSeed} variable, which will
+produce exactly the same sequence of pseudo random numbers that BP's
+pseudo random number generator does. Even the @samp{Randomize}
+function will then behave exactly like in BP.
+
+@node -D__BP_UNPORTABLE_ROUTINES__ - Intr; DosVersion; etc.
+@subsection -D__BP_UNPORTABLE_ROUTINES__ - Intr; DosVersion; etc.
+
+A few more routines in the @samp{Dos} and @samp{WinDos} units
+besides the ones mentioned under @ref{Keep; GetIntVec; SetIntVec},
+like @samp{Intr} or @samp{DosVersion}, are meaningless on non-Dos
+systems. By default, the @samp{Dos} unit does not provide these
+routines (it only provides those that are meaningful on all systems,
+which are most of its routines, including the most commonly used
+ones). If you need the unportable ones, you get them by using the
+@samp{System} unit (@pxref{- -uses=System - Swap; HeapError; etc.})
+and defining the symbol @samp{__BP_UNPORTABLE_ROUTINES__} (by giving
+@samp{-D__BP_UNPORTABLE_ROUTINES__} on the command line). If you use
+@samp{Intr} or @samp{MsDos}, your program will only compile under
+DJGPP then. Other routines, e.g. @samp{DosVersion} are emulated
+quite roughly on other systems. Please see the notes in the
+@samp{Dos} unit (@pxref{Dos}) for details.
+
+@node -D__BP_PARAMSTR_0__ - BP compatible ParamStr (0) behaviour
+@subsection -D__BP_PARAMSTR_0__ - BP compatible ParamStr (0) behaviour
+
+In BP (or under Dos), @samp{ParamStr (0)} always contains the full path
+of the current executable. Under GPC, by default it contains what was
+passed by the caller as the 0th argument -- which is
+often the name of the executable, but that's merely a convention, and
+it usually does not include the path.
+
+If you use the @samp{System} unit (@pxref{- -uses=System - Swap;
+HeapError; etc.}) and define the symbol @samp{__BP_PARAMSTR_0__} (by
+giving @samp{-D__BP_PARAMSTR_0__} on the command line), it will
+change the value of @samp{ParamStr (0)} to that of
+@samp{ExecutablePath}, overwriting the value actually passed by the
+caller, to imitate BP's/Dos's behaviour. @strong{However note:} On
+most systems, @samp{ExecutablePath} is @strong{not} guaranteed to
+return the full path, so defining this symbol doesn't change
+anything. In general, you @strong{cannot} expect to find the full
+executable path, so better don't even try it, or your program will
+(at best) run on some systems. For most cases where BP programs
+access their own executable, there are cleaner alternatives
+available.
+
+@c ----------------------------------------------------------------------------
+
+@node IDE versus command line
+@section IDE versus command line
+
+On the Dos (DJGPP) and Linux platforms, you can use RHIDE
+for GNU Pascal; check the subdirectories of your DJGPP
+distribution.
+
+Unfortunately, there is no IDE which would run on all platforms. We
+are working on it, but this will take some time. Please be patient
+-- or offer your help!
+
+Without an IDE, the GNU Pascal Compiler, GPC, is called about like
+the command-line version of the Borland Pascal Compiler, BPC. Edit
+your source file(s) with your favorite ASCII editor, then call GNU
+Pascal with a command line like
+
+@smallexample
+C:\GNU-PAS> gpc hello.pas -o hello.exe
+@end smallexample
+
+@noindent on your Dos or OS/2 box or
+
+@smallexample
+myhost:/home/joe/gnu-pascal> gpc hello.pas -o hello
+@end smallexample
+
+@noindent on your Unix (or Unix-compatible) system.
+
+Don't omit the @file{.pas} suffix: GPC is a common interface for a
+Pascal compiler, a C, ObjC and C++ compiler, an assembler, a linker,
+and perhaps an Ada and a FORTRAN compiler. From the extension of
+your source file GPC figures out which compiler to run. GPC
+recognizes Pascal sources by the extension @file{.pas}, @file{.p},
+@file{.pp} or @file{.dpr}.
+
+The @code{-o} is a command line option which tells GPC how the
+executable has to be named. If not given, the executable will be
+called @samp{a.out} (Unix) or @samp{a.exe} (Dos). However, you can
+use the @samp{--executable-file-name} to tell GPC to always call the
+executable like the source (with the extension removed under Unix
+and changed to @samp{.exe} under Dos).
+
+Note that GPC is case-sensitive concerning file names and options,
+so it will @emph{not} work if you type
+
+@smallexample
+C:\GNU-PAS> GPC HELLO.PAS -O HELLO.EXE
+@end smallexample
+
+GPC is a very quiet compiler and doesn't print anything on the
+screen unless you request it or there is an error. If you want to
+see what is going on, invoke GPC with additional options:
+
+@smallexample
+-Q            "don't be quiet"  (or: Quassel-Modus in German)
+@end smallexample
+
+@noindent (with @emph{capital} @samp{Q}!) means that GPC prints out
+the names of procedures and functions it processes, and
+
+@smallexample
+--verbose
+@end smallexample
+
+@noindent or abbreviated
+
+@smallexample
+-v
+@end smallexample
+
+@noindent means that GPC informs you about the stages of
+compilation, i.e.@: preprocessing, compiling, assembling, and
+linking.
+
+One example (this time for OS/2):
+
+@smallexample
+[C:\GNU-Pascal] gpc --verbose -Q hello.pas
+@end smallexample
+
+Throughout this chapter, we will tell you about a lot of
+command-line switches. They are all invoked this way.
+
+After compilation, there will be an executable @code{hello} file in
+the current directory. (@code{hello.exe} on Dos or OS/2.) Just run
+it and enjoy. If you're new to Unix, please note that the current
+directory is not on the PATH in most installations, so you might
+have to run your program as @samp{./hello}. This also helps to avoid
+name conflicts with other programs. Such conflicts are especially
+common with the program name @samp{test} which happens to be a
+standard utility under Unix that does not print any output. If you
+call your program @samp{test.pas}, compile it, and then invoke
+@samp{test}, you will usually not run your program, but the utility
+which leads to mysterious problems. So, invoke your program as
+@samp{./test} or, better yet, avoid the name @samp{test} for your
+programs.
+
+If there are compilation errors, GNU Pascal will not stop
+compilation after the first one -- as Borland Pascal does -- but try
+to catch all errors in one compilation. If you get more error
+messages than your screen can hold, you can catch them in a file
+(e.g.@: @code{gpc.out}) or pipe them to a program like @samp{more}
+in the following way:
+
+@smallexample
+gpc hello.pas 2> gpc.out
+@end smallexample
+
+This works with OS/2 and any bash-like shell under Unix; for Dos you
+must get a replacement for @code{command.com} which supports this
+kind of redirection, or use the @samp{redir} utility (see also the
+DJGPP FAQ, @ref{Top,,DJGPP FAQ,djgppfaq,the DJGPP FAQ}.):
+
+@smallexample
+C:\GNU-PAS> redir -eo gpc hello.pas -o hello.exe | more
+@end smallexample
+
+You can also use Borland's IDE for GNU Pascal on the Dos platform:
+Install the GNU Pascal Compiler in the Tools menu (via
+Options/Tools).
+
+@smallexample
+Name:       GNU Pascal
+Path:       gpc
+Arguments:  $SAVE ALL --executable-file-name $NAME($EDNAME).pas
+HotKey:     Shift+F9
+@end smallexample
+
+Note once more that GPC is case-sensitive, so it is important to
+specify @code{.pas} instead of the @code{.PAS} Borland Pascal would
+append otherwise!
+
+You can include more command-line arguments to GNU Pascal (e.g.@:
+@samp{--automake}; see below) as you will learn more about them.
+
+Since Borland Pascal will try to recompile your program if you use
+its @code{Run} menu function, you will need another tool to run your
+program:
+
+@smallexample
+Name:       Run Program
+Path:       command.com
+Arguments:  /c $NAME($EDNAME)
+HotKey:     Shift+F10
+@end smallexample
+
+@c ----------------------------------------------------------------------------
+
+@node Comments
+@section Comments
+
+GPC supports comments surrounded by @samp{@{ @}} and @samp{(* *)},
+just like BP does. According to the ISO 7185 and ISO 10206
+standards, Pascal allows comments opened with @code{(*} and closed
+with @code{@}}. Borland Pascal does not support such @dfn{mixed}
+comments, so you might have sources where passages containing
+comments are ``commented out'' using the other kind of comment
+delimiters. GPC's default behaviour is (like BP) not to allow mixed
+comments, so you don't need to worry about this. However, if you
+happen to like mixed comments, you can turn them on either by a
+command-line option, or by a compiler directive:
+
+@smallexample
+--mixed-comments     @{$mixed-comments@}    (*$mixed-comments*)
+@end smallexample
+
+GPC supports nested comments (e.g., @samp{@{ foo @{ bar @} baz @}}),
+but they are disabled by default (compatible to BP which doesn't
+know nested comments at all). You can enable them with the option
+@samp{--nested-comments} (or the equivalent compiler directive)
+
+GPC also supports Delphi style comments starting with @samp{//} and
+extending until the end of the line. This comment style is activated
+by default unless one of the @samp{--classic-pascal},
+@samp{--extended-pascal}, @samp{--object-pascal} or
+@samp{--borland-pascal} dialect options is given. You can turn them
+on or off with the @samp{--[no-]delphi-comments} option.
+
+@c ----------------------------------------------------------------------------
+
+@node BP Compatible Compiler Directives
+@section BP Compatible Compiler Directives
+
+All of BP's one-letter compiler directives (except H, P, Q, R, V)
+are supported by GPC, though some of them are ignored because they
+are not necessary under GPC. Besides, GPC supports a lot more
+directives. For an overview, see @ref{Compiler Directives}.
+
+@c ----------------------------------------------------------------------------
+
+@node Units; GPI files and Automake
+@section Units, GPI files and Automake
+
+You can use units in the same way as in Borland Pascal. However,
+there are some additional features.
+
+Concerning the syntax of a unit, you can, if you want, use Extended
+Pascal syntax to specify a unit initializer, i.e., instead of
+writing
+
+@smallexample
+begin
+  @dots{}
+end.
+@end smallexample
+
+@noindent at the end of the unit, you can get the same result with
+
+@smallexample
+to begin do
+  begin
+    @dots{}
+  end;
+@end smallexample
+
+@noindent and there also exists
+
+@smallexample
+to end do
+  begin
+    @dots{}
+  end;
+@end smallexample
+
+@noindent which specifies a finalization routine. You can use this
+instead of Borland Pascal's exit procedures, but for compatibility,
+the included @samp{System} unit also provides the @samp{ExitProc}
+variable. The @samp{to begin do} and/or @samp{to end do} parts must
+be followed by the final @samp{end.}. See @ref{Modules}, for
+information about Extended Pascal modules, an alternative to units.
+
+When GPC compiles a unit, it produces two files: an @code{.o} object
+file (compatible with other GNU compilers such as GNU C) plus a
+@code{.gpi} file which describes the interface.
+
+If you are interested in the internal format of GPI file, see
+@ref{GPI files}.
+
+If you want to compile a program that uses units, you must ``make''
+the project. (This is the command-line switch @samp{-M} or the IDE
+keystroke @samp{F9} in BP.) For this purpose, GPC provides the
+command-line switch @samp{--automake}:
+
+@smallexample
+gpc --automake hello.pas
+@end smallexample
+
+If you want to force everything to be rebuilt rather than only
+recompile changed files (@samp{-B} or ``build'' in BP), use
+@samp{--autobuild} instead of @samp{--automake}:
+
+@smallexample
+gpc --autobuild hello.pas
+@end smallexample
+
+For more information about the automake mechanism, see
+@ref{Automake}.
+
+If you do not want to use the automake mechanism for whatever
+reason, you can also compile every unit manually and then link
+everything together.
+
+GPC does not automatically recognize that something is a unit and
+cannot be linked; you have to tell this by a command line switch:
+
+@smallexample
+-c            only compile, don't link.
+@end smallexample
+
+(If you omit this switch when compiling a unit, you only get a
+linker error message @samp{undefined reference to `main'}.  Nothing
+serious.)
+
+For example, to compile two units, use:
+
+@smallexample
+gpc -c myunit1.pas myunit2.pas
+@end smallexample
+
+When you have compiled all units, you can compile a program that
+uses them without using @samp{--automake}:
+
+@smallexample
+gpc hello.pas
+@end smallexample
+
+However, using @samp{--automake} is recommended, since it will
+recompile units that were modified.
+
+You could also specify the program and the units in one command
+line:
+
+@smallexample
+gpc hello.pas myunit1.pas myunit2.pas
+@end smallexample
+
+One of the purposes of writing units is to compile them separately.
+However, GNU Pascal allows you to have one or more units in the same
+source file (producing only one @code{.o} file but separate
+@code{.gpi} files). You even can have a program and one or more
+units in one source file; in this case, no @code{.o} file is
+produced at all.
+
+@c ----------------------------------------------------------------------------
+
+@node Optimization
+@section Optimization
+
+GNU Pascal is a 32/64 bit compiler with excellent optimization
+algorithms (which are identically the same as those of GNU C). There
+are six optimization levels, specified by the command line options
+@samp{-O}, @samp{-O2}, @dots{}, @samp{-O6}.
+
+One example:
+
+@smallexample
+program OptimizationDemo;
+
+procedure Foo;
+var
+  A, B: Integer;
+begin
+  A := 3;
+  B := 4;
+  WriteLn (A + B)
+end;
+
+begin
+  Foo
+end.
+@end smallexample
+
+When GNU Pascal compiles this program with optimization
+(@samp{-O3}), it recognizes that the argument to `WriteLn' is the
+constant 7 -- and optimizes away the variables @code{A} and
+@code{B}. If the variables were global, they would not be optimized
+away because they might be accessed from other places, but the
+constant 7 would still be optimized.
+
+For more about optimization, see the GNU C documentation.
+
+@c ----------------------------------------------------------------------------
+
+@node Debugging
+@section Debugging
+
+The command line option @samp{-g} specifies generation of debugging
+information for GDB, the GNU debugger. GDB comes with its own
+documentation. Currently, GDB does not understand Pascal syntax, so
+you should be familiar with C expressions if you want to use it.
+
+See also ``Notes for debugging'' in the ``Programming'' chapter; see
+@ref{Notes for Debugging}.
+
+Sometimes it is nice to have a look at the assembler output of the
+compiler. You can do this in a debugger or disassembler (which is
+the only way to do it in BP), but you can also tell GPC to produce
+assembler code directly: When you specify the @code{-S} command line
+option, GPC produces an @code{.s} file instead of an @code{.o} file.
+The @code{.s} file contains assembler source for your program. More
+about this in the next section.
+
+@c ----------------------------------------------------------------------------
+
+@node Objects
+@section Objects
+
+Objects in the Borland Pascal 7.0 notation are implemented into
+GNU Pascal with the following differences:
+
+@itemize @bullet
+@item the @samp{private}, @samp{protected}, @samp{public} and
+@samp{published} directives are recognized but ignored,
+@item data fields and methods may be mixed:
+@smallexample
+type
+  MyObj = object
+    x: Integer;
+    procedure Foo; virtual;
+    y: Real;
+    function Bar: Char;
+  end;
+@end smallexample
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node Strings in BP and GPC
+@section Strings in BP and GPC
+
+Strings are ``Schema types'' in GNU Pascal which is something more
+advanced than Borland-style strings. For variables, you cannot
+specify just @code{String} as a type like in Borland Pascal; for
+parameters and pointer types you can. There is no 255 characters
+length limit. According to Extended Pascal, the maximum string
+length must be in (parentheses); GNU Pascal accepts [brackets], too,
+however, like BP.
+
+For more about strings and schema types see @ref{Schema Types}.
+
+GPC supports Borland Pascal's string handling functions and some
+more (see @ref{String Operations}):
+
+@c @group
+@multitable {xxxxxxxxxxxxxxxxxxxxxx}     {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+@item     @b{Borland Pascal}      @tab @b{GNU Pascal}
+@item     @t{Length}              @tab @t{Length}
+@item     @t{Pos}                 @tab @t{Pos, Index} (1)
+@item     @t{Str}                 @tab @t{Str, WriteStr} (1) (2)
+@item     @t{Val}                 @tab @t{Val, ReadStr} (2)
+@item     @t{Copy}                @tab @t{Copy, SubStr, MyStr[2 .. 7]} (3)
+@item     @t{Insert}              @tab @t{Insert}
+@item     @t{Delete}              @tab @t{Delete}
+@item     @t{MyStr[0] := #7}      @tab @t{SetLength (MyStr, 7)}
+@item     @t{=, <>, <, <=, >, >=} @tab @t{=, <>, <, <=, >, >=} (4)
+@item                             @tab @t{EQ, NE, LT, LE, GT, GE}
+@item        n/a                  @tab @t{Trim}
+@end multitable
+@c @end group
+
+Notes:
+
+(1) The order of parameters of the Extended Pascal routines
+(@samp{Index}, @samp{WriteStr}) is different from the Borland Pascal
+routines.
+
+(2) @samp{ReadStr} and @samp{WriteStr} allow an arbitrary number of
+arguments, and the arguments are not limited to numbers.
+@samp{WriteStr} also allows comfortable formatting like
+@samp{WriteLn} does, e.g.@:
+@samp{WriteStr (Dest, Foo : 20, Bar, 1/3 : 10 : 2)}.
+
+(3) @samp{SubStr} reports a runtime error if the requested substring
+does not fit in the given string, @samp{Copy} does not (like in BP).
+
+(4) By default, the string operators behave like in BP. However, if
+you use the option @samp{--no-exact-compare-strings} or
+@samp{--extended-pascal}, they ignore differences of trailing
+blanks, so, e.g., @samp{'foo'} and @samp{'foo   '} are considered
+equal. The corresponding functions (@samp{EQ}, @dots{}) always do
+exact comparisons.
+
+@c ----------------------------------------------------------------------------
+
+@node Typed Constants
+@section Typed Constants
+
+GNU Pascal supports Borland Pascal's ``typed constants'' but also
+Extended Pascal's initialized variables:
+
+@smallexample
+var
+  x: Integer value 7;
+@end smallexample
+
+or
+
+@smallexample
+var
+  x: Integer = 7;
+@end smallexample
+
+When a typed constant is misused as an initialized variable, a
+warning is given unless you specify @samp{--borland-pascal}.
+
+When you want a local variable to preserve its value, define it as
+@samp{static} instead of using a typed constant. Typed constants
+also become static automatically for Borland Pascal compatibility,
+but it's better not to rely on this ``feature'' in new programs.
+Initialized variables do not become static automatically.
+
+@smallexample
+program StaticDemo;
+
+procedure Foo;
+@{ x keeps its value between two calls to this procedure @}
+var
+  x: Integer = 0; attribute (static);
+begin
+  WriteLn (x);
+  Inc (x)
+end;
+
+begin
+  Foo;
+  Foo;
+  Foo;
+end.
+@end smallexample
+
+For records and arrays, GPC supports both BP style and Extended
+Pascal style initializers. When you initialize a record, you may
+omit the field names. When you initialize an array, you may provide
+indices with a @code{:}. However, this additional information is
+ignored completely, so perhaps it's best for the moment to only
+provide the values @dots{}
+
+@smallexample
+program BPInitVarDemo;
+const
+  A: Integer = 7;
+  B: array [1 .. 3] of Char = ('F', 'o', 'o');
+  C: array [1 .. 3] of Char = 'Bar';
+  Foo: record
+    x, y: Integer;
+  end = (x: 3; y: 4);
+begin
+end.
+@end smallexample
+
+@c ----------------------------------------------------------------------------
+
+@node Bit; Byte and Memory Manipulation
+@section Bit, Byte and Memory Manipulation
+
+The bitwise operators @samp{shl}, @samp{shr}, @samp{and}, @samp{or},
+@samp{xor} and @samp{not} work in GNU Pascal like in Borland Pascal.
+As an extension, you can use them as procedures, for example
+
+@smallexample
+program AndProcedureDemo;
+var x: Integer;
+begin
+  and (x, $0000ffff);
+end.
+@end smallexample
+
+as an alternative to
+
+@smallexample
+program AndOperatorDemo;
+var x: Integer;
+begin
+  x := x and $0000ffff;
+end.
+@end smallexample
+
+GPC accepts the BP style notation @samp{$abcd} for hexadecimal
+numbers, but you also can use Extended Pascal notation:
+
+@smallexample
+program EPBaseDemo;
+const
+  Binary =  2#11111111;
+  Octal  =  8#177;
+  Hex    = 16#ff;
+begin
+end.
+@end smallexample
+
+and so on up to a basis of 36. Of course, you can mix the notations
+as you like, e.g.:
+
+@smallexample
+program BPEPBaseDemo;
+begin
+  WriteLn ($cafe = 2#1100101011111110)
+end.
+@end smallexample
+
+@samp{Inc} and @samp{Dec} are implemented like in Borland Pascal.
+@samp{Pred} and @samp{Succ} are generalized according to Extended
+Pascal and can have a second (optional) parameter:
+
+@smallexample
+procedure SuccDemo;
+var a: Integer = 42;
+begin
+  a := Succ (a, 5);
+  WriteLn (a) @{ 47 @}
+end.
+@end smallexample
+
+BP style @samp{absolute} variables work in the context of
+overloading other variables as well as in the context of specifying
+an absolute address, but the latter is highly unportable and not
+very useful even in Dos protected mode.
+
+@smallexample
+program BPAbsoluteDemo;
+
+type
+  TString = String (80);
+  TTypeChoice = (t_Integer, t_Char, t_String);
+
+@{ @@@@ WARNING: BAD STYLE! @}
+procedure ReadVar (var x: Void; TypeChoice: TTypeChoice);
+var
+  xInt: Integer absolute x;
+  xChar: Char absolute x;
+  xStr: TString absolute x;
+begin
+  case TypeChoice of
+    t_Integer: ReadLn (xInt);
+    t_Char   : ReadLn (xChar);
+    t_String : ReadLn (xStr);
+  end
+end;
+
+var
+  i: Integer;
+  c: Char;
+  s: TString;
+
+begin
+  ReadVar (i, t_Integer);
+  ReadVar (c, t_Char);
+  ReadVar (s, t_String);
+  WriteLn (i, ' ', c, ' ', s)
+end.
+@end smallexample
+
+GNU Pascal knows Borland Pascal's procedures @code{FillChar} and
+@code{Move}. However, their use can be dangerous because it often
+makes implicit unportable assumptions about type sizes, endianness,
+internal structures or similar things. Therefore, avoid them
+whenever possible. E.g., if you want to clear an array of strings,
+don't @samp{FillChar} the whole array with zeros (this would
+overwrite the Schema discriminants, see @ref{Strings}), but rather
+use a @samp{for} loop to assign the empty string to each string. In
+fact, this is also more efficient than @samp{FillChar}, since it
+only has to set the length field of each string to zero.
+
+@c ----------------------------------------------------------------------------
+
+@node User-defined Operators in GPC
+@section User-defined Operators in GPC
+
+GNU Pascal allows the user to define operators according to the
+Pascal-SC syntax:
+
+@smallexample
+program PXSCOperatorDemo;
+
+type
+  Point = record
+    x, y: Real;
+  end;
+
+operator + (a, b: Point) c: Point;
+begin
+  c.x := a.x + b.x;
+  c.y := a.y + b.y;
+end;
+
+var
+  a, b, c: Point = (42, 0.5);
+
+begin
+  c := a + b
+end.
+@end smallexample
+
+The Pascal-SC operators @samp{+>}, @samp{+<}, etc.@: for exact
+numerical calculations are not implemented, but you can define them.
+
+@c ----------------------------------------------------------------------------
+
+@node Data Types in BP and GPC
+@section Data Types in BP and GPC
+
+@itemize @bullet
+@item
+Integer types have different sizes in Borland and GNU Pascal:
+
+@c @group
+@multitable {xxxxxxxxxxxxxxxxx}     {xxxxxxxxxxxxxxxx}      {xxxxxxxxxx}      {xxxxxxx}
+@item     @b{Borland Pascal} @tab @b{GNU Pascal}     @tab @b{Bits} (1) @tab @b{Signed}
+@item     @t{ShortInt}       @tab @t{ByteInt}        @tab @t{ 8}       @tab @t{yes}
+@item     @t{Integer}        @tab @t{ShortInt}       @tab @t{16}       @tab @t{yes}
+@item     @t{LongInt}        @tab @t{Integer}        @tab @t{32}       @tab @t{yes}
+@item     @t{Comp}           @tab @t{LongInt, Comp}  @tab @t{64}       @tab @t{yes}
+@item     @t{Byte}           @tab @t{Byte}           @tab @t{ 8}       @tab @t{no}
+@item     @t{Word}           @tab @t{ShortWord}      @tab @t{16}       @tab @t{no}
+@item        n/a             @tab @t{Word}           @tab @t{32}       @tab @t{no}
+@item        n/a             @tab @t{LongWord}       @tab @t{64}       @tab @t{no}
+@end multitable
+@c @end group
+
+(1) The size of the GNU Pascal types may depend on the platform. The
+sizes above apply to 32 bit platforms, including the IA32.
+
+If you care for types with exactly the same size as in Borland
+Pascal, take a look at the @samp{System} unit and read its comments.
+
+You can get the size of a type with @samp{SizeOf} in bytes (like in
+Borland Pascal) and with @samp{BitSizeOf} in bits, and you can
+declare types with a specific size (given in bits), e.g.:
+
+@smallexample
+program IntegerSizeDemo;
+type
+  MyInt  = Integer attribute (Size = 42);  @{ 42 bits, signed @}
+  MyWord = Word attribute (Size = 2);      @{ 2 bits, unsigned,
+                                              i.e., 0 .. 3 @}
+  MyCard = Cardinal attribute (Size = 2);  @{ the same @}
+
+  HalfInt = Integer attribute (Size = BitSizeOf (Integer) div 2);
+    @{ A signed integer type which is half as big as the normal
+      @samp{Integer} type, regardless of how big @samp{Integer} is
+      on any platform the program is compiled on. @}
+
+begin
+end.
+@end smallexample
+
+@item
+Borland's real (floating point) types are supported except for the
+6-byte software Real type (but the @samp{System} unit provides
+conversion routines for it). GNU Pascals's @samp{Real} type has 8
+bytes on the IA32 and is the same as @samp{Double}. In addition
+there are alternative names for real types:
+
+@c @group
+@multitable {xxxxxxxxxxxxxxxxx}     {xxxxxxxxxxxxxxxxxxxxxxxxxxx}
+@item     @b{Borland Pascal} @tab @b{GNU Pascal}
+@item     @t{Single}         @tab @t{Single, ShortReal}
+@item     @t{Real}           @tab    n/a (1)
+@item     @t{Double}         @tab @t{Double, Real}
+@item     @t{Extended}       @tab @t{Extended, LongReal}
+@item     @t{Comp}           @tab @t{LongInt, Comp} (see above)
+@end multitable
+@c @end group
+
+(1) But see @samp{BPReal}, @samp{RealToBPReal} and
+@samp{BPRealToReal} in GPC's @code{System} unit.
+
+@item
+Complex numbers: According to Extended Pascal, GNU Pascal has
+built-in complex numbers and supports a number of mathematical
+functions on them, e.g. @samp{Abs}, @samp{Sqr}, @samp{SqRt},
+@samp{Exp}, @samp{Ln}, @samp{Sin}, @samp{Cos}, @samp{ArcTan}.
+
+@item
+Record types: GNU Pascal by default aligns 32-bit fields on 4-byte
+addresses because this improves performance. So, e.g., the record
+@smallexample
+type
+  MyRec = record
+    f, o, oo: Boolean;
+    Bar: Integer
+  end;
+@end smallexample
+has 8 bytes, not 7. Use the @code{--pack-struct} option or declare
+the record as @samp{packed} to force GPC to pack it to 7 bytes.
+However, note that this produces somewhat less efficient code on the
+IA32 and far less efficient code on certain other processors.
+Packing records and arrays is mostly useful only when using large
+structures where memory usage is a real concern, or when reading or
+writing them from/to binary files where the exact layout matters.
+
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node BP Procedural Types
+@section BP Procedural Types
+
+In addition to BP's procedural types, GNU Pascal has pointers to
+procedures:
+
+@smallexample
+type
+  FuncPtr = ^function (Real): Real;
+@end smallexample
+
+The differences between procedure pointers and procedural types are
+only syntactical:
+
+@itemize @bullet
+@item
+In the first case, one can pass/assign a procedure/function with
+@samp{@@myproc}, in the latter case just with @samp{myproc} (which
+can lead to confusion in the case of functions -- though GPC should
+always recognize the situation and not try to call the function).
+
+@item
+In the first case, one can call the routine via @samp{myprocptr^},
+in the latter case just with @samp{myprocvar}.
+
+@item
+To retrieve the address of a procedure stored in a variable, one can
+use @samp{myprocptr} in the first case and @samp{@@myprocvar} in the
+latter.
+
+@item
+If, for some reason, one needs the address of the variable itself,
+in the first case, that's obtained with @samp{@@myprocptr}, in the
+second case with
+@samp{@@@@myprocvar}! @c That's no "FIXME", but the Texinfo quoting of `@@'. :-)
+
+@item
+Bottom line: BP style procedural types are simpler to use in normal
+cases, but somewhat strange in the last example.
+@end itemize
+
+One can use both kinds in the same program, of course, though it is
+recommended to stick to one kind throughout to avoid maximum
+confusion.
+
+GNU Pascal also supports Standard Pascal's procedural parameters
+(@pxref{Special Parameters}).
+
+Furthermore, GNU Pascal allows you to call even local procedures
+through procedural pointers, variables or parameters without
+reverting to any dirty tricks such as assembler (which is necessary
+in BP).
+
+The differences between the various kinds of procedural types,
+pointers and parameters are demonstrated in the demo program
+@file{procvardemo.pas}. An example for calling local routines
+through procedural parameters can be found in the demo program
+@file{iteratordemo.pas}.
+
+@c ----------------------------------------------------------------------------
+
+@node Files
+@section Files
+
+@itemize @bullet
+@item
+GPC supports files like in Borland Pascal, including untyped files,
+@samp{BlockRead}, @samp{BlockWrite} and @samp{Assign}. Instead of
+@samp{Assign}, you can also use the @samp{Bind} mechanism of
+Extended Pascal.
+
+Besides the routines supproted by BP, there are many more routines
+available that deal with files, file names and similar things in a
+portable way. In contrast to Borland Pascal, you don't have to use
+any platform-specific units to do these kinds of things, though
+portable emulations of those units (e.g., of the @samp{Dos} and
+@samp{WinDos} units) are also available for compatibility.
+
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node Built-in Constants
+@section Built-in Constants
+
+@itemize @bullet
+@item
+The @samp{MaxInt}, @samp{MaxLongInt}, @samp{Pi} constants are
+supported like in BP.
+
+@item
+Other built-in constants: GNU Pascal has @samp{MaxChar},
+@samp{MaxReal}, @samp{MinReal}, @samp{EpsReal} and a number of other
+useful constants.
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node Built-in Operators in BP and GPC
+@section Built-in Operators in BP and GPC
+
+Besides the operators found in Borland Pascal, GNU Pascal supports
+the following operators:
+
+@itemize @bullet
+@item
+Exponentiation: According to Extended Pascal, GNU Pascal supports
+the exponentiation operators @code{pow} and @code{**} which do not
+exist in Borland Pascal. You can use @code{x pow y} for integer and
+@code{x ** y} for real or complex exponents. The basis may be
+integer, real or complex in both cases.
+
+@item
+GNU Pascal has a symmetric set difference operator
+@code{set1 >< set2}. For more about this, see @ref{Set Operations}.
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node Built-in Procedures and Functions
+@section Built-in Procedures and Functions
+
+@itemize @bullet
+@item
+@samp{GetMem} and @samp{FreeMem} are supported like in BP.
+
+The second parameter to @samp{FreeMem} is ignored by GNU Pascal and
+may be omitted. Memory blocks are always freed with the same size
+they were allocated with.
+
+Remark: Extended Pascal Schema types provide a cleaner approach to
+most of the applications of @samp{GetMem} and @samp{FreeMem}.
+
+@item
+@samp{Min} and @samp{Max}: GNU Pascal has built-in @samp{Min} and
+@samp{Max} functions (two arguments) which work for all ordinal
+types (@samp{Integer}, @samp{Char}, @dots{}) plus @samp{Real}.
+
+@item
+@samp{UpCase}, @samp{High}, @samp{Low} and similar functions are
+built-in. In contrast to Borland Pascal, GNU Pascal's @samp{UpCase}
+function is aware of non-ASCII characters of certain languages
+(e.g., accented letters and ``umlauts''), but for compatibility this
+feature is disables in @samp{--borland-pascal} mode. There is also a
+@samp{LoCase} function.
+
+@item
+@samp{Lo}, @samp{Hi}, @samp{Swap} functions: not built-in, but
+available in the @samp{System} unit.
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node Special Parameters
+@section Special Parameters
+
+@itemize @bullet
+
+@item
+Untyped reference parameters can be denoted by
+
+@smallexample
+procedure Foo (var x);
+@end smallexample
+
+@noindent like in Borland Pascal. In GNU Pascal, you can also use
+
+@smallexample
+procedure Foo (var x: Void);
+@end smallexample
+
+@item
+GNU Pascal defines @dfn{ellipsis} parameters for variable argument
+lists:
+
+@smallexample
+procedure Foo (a: Integer; @dots{});
+@end smallexample
+
+@noindent However, GPC does not (yet) provide a portable mechanism
+to access the additional arguments.
+
+@item
+Structured function result types: According to Extended Pascal, GNU
+Pascal allows functions to return records and arrays.
+
+@item
+BP style @dfn{open array parameters}
+@smallexample
+procedure Foo (a: array of Integer);
+@end smallexample
+are implemented. However, Standard Pascal
+@samp{conformant array parameters} are usually a cleaner mechanism
+to pass arrays of variable size.
+
+@item
+Besides BP compatible procedural types and procedure pointers
+(@pxref{BP Procedural Types}), GNU Pascal supports Standard Pascal's
+procedural parameters:
+
+@smallexample
+procedure DrawGraph (function f (x: Real): Real);
+@end smallexample
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node Miscellaneous
+@section Miscellaneous
+
+@itemize @bullet
+@item
+Headlines: According to Extended Pascal, a program headline must
+contain the program's parameters:
+
+@smallexample
+program Foo (Input, Output);
+begin
+end.
+@end smallexample
+
+In GNU Pascal, headline parameters are optional. If the headline is
+omitted entirely, a warning is given unless you have specified
+@samp{--borland-pascal} in the command line.
+
+@item
+@samp{case} statements: In a @samp{case} statement, GNU Pascal
+allows @code{otherwise} (according to Extended Pascal) as an
+alternative to @code{else}:
+
+@smallexample
+program CaseOtherwiseDemo;
+var x: Integer;
+begin
+  ReadLn (x);
+  case x of
+    1: WriteLn ('one');
+    2: WriteLn ('two');
+    otherwise
+       WriteLn ('many')
+  end
+end.
+@end smallexample
+
+Note: In the absence of a @samp{case} or @samp{otherwise} branch,
+missing cases labels cause an error in Extended Pascal (which goes
+unnoticed in Borland Pascal). GPC does not give this error, but a
+warning if the @samp{-Wswitch} option is given, however only for
+enumeration types.
+
+@item
+Character constants: BP compatible character constants like
+@samp{^M} as well as @samp{#13} are implemented into GNU Pascal.
+
+@item
+Sets: GNU Pascal has a @code{Card} function for sets which counts
+their elements. Unlike Borland Pascal, GNU Pascal does not limit
+sets to the range 0 .. 255.
+
+@item
+Inline: GNU Pascal allows ``inline'' Pascal procedures and
+functions, while Borland Pascal only allows machine code to be
+inlined:
+
+Borland Pascal:
+
+@smallexample
+function Max (x, y: Integer): Integer;
+  inline ($58 / $59 / $3b / $c1 / $7f / $01 / $91);
+@end smallexample
+
+GNU Pascal:
+
+@smallexample
+program InlineDemo;
+
+function Max (x, y: Integer): Integer; attribute (inline);
+begin
+  if x > y then
+    Max := x
+  else
+    Max := y
+end;
+
+begin
+  WriteLn (Max (42, 17), ' ', Max (-4, -2))
+end.
+@end smallexample
+
+(Actually, a more general @samp{Max} function is already built in.)
+
+This feature is not so important as it might seem because in
+optimization level 3 or higher (@pxref{GPC Options}), GNU Pascal
+automatically inlines short procedures and functions.
+@end itemize
+
+@c ----------------------------------------------------------------------------
+
+@node BP and Extended Pascal
+@section BP and Extended Pascal
+
+@c Some of this section was copied from the Extended Pascal FAQ
+@c (written by Berend de Boer), modified by Frank Heckenbach.
+
+Pascal is a well-known programming language and hardly needs to be
+described here. Note, however, that there is a large difference
+between the language used by the BP compiler and the Pascal
+Standards.
+
+Extended Pascal is a standardized language based on the original
+Standard Pascal, but with significant extensions. Unfortunately,
+Borland Pascal does not conform to any of the Pascal standards.
+Writing a program that both complies to Extended Pascal (or even
+Standard Pascal) and compiles with BP is almost impossible for any
+non-trivial task.
+
+On the other hand, BP has some nice features that make it very
+powerful in the environments in which it runs. However, some of
+those features are of little use on non-Dos systems and would not be
+good candidates for standardization.
+
+There are also several BP features which are semantically similar to
+features in Standard Pascal or Extended Pascal, but syntactically
+different.
+
+Therefore, in order to be useful to users coming from either side,
+GPC supports both the standards and the BP dialect as good as
+possible. By default, GPC allows features from any dialect it knows.
+By giving a dialect option such as @samp{--borland-pascal} or
+@samp{--extended-pascal}, you can tell GPC to disable the features
+not found in that dialect, and to adjust its warning behaviour to
+the dialect.
+
+The different sets of reserved words are a little problem, but GPC
+solves it by making the words in question only
+``conditionally reserved'' which works transparently without
+problems in most cases. Still, giving a dialect option will disable
+all keywords not part of this dialect.
+
+Apart from this, there are surprisingly few real conflicts between
+the dialects. Therefore, you can usually compile your BP code
+without the @samp{--borland-pascal} option and make use of all of
+GPC's features. You might be surprised, though, when GPC accepts
+things you didn't know were allowed. :@minus{})
+
+Finally, if you want to make use of some of GPC's extensions
+(compared to BP) and still keep the code compileable with BP without
+using @samp{ifdef}s all over the place, we suggest you look at the
+unit @samp{gpc-bp.pas}, shipped with GPC, which contains BP versions
+of some of GPC's features. Please read the comments at the beginning
+of the unit to find out more about it.
+
+@c ----------------------------------------------------------------------------
+
+@node Portability hints
+@section Portability hints
+
+GPC offers you the possibility to make your code fully portable to
+each of the many platforms supported by GPC. It would be a pity not
+to make use of this.
+
+This section lists some known pitfalls that often hinder otherwise
+well-written programs to take full advantage of GPC. If you have
+never used any compiler but Borland Pascal and similar compilers,
+some of the advices might look strange to you. But this is just the
+same level of strangeness that your old programs will have for you
+once you have understood the principles of cross-platform
+portability. Remember that many tricks you have always been applying
+almost automatically in Borland Pascal were necessary to overcome
+certain limitations of the Dos platform and to compensate for the
+compiler's missing optimization. Programming with an optimizing
+compiler like GPC for platforms without a 64 kB limit is a
+completely new experience -- and perhaps it is among the reasons why
+you are now working with GPC in the first place?
+
+@subheading Portability -- why?
+
+@emph{Okay -- but why should I bother and make my program portable?
+I know that all who want to use my program are running WXYZ-OS
+anyway.}
+
+Yes, but that's the result of a self-fulfilling prophecy. It depends
+on @strong{you} whether it will always remain like this or not.
+Consider a program ABC written for a single platform, WXYZ-OS.
+Naturally, only WXYZ-OS-users get interested in ABC. The author gets
+feedback only from WXYZ-OS users and does not see any reason to make
+the program cross-platform. Then people realize that if they want to
+run ABC they must move to WXYZ-OS. The author concludes that people
+only want WXYZ-OS programs, and so on.
+
+To break out, just create a portable version of your program
+@strong{now}. Then all OSes have equal chances to show their
+abilities when running your program, and your customers can choose
+their OS. Then, maybe, they decide to use your program just for the
+reason that they can be sure that it will run on all present and
+future platforms and not only on a specific one -- who knows?
+
+@emph{My program is a tool specifically designed to make the best of
+the STUV feature of WXYZ-OS. There is no point in making it
+portable.}
+
+How much do you know about non-WXYZ-OSes? Just ask an expert how the
+STUV feature is named elsewhere. Be sure, if it is of value, it
+exists almost everywhere.
+
+@subheading Low-level features
+
+@emph{I am using a lot of low-level stuff in my programs, so they
+cannot be portable.}
+
+You do not use those low-level routines directly in your high-level
+routines, do you? There should always be a layer ``in-between'' that
+encapsulates the low-level routines and present an API to your
+program that exactly reflects the needs of your application.  This
+``API in between'' is the point where you can exchange the low-level
+routines by portable calls to GPC's Run Time System.
+
+If you do not have such a layer in-between, then the API of the
+low-level routines you call are your first approximation for such a
+layer.  If you have ever thought ``it would be great if that API
+function had that additional parameter'', then your own extended
+version of that API function that @strong{has} that parameter can
+become part of your ``API in between''.  But then don't stop here:
+Certainly the API of the OS is @strong{not} ideal for your program's
+needs. Just create more routines that encapsulate all OS-specific
+stuff @dots{}
+
+When the low-level stuff in question consists of interrupts,
+assembler and similar things, then the first thing you need is a
+portable replacement of the functionality. Fortunately, GPC covers
+many things already in Pascal that require assembler in Borland
+Pascal:
+
+@itemize @bullet
+@item
+GPC's units and libraries come with source. You do not need to learn
+assembler and to write a complete replacement for the CRT unit if
+you only want to adapt some tiny detail in the behavior of CRT to
+your personal needs.
+
+@item
+GPC's Run Time System is fairly complete. For example, to extract
+the assigned name of a @samp{File} variable, you do not need to mess
+around with the internal representation of those variables, but you
+can type @samp{uses GPC} and then use the @samp{FileName} function.
+In the same unit, you will find a @samp{FileExists} function and
+much more.
+
+@item
+Manually ``constructing'' an object is covered by the @samp{SetType}
+procedure in GPC. This is where Turbo Vision uses assembler to load
+an object from a stream.
+
+@item
+Calling local procedures and functions via pointers simply works in
+GPC. This is another place where, for instance, Turbo Vision's
+@samp{ForEach} method uses assembler, while GPC lets you do the same
+thing in Pascal.
+
+@item
+Interfacing with the OS can be done through library calls. GPC's
+built-in functions and the GPC unit offer a rather complete set of
+routines. And again: You have the source of all this.
+
+@item
+Using @samp{FillChar} and @samp{Move} does not necessarily speed up
+your programs. Using them to circumvent restrictions of the language
+(e.g.@: for direct assignments between variables of object or file
+type) is asking for trouble. @samp{FillChar} was created in UCSD
+Pascal to set consecutive chars in a string to the same value, and
+@samp{Move} was created to move the chars within the same string.
+Better do not use them for other purposes.
+
+@end itemize

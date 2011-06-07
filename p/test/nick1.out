@@ -1,0 +1,9 @@
+Load nick1m1
+nick1m2 sset str_arg:0123456.
+nick1m2 sset my_str_var:0123456.
+1. my_main another_str:7654321.
+2. my_main another_str:0123456.
+nick1m2 sset int_arg:19.
+nick1m2 sset my_int_var:19.
+1. my_main another_int:361.
+2. my_main another_int:19.

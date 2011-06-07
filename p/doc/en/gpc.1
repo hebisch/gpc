@@ -1,0 +1,134 @@
+.\" Copyright (c) 1997-2006 Free Software Foundation         -*-Text-*-
+.\" See section COPYING for conditions for redistribution
+.\"
+.\" Set up \*(lq, \*(rq if -man hasn't already set it up.
+.if @@\*(lq@ \{\
+.	ds lq "
+.	if t .ds lq ``
+.	if !@@\(lq@ .ds lq "\(lq
+.\}
+.if @@\*(rq@ \{\
+.	ds rq "
+.	if t .ds rq ''
+.	if !@@\(rq@ .ds rq "\(rq
+.\}
+.de Id
+.ds Rv \\$3
+.ds Dt \\$4
+..
+.de Sp
+.if n .sp
+.if t .sp 0.4
+..
+.TH GPC 1 "\*(Dt" "GNU Tools" "GNU Tools"
+.SH NAME
+gpc \- GNU project Pascal Compiler
+.SH SYNOPSIS
+.RB "" gpc " [ "\c
+.IR option\c
+.RB " | "
+.IR filename\c
+.RB " ].\|.\|.
+.SH DESCRIPTION
+This man page does not contain much information about GNU Pascal
+because the unstructured man page format is not well suited for
+documenting a large program such a GNU Pascal. You can find the
+relevant information in the GNU Pascal Manual which is avilable in
+Texinfo format and formats produced from it, such as HTML, Info and
+DVI. To view the Info documentation, please run `\|\c
+.B info -f gpc\c
+\&\|' or open the info file `\|\c
+.B gpc.info\c
+\&\|' in your favourite info reader.
+.PP
+Up to date versions of the manual in various formats as well as the compiler
+itself can always be found on the WWW at
+.B http://www.gnu-pascal.de\c
+\&.
+.SH FILES
+file.pas		Pascal source file
+.br
+file.p		Pascal source file
+.br
+file.pp		Pascal source file
+.br
+file.dpr		Pascal source file
+.br
+file.c		C source file
+.br
+file.s		assembly language file
+.br
+file.o		object file
+.br
+file.gpi		GNU Pascal Interface File
+.br
+a.out		linked executable (by default)
+.br
+\fILIBDIR\fR/gpcpp	preprocessor
+.br
+\fILIBDIR\fR/gpc1	compiler proper
+.br
+\fILIBDIR\fR/collect2	linker front end needed on some machines
+.br
+\fILIBDIR\fR/libgcc.a	GCC subroutine library
+.br
+\fILIBDIR\fR/libgpc.a	GPC runtime library
+.sp
+.I LIBDIR
+is usually
+.B /usr/local/lib/\c
+.IR machine / version .
+.SH "SEE ALSO"
+gcc(1), cpp(1), as(1), ld(1), gdb(1), adb(1), dbx(1), sdb(1).
+.br
+.RB "`\|" gpc "\|', `\|" gcc "\|', `\|" cpp "\|',
+.RB "`\|" as "\|', `\|" ld "\|',
+and
+.RB "`\|" gdb "\|'
+entries in
+.B info\c
+\&.
+.br
+.I
+The GNU Pascal Manual\c
+, Jan-Jaap van der Heijden, Peter Gerwinski, Frank Heckenbach & others;
+.I
+Using and Porting GNU CC\c
+, Richard M. Stallman;
+.I
+The C Preprocessor\c
+, Richard M. Stallman;
+.I
+Debugging with GDB: the GNU Source-Level Debugger\c
+, Richard M. Stallman and Roland H. Pesch;
+.I
+Using as: the GNU Assembler\c
+, Dean Elsner, Jay Fenlason & friends;
+.I
+gld: the GNU linker\c
+, Steve Chamberlain and Roland Pesch.
+
+.SH BUGS
+For instructions on how to report bugs, see the GNU Pascal manual.
+
+.SH COPYING
+
+Copyright (c) 1997-2006 Free Software Foundation, Inc.
+.PP
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+.PP
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+.PP
+Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be included in
+translations approved by the Free Software Foundation instead of in
+the original English.
+
+.SH AUTHORS
+See the GNU Pascal Manual for the contributors to GNU Pascal.

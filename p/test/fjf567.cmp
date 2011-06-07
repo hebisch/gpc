@@ -1,0 +1,10 @@
+#!/bin/sh
+rm -f "$A_OUT"
+# @@ Kludge (not worth fixing it since it will change with the integrated preprocessor anyway)
+if echo "$1" | sed -e 's/[Gg][Pp][Cc]//g;s/[Dd][Jj][Gg][Pp][Pp]//g' | grep -i gp > /dev/null; then
+  echo "SKIPPED: This test is not supported using GP."
+elif $1 $2 && [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

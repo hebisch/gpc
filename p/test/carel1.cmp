@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Don't compile the `Files' unit from the RTS (which test_run puts
+# in the unit-path), but the one from the test directory (which is
+# the directory where the main source file is).
+$1 $2 --no-unit-path --unit-path="`dirname "$2"`"
+
+if [ -r "$A_OUT" ] ; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

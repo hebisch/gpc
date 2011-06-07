@@ -1,0 +1,28 @@
+#!/bin/sh
+
+check_crt()
+{
+cat << EOF > dummy.c
+$1
+int main()
+{
+  return 0;
+}
+EOF
+gcc dummy.c "$2" > /dev/null 2>&1
+}
+
+if check_crt '#include <ncurses.h>' -lncurses ||
+   check_crt '#include <curses.h>'  -lpdcurses ||
+   check_crt '#include <xcurses.h>' -lXCurses; then
+  rm -f "$A_OUT" dummy.c
+  $1 $2
+  if [ -r "$A_OUT" ] ; then
+    ./"$A_OUT"
+  else
+    echo "failed"
+  fi
+else
+  rm -f dummy.c
+  echo "SKIPPED: no curses library found"
+fi

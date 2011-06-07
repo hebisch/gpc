@@ -1,0 +1,46 @@
+# Language-dependent texts for the GPC homepage
+
+# Structure of the web pages. Each line must contain the following fields:
+# HTML file name
+# HTML input file name or `@' and manual node name
+# Short title
+# Full title
+structure=\
+'index     index.html.in      Home       GNU Pascal
+about      @Highlights        About      About GNU Pascal
+news       @News              News       New features of GNU Pascal
+faq        @FAQ               FAQ        Frequently Asked Questions
+install    @Installation      Install    How to install GNU Pascal
+libraries  @Libraries         Libraries  Libraries you can use with GPC
+support    @Support           Support    How to get support for GNU Pascal
+team       @Acknowledgments   Team       The GNU Pascal development team
+gnu        @GNU               GNU        The GNU project
+todo       @To\ Do            To\ Do     Things still to do for GNU Pascal
+resources  @Resources         Resources  Other resources for use with GPC.'
+
+charset='iso-8859-1'
+
+manualref='This page is a direct extract from the GPC Manual.
+If you want to browse the manual, you can start at the
+<a href="index.html#Top">top of the manual</a> or at the
+<a href="@REF@">counterpart of this page within the manual</a>.'
+
+returntomainpage='Return to top page'
+
+todownloadarea='Downloads'
+mailinglistarchives='Mailing list archives'
+
+disclaimer='
+<table align=right><tr><td>
+<a href="http://www.anybrowser.org/campaign/"><img src="../images/dsh_anybrowser.png" border="no" alt="Best Viewed With Any Browser" width=88 height=31></a><br>&nbsp;<br>
+<a href="http://validator.w3.org"><img src="../images/vh40.png" border="no" alt="Valid HTML 4.0" width=88 height=31></a>
+</td></tr></table>
+<p><small>Copyright &copy; 1996-2006 GNU Pascal development team</small></p>
+<p><small>Verbatim copying and distribution is permitted in any medium,
+provided that this notice and the disclaimer below are
+preserved.</small></p>
+<p><small>This information is provided in the hope that it will be useful,
+but without any warranty. We disclaim any liability for the accuracy
+of this information.</small></p>
+<p><small>We are not responsible for the contents of web pages referenced
+by this site.</small></p>'

@@ -1,0 +1,8 @@
+#!/bin/sh
+rm -f "$A_OUT"
+b="`echo "$2" | sed -e 's/[Bb][Oo]4-19.[Pp][Aa][Ss]$//'`" &&
+$PC_WITHOUT_GP --no-automake -o bo4_19b.o -c --interface-only "$b"bo4_19b.pas &&
+$PC_WITHOUT_GP --no-automake -o bo4_19a.o -c "$b"bo4_19a.pas &&
+$PC_WITHOUT_GP --no-automake -o bo4_19b.o -c --implementation-only "$b"bo4_19b.pas &&
+$PC_WITHOUT_GP --no-automake -o "$A_OUT" "$2" bo4_19a.o bo4_19b.o &&
+./"$A_OUT" || echo "failed"

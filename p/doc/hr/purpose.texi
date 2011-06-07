@@ -1,0 +1,52 @@
+@c Copyright (C) 1996-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi
+@c This file is part of the GPC Manual.
+@c
+@c Authors: Jukka Virtanen <jvt@hut.fi>
+@c          J.J. van den Heiden <j.j.vanderheiden@student.utwente.nl>
+@c          Peter Gerwinski <peter@gerwinski.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+Svrha GNU Pascal projekta je da proizvede jedan Pascal prevodilac
+(zvan GNU Pascal ili GPC) koji
+
+@itemize @bullet
+@item kombinira jasnoæu Pascala s moænim alatima pogodnim za programiranje
+iz realnog ¾ivota,
+
+@item podr¾ava jednako Pascal standard i Extended Pascal standard standard
+kao definiran od ISO, ANSI i IEEE (ISO 7185:1990, ISO/IEC 10206:1991,
+ANSI/IEEE 770X3.160-1989),
+
+@item podr¾ava druge Pascal standarde (UCSD Pascal, Borland Pascal,
+dijelove Borland Delphija i Pascal-SC) toliko dok to slu¾i jasnoæi i
+korisnosti,
+
+@item mo¾e biti distribuiran pod GNU licencnim uvjetima, i
+
+@item mo¾e generirati kod i izvr¹avati se na svakom raèunalu za koje
+GNU C prevodilac mo¾e generirati kod i vrtiti se na njemu.
+@end itemize
+
+Pascal je originalno dizajniran za uèenje. GNU Pascal donosi pogodan
+naèin da se prijeðe na izazovne programerske zadatke bez uèenja
+potpuno novog jezika.
+
+Trenutno izdanje implementira Standard Pascal (ISO 7185, razine 0 i 1),
+veæinu Extended Pascala (ISO 10206, te¾eæi potpunom ispunjavanju
+standarda), visoko je kompatibilan sa Borland Pascalom (verzija 7.0),
+te ima neka pogodnosti za kompatibilnost sa drugim prevodiocima
+(kao ¹to je VAX Pascal, Sun Pascal, Mac Pascal, Borland Delphi i Pascal-SC).
+
+Trenutno izdanje takoðer pru¾a mnogo korisnih GNU ekstenzija koje se
+ne nalaze u ostalim Pascal prevodiocima, npr. da se olak¹a povezivanje
+sa suèeljima u C i drugim jezicima na prenosiv naèin, zatim da se radi
+sa datotekama, direktorijima, datumima i jo¹ toga, uglavnom bez
+ovisnosti o operacijskom sustavu u podlozi.
+
+Ukljuèene jedinice pru¾aju podr¹ku za regularne izraze, cjelobrojnu
+aritmetiku, racionalne i realne brojeve neogranièene velièine,
+za internacionalizaciju, za meðuprocesnu komunikaciju, sa tzv.
+message-digest i jo¹ mnoge dodatne znaèajke prevodioca.

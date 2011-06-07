@@ -1,0 +1,614 @@
+/* rts-config.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define if you don't have tm_zone but do have the external array
+   tzname.  */
+#undef HAVE_TZNAME
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define if `sys_siglist' is declared by <signal.h>.  */
+#undef SYS_SIGLIST_DECLARED
+
+/* Define if you can safely include both <sys/time.h> and <time.h>.  */
+#undef TIME_WITH_SYS_TIME
+
+/* Define if struct passwd in <pwd.h> contains a pw_gecos field.  */
+#undef HAVE_PW_GECOS
+
+/* Define if struct passwd in <pwd.h> contains a pw_passwd field.  */
+#undef HAVE_PW_PASSWD
+
+/* Define if struct utsname in <sys/utsname.h> contains a domainname field.  */
+#undef HAVE_DOMAINNAME
+
+/* Define if struct tm in <time.h> contains a tm_isdst field.  */
+#undef HAVE_TM_ISDST
+
+/* Define if struct tm in <time.h> contains a tm_gmtoff field.  */
+#undef HAVE_TM_GMTOFF
+
+/* Define if type ssize_t is declared in <stdlib.h> or <sys/types.h>.  */
+#undef HAVE_SSIZE_T
+
+/* Define if type off_t is declared in <stdlib.h> or <sys/types.h>.  */
+#undef HAVE_OFF_T
+
+/* Define if type off64_t is declared in <stdlib.h> or <sys/types.h>.  */
+#undef HAVE_OFF64_T
+
+/* Define if type __off64_t is declared in <stdlib.h> or <sys/types.h>.  */
+#undef HAVE___OFF64_T
+
+/* Define if type loff_t is declared in <stdlib.h> or <sys/types.h>.  */
+#undef HAVE_LOFF_T
+
+/* Define if type offset_t is declared in <stdlib.h> or <sys/types.h>.  */
+#undef HAVE_OFFSET_T
+
+/* Define if type struct stat64 is declared in <sys/stat.h>.  */
+#undef HAVE_STRUCT_STAT64
+
+/* Define if you have an errno variable.  */
+#undef HAVE_ERRNO
+
+/* Define if you have an environ variable.  */
+#undef HAVE_ENVIRON
+
+/* Define if you have an __environ variable.  */
+#undef HAVE___ENVIRON
+
+/* Define if you have a sys_siglist variable.  */
+#undef HAVE_SYS_SIGLIST
+
+/* Define if you have a _sys_siglist variable.  */
+#undef HAVE__SYS_SIGLIST
+
+/* Define if you have a _sys_nsig variable.  */
+#undef HAVE__SYS_NSIG
+
+/* Define if you have a tzname variable.  */
+#undef HAVE_TZNAME
+
+/* Define if you have a timezone variable.  */
+#undef HAVE_TIMEZONE
+
+/* Define if you have a _timezone variable.  */
+#undef HAVE__TIMEZONE
+
+/* Define if mkdir accepts two arguments.  */
+#undef MKDIR_TWOARG
+
+/* Define if getpgrp takes an argument.  */
+#undef GETPGRP_ARG
+
+/* Define if the errno variable is declared in <errno.h>.  */
+#undef ERRNO_DECLARED
+
+/* Define if the environ variable is declared in <unistd.h>.  */
+#undef ENVIRON_DECLARED
+
+/* Define if the __environ variable is declared in <unistd.h>.  */
+#undef __ENVIRON_DECLARED
+
+/* Define if the _sys_siglist variable is declared in <signal.h> or <unistd.h>.  */
+#undef _SYS_SIGLIST_DECLARED
+
+/* Define if the _sys_nsig variable is declared in <signal.h>.  */
+#undef _SYS_NSIG_DECLARED
+
+/* Define if the tzname variable is declared in <time.h>.  */
+#undef TZNAME_DECLARED
+
+/* Define if the timezone variable is declared in <time.h>.  */
+#undef TIMEZONE_DECLARED
+
+/* Define if the _timezone variable is declared in <time.h>.  */
+#undef _TIMEZONE_DECLARED
+
+/* Define if the sinl function is declared in <math.h>.  */
+#undef SINL_DECLARED
+
+/* Define if the cosl function is declared in <math.h>.  */
+#undef COSL_DECLARED
+
+/* Define if the sqrtl function is declared in <math.h>.  */
+#undef SQRTL_DECLARED
+
+/* Define if the logl function is declared in <math.h>.  */
+#undef LOGL_DECLARED
+
+/* Define if the expl function is declared in <math.h>.  */
+#undef EXPL_DECLARED
+
+/* Define if the powl function is declared in <math.h>.  */
+#undef POWL_DECLARED
+
+/* Define if the asinl function is declared in <math.h>.  */
+#undef ASINL_DECLARED
+
+/* Define if the acosl function is declared in <math.h>.  */
+#undef ACOSL_DECLARED
+
+/* Define if the atanl function is declared in <math.h>.  */
+#undef ATANL_DECLARED
+
+/* Define if the frexpl function is declared in <math.h>.  */
+#undef FREXPL_DECLARED
+
+/* Define if the isinfl function is declared in <math.h>.  */
+#undef ISINFL_DECLARED
+
+/* Define if the isnanl function is declared in <math.h>.  */
+#undef ISNANL_DECLARED
+
+/* Define if the sleep function is declared in <unistd.h>.  */
+#undef SLEEP_DECLARED
+
+/* Define if the llseek function is declared in <unistd.h>.  */
+#undef LLSEEK_DECLARED
+
+/* Define if the usleep function is declared in <unistd.h>.  */
+#undef USLEEP_DECLARED
+
+/* Define if the setenv function is declared in <stdlib.h>.  */
+#undef SETENV_DECLARED
+
+/* Define if the setregid function is declared in <unistd.h>.  */
+#undef SETREGID_DECLARED
+
+/* Define if the setreuid function is declared in <unistd.h>.  */
+#undef SETREUID_DECLARED
+
+/* Define if the unsetenv function is declared in <stdlib.h>.  */
+#undef UNSETENV_DECLARED
+
+/* Define if the fstat64 function is declared in <sys/stat.h>.  */
+#undef FSTAT64_DECLARED
+
+/* Define if the ftruncate64 function is declared in <unistd.h>.  */
+#undef FTRUNCATE64_DECLARED
+
+/* Define if the lseek64 function is declared in <unistd.h>.  */
+#undef LSEEK64_DECLARED
+
+/* Define if the lstat64 function is declared in <sys/stat.h>.  */
+#undef LSTAT64_DECLARED
+
+/* Define if the open64 function is declared in <fcntl.h>.  */
+#undef OPEN64_DECLARED
+
+/* Define if the stat64 function is declared in <sys/stat.h>.  */
+#undef STAT64_DECLARED
+
+/* Define if the strsignal function is declared in <string.h> or <signal.h>.  */
+#undef STRSIGNAL_DECLARED
+
+/* Define if __builtin_return_address supports a non-zero argument.  */
+#undef HAVE_RETURN_ADDRESS_NON_ZERO
+
+/* Define if you have the _sleep function.  */
+#undef HAVE__SLEEP
+
+/* Define if you have the abort function.  */
+#undef HAVE_ABORT
+
+/* Define if you have the acosl function.  */
+#undef HAVE_ACOSL
+
+/* Define if you have the alarm function.  */
+#undef HAVE_ALARM
+
+/* Define if you have the asinl function.  */
+#undef HAVE_ASINL
+
+/* Define if you have the atanl function.  */
+#undef HAVE_ATANL
+
+/* Define if you have the chdir function.  */
+#undef HAVE_CHDIR
+
+/* Define if you have the chmod function.  */
+#undef HAVE_CHMOD
+
+/* Define if you have the chown function.  */
+#undef HAVE_CHOWN
+
+/* Define if you have the cosl function.  */
+#undef HAVE_COSL
+
+/* Define if you have the dup2 function.  */
+#undef HAVE_DUP2
+
+/* Define if you have the endpwent function.  */
+#undef HAVE_ENDPWENT
+
+/* Define if you have the executable_path function.  */
+#undef HAVE_EXECUTABLE_PATH
+
+/* Define if you have the expl function.  */
+#undef HAVE_EXPL
+
+/* Define if you have the fcntl function.  */
+#undef HAVE_FCNTL
+
+/* Define if you have the fnmatch function.  */
+#undef HAVE_FNMATCH
+
+/* Define if you have the frexpl function.  */
+#undef HAVE_FREXPL
+
+/* Define if you have the fstat function.  */
+#undef HAVE_FSTAT
+
+/* Define if you have the fstat64 function.  */
+#undef HAVE_FSTAT64
+
+/* Define if you have the fsync function.  */
+#undef HAVE_FSYNC
+
+/* Define if you have the ftruncate function.  */
+#undef HAVE_FTRUNCATE
+
+/* Define if you have the ftruncate64 function.  */
+#undef HAVE_FTRUNCATE64
+
+/* Define if you have the getcwd function.  */
+#undef HAVE_GETCWD
+
+/* Define if you have the getegid function.  */
+#undef HAVE_GETEGID
+
+/* Define if you have the getenv function.  */
+#undef HAVE_GETENV
+
+/* Define if you have the geteuid function.  */
+#undef HAVE_GETEUID
+
+/* Define if you have the getgid function.  */
+#undef HAVE_GETGID
+
+/* Define if you have the getpgid function.  */
+#undef HAVE_GETPGID
+
+/* Define if you have the getpgrp function.  */
+#undef HAVE_GETPGRP
+
+/* Define if you have the getpid function.  */
+#undef HAVE_GETPID
+
+/* Define if you have the getpwent function.  */
+#undef HAVE_GETPWENT
+
+/* Define if you have the getpwnam function.  */
+#undef HAVE_GETPWNAM
+
+/* Define if you have the getpwuid function.  */
+#undef HAVE_GETPWUID
+
+/* Define if you have the getrusage function.  */
+#undef HAVE_GETRUSAGE
+
+/* Define if you have the gettimeofday function.  */
+#undef HAVE_GETTIMEOFDAY
+
+/* Define if you have the gettmpdir function.  */
+#undef HAVE_GETTMPDIR
+
+/* Define if you have the getuid function.  */
+#undef HAVE_GETUID
+
+/* Define if you have the glob function.  */
+#undef HAVE_GLOB
+
+/* Define if you have the hypot function.  */
+#undef HAVE_HYPOT
+
+/* Define if you have the isatty function.  */
+#undef HAVE_ISATTY
+
+/* Define if you have the isinfl function.  */
+#undef HAVE_ISINFL
+
+/* Define if you have the isnanl function.  */
+#undef HAVE_ISNANL
+
+/* Define if you have the kill function.  */
+#undef HAVE_KILL
+
+/* Define if you have the llseek function.  */
+#undef HAVE_LLSEEK
+
+/* Define if you have the log1p function.  */
+#undef HAVE_LOG1P
+
+/* Define if you have the logl function.  */
+#undef HAVE_LOGL
+
+/* Define if you have the lseek function.  */
+#undef HAVE_LSEEK
+
+/* Define if you have the lseek64 function.  */
+#undef HAVE_LSEEK64
+
+/* Define if you have the lstat function.  */
+#undef HAVE_LSTAT
+
+/* Define if you have the lstat64 function.  */
+#undef HAVE_LSTAT64
+
+/* Define if you have the malloc_init function.  */
+#undef HAVE_MALLOC_INIT
+
+/* Define if you have the mkdir function.  */
+#undef HAVE_MKDIR
+
+/* Define if you have the mmap function.  */
+#undef HAVE_MMAP
+
+/* Define if you have the munmap function.  */
+#undef HAVE_MUNMAP
+
+/* Define if you have the open64 function.  */
+#undef HAVE_OPEN64
+
+/* Define if you have the powl function.  */
+#undef HAVE_POWL
+
+/* Define if you have the putenv function.  */
+#undef HAVE_PUTENV
+
+/* Define if you have the readlink function.  */
+#undef HAVE_READLINK
+
+/* Define if you have the realpath function.  */
+#undef HAVE_REALPATH
+
+/* Define if you have the rename function.  */
+#undef HAVE_RENAME
+
+/* Define if you have the rmdir function.  */
+#undef HAVE_RMDIR
+
+/* Define if you have the select function.  */
+#undef HAVE_SELECT
+
+/* Define if you have the setenv function.  */
+#undef HAVE_SETENV
+
+/* Define if you have the setgid function.  */
+#undef HAVE_SETGID
+
+/* Define if you have the setlocale function.  */
+#undef HAVE_SETLOCALE
+
+/* Define if you have the setpgid function.  */
+#undef HAVE_SETPGID
+
+/* Define if you have the setpwent function.  */
+#undef HAVE_SETPWENT
+
+/* Define if you have the setregid function.  */
+#undef HAVE_SETREGID
+
+/* Define if you have the setreuid function.  */
+#undef HAVE_SETREUID
+
+/* Define if you have the setuid function.  */
+#undef HAVE_SETUID
+
+/* Define if you have the sigaction function.  */
+#undef HAVE_SIGACTION
+
+/* Define if you have the sigblock function.  */
+#undef HAVE_SIGBLOCK
+
+/* Define if you have the siginterrupt function.  */
+#undef HAVE_SIGINTERRUPT
+
+/* Define if you have the signal function.  */
+#undef HAVE_SIGNAL
+
+/* Define if you have the sigprocmask function.  */
+#undef HAVE_SIGPROCMASK
+
+/* Define if you have the sigsetmask function.  */
+#undef HAVE_SIGSETMASK
+
+/* Define if you have the sigvec function.  */
+#undef HAVE_SIGVEC
+
+/* Define if you have the sinl function.  */
+#undef HAVE_SINL
+
+/* Define if you have the sleep function.  */
+#undef HAVE_SLEEP
+
+/* Define if you have the sqrtl function.  */
+#undef HAVE_SQRTL
+
+/* Define if you have the stat function.  */
+#undef HAVE_STAT
+
+/* Define if you have the stat64 function.  */
+#undef HAVE_STAT64
+
+/* Define if you have the statfs function.  */
+#undef HAVE_STATFS
+
+/* Define if you have the statvfs function.  */
+#undef HAVE_STATVFS
+
+/* Define if you have the strerror function.  */
+#undef HAVE_STRERROR
+
+/* Define if you have the strftime function.  */
+#undef HAVE_STRFTIME
+
+/* Define if you have the strsignal function.  */
+#undef HAVE_STRSIGNAL
+
+/* Define if you have the tcgetattr function.  */
+#undef HAVE_TCGETATTR
+
+/* Define if you have the tcgetpgrp function.  */
+#undef HAVE_TCGETPGRP
+
+/* Define if you have the tcsetattr function.  */
+#undef HAVE_TCSETATTR
+
+/* Define if you have the tcsetpgrp function.  */
+#undef HAVE_TCSETPGRP
+
+/* Define if you have the time function.  */
+#undef HAVE_TIME
+
+/* Define if you have the ttyname function.  */
+#undef HAVE_TTYNAME
+
+/* Define if you have the umask function.  */
+#undef HAVE_UMASK
+
+/* Define if you have the uname function.  */
+#undef HAVE_UNAME
+
+/* Define if you have the unlink function.  */
+#undef HAVE_UNLINK
+
+/* Define if you have the unsetenv function.  */
+#undef HAVE_UNSETENV
+
+/* Define if you have the usleep function.  */
+#undef HAVE_USLEEP
+
+/* Define if you have the utime function.  */
+#undef HAVE_UTIME
+
+/* Define if you have the vfork function.  */
+#undef HAVE_VFORK
+
+/* Define if you have the waitpid function.  */
+#undef HAVE_WAITPID
+
+/* Define if you have the <bsd/signal.h> header file.  */
+#undef HAVE_BSD_SIGNAL_H
+
+/* Define if you have the <crt_externs.h> header file.  */
+#undef HAVE_CRT_EXTERNS_H
+
+/* Define if you have the <ctype.h> header file.  */
+#undef HAVE_CTYPE_H
+
+/* Define if you have the <dirent.h> header file.  */
+#undef HAVE_DIRENT_H
+
+/* Define if you have the <errno.h> header file.  */
+#undef HAVE_ERRNO_H
+
+/* Define if you have the <fcntl.h> header file.  */
+#undef HAVE_FCNTL_H
+
+/* Define if you have the <fnmatch.h> header file.  */
+#undef HAVE_FNMATCH_H
+
+/* Define if you have the <glob.h> header file.  */
+#undef HAVE_GLOB_H
+
+/* Define if you have the <limits.h> header file.  */
+#undef HAVE_LIMITS_H
+
+/* Define if you have the <locale.h> header file.  */
+#undef HAVE_LOCALE_H
+
+/* Define if you have the <math.h> header file.  */
+#undef HAVE_MATH_H
+
+/* Define if you have the <ndir.h> header file.  */
+#undef HAVE_NDIR_H
+
+/* Define if you have the <os-hacks.h> header file.  */
+#undef HAVE_OS_HACKS_H
+
+/* Define if you have the <process.h> header file.  */
+#undef HAVE_PROCESS_H
+
+/* Define if you have the <pwd.h> header file.  */
+#undef HAVE_PWD_H
+
+/* Define if you have the <signal.h> header file.  */
+#undef HAVE_SIGNAL_H
+
+/* Define if you have the <stdio.h> header file.  */
+#undef HAVE_STDIO_H
+
+/* Define if you have the <sys/dir.h> header file.  */
+#undef HAVE_SYS_DIR_H
+
+/* Define if you have the <sys/file.h> header file.  */
+#undef HAVE_SYS_FILE_H
+
+/* Define if you have the <sys/mman.h> header file.  */
+#undef HAVE_SYS_MMAN_H
+
+/* Define if you have the <sys/mount.h> header file.  */
+#undef HAVE_SYS_MOUNT_H
+
+/* Define if you have the <sys/ndir.h> header file.  */
+#undef HAVE_SYS_NDIR_H
+
+/* Define if you have the <sys/param.h> header file.  */
+#undef HAVE_SYS_PARAM_H
+
+/* Define if you have the <sys/resource.h> header file.  */
+#undef HAVE_SYS_RESOURCE_H
+
+/* Define if you have the <sys/select.h> header file.  */
+#undef HAVE_SYS_SELECT_H
+
+/* Define if you have the <sys/stat.h> header file.  */
+#undef HAVE_SYS_STAT_H
+
+/* Define if you have the <sys/statvfs.h> header file.  */
+#undef HAVE_SYS_STATVFS_H
+
+/* Define if you have the <sys/time.h> header file.  */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/types.h> header file.  */
+#undef HAVE_SYS_TYPES_H
+
+/* Define if you have the <sys/utime.h> header file.  */
+#undef HAVE_SYS_UTIME_H
+
+/* Define if you have the <sys/utsname.h> header file.  */
+#undef HAVE_SYS_UTSNAME_H
+
+/* Define if you have the <sys/vfs.h> header file.  */
+#undef HAVE_SYS_VFS_H
+
+/* Define if you have the <termio.h> header file.  */
+#undef HAVE_TERMIO_H
+
+/* Define if you have the <termios.h> header file.  */
+#undef HAVE_TERMIOS_H
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Define if you have the <utime.h> header file.  */
+#undef HAVE_UTIME_H
+
+/* Define if you have the iconv library (-liconv).  */
+#undef HAVE_LIBICONV
+
+/* Define if you have the intl library (-lintl).  */
+#undef HAVE_LIBINTL
+
+/* Define if you have the m library (-lm).  */
+#undef HAVE_LIBM
+
+/* Define if you have the os-hacks library (-los-hacks).  */
+#undef HAVE_LIBOS_HACKS

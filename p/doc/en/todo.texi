@@ -1,0 +1,450 @@
+@c Copyright (C) 2002-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Author: Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+@node To Do
+@chapter The GNU Pascal To-Do List.
+
+This is the To-Do list for the GNU Pascal Compiler.
+
+The GNU Pascal development team is constantly working on making GNU
+Pascal more reliable and more comfortable. However, there are some
+known bugs which will take some time to be fixed (any help
+welcome!), and we do not want to hide them from you. You might also
+be interested to know what features are planned to be implemented in
+the future. This list is meant to keep track of the known bugs and
+wanted features of GPC.
+
+If you want to report a new bug or suggest a new feature, the best
+way to do it is in the mailing list. This way, other GPC users can
+provide additional ideas, perhaps work-arounds for bugs, and the GPC
+maintainers can sooner start to think about how to solve the
+problem. The GPC mailing list is @email{gpc@@gnu.de}. To subscribe,
+send the command @samp{subscribe gpc your@@email.address} in the
+body of a mail to @email{majordomo@@gnu.de} (the subject is
+ignored). An archive of the mailing list can be found at
+@uref{http://www.gnu-pascal.de/crystal/gpc/en/}.
+
+The list changes regularly. The present version refers to the
+current GPC snapshot, @value{GPCVersion}.
+
+This list is part of the GNU Pascal Manual, included in GPC
+distributions and snapshots. You can always browse the most current
+version of the list on GPC's WWW page. If you check the To-Do list
+regularly you can decide if and when to try a new snapshort.
+
+@menu
+* Known Bugs::        Known bugs in GPC
+* Planned Features::  Features planned for GPC
+* Fixed Bugs::        Fixed bugs
+@end menu
+
+@node Known Bugs
+@section Known bugs in GPC
+
+In this section, you can find information about GPC bugs that are
+known to the developers.
+
+If you encounter a bug with GPC, please check whether it is one of
+the known bugs. If not, report it to the GNU Pascal mailing list.
+(But always report if you solve the problem! :@minus{})
+
+Solved problems are moved to ``Fixed Bugs'' (@pxref{Fixed Bugs}),
+and implemented features to the ``News'' chapter (@pxref{News}).
+
+A message ID (like @samp{<42@@foo.bar>}) refers to a message in the
+GPC mailing list or a newsgroup where the topic was discussed (often
+a bug report). A note of the form @file{(xy20001231)} refers to an
+internal message of the GPC developers. A file name like
+@file{(foo42.pas)} refers to the according program in the GPC test
+suite included in the GPC source distribution.
+
+@itemize @bullet
+@item @samp{setlimit} is applied when it shouldn't be ((a) variable/constant declarations, (b) @samp{set of ShortCard}) ???
+@item dynamic sets don't work
+@item there are some bugs with mathematical functions; GPC fails, for example, the Paranoia test (@uref{http://www.netlib.org/paranoia/index.html})
+@end itemize
+
+@node Planned Features
+@section Features planned for GPC
+
+In the following sections, you can find informations about features
+which have been suggested and/or discussed for inclusion into GPC,
+usually in the GPC mailing list. The division into the sections and
+the names of the sections may change when this seems useful. The
+entries within each section are in no particular order.
+
+Some of the entries may be a bit difficult to read. Double question
+marks (@samp{??}) within the entries mean that it's not yet clear
+how to do the thing. Triple question marks (@samp{???}) mean that
+it's not clear whether to do it at all. ;@minus{})
+
+@menu
+* Planned - Strings::            String types
+* Planned - OOP::                Object oriented programming extensions
+* Planned - Other types::        Other types
+* Planned - Misc::               Miscellaneous GPC topics
+* Planned - Utilities::          Useful utilities for GPC
+@end menu
+
+@node Planned - Strings
+@subsection Planned features: Strings
+
+@itemize @bullet
+@item const/var @samp{AnyString} parameters and pointers (records internally, cf. gpc.pas) (GetCapacity; only for var parameters)
+@item @samp{SetLength} for non-Pascal string types; use truncate-flag
+@item make work on all string types: string functions from @file{rts/string*.pas}, @samp{Concat}/@samp{+} (Optimize @samp{s := s + ch}) (fh19971105)
+@item option @samp{--arrays-of-char-as-cstrings=@{none,zero-based,all@}} to allow assigning [zero-based] arrays of char to cstring variables (warning otherwise) (cstrini2.pas); make padding of those arrays in initialized variables and in assignments dependent on this switch (fh19970921) (fjf57.pas, ok) and if the length matches exactly, give a warning (fh19971013) (cstrassign.pas); pass those arrays as cstrings in read*, write*, str (P_*STRING; current length=-1 in two places); compile time warning (and treatment as non-zero-based) if it's not clear at compile time if a conformant array or schema is zero-based or not, and an operation depends on this in the zero-based state
+@item Short strings (Length, Capacity) and switches (tc19980326.2,tc19980327); allow @samp{type x=string} (undiscriminated) when switch is set so that strings don't default to length 255 (fh19971113) (cf. fjf97.pas); don't add a #0 terminator when passing as a CString parameter (automatically use String2CString)
+@item automatically convert CStrings to Strings?
+@item general switch @samp{--bp-strings}
+@item ``wide'' characters
+@item open array/string parameters (@samp{$P}, @samp{$V} in BP; undocumented @samp{OpenString} identifier in BP)
+@item variables of type undiscriminated schema/strings -> remove pointers to string constants; functions returning undiscriminated schemata (pg19980813.3)
+@end itemize
+
+@node Planned - OOP
+@subsection Planned features: OOP
+
+@itemize @bullet
+@item Object Oriented Extensions draft, Delphi; @samp{class}; allow classes and object types to inherit from each other; <01BD7A3A.6B187A20.prucha@@helicon.co.at>; @file{obpascal.zip}
+@item error/exception handling (Java, Delphi?) <01BD7A3A.6B187A20.prucha@@helicon.co.at> (tc20000623)
+@item method pointers/procedural variables (@samp{procedure/function of object}) (-> Delphi) ???
+@item destructor: reset VMT link to nil ???
+@item @samp{@var{class} is @var{class}} (implemented in Pascal with @samp{Parent})
+@item BP compatible dynamic method dispatcher ?? ???
+@item @samp{New}: Delphi syntax; Dispose?? (automatically?; set references automatically to nil) (-> FPC)
+@item @samp{--base-class=foo}, @samp{--base-object=bar} ???
+@item properties <01BD7A3A.6B187A20.prucha@@helicon.co.at>, <16131.199805071354@@potter.cc.keele.ac.uk>
+@item VMTs (also for local classes (EP modules???)!) in GPI files, written to assembler file by main program; @samp{--cfiles=foo}: .s file with VMTs for C/assembler??? (also .h???)
+@item method overloading ??? ??
+@item interfaces (cf. OOE, Java); @samp{@var{obj} is @var{interface}} (not so easy?) ???; variables of type pointer to more than one interface [and class] (also possible!); VMT problem with interfaces (my solution??? also with dynamic linking???)
+@item virtual constructors; in interfaces (load)???
+@item VMT: Children: list of pVMT
+@item VMT: object constants, class variables; virtual/static
+@item VMT: ClassID (64/128 bits?) default 0, error when duplicated, warning when 0 and inherited from class with <>0 ?, not allowed for abstract classes!; ClassName (also for abstract classes?); []; ProgrammerID, BaseClassID at beginning of unit (redeclarable?); find class by ClassID/ClassName (implementable in Pascal with @samp{Children}); store in GPI: whether ClassID used, ClassName used, which classes are instantiated ???
+@end itemize
+
+@node Planned - Other types
+@subsection Planned features: Other types
+
+@itemize @bullet
+@item variant records: EP: check that all values of tag-type have exactly one matching variant
+@item automatically detected upper array bounds in structured constants/intialized variables (-> PXSC)
+@item UCSD Pascal's @samp{Integer[n]} ??? BCD?
+@item @samp{SELECTED_REAL_KIND} for real types (cf. Fortran, drf) ?? ???
+@item general subtypes ???
+@item type-cast operators ???
+@item read/write operators ???
+@item read Booleans and enum types from files, write enum types to files ???
+@item sparse sets; sets of arbitrary types ?? ???
+@item initalization and finalization code for arbitrary types (e.g. GMP types)
+@item resize schemata (cf. @samp{SetLength} in Delphi)
+@item @samp{ShortComplex}, @samp{LongComplex} <Pine.GSO.4.44.0207151258290.5058-100000@@bonsai.fernuni-hagen.de>
+@item keep files in FDRList while they live, not only while they're open, so @samp{DoneFDR} can be applied to all of them ???
+@item improve TFDDs
+@item generic types (cf. OOE section C.1) (gentypes.pas) ???
+@end itemize
+
+@node Planned - Misc
+@subsection Planned features: Misc
+
+@itemize @bullet
+@item checking of overflows, variants etc.; check that strings converted to CStrings don't contain #0 characters; initialize strings (length field), pointers, ordinal values and reals(?) with invalid values if checking is on
+@item warn about using uninitialized variables (kevin2.pas), especially for strings, also for @samp{for}-loop counters after the loop (EP 6.8.1)
+@item transpose arrays (Fortran)? <918557$mke$1@@nnrp1.deja.com>
+@item inline functions in GPI files
+@item options to warn about everything that could cause portability problems
+@item libraries (static/shared; DLL) <Pine.HPP.3.96.971110183550.7996B-100000@@tea.geophysik.tu-freiberg.de>
+@item smart linking (split @file{foo.s}, as @file{foo*.s}, ar @file{foo*.o} or split @file{foo.o})
+@item overloading of unary operators (@samp{+}, @samp{-}, @samp{not}) ???
+@item function overloading (in units and static methods?? -- with different parameters, override or overload?); linker name?? (perhaps: first occurrence of a procedure with normal name (=> all non-overloaded procedures get normal names)?); cf. Delphi methods without @samp{override}
+@item @samp{for var: type = foo to bar do} ???
+@item default parameters (cf. OOE section C.4; Delphi 4?) (iniparm[12].pas) <E183vio-000IyH-00@@f12.mail.ru>
+@item variable number of arguments <32F9CFE7.5CB@@lmemw.ericsson.se> ?? ???
+@item multithreading support ?? ???
+@item @samp{--wirth-pascal} :@minus{})
+@item PXSC standard @dots{} (@file{pxsc.zip}, @file{contrib/peter/pxsc}) (??)
+@item Pascal++ standard @dots{} (??) ???
+@item Delphi features: CompToCurrency, CurrencyToComp, Slice, TypeInfo ???, dynamic arrays (tc19991012)
+@item output column numbers in error messages ??
+@item debug info: @samp{with} statements
+@end itemize
+
+@node Planned - Utilities
+@subsection Planned features: Utilities
+
+@itemize @bullet
+@item @samp{gp} make utility to replace automake; @samp{external @var{lib}} like @samp{$L} (-> BP, Delphi) ?? (fh19990325.2)
+@item @samp{pas2texi} <200301290441.FAA30843@@goedel.fjf.gnu.de>
+@item C header to Pascal translator
+@item gdb: Pascal types (sets, files, subranges, schemata, @dots{})
+@item @samp{indent}-like source code formatter for Pascal
+@item AT&T <-> Intel assembler syntax converter (-> BP BASM) ???
+@end itemize
+
+@node Fixed Bugs
+@section Problems that have been solved
+
+This section lists the bugs fixed since the last (non alpha/beta)
+GPC release, together with the date (YYYYMMDD) on which they were
+fixed, so you can check if some problem has already been solved in a
+recent release or developer version. For new features, see
+@ref{News}.
+
+@itemize @bullet
+@item 20070903: Prevent multiple evaluation of some string expressions
+(roland2.pas).
+@item 20070903: Correct range checking for `Succ' and `Pred' applied to
+enumerations (`fsc2[24].pas') on 64-bit machines.
+@item 20070903: Check that procedures assigned to constant variables
+are not nested (did not work with 4.x backends) (nicola4c.pas).
+@item 20070903: On 64-bit machines range check for small unsigned subranges
+failed to work (range2.pas and chuck6.pas).
+@item 20070902: Allow copy on function values (copy1.pas).
+@item 20070831: Do not ICE on break outside loop (affected 4.x backends)
+(russ5[ab].pas).
+@item 20070830: Fix crash for some initializers (affected 4.x backends)
+(igor2.pas).
+@item 20060830: Allow jumps into blocks when `--no-iso-goto-restrictions'
+is in force (goto9[cd].pas).
+@item 20060722: Some initializers with nested strings were rejected
+(velo1.pas).
+@item 20060519: Correct some build problems.
+@item 20060505: Local `R-' option affected rest of the file (gale12[a-h].pas). 
+@item 20060424: Handle empty string in InternalStringOf (stro2.pas).
+@item 20060304: Do not allow passing strings to parameters of type array of
+char subrange (avoids passing out of range values).
+@item 20060228: Use at least integer precision for arithmetic (avoids
+loss of precision due to overflow)
+@item 20060225: Avoid ICE on some record types
+@item 20060225: Avoid segfault in bison parser
+@item 20060214: Avoid ICE on unimplemented operators (ice4.pas)
+@item 20060214: Avoid ICE on bad forward declaration (ice3.pas)
+@item 20060214: ISO-10206 requires at least one output parameter
+in `ReadStr' (rstr2a.pas)
+@item 20060213: Allow side effects in arguments of `ReadStr' (rstr1.pas)
+@item 20060213: Correctly pass substrings to `StringTFDD_Reset' (fjf1099.pas)
+@item 20060213: Avoid ICE on multiple errors with set constants (constv2c.pas)
+@item 20060213: Avoid ICE on bad parent class (delc.pas)
+@item 20060212: fix passing of multiple string values to `const' conformant
+arrays (confa2.pas)
+@item 20060212: Avoid ICE on invalid conformant arrays (confa3.pas)
+@item 20060212: Avoid confusing initialized variant records with conformal
+arrays (confa1.pas)
+@item 20060212: Avoid ICE on invalid set argument (sets16a.pas)
+@item 20060212: Avoid ICE on incompatible arguments in binary operators
+@item 20060212: gpc rejected some valid strings arguments (peter8.pas)
+@item 20060208: In ISO modes check identifier scopes stricter in record
+types and parameter lists (gale7[a-m].pas, gale8[a-u].pas)
+@item 20060203: Fix problems with strange characters in some versions
+of ncurses
+@item 20060130: In ISO modes report out of range constants only at runtime
+(range1.pas)
+@item 20060130: make set literals and packed sets compatible (sets17a.pas)
+@item 20060128: check `type of' argument more strictly in ISO modes
+(gale9[abc].pas, gale10.pas, gale11[a-d].pas)
+@item 20060128: in ISO-7185 mode require that program parameters are files (pparm1.pas)
+@item 20060128: require digit after decimal point in ISO modes (real2.pas)
+@item 20060128: in ISO modes allow sets inside packed records and arrays (pack13.pas)
+@item 20060128: in ISO modes require parameters to `read' and `write'
+(read3.pas, write3.pas)
+@item 20060127: allow string literals in ISO-7185 mode (const1.pas)
+@item 20060127: allow empty ranges in set constructors (sets18.pas)
+@item 20060127: correct comparison of sets (sets15.pas)
+@item 20051118: avoid crash when preprocessing (prep1a.pas)
+@item 20051118: define `__OS_DOS__' on Dos and Windows
+@item 20051118: fix spurious warning about `-Wuninitialized'
+@item 20051114: fix passing discriminated string schema
+@item 20051105: constructor calls inside constructors and destructor
+calls inside destructors
+@item 20051104: allow testing when different GPC version using the same
+backend is already installed
+@item 20051025: correctly parse @samp{import foo; uses qualified;} 
+(waldek15.pas)
+@item 20051021: accept @samp{--no-methods-always-virtual}
+@item 20051021: nonlocal jump fixes for 3.2.x and 3.3.x
+@item 20051021: fix bootstrap with C++ and 3.3.x
+@item 20051021: allow one element sets in non-iso dialects (delset.pas)
+@item 20051021: do not crash on wrong open array parameter (waldek13.pas)
+@item 20051014: `forward', `near' and `far' may be redeclared in all dialects
+@item 20051014: Integer2StringBaseExt now works in 64-bit machines
+(mir048[cd].pas)
+@item 20051014: do not crash on bad declarations (dimwit1.pas, dimwit3.pas,
+dimwit5.pas)
+@item 20051014: avoid calling fcntl if not present (fjf1042b.pas, fjf1042c.pas
+on Mingw32)
+@item 20051014: sorting set initializers used wrong comparison function
+(affected Solaris)
+@item 20051014: avoid range-check failure in RTS on strict alignement
+machines (affected at least Sparc and HP)
+@item 20051014: mod in schema initializer (modtest.pas)
+@item 20051014: avoid spurious side effects in initializers do to
+range-checking (fjf1021[dh-k].pas)
+@item 20051014: fix bootstrap with Ada and 3.4.x
+@item 20051014: fix bootstrap with 3.2.x
+@item 20050325: check initializers of unused types (fjf898*.pas)
+@item 20050325: check identifier scopes stricter (az25.pas, fjf1059*.pas)
+@item 20050321: in @samp{--borland-pascal} give only a warning, not an error, for duplicate @samp{case} elements (drf6*.pas)
+@item 20050320: multi-dimensional @samp{packed} arrays are not correctly packed (fjf149*.pas)
+@item 20050316: check arithmetical overflow in constants somewhat better (fjf206*.pas)
+@item 20050316: check duplicate external declarations stricter (fjf948.pas)
+@item 20050312: check that actual discriminants match in parameters and assignments, and in strict EP mode, check that actual discriminants of parameters within one identifier list match (berend4.pas, fjf104[45]*.pas, typeof[2-4].pas)
+@item 20050312: check pointer to schema types stricter (fjf130.pas, fjf614.pas, schema3a.pas affected)
+@item 20050311: allow importing the same value as a result of distinct expressions under the same name for EP modules for ordinal, pointer, string and set constants (fjf1040*.pas, stef1.pas)
+@item 20050307: allow attributes for procedural types (chief56.pas)
+@item 20050307: problem with string operations and @samp{goto} (contour0.pas, contourbug.pas, martin1.pas, berend3.pas)
+@item 20050307: check @samp{goto} targets more strictly <261020020000077022%gpaeper@@empirenet.com>, <Pine.LNX.4.44.0210281004000.31943-100000@@duch.mimuw.edu.pl> (az48.pas, fjf701*.pas, fjf1038*.pas, gale6.pas)
+@item 20050307: @samp{Result} is not completely Delphi compatible (fjf1022*.pas)
+@item 20050307: problem if a @samp{Write} or @samp{WriteLn} argument calls a routine which writes to the same file (fjf1036.pas)
+@item 20050302: @samp{Update} as well as writing after reading or checking @samp{EOF} can get the file position wrong in some cases (arp2*.pas, fjf159.pas, fjf160*.pas)
+
+@item 20050217: declaring a procedure in the implementation with the same name as an imported procedure doesn't work (chief18.pas), detect name collisions between imported EP modules (mod9.pas)
+@item 20050214: warn if an lhs cast decreases alignment (avo9.pas)
+@item 20050214: don't require result variables in forward declarations except in strict ISO mode (marku10*.pas)
+@item 20050213: writing to a file buffer at EOF doesn't work (eof1.pas)
+@item 20050211: don't allow @samp{f^} for unopened files @samp{f} (pcerror[ij].pas)
+@item 20050210: evalute initializers exactly as often as specified (fjf1019.pas)
+@item 20050205: initialized types in record and object fields and in schemata (inirec[24].pas, fjf1016*.pas)
+@item 20050130: in standard Pascal modes, @samp{EOF} is false on an empty file (tom7.pas)
+@item 20050127: wrong @samp{arithmetical overflow} with @samp{set of byte} (igor1.pas)
+@item 20050119: types and initializers containing variable expressions, including schemata with non-constant discriminants and global variables of dynamic size (couper[45].pas, fjf186.pas, fjf548.pas, fjf612a.pas, fjf997*.pas, fjf1003*.pas, john1a.pas)
+@item 20050117: @samp{pow}, @samp{Trim}, @samp{Card}, set operations (@samp{-}, @samp{*}, @samp{><}) and comparisons as well as string comparisons and array slices with constant arguments cannot be used in constants (fjf998*.pas, fjf1000*.pas, fjf1009*.pas)
+@item 20050117: @samp{ParamStr} evaluates its argument twice (fjf963b.pas)
+@item 20050106: user-defined operators must not be applied to implicit operations (fjf991.pas and many other cases)
+
+@item 20041203: accessing components of a constant (EP) constructor (indexed by a constant for arrays) must yield a constant again (dave3*.pas)
+@item 20041202: GPC crashes when using two variables with identically-named fields in a single @samp{with} statement (withbug.pas)
+@item 20041125: GPC doesn't accept @samp{case} statements without case-list-elements (fjf982*.pas)
+@item 20041125: gcc-3.x: options are wrongly reordered (so, e.g., @samp{--gnu-pascal -Wno-underscore} doesn't work as expected) (avo7.pas)
+@item 20041124: applying @samp{not} to a function result in parentheses doesn't work (avo6.pas)
+@item 20041123: packed array indices containing @samp{mod} don't work (avo4.pas)
+@item 20041120: GPC sometimes prints @samp{???} instead of the actual file name in messages
+@item 20041028: function results (of record type) must not be allowed as @samp{with} elements (only a warning in @samp{--delphi} and @samp{--mac-pascal} modes for compatibility); fields of non-lvalue @samp{with} elements must not be lvalues either (fjf493*.pas)
+@item 20041022: value parameters of type @samp{String} (undiscriminated) must take the capacity of the actual parameter, according to EP (waldek11*.pas)
+@item 20041021: initialized types in arrays (fjf233.pas, fjf974*.pas)
+@item 20041020: initializers are ignored in @samp{New} and @samp{Initialize} (fjf967[j-l].pas)
+@item 20041020: the address of global routines is not allowed in initializers (avo2*.pas)
+@item 20041015: @samp{Index} and @samp{Pos} cannot be used in constant expressions (fjf970*.pas)
+@item 20041012: initializers of variant records don't work (fjf259.pas), (peter6.pas) <C1256791.0021F002.00@@synln01.synstar.de>
+@item 20041012: initializers of packed arrays don't work (emil5.pas)
+@item 20041007: the @samp{__FILE__} and @samp{__BASE_FILE__} macros should return full paths
+@item 20041006: @samp{Sqr} sometimes evaluates its argument twice (fjf963a.pas)
+@item 20041004: memory leak in routines with a local variable of file type that are left via @samp{Exit} or @samp{Return} (fjf962.pas)
+@item 20040916: using a Boolean function as a condition in a @samp{repeat} loop doesn't work correctly (artur1*.pas)
+@item 20040913: overstrict type-checking in comparisons involving procedural types (fjf960*.pas)
+@item 20040908: @samp{Read}, @samp{Write} etc. evaluate its arguments in the wrong order (az43*.pas)
+@item 20040908: @samp{Read} etc. evaluate references to string parameters twice (fjf958.pas)
+@item 20040907: on targets with 16 bit @samp{Integer} type, the @samp{MicroSecond} field of @samp{TimeStamp} causes a compilation error
+@item 20040907: character arrays indexed by non-integer ordinal types treated as strings cause internal compiler errors (fjf957*.pas)
+@item 20040906: @samp{-W[no-]cast-align} does not work (fjf956*.pas)
+@item 20040903: in @samp{FormatTime} @samp{%Z} and @samp{%z} unless provided by system library ignore DST
+@item 20040710: powerpc: @samp{--strength-reduce} doesn't work with @samp{for} loops (was kludged before, fixed in gcc-3.3.3)
+@item 20040710: AIX: @samp{ReturnAddress} doesn't work after use of dynmamic variables (backend bug, fixed in gcc-3.3.3)
+@item 20040622: functions returning sets are called twice if range-checking is on (inga1*.pas)
+@item 20040512: @samp{pow} and @samp{**} are really EP conformant now (in particular @samp{x pow y} and @samp{x ** y} are an error if x = 0 and y <= 0) (emil27*.pas)
+@item 20040511: bug with @samp{absolute} variables in strange situations (waldek8.pas)
+@item 20040511: @samp{protected var} parameters must only accept references (unlike @samp{const} parameters) (gale5*.pas)
+@item 20040507: @samp{pack} must not pack the component type of arrays (fjf940[b-e].pas)
+@item 20040507: in some circumstances packed fields are allowed as @samp{var} parameters (fjf940a.pas)
+@item 20040427: parameters of procedural types don't support Standard Pascal procedural parameters, conformant/open arrays and @samp{type of} inquiries (fjf939*.pas)
+@item 20040422: bugs with nonlocal gotos out of routines declaring file variables (nonloc*.pas) (fix involved a change in the internal representation of file variables)
+@item 20040331: @samp{'foo'#42} is rejected in @samp{--borland-pascal} (chief53.pas)
+@item 20040330: records/objects with many fields are handled slowly
+@item 20040328: @samp{--implementation-only} doesn't work correctly (bo4-19.pas)
+@item 20040325: messages referring to object methods point to the end of the object type rather than the method declaration
+@item 20040325: bug when slice-accessing a function result of type @samp{Pointer} type-casted to @samp{PString} (bo4-18.pas)
+@item 20040210: incorrect errors with packed arrays and records (fb[12].pas, gale[34].pas)
+@item 20040204: GPC crashes on @samp{else} after a missing semicolon in some circumstances (fjf926.pas)
+@item 20031007: spurious errors about @samp{result types in forward declared functions} in @samp{--extended-pascal} etc. (dave2.pas)
+@item 20031004: do not allow disposing of @samp{nil} pointers in standard Pascal modes (fjf917*.pas)
+@item 20031001: arithmetic expressions don't work as lower array/subrange bounds (fjf204.pas, fjf248.pas, fjf293.pas, fjf336.pas, fjf346a.pas, fjf622.pas)
+@item 20030925: initializers for types containing nested schemata don't work (fjf914*.pas)
+@item 20030830: open internal files with @samp{O_EXCL} on @samp{Rewrite} (as a protection against symlink attacks)
+@item 20030819: GPC accepts, but ignores, options with invalid suffixes (e.g. @samp{--delphi-pascal})
+@item 20030729: @samp{pow} and @samp{**} are EP conformant now (in particular @samp{x pow y = (1 div x) pow (­y)} if @samp{y} is negative and @samp{x <> 0}) (fjf908.pas)
+@item 20030714: @samp{--enable-keyword}/@samp{--disable-keyword} on the command-line makes GPC crash (david5.pas)
+@item 20030704: wrong type-error when applying @samp{Inc} to a type-casted pointer (peter3.pas)
+@item 20030702: with range checking enabled, check dynamic subrange/array size (fjf222*.pas, fjf813*.pas, fjf900*.pas)
+@item 20030701: GPC allows modification of conformant array bounds, result of @samp{High}/@samp{Low} etc. (fjf897*.pas)
+@item 20030626: don't allow linker names starting with a digit (fjf894.pas)
+@item 20030625: @samp{SubStr} with constant arguments doesn't work in constants (gale1.pas)
+@item 20030617: handle @samp{BitSizeOf} correctly for packed array fields, don't allow @samp{SizeOf} on them (fjf891*.pas)
+@item 20030612: System: @samp{BPReal} must be a packed record <3EE8A26D.C919BE7D@@flexim.de>
+@item 20030610: schema types with initializers (drf1.pas, fjf886*.pas)
+@item 20030610: @samp{Return} doesn't work for sets (fjf885.pas)
+@item 20030609: bug with arrays as fields of @samp{packed} records (waldek6.pas)
+@item 20030607: don't allow duplicate imports in a module interface and implementation (nick1b.pas)
+@item 20030604: compensate for parser read-ahead in the lexer, so compiler directives don't become effective too early and error messages refer more closely to the correct source position
+@item 20030603: bug when dividing two integers with @samp{/} (fjf481.pas)
+@item 20030509: don't allow @samp{absolute} in type definitions
+@item 20030502: subranges with variable limits (couper[23].pas)
+@item 20030502: Sparc with gcc-2.95.x: @samp{goto} jumping out of two procedure nesting levels doesn't work (GCC bug; fixed in gcc-3) <200111170922.KAA09125@@goedel.fjf.gnu.de> (fjf558[op].pas) (fixed with gcc-3 or when using @samp{--longjmp-all-nonlocal-labels})
+@item 20030502: the parser does not always recover well after a parse error <199911040915.KAA11168@@humulus.daimi.au.dk> (fixed the case given in this report; if there are other cases, please report)
+@item 20030501: detect conflicts between object fields and local variables in methods
+@item 20030430: packed array/record fields don't work in @samp{Read} etc. (tom5.pas)
+@item 20030430: file parameters must not automatically be bindable in @samp{--extended-pascal} (fjf193[c-e].pas)
+@item 20030423: give an error rather than a warning when casting between types of different size in @samp{@{$X-@}}
+@item 20030423: simplify code generated to compute size of dynamical variables if no bitfields are involved (ok with gcc-3)
+@item 20030422: initialized object variables don't work (fjf445*.pas)
+@item 20030422: declarations of a module interface are not visible in the implementation (kevin13.pas, mod12.pas) <Pine.BSI.3.96.971110210330.7570A-100000@@malasada.lava.net>
+@item 20030422: detect invalid array slice access with constant indices at compile-time (peter2*.pas)
+@item 20030421: automatically close dynamically allocated files on @samp{Dispose} and files declared in a statement block at the end of the statement block <6r9ir5$7v5$1@@nntpd.lkg.dec.com> (fjf219[a-d].pas, fjf502.pas)
+@item 20030421: initialize local static variables in the main constructor, not in each routine call (fjf458*.pas)
+@item 20030421: check parameter and result variable names in repeated forward etc. declarations <20010321204051.A611@@plato> (fjf284.pas, markus8.pas, fjf850*.pas)
+@item 20030417: modifying @samp{for}-loop counters within the loop or in a subroutine is not allowed <200005240807.EAA05355@@mail.bcpl.net>, <Pine.LNX.4.44.0210281004000.31943-100000@@duch.mimuw.edu.pl> (az47.pas, fjf837*.pas)
+@item 20030417: possible stack overflow when using string concatenation in a loop (fjf419*.pas, fjf345e.pas, fjf460b.pas) -- breaks berend3.pas (less important because strange test case, and just another instance of existing contourbug.pas)
+@item 20030416: some functions in boolean shortcuts are always called (fjf226*.pas)
+@item 20030414: label declarations must not be allowed in unit/module interfaces and module implementations (but in unit implementations, BP compatible, though we don't allow nonlocal @samp{goto}s into the constructor) (fjf835*.pas)
+@item 20030321: variables declared in interfaces of modules are not initialized (capacity of strings etc.) (daj3.pas, sven14c.pas, nick1.pas)
+@item 20030321: subranges whose size is exactly one or two bytes are not packed in packed arrays (daj14a.pas)
+@item 20030321: @samp{prior parameter's size depends on `Foo'} with @samp{const} string parameters in module interfaces (fjf667.pas)
+@item 20030313: operators don't always work across units (fjf803.pas)
+@item 20030312: overloading @samp{<=}, @samp{>=}, @samp{<>} and some certain words doesn't work (fjf789.pas, fjf794*.pas, fjf800.pas, fjf802.pas, fjf804.pas)
+@item 20030311: when passing a schema variable as an untyped argument, the whole schema, including the discriminants is passed (fjf798.pas)
+@item 20030302: discriminant identifiers as variant record selectors
+@item 20030227: GPC crashes when taking the address of local variables in an initializer (nicola4*.pas)
+@item 20030225: the warnings about uninitialized/unused variables don't work for strings, objects, etc. (fjf779*.pas)
+@item 20030221: gcc-2.95.x: @samp{configure --silent} doesn't work (passes wrong options to sub-configures, so the subsequent make fails) (GCC bug; fixed in 3.x)
+@item 20030215: forward referencing pointers generate debug info that appears as generic pointers
+@item 20030202: count of parameters in error messages should not include @samp{Self} in methods or internal parameters for conformant or open arrays
+@item 20030129: check for unresolved @samp{forward}, interface and method declarations (az32.pas, fjf758*.pas)
+@item 20030129: several standard conformance bugs (az@{1..24,26..42,44..46@}*.pas, emil23*.pas)
+@item 20030126: some bugs with complicated schema usage (emil22*.pas, fjf750*.pas)
+@item 20030122: subtraction of unsigned types with a negative result doesn't work (ml4.pas)
+@item 20021229: declaring huge enum types and exporting subranges of them is very slow (quadratic time behaviour); some bugs regarding exporting of subranges (fjf736*.pas)
+@item 20021213: Linux: @samp{crtscreen} should react to @samp{SIGWINCH}
+@item 20021120: @samp{Card} doesn't work with set constructors; @samp{Include} and @samp{Exclude} should not accept set constructors (eike3*.pas)
+@item 20021105: type initializers are not type-checked until a variable of the type is declared (fjf704.pas); with gcc-2.x: bug when variables of a type with initializer are declared locally in more than one routine (couper13.pas)
+@item 20021105: @samp{packed object} should not be allowed (fjf703.pas)
+@item 20021101: bug when replacing a non-virtual method by a virtual one in a descendant object type (fjf702.pas)
+@item 20021027: classic Pascal does not know the empty string <Pine.LNX.4.44.0210181332470.29475-100000@@duch.mimuw.edu.pl> (fjf693*.pas)
+@item 20021027: relational and exponentiation operators have no associativity <Pine.LNX.4.44.0210210807410.18095-100000@@duch.mimuw.edu.pl> (fjf692.pas, fjf566[k-m].pas)
+@item 20021002: @samp{gpc -B@var{dir}} requires a trailing dir separator
+@item 20021001: constructors are accepted as the argument to @samp{Dispose} (fjf674.pas)
+@item 20021001: align file fields in packed records on machines with strict alignment requirements (chief38*.pas)
+@item 20021001: bug on machines with strict alignment requirements <199906021618.MAA06228@@sten27.software.mitel.com> (richard1.pas)
+@item 20020930: duplicate variable declarations are allowed
+@item 20020929: @samp{attribute}s of variables are ignored (fjf673.pas)
+@item 20020929: @samp{volatile} for @samp{external} variables without @samp{asmname} is ignored (fjf672.pas)
+@item 20020926: numbers with base specifiers are allowed as labels (fjf417*.pas)
+@item 20020923: System: @samp{MemAvail}/@samp{MaxAvail} can go into an endless loop
+@item 20020920: the number of times the preprocessor is invoked by the automake mechanism might grow exponentially with the number of units involved <02091610572303.14626@@dutw54.wbmt.tudelft.nl>
+@item 20020918: importing @samp{StandardOutput} etc. in the interface of a module doesn't work (sietse2*.pas)
+@item 20020904: comparisons between signed and unsigned integers sometimes give wrong results (eike2.pas, fjf664.pas, martin5.pas)
+@item 20020903: @samp{IOSelect} fails with file handles >= 8 on some systems (e.g., Solaris) (fjf663.pas)
+@item 20020831: GPC creates wrong debug info for many built-in types <200208280012.g7S0CWj07637@@mail.bcpl.net>
+@item 20020827: comparisons of @samp{packed} subrange variables don't work right (martin4[ab].pas)
+@item 20020824: operators defined in units don't always work (maur11.pas)
+@item 20020824: object methods that contain an ISO style procedural parameter forget the implicit @samp{with Self do} (fjf662a.pas)
+@item 20020615: @samp{if Pass[i] in 'A' .. 'Z'} makes GPC crash (miklos6.pas)
+@item 20020603: compiling a program (not a unit or module) with @samp{--interface-only} or @samp{--syntax-only} segfaults (waldek1.pas)
+@item 20020603: @samp{--nested-comments} fails without @samp{-Wall} (waldek2.pas)
+@item 20020514: powerpc: @samp{--strength-reduce} doesn't work with @samp{for} loops [kludged now]
+@item 20020514: guarantee complete evaluation in @samp{@{$B+@}} mode (fjf552*.pas)
+@item 20020514: spurious warning with @samp{for} loops using a @samp{ByteCard} counter (toby1.pas)
+@end itemize

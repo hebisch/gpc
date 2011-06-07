@@ -1,0 +1,272 @@
+#!/bin/sh
+
+# Create a Pascal interface for rts.c. This is no general C to
+# Pascal converter.
+#
+# Copyright (C) 2001-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# This script requires bash. Since bash cannot be assumed to be in
+# /bin, /usr/bin or any other certain place, we cannot use it in the
+# first line. So we use /bin/sh, which can be assumed to exist. Then
+# we check if it's actually bash, and if not, try to re-run the
+# script with bash.
+if [ x"$BASH" = x ]; then
+  if [ x"$RERUN_BASH_TRIED" != x ]; then
+    echo "`basename "$0"`: cannot run, \`bash' is either not bash or a very old version" >&2
+    exit 1
+  else
+    RERUN_BASH_TRIED=1; export RERUN_BASH_TRIED
+    exec bash "$0" "$@"
+    echo "`basename "$0"`: cannot run bash" >&2
+    exit 1
+  fi
+fi
+RERUN_BASH_TRIED=""
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/../script/find-sed`" || exit 1
+
+# @@ The types and variables should be translated automatically as well.
+
+cat<<EOF
+{ This file was generated automatically by `basename $0`.
+  DO NOT CHANGE THIS FILE MANUALLY! }
+
+{ Pascal declarations of the GPC Run Time System routines that are
+  implemented in C
+
+  Note about the \`GPC_' prefix:
+  This is inserted so that some identifiers don't conflict with the
+  built-in ones. In some cases, the built-in ones do exactly the
+  same as the ones declared here, but often enough, they contain
+  some "magic", so they should be used instead of the plain
+  declarations here. In general, routines with a \`GPC_' prefix
+  should not be called from programs. They may change or disappear
+  in future GPC versions.
+
+  Copyright (C) 1998-2006 Free Software Foundation, Inc.
+
+  Author: Frank Heckenbach <frank@pascal.gnu.de>
+
+  This file is part of GNU Pascal.
+
+  GNU Pascal is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3, or (at your
+  option) any later version.
+
+  GNU Pascal is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with GNU Pascal; see the file COPYING. If not, write to the
+  Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA.
+
+  As a special exception, if you link this file with files compiled
+  with a GNU compiler to produce an executable, this does not cause
+  the resulting executable to be covered by the GNU General Public
+  License. This exception does not however invalidate any other
+  reasons why the executable file might be covered by the GNU
+  General Public License. }
+
+{\$gnu-pascal,I-}
+
+unit RTSC; attribute (name = 'GPC');
+
+interface
+
+const
+  { Maximum size of a variable }
+  MaxVarSize = MaxInt div 8;
+
+{ If set, characters >= #\$80 are assumed to be letters even if the
+  locale routines don't say so. This is a kludge because some
+  systems don't have correct non-English locale tables. }
+var
+  FakeHighLetters: Boolean = False; attribute (name = '_p_FakeHighLetters');
+
+type
+  PCStrings = ^TCStrings;
+  TCStrings = array [0 .. MaxVarSize div SizeOf (CString) - 1] of CString;
+
+  Int64 = Integer attribute (Size = 64);
+  UnixTimeType = LongInt;  { This is hard-coded in the compiler. Do not change here. }
+  MicroSecondTimeType = LongInt;
+  FileSizeType = LongInt;
+  SignedSizeType = Integer attribute (Size = BitSizeOf (SizeType));
+  TSignalHandler = procedure (Signal: CInteger);
+
+  StatFSBuffer = record
+    BlockSize, BlocksTotal, BlocksFree: LongInt;
+    FilesTotal, FilesFree: CInteger
+  end;
+
+  InternalSelectType = record
+    Handle: CInteger;
+    Read, Write, Exception: Boolean
+  end;
+
+  PString = ^String;
+
+  { \`Max' so the range of the array does not become invalid for
+    Count = 0 }
+  PPStrings = ^TPStrings;
+  TPStrings (Count: Cardinal) = array [1 .. Max (Count, 1)] of PString;
+
+  GlobBuffer = record
+    Result: PPStrings;
+    Internal1: Pointer;
+    Internal2: PCStrings;
+    Internal3: CInteger
+  end;
+
+{@internal}
+  TCPasswordEntry = record
+    UserName, RealName, Password, HomeDirectory, Shell: CString;
+    UID, GID: CInteger
+  end;
+
+  PCPasswordEntries = ^TCPasswordEntries;
+  TCPasswordEntries = array [0 .. MaxVarSize div SizeOf (TCPasswordEntry) - 1] of TCPasswordEntry;
+
+{\$define SqRt InternalSqRt} {\$define Exp InternalExp} {\$define Ln InternalLn}  { @@ }
+{@endinternal}
+EOF
+
+NOID='\([^A-Za-z0-9_]\)'
+ID='\([A-Za-z0-9_]\+\)'
+PAR='\(\([^()]\|([^()]*)\)*\)'
+
+"$sed" -ne '
+/^\/\*@internal\*\//s/.*/\
+{@internal}/p;
+
+/^\/\*@endinternal\*\//s/.*/{@endinternal}\
+/p;
+
+/^\/\*\* */ {
+  s//\
+{ /;
+  :l1; /\([^/]\|[^*]\/\)$/ { N; b l1; }
+  s/\(\n\)   /\1 /g;
+  s/ *\*\/$/ }/;
+  p;
+}
+
+/^enum {/ {
+  s//const/;
+  :l2; /[^};]$/ { N; b l2; }
+  s/\(= *\)0x/\1$/g;
+  s/\(= *\)0\+\([0-9]\)/\18#\2/g;
+  s/ \?<< \?/ shl /g;
+  s/ \?>> \?/ shr /g;
+  s/,/;/g;
+  s/\n};$/;/;
+  p
+}'"
+
+/#define GLOBAL/d
+/GLOBAL/ {
+  :l3; /[^)]\$/ { N; b l3; }
+  s/^GLOBAL *(\(.*\))\$/\1/;
+  s/^GLOBAL_ATTR *(\(.*\), *\([A-Za-z_0-9,]*\))\$/\1 attribute (\2);/;
+  s/ UNUSED//g;
+  s/$NOID""int$NOID/\1CInteger\2/g;
+  s/^int$NOID/CInteger\1/g;
+  s/float/ShortReal/g;
+  s/long \+double/LongReal/g;
+  s/double/Real/g;
+  s/ssize_t/SignedSizeType/g;
+  s/size_t/SizeType/g;
+  s/void *\* */Pointer /g;
+  s/DIR *\* */Pointer /g;
+  s/const \+char *\* */CString /g;
+  s/char *\* */CString /g;
+  s/$ID \+$ID\( *[,()]\)/\2: \1\3/g;
+  s/$NOID$ID *\* *$ID/\1var \3: \2/g;
+  s/void *(\*$ID) *(\(.*\))/procedure \1 (\2)/
+  s/const/protected/g;
+  s/attribute (protected)/attribute (const)/g;
+  s/,/;/g;
+  s/$ID *: *void *( *$PAR *)/procedure #\1 (\2); external name '\1';/g;
+  s/$ID *: *$ID *( *$PAR *)/function  #\1 (\3): \2; external name '\1';/g;
+  s/#_p_//g;
+  s/#//g;
+  s/ *( *void *)//g;
+  s/external name\(.*[^ ]\) *attribute\(.*\)/attribute\2 external name\1/;
+  p;
+}" rts.c
+
+cat << EOF
+{@internal}
+{ rtsc.pas }
+type
+  PProcedure = ^procedure;
+  PProcList = ^TProcList;
+  TProcList = record
+    Next, Prev: PProcList;
+    Proc: PProcedure
+  end;
+
+procedure RunFinalizers (var AtExitProcs: PProcList); attribute (name = '_p_RunFinalizers');
+
+{@endinternal}
+
+implementation
+
+{ @@ from files.pas }
+procedure Initialize_Std_Files; attribute (iocritical); external name '_p_Initialize_Std_Files';
+
+{ This file is always compiled with debug information (see
+  Makefile.in), but the file name of the following routine is set to
+  a magic name, so a debugger can recognize it automatically and
+  step over it into the finalizers themselves. }
+{\$ifndef DEBUG}
+#line 1 "<implicit code>"
+{\$endif}
+procedure RunFinalizers (var AtExitProcs: PProcList);
+var
+  p: PProcList;
+  Proc: PProcedure;
+begin
+  while AtExitProcs <> nil do
+    begin
+      p := AtExitProcs;
+      AtExitProcs := AtExitProcs^.Next;
+      Proc := p^.Proc;
+      Dispose (p);
+      Proc^
+    end
+end;
+
+{\$I+}
+
+begin
+  InitMisc;
+  InitTime;
+  Initialize_Std_Files  { Do this very early, so standard files are available for messages etc. }
+end.
+EOF

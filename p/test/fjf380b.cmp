@@ -1,0 +1,8 @@
+#!/bin/sh
+rm -f "$A_OUT"
+$1 '-DFOO="a --extended-pascal"' $2
+if [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

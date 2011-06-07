@@ -1,0 +1,7 @@
+#!/bin/sh
+FOO=qwe
+BAR=asd
+export FOO
+export BAR
+unset BAZ QUX
+./"$A_OUT"

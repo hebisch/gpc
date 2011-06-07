@@ -1,0 +1,501 @@
+/*Definitions of keywords, predefined identifiers etc.
+
+  Copyright (C) 1987-2006 Free Software Foundation, Inc.
+
+  Authors: Jukka Virtanen <jtv@hut.fi>
+           Peter Gerwinski <peter@gerwinski.de>
+           Frank Heckenbach <frank@pascal.gnu.de>
+
+  This file is part of GNU Pascal.
+
+  GNU Pascal is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3, or (at your
+  option) any later version.
+
+  GNU Pascal is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with GNU Pascal; see the file COPYING. If not, write to the
+  Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+  02111-1307, USA. */
+
+/* PREDEF_ID: Identifiers with no immediate special properties, just
+   marked so they can be recognized, e.g. in `attribute' lists or in
+   the parser where some dialect's keywords can be parsed as LEX_ID.
+
+   The comments of PREDEF_ID (if present) and PREDEF_KEYWORD go into
+   doc/generated/keyword.texi automatically -- also the `#if 0' ones
+   (whose comments therefore say `not yet implemented').
+   The identifiers that are only attributes don't have separate
+   comments and are documented under `attribute'. */
+
+PREDEF_ID (all,        GNU_PASCAL)          /* <export> extension (`export foo = all') */
+PREDEF_ID (export,     E_O_PASCAL)          /* module interface export */
+PREDEF_ID (ignorable,  GNU_PASCAL)
+PREDEF_ID (inline,     MAC_PASCAL)
+PREDEF_ID (interface,  NOT_CLASSIC_PASCAL)  /* module or unit interface part */
+PREDEF_ID (iocritical, GNU_PASCAL)
+PREDEF_ID (module,     E_O_PASCAL)          /* EP style or PXSC style module */
+PREDEF_ID (name,       0)                   /* linker name */
+PREDEF_ID (noinline,   GNU_PASCAL)
+PREDEF_ID (private,    B_D_PASCAL)          /* private object fields */
+PREDEF_ID (protected,  E_O_B_D_PASCAL)      /* read-only formal parameters or module export and protected object fields */
+PREDEF_ID (public,     B_D_PASCAL)          /* public object fields */
+PREDEF_ID (published,  B_D_PASCAL)          /* published object fields */
+PREDEF_ID (register,   GNU_PASCAL)
+PREDEF_ID (size,       GNU_PASCAL)
+PREDEF_ID (static,     GNU_PASCAL)
+PREDEF_ID (volatile,   GNU_PASCAL)
+
+/* All keywords that are not ANY_PASCAL are weak now, so they can be used
+   as identifiers freely. (See internals.texi about `near' and `far'.) */
+PREDEF_KEYWORD (absolute,       1, B_D_PASCAL)          /* overloaded variable declaration */
+PREDEF_KEYWORD (abstract,       1, O_D_PASCAL)          /* abstract object type or method declaration */
+PREDEF_KEYWORD (and,            0, ANY_PASCAL)          /* Boolean or bitwise `and' operator or part of the <and then> operator */
+PREDEF_KEYWORD (and_then,       1, E_O_PASCAL)          /* short-circuit Boolean <and> operator */
+PREDEF_KEYWORD (array,          0, ANY_PASCAL)          /* array type declaration */
+PREDEF_KEYWORD (as,             1, O_D_M_PASCAL)        /* object type membership test and conversion */
+PREDEF_KEYWORD (asm,            1, B_D_M_PASCAL)        /* GNU style inline assembler code */
+PREDEF_KEYWORD (asmname,        1, GNU_PASCAL)          /* DEPRECATED! linker name of routines and variables */
+PREDEF_KEYWORD (attribute,      1, GNU_PASCAL)          /* attributes of routines and variables */
+PREDEF_KEYWORD (begin,          0, ANY_PASCAL)          /* begin of a code block, part of a <to begin do> module constructor */
+PREDEF_KEYWORD (bindable,       1, E_O_PASCAL)          /* external bindability of files */
+PREDEF_KEYWORD (c,              1, GNU_PASCAL)          /* DEPRECATED! declaration of external routine */
+PREDEF_KEYWORD (c_language,     1, GNU_PASCAL)          /* DEPRECATED! declaration of external routine */
+PREDEF_KEYWORD (case,           0, ANY_PASCAL)          /* multi-branch conditional statement or variant <record> type */
+PREDEF_KEYWORD (class,          1, O_D_PASCAL)          /* OOE/Delphi class */
+PREDEF_KEYWORD (const,          0, ANY_PASCAL)          /* constant declaration or constant parameter declaration */
+PREDEF_KEYWORD (constructor,    1, O_B_D_PASCAL)        /* object constructor */
+PREDEF_KEYWORD (destructor,     1, O_B_D_PASCAL)        /* object destructor */
+PREDEF_KEYWORD (div,            0, ANY_PASCAL)          /* integer division operator */
+PREDEF_KEYWORD (do,             0, ANY_PASCAL)          /* part of a <while> or <for> loop, a <with> statement, or a <to begin do> or <to end do> module constructor or destructor */
+PREDEF_KEYWORD (downto,         0, ANY_PASCAL)          /* part of a <for> loop counting downwards */
+PREDEF_KEYWORD (else,           0, ANY_PASCAL)          /* alternative part of an <if> statement, default <case> branch, part of the <or else> operator */
+PREDEF_KEYWORD (end,            0, ANY_PASCAL)          /* end of a code block, end of a <case> statement, end of a <record> or <object> declaration, part of a <to end do> module destructor */
+PREDEF_KEYWORD (external,       1, U_B_D_M_PASCAL)      /* declaration of an external object */
+PREDEF_KEYWORD (far,           -1, B_D_PASCAL)          /* BP directive (ignored) */
+PREDEF_KEYWORD (file,           0, ANY_PASCAL)          /* non-text file type declaration */
+PREDEF_KEYWORD (finalization,   1, BORLAND_DELPHI)      /* unit finalization */
+PREDEF_KEYWORD (for,            0, ANY_PASCAL)          /* loop statement where the number of loops is known in advance */
+PREDEF_KEYWORD (forward,       -1, ANY_PASCAL)          /* declaration of a routine whose definition follows below */
+PREDEF_KEYWORD (function,       0, ANY_PASCAL)          /* function declaration */
+PREDEF_KEYWORD (goto,           0, ANY_PASCAL)          /* statement to jump to a <label> */
+PREDEF_KEYWORD (if,             0, ANY_PASCAL)          /* conditional statement */
+PREDEF_KEYWORD (implementation, 1, NOT_CLASSIC_PASCAL)  /* module or unit implementation part */
+PREDEF_KEYWORD (import,         1, E_O_PASCAL)          /* module interface import */
+PREDEF_KEYWORD (in,             0, ANY_PASCAL)          /* set membership test or part of a <for> loop iterating through sets */
+PREDEF_KEYWORD (inherited,      1, O_B_D_M_PASCAL)      /* reference to methods of ancestor object types */
+PREDEF_KEYWORD (initialization, 1, BORLAND_DELPHI)      /* unit initialization */
+PREDEF_KEYWORD (is,             1, O_D_M_PASCAL)        /* object type membership test */
+PREDEF_KEYWORD (label,          0, ANY_PASCAL)          /* label declaration for a <goto> statement */
+PREDEF_KEYWORD (mod,            0, ANY_PASCAL)          /* integer remainder operator */
+PREDEF_KEYWORD (near,          -1, B_D_PASCAL)          /* BP directive (ignored) */
+PREDEF_KEYWORD (nil,            0, ANY_PASCAL)          /* reserved value for unassigned pointers */
+PREDEF_KEYWORD (not,            0, ANY_PASCAL)          /* Boolean or bitwise negation operator */
+PREDEF_KEYWORD (object,         1, B_D_M_PASCAL)        /* BP style object declaration */
+PREDEF_KEYWORD (of,             0, ANY_PASCAL)          /* part of an <array>, <set> or typed <file> type declaration, a <case> statement, a variant <record> type or a <type of> type inquiry */
+PREDEF_KEYWORD (only,           1, E_O_PASCAL)          /* import specification */
+PREDEF_KEYWORD (operator,       1, PASCAL_SC)           /* operator declaration */
+PREDEF_KEYWORD (or,             0, ANY_PASCAL)          /* Boolean or bitwise `or' operator or part of the <or else> operator */
+PREDEF_KEYWORD (or_else,        1, E_O_PASCAL)          /* short-circuit Boolean <or> operator */
+PREDEF_KEYWORD (otherwise,      1, E_O_M_PASCAL)        /* default <case> branch, default value in a structured value of <array> type */
+PREDEF_KEYWORD (packed,         0, ANY_PASCAL)          /* declaration of packed structured types (<record>, <array>, <set>, <file>), also packed ordinal subranges */
+PREDEF_KEYWORD (pow,            1, E_O_PASCAL)          /* exponentiation operator with integer exponent */
+PREDEF_KEYWORD (procedure,      0, ANY_PASCAL)          /* procedure declaration */
+PREDEF_KEYWORD (program,        0, ANY_PASCAL)          /* start of a Pascal program */
+PREDEF_KEYWORD (qualified,      1, E_O_PASCAL)          /* import specification */
+PREDEF_KEYWORD (record,         0, ANY_PASCAL)          /* record type declaration */
+PREDEF_KEYWORD (repeat,         0, ANY_PASCAL)          /* loop statement */
+PREDEF_KEYWORD (restricted,     1, E_O_PASCAL)          /* restricted type specification */
+PREDEF_KEYWORD (set,            0, ANY_PASCAL)          /* set type declaration */
+PREDEF_KEYWORD (shl,            1, B_D_M_PASCAL)        /* bitwise left shift operator */
+PREDEF_KEYWORD (shr,            1, B_D_M_PASCAL)        /* bitwise right shift operator */
+PREDEF_KEYWORD (then,           0, ANY_PASCAL)          /* part of an <if> statement or part of the <and then> operator */
+PREDEF_KEYWORD (to,             0, ANY_PASCAL)          /* part of a <for> loop counting upwards or a <to begin do> or <to end do> module constructor or destructor */
+PREDEF_KEYWORD (type,           0, ANY_PASCAL)          /* type declaration or part of a <type of> type inquiry */
+PREDEF_KEYWORD (unit,           1, U_B_D_M_PASCAL)      /* UCSD and BP style unit declaration */
+PREDEF_KEYWORD (until,          0, ANY_PASCAL)          /* end of a <repeat> statement */
+PREDEF_KEYWORD (uses,           1, U_B_D_M_PASCAL)      /* unit import */
+PREDEF_KEYWORD (value,          1, E_O_PASCAL)          /* variable/type initializer */
+PREDEF_KEYWORD (var,            0, ANY_PASCAL)          /* variable declaration or reference parameter declaration */
+PREDEF_KEYWORD (virtual,       -1, O_B_D_M_PASCAL)      /* virtual object method declaration */
+PREDEF_KEYWORD (override,      -1, O_D_M_PASCAL)        /* override directive */
+PREDEF_KEYWORD (while,          0, ANY_PASCAL)          /* loop statement */
+PREDEF_KEYWORD (with,           0, ANY_PASCAL)          /* automatic <record> or object field access */
+PREDEF_KEYWORD (xor,            1, B_D_M_PASCAL)        /* Boolean or bitwise `exclusive or' operator */
+PREDEF_KEYWORD (reintroduce,   -1, BORLAND_DELPHI)      /* Explicit method
+shadowing */
+PREDEF_KEYWORD (view,           1, OBJECT_PASCAL)       /* OOE class view */
+#if 0
+PREDEF_KEYWORD (property,       1, O_D_PASCAL)          /* OOE property classes/Delphi object properties (not yet implemented) */
+PREDEF_KEYWORD (try,            1, BORLAND_DELPHI)      /* try statement */
+PREDEF_KEYWORD (except,         1, BORLAND_DELPHI)      /* exception handler */
+PREDEF_KEYWORD (finally,        1, BORLAND_DELPHI)      /* block finally */
+PREDEF_KEYWORD (overload,       1, BORLAND_DELPHI)      /* overload directive */
+PREDEF_KEYWORD (raise,          1, BORLAND_DELPHI)      /* raise statement */
+PREDEF_KEYWORD (on,             1, BORLAND_DELPHI)      /* on clause */
+PREDEF_KEYWORD (exports,        1, B_D_PASCAL)          /* library export (not yet implemented) */
+PREDEF_KEYWORD (interrupt,      1, B_D_PASCAL)          /* interrupt handler declaration (not yet implemented) */
+PREDEF_KEYWORD (library,        1, B_D_PASCAL)          /* library declaration (not yet implemented) */
+PREDEF_KEYWORD (resident,       1, B_D_PASCAL)          /* library export specification (not yet implemented) */
+PREDEF_KEYWORD (segment,        1, UCSD_PASCAL)         /* segment specification (not yet implemented) */
+#endif
+
+PREDEF_INTERFACE (StandardInput,  E_O_PASCAL)
+PREDEF_INTERFACE (StandardOutput, E_O_PASCAL)
+PREDEF_INTERFACE (StandardError,  GNU_PASCAL)
+
+PREDEF_CONST (MaxInt,  pascal_maxint_node,     ANY_PASCAL)
+PREDEF_CONST (False,   boolean_false_node,     ANY_PASCAL)
+PREDEF_CONST (True,    boolean_true_node,      ANY_PASCAL)
+PREDEF_CONST (MaxChar, char_max_node,          E_O_PASCAL)
+PREDEF_CONST (MaxReal, real_max_node,          E_O_PASCAL)
+PREDEF_CONST (MinReal, real_min_node,          E_O_PASCAL)
+PREDEF_CONST (EpsReal, real_eps_node,          E_O_PASCAL)
+PREDEF_CONST (Pi,      real_pi_node,           B_D_M_PASCAL)
+PREDEF_CONST (Null,    null_pseudo_const_node, BORLAND_DELPHI)
+
+PREDEF_TYPE (Integer,     pascal_integer_type_node,     ANY_PASCAL)
+PREDEF_TYPE (Cardinal,    pascal_cardinal_type_node,    BORLAND_DELPHI)
+PREDEF_TYPE (Word,        pascal_cardinal_type_node,    B_D_PASCAL)
+PREDEF_TYPE (CInteger,    integer_type_node,            GNU_PASCAL)
+PREDEF_TYPE (CCardinal,   unsigned_type_node,           GNU_PASCAL)
+PREDEF_TYPE (CWord,       unsigned_type_node,           GNU_PASCAL)
+PREDEF_TYPE (ByteInt,     byte_integer_type_node,       GNU_PASCAL)
+PREDEF_TYPE (ByteCard,    byte_unsigned_type_node,      GNU_PASCAL)
+PREDEF_TYPE (Byte,        byte_unsigned_type_node,      B_D_M_PASCAL)
+PREDEF_TYPE (ShortInt,    short_integer_type_node,      B_D_PASCAL)
+PREDEF_TYPE (SmallInt,    short_integer_type_node,      BORLAND_DELPHI)
+PREDEF_TYPE (ShortCard,   short_unsigned_type_node,     GNU_PASCAL)
+PREDEF_TYPE (ShortWord,   short_unsigned_type_node,     GNU_PASCAL)
+PREDEF_TYPE (MedInt,      long_integer_type_node,       GNU_PASCAL)
+PREDEF_TYPE (MedCard,     long_unsigned_type_node,      GNU_PASCAL)
+PREDEF_TYPE (MedWord,     long_unsigned_type_node,      GNU_PASCAL)
+PREDEF_TYPE (LongestInt,  long_long_integer_type_node,  GNU_PASCAL)
+PREDEF_TYPE (LongInt,     long_long_integer_type_node,  B_D_M_PASCAL)
+PREDEF_TYPE (Comp,        long_long_integer_type_node,  B_D_M_PASCAL)
+PREDEF_TYPE (LongestCard, long_long_unsigned_type_node, GNU_PASCAL)
+PREDEF_TYPE (LongestWord, long_long_unsigned_type_node, GNU_PASCAL)
+PREDEF_TYPE (LongCard,    long_long_unsigned_type_node, GNU_PASCAL)
+PREDEF_TYPE (LongWord,    long_long_unsigned_type_node, GNU_PASCAL)
+PREDEF_TYPE (SizeType,    size_type_node,               GNU_PASCAL)
+PREDEF_TYPE (PtrInt,      ptrsize_integer_type_node,    GNU_PASCAL)
+PREDEF_TYPE (PtrCard,     ptrsize_unsigned_type_node,   GNU_PASCAL)
+PREDEF_TYPE (PtrWord,     ptrsize_unsigned_type_node,   GNU_PASCAL)
+PREDEF_TYPE (PtrDiffType, ptrdiff_type_node,            GNU_PASCAL)
+
+PREDEF_TYPE (ShortReal,   float_type_node,              GNU_PASCAL)
+PREDEF_TYPE (Single,      float_type_node,              B_D_M_PASCAL)
+PREDEF_TYPE (Real,        double_type_node,             ANY_PASCAL)
+PREDEF_TYPE (MedReal,     double_type_node,             GNU_PASCAL)
+PREDEF_TYPE (Double,      double_type_node,             B_D_M_PASCAL)
+PREDEF_TYPE (LongReal,    long_double_type_node,        MAC_PASCAL)
+PREDEF_TYPE (LongestReal, long_double_type_node,        GNU_PASCAL)
+PREDEF_TYPE (Extended,    long_double_type_node,        B_D_M_PASCAL)
+PREDEF_TYPE (Complex,     complex_type_node,            E_O_PASCAL)
+PREDEF_TYPE (Boolean,     boolean_type_node,            ANY_PASCAL)
+PREDEF_TYPE (ByteBool,    byte_boolean_type_node,       B_D_PASCAL)
+PREDEF_TYPE (ShortBool,   short_boolean_type_node,      GNU_PASCAL)
+PREDEF_TYPE (WordBool,    word_boolean_type_node,       B_D_PASCAL)
+PREDEF_TYPE (CWordBool,   cword_boolean_type_node,      GNU_PASCAL)
+PREDEF_TYPE (MedBool,     long_boolean_type_node,       GNU_PASCAL)
+PREDEF_TYPE (LongBool,    long_long_boolean_type_node,  B_D_PASCAL)
+PREDEF_TYPE (LongestBool, long_long_boolean_type_node,  GNU_PASCAL)
+PREDEF_TYPE (CBoolean,    cboolean_type_node,           GNU_PASCAL)
+PREDEF_TYPE (Void,        void_type_node,               GNU_PASCAL)
+PREDEF_TYPE (Char,        char_type_node,               ANY_PASCAL)
+PREDEF_TYPE (AnsiChar,    char_type_node,               BORLAND_DELPHI)
+PREDEF_TYPE (CString,     cstring_type_node,            GNU_PASCAL)
+PREDEF_TYPE (PChar,       cstring_type_node,            B_D_PASCAL)
+PREDEF_TYPE (PAnsiChar,   cstring_type_node,            BORLAND_DELPHI)
+PREDEF_TYPE (Pointer,     ptr_type_node,                B_D_M_PASCAL)
+PREDEF_TYPE (PObjectType, gpc_type_PObjectType,         GNU_PASCAL)
+PREDEF_TYPE (String,      string_schema_proto_type,     NOT_CLASSIC_PASCAL)
+PREDEF_TYPE (Text,        text_type_node,               ANY_PASCAL)
+PREDEF_TYPE (AnyFile,     any_file_type_node,           GNU_PASCAL)
+PREDEF_TYPE (TimeStamp,   gpc_type_TimeStamp,           E_O_PASCAL)
+PREDEF_TYPE (BindingType, gpc_type_BindingType,         E_O_PASCAL)
+
+PREDEF_VAR (Input,    input_variable_node,    U_B_D_M_PASCAL)
+PREDEF_VAR (Output,   output_variable_node,   U_B_D_M_PASCAL)
+PREDEF_VAR (StdErr,   error_variable_node,    GNU_PASCAL)
+PREDEF_VAR (InOutRes, inoutres_variable_node, U_B_D_M_PASCAL)
+
+PREDEF_SYNTAX (Return,       "-,x|",   0, MAC_PASCAL)
+PREDEF_SYNTAX (Exit,         "-|",     0, U_B_D_M_PASCAL)
+PREDEF_SYNTAX (Addr,         "pX|",    0, B_D_M_PASCAL)
+PREDEF_SYNTAX (Assigned,     "by|",    0, B_D_PASCAL)
+PREDEF_SYNTAX (New,          "p^,|p$", 0, ANY_PASCAL)
+PREDEF_SYNTAX (Dispose,      "-p,|-p", 0, ANY_PASCAL)
+PREDEF_SYNTAX (FormatString, "ss,|",   0, GNU_PASCAL)
+PREDEF_SYNTAX (StringOf,     "s,|",    0, MAC_PASCAL)
+
+PREDEF_ROUTINE (Break,              "-|",            0,             B_D_PASCAL)
+PREDEF_ROUTINE (Continue,           "-|",            0,             B_D_M_PASCAL)
+PREDEF_ROUTINE (Leave,              "-|",            0,             MAC_PASCAL)
+PREDEF_ROUTINE (Cycle,              "-|",            0,             MAC_PASCAL)
+PREDEF_ROUTINE (Fail,               "-|",            0,             B_D_PASCAL)
+
+PREDEF_ROUTINE (High,               "x#|",           0,             B_D_M_PASCAL)
+PREDEF_ROUTINE (Low,                "x#|",           0,             B_D_PASCAL)
+PREDEF_ROUTINE (SizeOf,             "i#|",           0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (BitSizeOf,          "i#|",           0,             GNU_PASCAL)
+PREDEF_ROUTINE (AlignOf,            "i#|",           0,             GNU_PASCAL)
+PREDEF_ROUTINE (TypeOf,             "p#|",           0,             B_D_PASCAL)
+
+PREDEF_ROUTINE (Halt,               "-,i",           ER_NORETURN,   NOT_CLASSIC_PASCAL)
+PREDEF_ROUTINE (RunError,           "-,i",           ER_NORETURN,   B_D_M_PASCAL)
+PREDEF_ROUTINE (IOResult,           "i",             0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Discard,            "-x|",           0,             GNU_PASCAL)
+PREDEF_ROUTINE (Assert,             "-b,s|-bs",      0,             BORLAND_DELPHI)
+PREDEF_ROUTINE (CompilerAssert,     "xb,x|",         0,             GNU_PASCAL)
+PREDEF_ROUTINE (ReturnAddress,      "pi|",           0,             GNU_PASCAL)
+PREDEF_ROUTINE (FrameAddress,       "pi|",           0,             GNU_PASCAL)
+PREDEF_ROUTINE (CurrentRoutineName, "s|",            0,             GNU_PASCAL)
+
+PREDEF_ALIAS   (GetMem, New,        "-Pi|p$",        0,             B_D_M_PASCAL)
+PREDEF_ALIAS   (FreeMem, Dispose,   "-p,i|-p",       0,             B_D_M_PASCAL)
+PREDEF_ROUTINE (Mark,               "-P",            0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Release,            "-p",            0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Move,               "-xXi|-pp$",     0,             B_D_M_PASCAL)
+PREDEF_ROUTINE (MoveLeft,           "-xXi|-pp$",     0,             U_M_PASCAL)
+PREDEF_ROUTINE (MoveRight,          "-xXi|-pp$",     0,             U_M_PASCAL)
+PREDEF_ROUTINE (FillChar,           "-Xiu|",         0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Pack,               "-x&X|",         0,             C_E_O_M_PASCAL)
+PREDEF_ROUTINE (Unpack,             "-xX&|",         0,             C_E_O_M_PASCAL)
+PREDEF_ROUTINE (Initialize,         "-X|",           0,             BORLAND_DELPHI)
+PREDEF_ROUTINE (Finalize,           "-X|",           0,             BORLAND_DELPHI)
+PREDEF_ROUTINE (SetType,            "-Op|",          0,             GNU_PASCAL)
+
+PREDEF_ROUTINE (Abs,                "rr|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Sqr,                "xz|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Sin,                "rr",            ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Cos,                "rr",            ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (ArcSin,             "rr",            ER_CONST,      GNU_PASCAL)
+PREDEF_ROUTINE (ArcCos,             "rr",            ER_CONST,      GNU_PASCAL)
+PREDEF_ROUTINE (ArcTan,             "rr",            ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (SqRt,               "rr",            ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Exp,                "rr",            ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Ln,                 "rr",            ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Trunc,              "ir|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Round,              "ir|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Int,                "ee",            ER_CONST,      U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Frac,               "ee",            ER_CONST,      B_D_M_PASCAL)
+PREDEF_ROUTINE (Cmplx,              "zrr|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (Polar,              "zrr",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (Arg,                "rz",            0,             E_O_PASCAL)
+PREDEF_ROUTINE (Conjugate,          "zz|",           0,             GNU_PASCAL)
+PREDEF_ROUTINE (Re,                 "rz|",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (Im,                 "rz|",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (Randomize,          "-",             0,             U_B_D_M_PASCAL)
+PREDEF_ALIAS   (Random, RandInt,    "nn",            0,             U_B_D_M_PASCAL)
+
+PREDEF_ROUTINE (Card,               "im",            0,             E_O_PASCAL)
+PREDEF_ROUTINE (Include,            "-Mu|-Mi",       0,             B_D_PASCAL)
+PREDEF_ROUTINE (Exclude,            "-Mu|-Mi",       0,             B_D_PASCAL)
+
+PREDEF_ROUTINE (Inc,                "-V,r|",         0,             B_D_M_PASCAL)
+PREDEF_ROUTINE (Dec,                "-V,r|",         0,             B_D_M_PASCAL)
+PREDEF_ROUTINE (Succ,               "xv,r|",         ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Pred,               "xv,r|",         ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Max,                "xww|",          ER_CONST,      GNU_PASCAL)
+PREDEF_ROUTINE (Min,                "xww|",          ER_CONST,      GNU_PASCAL)
+PREDEF_ROUTINE (Odd,                "bi|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Ord,                "iu|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (Chr,                "ci|",           ER_CONST,      ANY_PASCAL)
+PREDEF_ROUTINE (UpCase,             "cc",            ER_CONST,      B_D_M_PASCAL)
+PREDEF_ROUTINE (LoCase,             "cc",            ER_CONST,      GNU_PASCAL)
+
+PREDEF_ROUTINE (Length,             "is|",           0,             NOT_CLASSIC_PASCAL)
+PREDEF_ROUTINE (SetLength,          "-Si|",          0,             BORLAND_DELPHI)
+PREDEF_ROUTINE (Pos,                "iss",           0,             U_B_D_M_PASCAL)
+PREDEF_ALIAS   (Index, Pos,         "iss",           0,             E_O_PASCAL)  /* @@ keyword in BP */
+PREDEF_ROUTINE (Trim,               "!s|!sS",        0,             E_O_PASCAL)
+PREDEF_ROUTINE (SubStr,             "!si,i|!piiiSi", 0,             E_O_PASCAL)
+PREDEF_ALIAS   (Copy, SubStr,       "!si,i|!piiiSi", 0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Concat,             "ss,|",          0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Insert,             "-sSi|-sSib",    0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Delete,             "-Si,i",         0,             U_B_D_M_PASCAL)
+PREDEF_ROUTINE (EQ,                 "bss",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (NE,                 "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (LT,                 "bss",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (GT,                 "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (LE,                 "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (GE,                 "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (EQPad,              "bss",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (NEPad,              "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (LTPad,              "bss",           0,             E_O_PASCAL)
+PREDEF_ROUTINE (GTPad,              "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (LEPad,              "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (GEPad,              "bss|",          0,             E_O_PASCAL)
+PREDEF_ROUTINE (NewCString,         "qs",            0,             GNU_PASCAL)
+PREDEF_ROUTINE (CStringCopyString,  "qqs",           0,             GNU_PASCAL)
+PREDEF_ALIAS   (String2CString, CStringCopyString, "qs|qqs", 0,     GNU_PASCAL)
+PREDEF_ALIAS   (CString2String, CopyCString,       "sq|-qS", 0,     GNU_PASCAL)
+PREDEF_ALIAS   (ParamStr,       CopyCString,       "si|-qS", 0,     B_D_PASCAL)
+PREDEF_ROUTINE (ParamCount,         "i|",            0,             B_D_PASCAL)
+PREDEF_ROUTINE (Val,                "-sXX|",         0,             B_D_M_PASCAL)
+
+PREDEF_ROUTINE (GetTimeStamp,       "-T",            0,             E_O_PASCAL)
+PREDEF_ROUTINE (Date,               "~t",            0,             E_O_PASCAL)
+PREDEF_ROUTINE (Time,               "~t",            0,             E_O_PASCAL)
+
+PREDEF_ROUTINE (Bind,               "-Fa|-FA",       ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (Unbind,             "-F",            ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (Binding,            "af",            ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (Assign,             "-Fs",           ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (Reset,              "-F,xi|-Fsbi",   ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (Rewrite,            "-F,xi|-Fsbi",   ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (Extend,             "-F,xi|-Fsbi",   ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ALIAS   (Append, Extend,     "-F,xi|-Fsbi",   ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (Close,              "-F",            ER_IOCRITICAL, U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Update,             "-F",            ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (Flush,              "-F",            ER_IOCRITICAL, B_D_PASCAL)
+PREDEF_ROUTINE (EOF,                "b,f",           ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (EOLn,               "b,j",           ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (SeekEOF,            "b,j",           ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (SeekEOLn,           "b,j",           ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (Empty,              "bF",            ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (Get,                "-F",            ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (Put,                "-F",            ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (Page,               "-,J",           ER_IOCRITICAL, C_E_O_U_M_PASCAL)
+PREDEF_ROUTINE (Position,           "lF",            ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (LastPosition,       "lF",            ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ALIAS   (FilePos, Position,  "lF",            ER_IOCRITICAL, B_D_PASCAL)
+PREDEF_ROUTINE (FileSize,           "lF",            ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (Truncate,           "-F",            ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (DefineSize,         "-Fl",           ER_IOCRITICAL, GNU_PASCAL)  /* from Pax */
+PREDEF_ROUTINE (SetFileTime,        "-Fll",          ER_IOCRITICAL, GNU_PASCAL)
+PREDEF_ROUTINE (Seek,               "-Fu|-Fl",       ER_IOCRITICAL, U_B_D_M_PASCAL)
+PREDEF_ROUTINE (SeekWrite,          "-Fu|-Fl",       ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (SeekRead,           "-Fu|-Fl",       ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (SeekUpdate,         "-Fu|-Fl",       ER_IOCRITICAL, E_O_PASCAL)
+PREDEF_ROUTINE (BlockRead,          "-KXh,H|-FbphH", ER_IOCRITICAL, U_B_D_M_PASCAL)
+PREDEF_ROUTINE (BlockWrite,         "-Kxh,H|-FbphH", ER_IOCRITICAL, U_B_D_M_PASCAL)
+PREDEF_ROUTINE (Erase,              "-F",            ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (Rename,             "-Fs",           ER_IOCRITICAL, B_D_M_PASCAL)
+PREDEF_ROUTINE (ChDir,              "-s",            ER_IOCRITICAL, B_D_PASCAL)
+PREDEF_ROUTINE (MkDir,              "-s",            ER_IOCRITICAL, B_D_PASCAL)
+PREDEF_ROUTINE (RmDir,              "-s",            ER_IOCRITICAL, B_D_PASCAL)
+
+PREDEF_ROUTINE_NO_ID (InitFDR,               "-@qii",    0)
+PREDEF_ROUTINE_NO_ID (DoneFDR,               "-@",       ER_IOCRITICAL)
+PREDEF_ROUTINE_NO_ID (LazyTryGet,            "pF",       ER_IOCRITICAL)
+PREDEF_ROUTINE_NO_ID (LazyGet,               "pF",       ER_IOCRITICAL)
+PREDEF_ROUTINE_NO_ID (LazyUnget,             "pF",       ER_IOCRITICAL)
+
+PREDEF_ROUTINE_NO_ID (Integer_Pow,           "lll",      ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_Sin,          "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_Cos,          "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_ArcSin,       "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_ArcCos,       "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_ArcTan,       "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_SqRt,         "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_Exp,          "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_Ln,           "ee",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_Pow,          "eei",      ER_CONST)
+PREDEF_ROUTINE_NO_ID (LongReal_Power,        "eee",      ER_CONST)
+
+/* @@ Note: Don't use ER_CONST for the complex functions. It has no effect
+      on some platforms (e.g., Linux/IA32), and fails completely (i.e.,
+      functions are not called) on others (e.g., IRIX/MIPS, maur8.pas). */
+PREDEF_ROUTINE_NO_ID (Complex_Abs,           "rz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_Sin,           "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_Cos,           "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_ArcSin,        "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_ArcCos,        "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_ArcTan,        "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_SqRt,          "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_Exp,           "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_Ln,            "zz",       0)
+PREDEF_ROUTINE_NO_ID (Complex_Pow,           "zzi",      0)
+PREDEF_ROUTINE_NO_ID (Complex_Power,         "zzr",      0)
+
+PREDEF_ROUTINE (Write,    ">,|",   ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (WriteLn,  ">,|",   ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (WriteStr, ">x,|",  0,             E_O_PASCAL)
+PREDEF_ROUTINE (Str,      ">xx,|", 0,             U_B_D_M_PASCAL)
+
+PREDEF_ROUTINE_NO_ID (Write_Flush,         "-F",    0)
+PREDEF_ROUTINE_NO_ID (Write_Integer,       "-Fii",  0)
+PREDEF_ROUTINE_NO_ID (Write_LongInt,       "-Fli",  0)
+PREDEF_ROUTINE_NO_ID (Write_Cardinal,      "-Fhi",  0)
+PREDEF_ROUTINE_NO_ID (Write_LongCard,      "-Fni",  0)
+PREDEF_ROUTINE_NO_ID (Write_Real,          "-Feii", 0)
+PREDEF_ROUTINE_NO_ID (Write_Char,          "-Fci",  0)
+PREDEF_ROUTINE_NO_ID (Write_Boolean,       "-Fbi",  0)
+PREDEF_ROUTINE_NO_ID (Write_String,        "-Fphi", 0)
+PREDEF_ROUTINE_NO_ID (Write_Line,          "-F",    0)
+PREDEF_ROUTINE_NO_ID (Write_Init,          "-Fi",   0)
+PREDEF_ROUTINE_NO_ID (WriteStr_Init,       "ppii",  0)
+PREDEF_ROUTINE_NO_ID (WriteStr_GetLength,  "iF",    0)
+PREDEF_ROUTINE_NO_ID (FormatString_Init,   "pii",   0)
+PREDEF_ROUTINE_NO_ID (FormatString_Result, "%Fs",   0)
+PREDEF_ROUTINE_NO_ID (StringOf_Result,     "%F",    0)
+
+PREDEF_ROUTINE (Read,    "-,|",  ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (ReadLn,  "-,|",  ER_IOCRITICAL, ANY_PASCAL)
+PREDEF_ROUTINE (ReadStr, "-x,|", 0,             E_O_PASCAL)
+PREDEF_ALIAS (ReadString, ReadStr, "-x,|", 0, MAC_PASCAL)
+PREDEF_ROUTINE_NO_ID (Read_Init,         "-Fi",  0)
+PREDEF_ROUTINE_NO_ID (ReadStr_Init,      "pphi", 0)
+PREDEF_ROUTINE_NO_ID (ReadWriteStr_Done, "-F",   0)
+PREDEF_ROUTINE_NO_ID (Val_Done,          "iF",   0)
+PREDEF_ROUTINE_NO_ID (Read_Integer,      "lF",   0)
+PREDEF_ROUTINE_NO_ID (Read_Cardinal,     "nF",   0)
+PREDEF_ROUTINE_NO_ID (Read_Char,         "cF",   0)
+PREDEF_ROUTINE_NO_ID (Read_ShortReal,    "/F",   0)
+PREDEF_ROUTINE_NO_ID (Read_Real,         "rF",   0)
+PREDEF_ROUTINE_NO_ID (Read_LongReal,     "eF",   0)
+PREDEF_ROUTINE_NO_ID (Read_String,       "iFpi", 0)
+PREDEF_ROUTINE_NO_ID (Read_FixedString,  "-Fpi", 0)
+PREDEF_ROUTINE_NO_ID (Read_Line,         "-F",   0)
+
+PREDEF_ROUTINE_NO_ID (Set_IsEmpty,           "bm",       0)
+PREDEF_ROUTINE_NO_ID (Set_Equal,             "bmm",      0)
+PREDEF_ROUTINE_NO_ID (Set_LE,                "bmm",      0)
+PREDEF_ROUTINE_NO_ID (Set_Less,              "bmm",      0)
+PREDEF_ROUTINE_NO_ID (Set_Clear,             "-M",       0)
+PREDEF_ROUTINE_NO_ID (Set_Copy,              "-Mm|-mM",  0)
+PREDEF_ROUTINE_NO_ID (Set_Intersection,      "!mm|-mmM", 0)
+PREDEF_ROUTINE_NO_ID (Set_Union,             "!mm|-mmM", 0)
+PREDEF_ROUTINE_NO_ID (Set_Diff,              "!mm|-mmM", 0)
+PREDEF_ROUTINE_NO_ID (Set_SymDiff,           "!mm|-mmM", 0)
+PREDEF_ROUTINE_NO_ID (Set_RangeCheck,        "-mii",     0)
+
+PREDEF_ROUTINE_NO_ID (BP_UpCase,             "cc",       ER_CONST)
+PREDEF_ROUTINE_NO_ID (RandReal,              "e",        0)
+PREDEF_ROUTINE_NO_ID (PosChar,               "ics",      0)
+
+/* @@ "i": kludge, so build_predef_call() doesn't expand it and it can be used in a COND_EXPR */
+PREDEF_ROUTINE_NO_ID (DisposeNilError,            "-", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (CaseNoMatchError,           "-", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (DiscriminantsMismatchError, "i", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (NilPointerError,            "i", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (InvalidObjectError,         "i", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (RangeCheckError,            "i", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (IORangeCheckError,          "i", 0)
+PREDEF_ROUTINE_NO_ID (SubrangeError,              "i", ER_NORETURN)
+PREDEF_ROUTINE_NO_ID (ModRangeError,              "i", ER_NORETURN)
+
+PREDEF_SYMBOL (p_in,      Set_In,            "in",  "bum|bmi",   0)
+PREDEF_SYMBOL (p_pow,     Pow,               "pow", "rri",       ER_CONST)
+PREDEF_SYMBOL (LEX_POWER, Power,             "**",  "rrr",       ER_CONST)
+PREDEF_SYMBOL ('=',       StrEQ,             "=",   "bss",       0)
+PREDEF_SYMBOL (LEX_NE,    StrEQ,             "<>",  "bss|",      0)
+PREDEF_SYMBOL ('<',       StrLT,             "<",   "bss",       0)
+PREDEF_SYMBOL (LEX_LE,    StrLT,             "<=",  "bss|",      0)
+PREDEF_SYMBOL ('>',       StrLT,             ">",   "bss|",      0)
+PREDEF_SYMBOL (LEX_GE,    StrLT,             ">=",  "bss|",      0)
+PREDEF_SYMBOL (p_is,      ObjectTypeIs,      "is",  "bpp",       ER_CONST)
+PREDEF_SYMBOL (p_as,      ObjectTypeAsError, "as",  "-",         ER_NORETURN)
+PREDEF_SYMBOL (p_and,     And,               "and", "-Ii|",      0)
+PREDEF_SYMBOL (p_or,      Or,                "or",  "-Ii|",      0)
+PREDEF_SYMBOL (p_xor,     Xor,               "xor", "-Ii|",      0)
+PREDEF_SYMBOL (p_shl,     Shl,               "shl", "-Ii|",      0)
+PREDEF_SYMBOL (p_shr,     Shr,               "shr", "-Ii|",      0)
+PREDEF_SYMBOL (p_not,     Not,               "not", "-I|",       0)

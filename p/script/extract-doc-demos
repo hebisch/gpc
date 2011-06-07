@@ -1,0 +1,142 @@
+#!/bin/sh
+
+# Extract the demo programs from the GPC Manual.
+#
+# Demo programs are recognized by a `program', `module' or `unit'
+# header, or a "File `filename.foo':" line (which will not become
+# part of the file). Each one must start in the first column and
+# must immediately, even without any newlines in between, follow an
+# `@smallexample' (which must be on a line by itself). The file is
+# assumed to extend until the next `@end smallexample'.
+#
+# For Pascal demos, the filename is derived from the program, module
+# or unit name (if several ones in one file, the first one),
+# converted to lower case, and with `.pas' appended. In `File'
+# lines, the file name must be specified explicitly.
+#
+# Copyright (C) 2000-2006 Free Software Foundation, Inc.
+#
+# Author: Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to the
+# Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+dest=.
+if [ x"$1" = x"-o" ]; then
+  dest="$2"
+  shift
+  shift
+fi
+
+if [ $# = 0 ]; then
+  echo "Usage: `basename "$0"` [-o DIR] input-files" >&2
+  echo "  -o DIR  Write output files into DIR" >&2
+  exit 1
+fi
+
+# This should work even with a crippled sed ...
+dir="`echo "$0" | sed -e 's,\(.\)/*[^/]*$,\1,'`" || exit 1
+sed="`"$dir"/find-sed`" ||
+  {
+    echo "This script needs a good sed to extract the demo programs from the" >&2
+    echo "GPC Manual. You can continue now and skip the installation of these" >&2
+    echo "demos." >&2
+    echo "" >&2
+    echo "Press ENTER to continue without docdemos; ^C to abort." >&2
+    read junk
+    exit 0
+  }
+
+if [ ! -d "$dest" ]; then
+  mkdir "$dest" || exit 1
+fi
+
+TMPFILE="extract-doc-demos.tmp.sh"
+rm -rf "$TMPFILE"
+PMU='[Pp][Rr][Oo][Gg][Rr][Aa][Mm]\|[Mm][Oo][Dd][Uu][Ll][Ee]\|[Uu][Nn][Ii][Tt]'
+{
+cat << 'EOF'
+start_demo()
+{
+  {
+    # Format the comment according to file name suffix.
+    # Add suffixes here when necessary.
+    case "$1" in
+      *.pas|*.inc) echo "{ GPC demo program. For copying conditions see the file \`COPYING.DEMO'. }";;
+      *.[ch])      echo "/* GPC demo program. For copying conditions see the file \`COPYING.DEMO'. */";;
+      *)           echo "Unknown demo file suffix in \`$1'" >&2; exit 1;;
+    esac
+    echo ""
+    cat
+  } > "$1"
+}
+EOF
+cat "$@" | "$sed" -ne '
+  /@smallexample/N;
+  /@smallexample.\('"$PMU"'\)  *[^@]/,/@end smallexample/{
+    s/@smallexample.\(\('"$PMU"'\)  *\([A-Za-z_0-9][A-Za-z_0-9]*\)\)/\
+      fn="`echo "\3" | tr A-Z a-z`.pas"; \
+      if [ -r "$fn" ]; then echo "$fn exists twice." >\&2; exit 1; fi; \
+      start_demo "$fn" << '"'"'--extract-doc-demos-EOF--'"'"' \
+\1/;
+    s/@end smallexample/--extract-doc-demos-EOF--/;
+    s/@\(code\|kbd\|samp\|url\|uref\|file\|email\|cite\){\([^}]*\)}/`\2'"'"'/g;
+    s/@\(key\|var\){\([^}]*\)}/<\2>/g;
+    s/@\(emph\|strong\){\([^}]*\)}/*\2*/g;
+    s/@\([@{}]\)/\1/g;
+    p;
+  };
+  /@smallexample.File `..*'"'"':/,/@end smallexample/{
+    /@smallexample.File `\(..*\)'"'"':/{
+      s//\
+        fn="\1"; \
+        if [ -r "$fn" ]; then echo "$fn exists twice." >\&2; exit 1; fi; \
+        start_demo "$fn" << '"'"'--extract-doc-demos-EOF--'"'"'/;
+      N;
+      s/\n$//;
+    };
+    s/@end smallexample/--extract-doc-demos-EOF--/;
+    s/@\(code\|kbd\|samp\|url\|uref\|file\|email\|cite\){\([^}]*\)}/`\2'"'"'/g;
+    s/@\(key\|var\){\([^}]*\)}/<\2>/g;
+    s/@\(emph\|strong\){\([^}]*\)}/*\2*/g;
+    s/@\([@{}]\)/\1/g;
+    p;
+  }
+'
+} > "$dest/$TMPFILE" || { rm "$dest/$TMPFILE"; exit 1; }
+cd "$dest"
+sh "$TMPFILE" || { rm "$TMPFILE"; exit 1; }
+rm -f "$TMPFILE"
+
+cat > README << 'EOF'
+GPC Manual Demo Programs
+************************
+
+These GPC demo programs are part of the GPC Manual. When you read
+the GPC Manual, and come across the demo programs printed in it, you
+do not have to type them in, but you will find them here, ready to
+be compiled.
+
+Most of the programs do not serve any useful purpose by themselves,
+they are just short examples of using certain GPC features.
+
+You can find some more interesting and longer demo programs in the
+directory `demos'.
+
+The license under which the docdemo programs are released can be
+found in the file `COPYING.DEMO'.
+EOF

@@ -1,0 +1,98 @@
+@c Copyright (C) 1999-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Author: Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+@c Translator: Mirsad Todorovac <mtodorov_69@yahoo.com>
+
+Bit æe vam potrebne dodatne biblioteke (engl. library) dok prevodite neke
+od jedinica (engl. unit). Ove se mogu naæi u direktoriju
+@uref{http://www.gnu-pascal.de/libs/}.
+
+Trenutno, tamo su slijedeæe biblioteke:
+
+@table @asis
+@item gmp
+Aritmetika za cijele brojeve, racionalne i realne brojeve s
+proizvoljnom velièinom i precizno¹æu. Koristi ju GMP jedinica.
+
+@item rx
+Regularni izrazi - podudaranje i supstitucija. Koristi ju RegEx
+jedinica.
+
+@item ncurses
+@itemx PDCurses
+Rukovanje terminalom. Koristi ju CRT jedinica. Zavisno od va¹eg sistema,
+mo¾ete imati slijedeæi izbor:
+
+Unix: Mo¾ete prevesti terminalske aplikacije s ncurses i aplikacije koje
+rade u X11 prozoru s PDCurses (iako i terminalska aplikacija mo¾e, naravno,
+raditi i pod X11 u xterm-u). Ako ¾elite koristiti PDCurses (tj. XCurses),
+dajte opciju @samp{-DX11} kod prevoðenja CRT-a.
+
+Dos sa DJGPP i MS-Windows sa mingw: Samo PDCurses je
+na raspolaganju i bit æe podrazumno kori¹ten.
+
+MS-Windows i Cygwin: PDCurses i ncurses su oboje na raspolaganju.
+PDCurses se koristi podrazumno. Ako ¾elite koristiti ncurses, postavite
+opciju @samp{-DUSE_NCURSES} kod prevoðenja CRT-a.
+
+Drugi sistemi: Molim pogledajte @file{README} datoteke i instalacijske
+instrukcije PDCurses i ncurses kako bi ste ustanovili koje (odnosno koje)
+se mogu izgraditi na va¹em sistemu. Pogledajte uvjetne direktive na kraju
+crt.inc i crtc.h (i promijenite ih ako je neophodno) koje odluèuju koja
+æe biblioteka biti podrazumno kori¹tena (odnosno engl. default).
+
+@item intl
+Internationalizacija. Koristi ju Intl jedinica. Na nekim sistemima to
+je dio sistemske biblioteke (libc).
+
+@item ElectricFence
+Ova se biblioteka ne koristi ni od jedne GPC jedinice. Ona je debugging
+alat namijenjen da vam pomogne u pronala¾enju bugova s alokacijom
+memorije. Da bi ju koristili samo je pove¾ite ("polinkajte") u svoj
+program, bilo s komandne linije (@samp{-lefence}), bilo u samom kodu
+(@samp{@{$L efence@}}) ¹to biste mogli po¾eljeti staviti unutar
+jednog @samp{@{$ifdef DEBUG@}} ili neèeg sliènog jer se kori¹tenje
+libefence preporuèa samo za debugging (odnosno ispravljanje pogre¹aka).
+@end table
+
+Izvorni kod biblioteka je na raspolaganju u glavnom
+@samp{libs} direktoriju. Veæina biblioteka dolazi s jednom ili nekoliko
+patcheva (zakrpa, nadopuna) koje treba aplicirati prije njihovog prevoðenja.
+
+Binarne distribucije za neke platforme su na raspolaganju u
+@file{binary/@var{platform}} poddirektorijima. Ako prevodite biblioteke
+za druge platforme, osjeæajte se dobrodo¹li da stavite binarne datoteke
+nama na raspolaganje za distribuciju na WWW poslu¾itelju.
+
+Tamo su takoðer slijedeæe datoteke:
+
+@table @file
+@item terminfo-linux.tar.gz
+Ovo je patch (zakrpa) koja omoguæava ncurses programima da iskoriste
+sposobnost Linux 2.2 i novijih kernela (jezgri operacijskog sustava)
+da proizvedu blok kursor kad je potrebno. Dani patch mo¾e biti
+instaliran bez potrebe da se i¹ta ponovno prevodi, samo kopiranjem
+nekih datoteka na njihovo mjesto. Vi¹e detalja mo¾e se naæi u
+@file{README} datoteci ukljuèenoj u ovu arhivu. Patch neæe na¹koditi
+starijim kernelima. Molimo primijetite da @strong{nije} samo na Linux
+strojevima korisno instalirati patch. Instaliranje na ostale strojeve
+æe omoguæiti korisnicima koji koriste telnet sa Linux konzole da
+profitiraju od blok kurzor sposobnosti. Osim toga, neki Unix sistemi
+imaju instalirane starije Linux terminfo zapise ili èak nikakve,
+tako da je dobra stvar, u svakom sluèaju, dati im trenutnu verziju.
+Patch je ukljuèen u terminfo bazu podataka ncurses verzije 5.0, tako
+da ako instalirate ncurses 5.0 (iz source ili binarne distribucije),
+ne trebate posebno dobavljati patch. Ali ga mo¾ete instalirati na
+sistem sa starijom ncurses verzijom ako se ne osjeæate raspolo¾eni
+za nadogradnju kompletnih ncurses.
+
+@item tsort-2.9i.zip
+Mali utility programèiæ (ekstrahiran iz util-linux-2.9i, ali ne
+Linux-specifièan, potreban za konfiguraciju rx biblioteke. Potreban
+vam je samo ako prevodite rx sami (i nije veæ prisutan na va¹em
+sistemu), ne ako koristite rx binarnu distribuciju.
+@end table

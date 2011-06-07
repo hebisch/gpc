@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# Replacement for `mkdir -p' which is not supported on all systems.
+#
+# Based on mkinstalldirs --- make directory hierarchy, created: 1993-05-16
+#
+# Copyright (C) 1993-2006 Free Software Foundation, Inc.
+#
+# Authors: Noah Friedman <friedman@prep.ai.mit.edu>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
+
+mode=""
+if [ x"$1" = x"-m" ]; then
+  mode="$2"
+  shift
+  shift
+fi
+
+if [ $# = 0 ]; then
+  echo "Usage: `basename "$0"` [-m MODE] directories" >&2
+  echo "  -m MODE  Set the mode of created directories to mode" >&2
+  exit 1
+fi
+
+errstatus=0
+
+for file
+do
+   set fnord `echo ":$file" | sed -ne 's/^:\//#/;s/^://;s/\// /g;s/^#/\//;p'`
+   shift
+
+   pathcomp=
+   for d
+   do
+     pathcomp="$pathcomp$d"
+     case "$pathcomp" in
+       -* ) pathcomp=./$pathcomp ;;
+     esac
+
+     if test ! -d "$pathcomp"; then
+#        echo "mkdir $pathcomp" 1>&2
+
+        mkdir "$pathcomp" || lasterr=$?
+
+        if [ x"$mode" != x ]; then
+          chmod "$mode" "$pathcomp" || lasterr=$?
+        fi
+
+        if test ! -d "$pathcomp"; then
+          errstatus=$lasterr
+        fi
+     fi
+
+     pathcomp="$pathcomp/"
+   done
+done
+
+exit $errstatus

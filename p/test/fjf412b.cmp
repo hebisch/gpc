@@ -1,0 +1,15 @@
+#!/bin/sh
+TMPFILE=dummy.out
+rm -f $TMPFILE
+if $1 $2 > $TMPFILE 2>&1; then
+  echo 'failed'
+elif grep '\$else' $TMPFILE > /dev/null; then
+  if grep '\$endif' $TMPFILE > /dev/null; then
+    echo 'OK'
+  else
+    echo 'failed: $endif'
+  fi
+else
+  echo 'failed: $else'
+fi
+rm -f $TMPFILE

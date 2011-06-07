@@ -1,0 +1,1278 @@
+# Top level Makefile fragment for GNU Pascal.
+#
+# Copyright (C) 1987-2005 Free Software Foundation, Inc.
+#
+# Authors: Jukka Virtanen <jtv@hut.fi>
+#          J.J. van der Heijden <j.j.vanderheijden@student.utwente.nl>
+#          Peter Gerwinski <peter@gerwinski.de>
+#          Matthias Klose <doko@cs.tu-berlin.de>
+#          Frank Heckenbach <frank@pascal.gnu.de>
+#          Waldek Hebisch <hebisch@math.uni.wroc.pl>
+#
+# This file is part of GNU Pascal.
+#
+# GNU Pascal is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GNU Pascal is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Pascal; see the file COPYING. If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+
+# This file provides the language dependent support in the main Makefile.
+# Each language makefile fragment must provide the following targets:
+#
+# foo.all.build, foo.all.cross, foo.start.encap, foo.rest.encap,
+# foo.info, foo.dvi,
+# foo.install-normal, foo.install-common, foo.install-info, foo.install-man,
+# foo.uninstall, foo.distdir,
+# foo.mostlyclean, foo.clean, foo.distclean, foo.extraclean,
+# foo.maintainer-clean, foo.stage1, foo.stage2, foo.stage3, foo.stage4
+#
+# where `foo' is the name of the language.
+#
+# It should also provide rules for:
+#
+# - making any compiler driver (e.g.: gpc)
+# - the compiler proper (e.g.: gpc1)
+# - define the names for selecting the language in LANGUAGES.
+
+# GCC version dependent stuff
+# gcc-2.8.1 doesn't set $(gcc_version). Only gcc-3 sets $(BACKEND).
+# So GCC_VERSION_FOR_GPC yields:
+# `28' for gcc-2.8.1
+# `2'  for gcc-2.95.x
+# `'   for gcc-3.[0-3].x
+# GCC_VERSION_FOR_GPC34 yields additionally:
+# `34' for gcc-3.[4-9].x
+# GCC_VERSION_FOR_GPC40 yields additionally:
+# `40' for gcc-4.x
+GPC_GCC_2_=2
+GPC_GCC_28_=8
+GPC_GCC_28_PPQ=$(GPC_GCC_28_$(gcc_version)$(BACKEND)
+GPC_GCC_34_PPQ_=foo
+GPC_GCC_34_PPP=$(GPC_GCC_34_PPQ_$(target_noncanonical))
+GPC_GCC_34_PP_=34
+GPC_GCC_34_=$(GPC_GCC_34_PP_$(GPC_GCC_34_PPP))
+GPC_GCC_40_PPQ_=fallback_to_34
+GPC_GCC_40_PPP=$(GPC_GCC_40_PPQ_$(TREE_GIMPLE_H))
+GPC_GCC_40_PP_=40
+GPC_GCC_40_PP_fallback_to_34=$(GPC_GCC_34_)
+GPC_GCC_40_=$(GPC_GCC_40_PP_$(GPC_GCC_40_PPP))
+GCC_VERSION_FOR_GPC=$(GPC_GCC_2_$(BACKEND))$(GPC_GCC_28_PPQ)
+GCC_VERSION_FOR_GPC34=$(GCC_VERSION_FOR_GPC)$(GPC_GCC_34_)
+GCC_VERSION_FOR_GPC40=$(GCC_VERSION_FOR_GPC)$(GPC_GCC_40_)
+GPC_GCC_VERSION_28=$(version)
+GPC_GCC_VERSION_2=$(gcc_version)
+GPC_GCC_VERSION_=$(gcc_version)
+GPC_GCC_VERSION=$(GPC_GCC_VERSION_$(GCC_VERSION_FOR_GPC))
+GPC_GCC_VERSION_OBJS_28=pexecute.o
+GPC_GCC_VERSION_OBJS_=intl.o
+GPC_GCC_VERSION_OBJS=$(GPC_GCC_VERSION_OBJS_$(GCC_VERSION_FOR_GPC))
+GPC_OBJS_FOR_40=p/gimplify.o
+GPC_OBJS_40=$(GPC_OBJS_FOR_$(GCC_VERSION_FOR_GPC40))
+GPC_GCC_VERSION_LINK_=p/diagnostic.o attribs.o main.o libbackend.a ../libiberty/libiberty.a
+GPC_GCC_VERSION_LINK_2=`cat p/stamp-gbe`
+GPC_GCC_VERSION_LINK_28=`cat p/stamp-gbe` choose-temp.o pexecute.o
+GPC_GCC_VERSION_LINK=$(GPC_GCC_VERSION_LINK_$(GCC_VERSION_FOR_GPC))
+GPC_GCC_VERSION_DEPS_=$(GPC_GCC_VERSION_LINK)
+GPC_GCC_VERSION_DEPS_2=p/stamp-gbe ../libiberty/libiberty.a
+GPC_GCC_VERSION_DEPS_28=p/stamp-gbe choose-temp.o pexecute.o
+GPC_GCC_VERSION_DEPS=$(GPC_GCC_VERSION_DEPS_$(GCC_VERSION_FOR_GPC))
+GPC_GCC_VERSION_H_=target.h dbxout.h ../include/libiberty.h
+GPC_GCC_VERSION_H_2=gansidecl.h dbxout.h ../include/libiberty.h
+GPC_GCC_VERSION_H_28=gansidecl.h
+GPC_GCC_VERSION_H=$(GPC_GCC_VERSION_H_$(GCC_VERSION_FOR_GPC))
+GPC_ALL_WARNINGS_=$(WARN_CFLAGS) $(STRICT_WARN) -Wno-traditional
+GPC_ALL_WARNINGS_2=`case "$(CC)" in *gcc*) echo -Wall -Wmissing-prototypes -Wpointer-arith;; esac` -Wno-traditional
+GPC_ALL_WARNINGS_28=`case "$(CC)" in *gcc*) echo -Wall -Wmissing-prototypes -Wpointer-arith;; esac` -Wno-traditional
+GPC_ALL_WARNINGS=$(GPC_ALL_WARNINGS_$(GCC_VERSION_FOR_GPC))
+man1dir_28=$(mandir)# gcc-2.8.1 includes `man1' in $(mandir)
+man1dir_2=$(mandir)/man1
+man1dir_=$(mandir)/man1
+man1dir=$(man1dir_$(GCC_VERSION_FOR_GPC))
+LEX_28=$(LEX)
+LEX_2=$(LEX)
+LEX_=$(FLEX)
+GPC_LEX=$(LEX_$(GCC_VERSION_FOR_GPC))
+LEXFLAGS_28=$(LEXFLAGS)
+LEXFLAGS_2=$(LEXFLAGS)
+LEXFLAGS_=$(FLEXFLAGS)
+GPC_LEXFLAGS=$(LEXFLAGS_$(GCC_VERSION_FOR_GPC))
+GPC_HOST_28=$(host)
+GPC_HOST_2=$(host_canonical)
+GPC_HOST_=$(host_canonical)
+GPC_HOST_34=$(host)
+GPC_HOST=$(GPC_HOST_$(GCC_VERSION_FOR_GPC34))
+GPC_BUILD_28=$(build)
+GPC_BUILD_2=$(build_canonical)
+GPC_BUILD_=$(build_canonical)
+GPC_BUILD_34=$(build)
+GPC_BUILD=$(GPC_BUILD_$(GCC_VERSION_FOR_GPC34))
+LIBEXECSUBDIR_34=$(libexecsubdir)
+LIBEXECSUBDIR_=$(libsubdir)
+LIBEXECSUBDIR=$(LIBEXECSUBDIR_$(GPC_GCC_34_))
+
+# gcc<3 doesn't set $(STAMP) and $(man1ext).
+# gcc-3 does, but it should not matter to set them here again.
+STAMP=echo timestamp >
+man1ext=.1
+
+RTSSRCDIR=$(srcdir)/p/rts
+
+# Version numbers
+VERSION_FILENAME=$(srcdir)/p/p-version.h
+RTS_VERSION_FILENAME=$(RTSSRCDIR)/rts-version
+gpc_major=2
+gpc_minor=1
+gpc_version=`sed -ne 's/"[^"]*$$//;s/^\#define GPC_VERSION_STRING *"//p' $(VERSION_FILENAME)`
+rts_version=`cat $(RTS_VERSION_FILENAME)`
+
+GPCSOLIBSHORTNAME=libgpc.so
+GPCSOLIBNAME=$(GPCSOLIBSHORTNAME).$(gpc_major).$(gpc_minor).$(rts_version)
+GPCSOLIBDIR=lib
+WITH_SHARED=@with_shared@
+
+BISON=bison
+BISONFLAGS=
+LEX=flex
+LEXFLAGS=
+FLEX=flex
+FLEXFLAGS=
+MAKEINFO=makeinfo
+MAKEINFOFLAGS=
+
+unitsubdir=$(libsubdir)/units
+
+GPC_PAGESIZE=@afourpaper
+
+# Can be overwritten for Dos hosts
+SYMLINK=ln -s
+
+# Can be overwritten to install additional libraries
+GPC_EXTRA_INSTALL_LIBS=
+
+# Can be overwritten (empty) to avoid installing the documentation
+PASCAL_INSTALL_DOC=pascal.real-install-doc
+
+# Where to install the documentation and demos (relative to the prefix)
+P_DOC_DIR=doc/gpc
+p_inst_docdir=$(prefix)/$(P_DOC_DIR)
+p_inst_demodir=$(p_inst_docdir)/demos
+p_inst_docdemodir=$(p_inst_docdir)/docdemos
+
+# How to create the GPC binary distribution archive. tar can be given extra
+# flags (e.g. `--owner=root --group=root' with newer versions of GNU tar),
+# and for Dos hosts, MAKEGPCBINDIST needs to be overwritten completely ...
+GPC_TARFLAGS=czf
+MAKEGPCBINDIST=tar $(GPC_TARFLAGS) ../gpc-$$version.$(target).tar.gz
+MAKEGPCWITHGCCBINDIST=tar $(GPC_TARFLAGS) ../gpc-$$version-with-gcc.$(target).tar.gz
+
+# Actual names to use when installing a native compiler.
+GPC_INSTALL_NAME=`t='$(program_transform_name)'; echo gpc | sed $$t`
+
+# Actual names to use when installing a cross-compiler.
+GPC_CROSS_NAME_=`t='$(program_transform_cross_name)'; echo gpc | sed $$t`
+GPC_CROSS_NAME_34=$(target_noncanonical)`t='$(program_transform_name)'; echo gpc | sed $$t`
+GPC_CROSS_NAME=$(GPC_CROSS_NAME_$(GPC_GCC_34_))
+
+# The GPC to use for compiling libgpc.a
+# Usually the one we just built.
+GPC_FOR_TARGET=./xgpc -B./
+
+ADD_RTS_PARENT_DIR=sed -e 's,\(-[BI]\)\([^/][^:]\),\1../../\2,g;s,^\([^/][^:]*/\),../../\1,'
+GCC2GPC=sed 's, *$$,,;s,^\([^ ]*[/\][^/\]*\)gcc,\1gpc,;s/^gcc$$/gpc/;s/$$/ /' # $(CC) might be .../gcc-foo/.../xgcc
+
+# The ' ' is there so, e.g., `-B.' will be replaced by ADD_RTS_PARENT_DIR
+RTS_COMPILERS=CC="`echo $(GCC_FOR_TARGET)' ' | $(ADD_RTS_PARENT_DIR)`" \
+              PC="`echo $(GPC_FOR_TARGET)' ' | $(ADD_RTS_PARENT_DIR)`"
+#(Doesn't work)              PC="`echo $(GCC_FOR_TARGET)' ' | $(ADD_RTS_PARENT_DIR) | sed -e 's,gcc,gpc,g;s,gpc/,gcc/,g'`"
+
+# Flags to pass when installing GPC.
+GPC_INSTALL_FLAGS_TO_PASS=\
+  "exeext=$(exeext)" \
+  "version=$(version)" \
+  "target_alias=$(target_alias)" \
+  "program_transform_name=$(program_transform_name)" \
+  "program_transform_cross_name=$(program_transform_cross_name)" \
+  "SYMLINK=$(SYMLINK)" \
+  "GCC_FOR_TARGET=$(GCC_FOR_TARGET)" \
+  "GPC_FOR_TARGET=$(GPC_FOR_TARGET)" \
+  "GPCSOLIBSHORTNAME=$(GPCSOLIBSHORTNAME)" \
+  "GPCSOLIBDIR=$(GPCSOLIBDIR)" \
+  "GPC_EXTRA_INSTALL_LIBS=$(GPC_EXTRA_INSTALL_LIBS)" \
+  "WITH_SHARED=$(WITH_SHARED)" \
+  "FLOAT_H=$(FLOAT_H)" \
+  "EXTRA_PARTS=$(EXTRA_PARTS)" \
+  $(GPC_EXTRA_INSTALL_FLAGS_TO_PASS)
+
+# Flags to pass when building the utilities. (PC is the GPC for the host!)
+UTILS_FLAGS_TO_PASS=\
+  SHELL="$(SHELL)" \
+  PC="`if [ x"$(GPC_HOST)" = x"$(target)" ]; then echo $(GPC_FOR_TARGET) -L../..' '; else echo $(CC) | $(GCC2GPC); fi | $(ADD_RTS_PARENT_DIR)` -I../rts" \
+  CFLAGS="$(CFLAGS)" \
+  PFLAGS="$(PFLAGS)" \
+  exeext="$(exeext)" \
+  INSTALL_PROGRAM="$(INSTALL_PROGRAM)" \
+  INSTALL_DATA="$(INSTALL_DATA)" \
+  BUILD="$(GPC_BUILD)" \
+  HOST="$(GPC_HOST)"
+
+# Flags to pass when building the RTS.
+RTS_FLAGS_TO_PASS_ALL=\
+  GCC_VERSION="$(GPC_GCC_VERSION)" \
+  SHELL="$(SHELL)" \
+  CFLAGS="$(CFLAGS)" \
+  PFLAGS="$(PFLAGS)" \
+  AR_FLAGS="$(AR_FLAGS)" \
+  RTSFLAGS="$(RTSFLAGS)" \
+  DESTDIR="../.."
+
+RTS_FLAGS_TO_PASS_28=\
+  AR="$(AR)" \
+  RANLIB="$(RANLIB)" \
+  RANLIB_TEST="$(RANLIB_TEST)"
+
+RTS_FLAGS_TO_PASS_=\
+  AR="$(AR_FOR_TARGET)" \
+  RANLIB="$(RANLIB_FOR_TARGET)" \
+  RANLIB_TEST="$(RANLIB_TEST_FOR_TARGET)"
+
+RTS_FLAGS_TO_PASS_2=$(RTS_FLAGS_TO_PASS_)
+
+RTS_FLAGS_TO_PASS=$(RTS_FLAGS_TO_PASS_ALL) \
+  $(RTS_FLAGS_TO_PASS_$(GCC_VERSION_FOR_GPC))
+
+# Flags to pass when running the test suite.
+TEST_FLAGS_TO_PASS=\
+  MASK="$(MASK)" \
+  EXTRA_TEST_PFLAGS="$(PFLAGS) $(EXTRA_TEST_PFLAGS)" \
+  TEST_RUN_FLAGS="$(TEST_RUN_FLAGS)"
+
+GPC_GENERAL_TEXI=\
+  $(srcdir)/p/doc/macros.texi \
+  $(srcdir)/p/doc/generated/version.texi
+
+GPC_GENERATED_TEXI=\
+  $(srcdir)/p/doc/generated/version.texi \
+  $(srcdir)/p/doc/generated/lang-options.texi \
+  $(srcdir)/p/doc/generated/keyword.texi \
+  $(srcdir)/p/doc/generated/gpcpas.texi \
+  $(srcdir)/p/doc/generated/crt.texi \
+  $(srcdir)/p/doc/generated/dos.texi \
+  $(srcdir)/p/doc/generated/dosunix.texi \
+  $(srcdir)/p/doc/generated/fileutils.texi \
+  $(srcdir)/p/doc/generated/gmp.texi \
+  $(srcdir)/p/doc/generated/gpcutil.texi \
+  $(srcdir)/p/doc/generated/heapmon.texi \
+  $(srcdir)/p/doc/generated/intl.texi \
+  $(srcdir)/p/doc/generated/md5.texi \
+  $(srcdir)/p/doc/generated/overlay.texi \
+  $(srcdir)/p/doc/generated/pipes.texi \
+  $(srcdir)/p/doc/generated/ports.texi \
+  $(srcdir)/p/doc/generated/printer.texi \
+  $(srcdir)/p/doc/generated/regex.texi \
+  $(srcdir)/p/doc/generated/strings.texi \
+  $(srcdir)/p/doc/generated/stringutils.texi \
+  $(srcdir)/p/doc/generated/system.texi \
+  $(srcdir)/p/doc/generated/tfdd.texi \
+  $(srcdir)/p/doc/generated/trap.texi \
+  $(srcdir)/p/doc/generated/turbo3.texi \
+  $(srcdir)/p/doc/generated/windos.texi
+
+GPC_COMMON_TEXI=\
+  $(srcdir)/p/doc/macros.texi \
+  $(srcdir)/p/doc/contributors.texi \
+  $(GPC_GENERATED_TEXI)
+
+GPC_TEXI_EN=\
+  $(GPC_COMMON_TEXI) \
+  $(srcdir)/p/doc/en/gpc.texi \
+  $(srcdir)/p/doc/en/welcome.texi \
+  $(srcdir)/p/doc/en/purpose.texi \
+  $(srcdir)/p/doc/en/about.texi \
+  $(srcdir)/p/doc/en/news.texi \
+  $(srcdir)/p/doc/en/faq.texi \
+  $(srcdir)/p/doc/en/libs.texi \
+  $(srcdir)/p/doc/en/install.texi \
+  $(srcdir)/p/doc/en/bpqstart.texi \
+  $(srcdir)/p/doc/en/invoke.texi \
+  $(srcdir)/p/doc/en/programming.texi \
+  $(srcdir)/p/doc/en/reference.texi \
+  $(srcdir)/p/doc/en/keywords.texi \
+  $(srcdir)/p/doc/en/support.texi \
+  $(srcdir)/p/doc/en/todo.texi \
+  $(srcdir)/p/doc/en/internals.texi \
+  $(srcdir)/p/doc/en/resources.texi \
+  $(srcdir)/p/doc/en/authors.texi \
+  $(srcdir)/p/doc/en/copying.texi \
+  $(srcdir)/p/doc/en/copying-lib.texi \
+  $(srcdir)/p/doc/en/copying-demo.texi \
+  $(srcdir)/p/doc/en/gnu.texi \
+  $(srcdir)/p/doc/en/gpcs.texi
+
+GPC_TEXI_DE=\
+  $(GPC_COMMON_TEXI) \
+  $(srcdir)/p/doc/de/gpcs.texi
+
+# @@ Some files are not translated yet -- use the English versions for now
+GPC_TEXI_HR=\
+  $(GPC_COMMON_TEXI) \
+  $(srcdir)/p/doc/hr/gpc.texi \
+  $(srcdir)/p/doc/hr/welcome.texi \
+  $(srcdir)/p/doc/hr/purpose.texi \
+  $(srcdir)/p/doc/hr/about.texi \
+  $(srcdir)/p/doc/en/news.texi \
+  $(srcdir)/p/doc/hr/faq.texi \
+  $(srcdir)/p/doc/hr/libs.texi \
+  $(srcdir)/p/doc/en/install.texi \
+  $(srcdir)/p/doc/en/bpqstart.texi \
+  $(srcdir)/p/doc/hr/invoke.texi \
+  $(srcdir)/p/doc/en/programming.texi \
+  $(srcdir)/p/doc/en/reference.texi \
+  $(srcdir)/p/doc/hr/keywords.texi \
+  $(srcdir)/p/doc/hr/support.texi \
+  $(srcdir)/p/doc/en/todo.texi \
+  $(srcdir)/p/doc/en/internals.texi \
+  $(srcdir)/p/doc/hr/resources.texi \
+  $(srcdir)/p/doc/hr/authors.texi \
+  $(srcdir)/p/doc/en/copying.texi \
+  $(srcdir)/p/doc/en/copying-lib.texi \
+  $(srcdir)/p/doc/en/copying-demo.texi \
+  $(srcdir)/p/doc/en/gnu.texi \
+  $(srcdir)/p/doc/hr/gpcs.texi
+
+# @@ Some files are not translated yet -- use the English versions for now
+GPC_TEXI_ES=\
+  $(GPC_COMMON_TEXI) \
+  $(srcdir)/p/doc/en/gpc.texi \
+  $(srcdir)/p/doc/en/welcome.texi \
+  $(srcdir)/p/doc/en/purpose.texi \
+  $(srcdir)/p/doc/en/about.texi \
+  $(srcdir)/p/doc/en/news.texi \
+  $(srcdir)/p/doc/en/faq.texi \
+  $(srcdir)/p/doc/en/libs.texi \
+  $(srcdir)/p/doc/en/install.texi \
+  $(srcdir)/p/doc/en/bpqstart.texi \
+  $(srcdir)/p/doc/en/invoke.texi \
+  $(srcdir)/p/doc/en/programming.texi \
+  $(srcdir)/p/doc/en/reference.texi \
+  $(srcdir)/p/doc/en/keywords.texi \
+  $(srcdir)/p/doc/en/support.texi \
+  $(srcdir)/p/doc/en/todo.texi \
+  $(srcdir)/p/doc/en/internals.texi \
+  $(srcdir)/p/doc/en/resources.texi \
+  $(srcdir)/p/doc/en/authors.texi \
+  $(srcdir)/p/doc/en/copying.texi \
+  $(srcdir)/p/doc/en/copying-lib.texi \
+  $(srcdir)/p/doc/en/copying-demo.texi \
+  $(srcdir)/p/doc/en/gnu.texi \
+  $(srcdir)/p/doc/es/gpcs.texi
+
+RTS_GENERATED_FILES=\
+  $(RTSSRCDIR)/acconfig.h \
+  $(RTSSRCDIR)/configure \
+  $(RTSSRCDIR)/rts-config.in \
+  $(RTSSRCDIR)/rtsc.pas \
+  $(RTSSRCDIR)/gpc.pas
+
+GPC_GENERATED_FILES=\
+  $(GPC_GENERATED_TEXI) \
+  $(srcdir)/p/INSTALL \
+  $(srcdir)/p/README \
+  $(srcdir)/p/NEWS \
+  $(srcdir)/p/FAQ \
+  $(srcdir)/p/AUTHORS \
+  $(srcdir)/p/COPYING \
+  $(srcdir)/p/COPYING.LIB \
+  $(srcdir)/p/COPYING.DEMO \
+  $(srcdir)/p/lang.opt \
+  $(srcdir)/p/pascal-lex.c \
+  $(srcdir)/p/parse.c \
+  $(srcdir)/p/parse.h \
+  $(srcdir)/p/units/crtc.h \
+  $(srcdir)/p/test/README \
+  $(srcdir)/p/doc/generated/gpc-run.1 \
+  $(RTS_GENERATED_FILES)
+
+GPC_DOC_DIRS_EN=-I $(srcdir)/p/doc -I $(srcdir)/p/doc/en -I $(srcdir)/p/doc/generated
+GPC_DOC_DIRS_DE=-I $(srcdir)/p/doc -I $(srcdir)/p/doc/de -I $(srcdir)/p/doc/generated
+GPC_DOC_DIRS_HR=-I $(srcdir)/p/doc -I $(srcdir)/p/doc/hr -I $(srcdir)/p/doc/generated -I $(srcdir)/p/doc/en
+GPC_DOC_DIRS_ES=-I $(srcdir)/p/doc -I $(srcdir)/p/doc/es -I $(srcdir)/p/doc/generated -I $(srcdir)/p/doc/en
+MAKEINFO_EN=LANG=en_GB LC_ALL=en_GB $(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_EN)
+MAKEINFO_DE=LANG=de_DE LC_ALL=de_DE $(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_DE)
+MAKEINFO_HR=LANG=hr_HR LC_ALL=hr_HR $(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_HR)
+MAKEINFO_ES=LANG=es_ES LC_ALL=es_ES $(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_ES)
+
+# Define the names for selecting Pascal in LANGUAGES.
+# @@ Removing "pascal.rts pascal.utils" here fails for a cross-built compiler
+Pascal pascal: xgpc$(exeext) gpc1$(exeext) gpc-run \
+               specs pascal.generated-files pascal.docdemos \
+               pascal.rts pascal.utils
+
+# Tell GNU make to ignore these if they exist.
+.PHONY: Pascal pascal
+
+# Create all files in the source directory that can be created automatically
+pascal.generated-files: $(GPC_GENERATED_FILES) pascal.info
+
+pascal.cvsfiles: $(srcdir)/p/INSTALL
+
+pascal.update-release:
+	if [ -r "$(VERSION_FILENAME)" ] && [ $(gpc_version) -ge "`date '+%Y%m%d'`" ]; then \
+	  echo "GPC release version is already "$(gpc_version); \
+	  exit 1; \
+	fi
+	( \
+	 echo '/* Generated automatically by the Makefile.' && \
+	 echo '   DO NOT CHANGE THIS FILE MANUALLY! */' && \
+	 echo '' && \
+	 echo '#define GPC_MAJOR "$(gpc_major)"' && \
+	 echo '#define GPC_MINOR "$(gpc_minor)"' && \
+	 echo '#define GPC_VERSION_STRING "'`date '+%Y%m%d'`'"' && \
+	 echo '#define GPC_RELEASE_STRING GPC_VERSION_STRING' \
+	) > $(VERSION_FILENAME) || \
+	{ rm -f $(VERSION_FILENAME); false; }
+	@echo "New GPC release version is "$(gpc_version)
+	touch $(srcdir)/p/lang-specs.h # because GCC's Makefile doesn't know about p/p-version.h
+	cd $(RTSSRCDIR) && $(MAKE) -f Makefile.in srcdir=. rts.update-release
+
+$(srcdir)/p/units/crtc.h: $(srcdir)/p/units/crt.inc
+	$(srcdir)/p/script/crtinc2h $(srcdir)/p/units/crt.inc $(srcdir)/p/units/crtc.h
+
+# Derive parts of the documentation directly from the source.
+
+$(srcdir)/p/doc/generated/version.texi: $(VERSION_FILENAME)
+	( \
+	 release=$(gpc_version) && \
+	 echo "@c Generated automatically from `echo $(VERSION_FILENAME) | sed -e 's,.*/,,'`" && \
+	 echo '@c DO NOT CHANGE THIS FILE MANUALLY!' && \
+	 echo '' && \
+	 echo "@set GPCMajor $(gpc_major)" && \
+	 echo "@set GPCMinor $(gpc_minor)" && \
+	 echo "@set GPCVersion $$release" && \
+	 echo "@set GCCVersion 2.8.1, 2.95.x, 3.2.x, 3.3.x or 3.4.x" \
+	) > $(srcdir)/p/doc/generated/version.texi || \
+	{ rm -f $(srcdir)/p/doc/generated/version.texi; false; }
+
+$(srcdir)/p/doc/generated/lang-options.texi: $(srcdir)/p/lang-options.h
+	$(srcdir)/p/script/lang-options2texi $(srcdir)/p/lang-options.h $(srcdir)/p/doc/generated/lang-options.texi
+
+$(srcdir)/p/doc/generated/keyword.texi: $(srcdir)/p/predef.def
+	$(srcdir)/p/script/keywords2texi $(srcdir)/p/predef.def $(srcdir)/p/doc/generated/keyword.texi
+
+$(srcdir)/p/doc/generated/gpcpas.texi: $(RTSSRCDIR)/gpc.pas
+	$(srcdir)/p/script/pas2texi $(RTSSRCDIR)/gpc.pas $(srcdir)/p/doc/generated/gpcpas.texi
+
+# This is stupid, but some stupid makes don't support nice pattern rules ...
+# $(srcdir)/p/doc/generated/%.texi: $(srcdir)/p/units/%.pas
+# 	$(srcdir)/p/script/pas2texi "$<" "$@"
+$(srcdir)/p/doc/generated/crt.texi: $(srcdir)/p/units/crt.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/crt.pas $(srcdir)/p/doc/generated/crt.texi
+$(srcdir)/p/doc/generated/dos.texi: $(srcdir)/p/units/dos.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/dos.pas $(srcdir)/p/doc/generated/dos.texi
+$(srcdir)/p/doc/generated/dosunix.texi: $(srcdir)/p/units/dosunix.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/dosunix.pas $(srcdir)/p/doc/generated/dosunix.texi
+$(srcdir)/p/doc/generated/fileutils.texi: $(srcdir)/p/units/fileutils.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/fileutils.pas $(srcdir)/p/doc/generated/fileutils.texi
+$(srcdir)/p/doc/generated/gmp.texi: $(srcdir)/p/units/gmp.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/gmp.pas $(srcdir)/p/doc/generated/gmp.texi
+$(srcdir)/p/doc/generated/gpcutil.texi: $(srcdir)/p/units/gpcutil.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/gpcutil.pas $(srcdir)/p/doc/generated/gpcutil.texi
+$(srcdir)/p/doc/generated/heapmon.texi: $(srcdir)/p/units/heapmon.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/heapmon.pas $(srcdir)/p/doc/generated/heapmon.texi
+$(srcdir)/p/doc/generated/intl.texi: $(srcdir)/p/units/intl.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/intl.pas $(srcdir)/p/doc/generated/intl.texi
+$(srcdir)/p/doc/generated/md5.texi: $(srcdir)/p/units/md5.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/md5.pas $(srcdir)/p/doc/generated/md5.texi
+$(srcdir)/p/doc/generated/overlay.texi: $(srcdir)/p/units/overlay.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/overlay.pas $(srcdir)/p/doc/generated/overlay.texi
+$(srcdir)/p/doc/generated/pipes.texi: $(srcdir)/p/units/pipes.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/pipes.pas $(srcdir)/p/doc/generated/pipes.texi
+$(srcdir)/p/doc/generated/ports.texi: $(srcdir)/p/units/ports.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/ports.pas $(srcdir)/p/doc/generated/ports.texi
+$(srcdir)/p/doc/generated/printer.texi: $(srcdir)/p/units/printer.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/printer.pas $(srcdir)/p/doc/generated/printer.texi
+$(srcdir)/p/doc/generated/regex.texi: $(srcdir)/p/units/regex.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/regex.pas $(srcdir)/p/doc/generated/regex.texi
+$(srcdir)/p/doc/generated/strings.texi: $(srcdir)/p/units/strings.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/strings.pas $(srcdir)/p/doc/generated/strings.texi
+$(srcdir)/p/doc/generated/stringutils.texi: $(srcdir)/p/units/stringutils.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/stringutils.pas $(srcdir)/p/doc/generated/stringutils.texi
+$(srcdir)/p/doc/generated/system.texi: $(srcdir)/p/units/system.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/system.pas $(srcdir)/p/doc/generated/system.texi
+$(srcdir)/p/doc/generated/tfdd.texi: $(srcdir)/p/units/tfdd.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/tfdd.pas $(srcdir)/p/doc/generated/tfdd.texi
+$(srcdir)/p/doc/generated/trap.texi: $(srcdir)/p/units/trap.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/trap.pas $(srcdir)/p/doc/generated/trap.texi
+$(srcdir)/p/doc/generated/turbo3.texi: $(srcdir)/p/units/turbo3.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/turbo3.pas $(srcdir)/p/doc/generated/turbo3.texi
+$(srcdir)/p/doc/generated/windos.texi: $(srcdir)/p/units/windos.pas
+	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/windos.pas $(srcdir)/p/doc/generated/windos.texi
+
+$(srcdir)/p/INSTALL: $(srcdir)/p/doc/en/install.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DINSTALLONLY --no-header --no-split install.texi -o "$@"
+
+$(srcdir)/p/README: $(srcdir)/p/doc/en/welcome.texi $(srcdir)/p/doc/en/purpose.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DREADMEONLY --no-header --no-split welcome.texi -o "$@"
+
+$(srcdir)/p/NEWS: $(srcdir)/p/doc/en/news.texi $(srcdir)/p/doc/en/welcome.texi \
+                  $(srcdir)/p/doc/en/purpose.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DNEWSONLY --no-header --no-split news.texi -o "$@"
+
+$(srcdir)/p/FAQ: $(srcdir)/p/doc/en/faq.texi $(srcdir)/p/doc/en/purpose.texi \
+                 $(srcdir)/p/doc/en/libs.texi $(srcdir)/p/doc/en/support.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DFAQONLY --no-header --no-split --number-sections faq.texi -o "$@"
+
+$(srcdir)/p/AUTHORS: $(srcdir)/p/doc/en/authors.texi $(srcdir)/p/doc/contributors.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DAUTHORSONLY --no-header --no-split authors.texi -o "$@"
+
+$(srcdir)/p/COPYING: $(srcdir)/p/doc/en/copying.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split copying.texi -o "$@"
+
+$(srcdir)/p/COPYING.LIB: $(srcdir)/p/doc/en/copying-lib.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split copying-lib.texi -o "$@"
+
+$(srcdir)/p/COPYING.DEMO: $(srcdir)/p/doc/en/copying-demo.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split copying-demo.texi -o "$@"
+
+$(srcdir)/p/test/README: $(srcdir)/p/doc/en/support.texi $(GPC_GENERAL_TEXI)
+	$(MAKEINFO_EN) -DTESTREADMEONLY --no-header --no-split support.texi -o "$@"
+
+pascal.generated-manpages:
+
+pascal.man:
+
+pascal.srcman:
+
+pascal.docdemos: p/stamp-docdemos
+p/stamp-docdemos: $(GPC_TEXI_EN)
+	rm -rf p/docdemos
+	$(srcdir)/p/script/mkdir-p p/docdemos
+	$(srcdir)/p/script/extract-doc-demos -o p/docdemos $(srcdir)/p/doc/*.texi $(srcdir)/p/doc/generated/*.texi $(srcdir)/p/doc/en/*.texi
+	$(STAMP) "$@"
+
+p/gpc.o: $(srcdir)/p/gpc.c $(CONFIG_H) multilib.h Makefile \
+ $(lang_specs_files) $(srcdir)/p/p-version.h specs.h
+	$(CC) -DGPC $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(GPC_ALL_WARNINGS) $(INCLUDES) \
+	$(DRIVER_DEFINES) -c `echo $(srcdir)/p/gpc.c | sed 's,^\./,,'` -o $@
+
+# We call this executable `xgpc' rather than `gpc'
+# to avoid confusion if the current directory is in the path
+# and PC is `gpc'. It is renamed to `gpc' when it is installed.
+xgpc$(exeext): p/gpc.o $(GPC_GCC_VERSION_OBJS) prefix.o version.o \
+ $(LIBDEPS) $(EXTRA_GCC_OBJS)
+	$(CC) $(ALL_CFLAGS) $(GPC_ALL_WARNINGS) $(LDFLAGS) -o $@ p/gpc.o prefix.o version.o \
+	$(GPC_GCC_VERSION_OBJS) $(EXTRA_GCC_OBJS) $(LIBS) $(EXTRA_LIBS)
+
+# Also create gpc-cross, so that pascal.install-common will install properly.
+gpc-cross$(exeext): xgpc$(exeext)
+	cp xgpc$(exeext) gpc-cross$(exeext)
+
+gpc-run: $(srcdir)/p/script/gpc-run $(VERSION_FILENAME)
+	sed -e s/@version@/$(gpc_version)/ "$<" > "$@" || { rm -f "$@"; false; }
+	chmod a+x "$@"
+
+$(srcdir)/p/doc/generated/gpc-run.1: $(srcdir)/p/script/gpc-run $(VERSION_FILENAME)
+	help2man -N "$<" | sed -e s/@version@/$(gpc_version)/ > "$@" || { rm -f "$@"; false; }
+
+# Headers and flags for GPC specific files.
+GPC_GBE_H=$(CONFIG_H) system.h tree.h input.h rtl.h flags.h output.h expr.h \
+          except.h function.h convert.h toplev.h $(GPC_GCC_VERSION_H)
+P_H=$(GPC_GBE_H) p/gpc.h p/plant.h p/p-tree.def p/predef.def \
+          $(srcdir)/p/parse.h p/gbe.h
+ALL_GPC_FLAGS=$(ALL_CFLAGS) $(ALL_CPPFLAGS) $(GPC_ALL_WARNINGS) $(INCLUDES) \
+  -DGPC -DGPC_UNITS_DIR=\"$(unitsubdir)\" -I$(srcdir)/p
+
+# Headers and flags for patched backend files.
+GPC_BE_H=$(GPC_GBE_H) defaults.h machmode.h machmode.def real.h recog.h \
+         regs.h reload.h typeclass.h xcoffout.h \
+         insn-attr.h insn-codes.h insn-config.h insn-flags.h
+ALL_GPC_GBE_FLAGS=$(ALL_CFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) -DGPC
+
+p/gpcpp.o: p/gpcpp.c p/p-version.h p/gpc-options.h p/lang-options.h \
+   $(CONFIG_H) system.h p/gpcpp.h
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+# Language-specific object files for GPC and patched GNU Back End (GBE)
+# files (mostly language independent, but some parts require GPC specific
+# patches and are rebuilt with -DGPC).
+GPC_OBJS=p/parse.o p/declarations.o p/expressions.o p/gpc-lex.o p/lang.o \
+	p/module.o p/objects.o p/options.o p/predef.o p/statements.o \
+	p/typecheck.o p/types.o p/convert.o p/dbxout.o p/dwarf2out.o \
+	p/expr.o p/fold-const.o p/function.o p/integrate.o p/optabs.o \
+	p/stor-layout.o p/toplev.o p/tree.o p/stmt.o p/emit-rtl.o \
+	p/varasm.o p/version.o p/gpcpp.o p/plant.o $(GPC_OBJS_40)
+
+# Exclude patched files from language-independent object file list.
+# Not necessary for gcc-3 since for a library (libbackend.a), the linker does this automatically.
+p/stamp-gbe: stamp-objlist Makefile
+	sed -e 's: ../: :g;\
+	 s: convert.o::g;\
+	 s: dbxout.o::g;\
+	 s: dwarf2out.o::g;\
+	 s: emit-rtl.o::g;\
+	 s: expr.o::g;\
+	 s: fold-const.o::g;\
+	 s: function.o::g;\
+	 s: integrate.o::g;\
+	 s: optabs.o::g;\
+	 s: stmt.o::g;\
+	 s: stor-layout.o::g;\
+	 s: toplev.o::g;\
+	 s: tree.o::g;\
+	 s: varasm.o::g;\
+	 s: version.o::g;' "$<" > "$@" || { rm -f "$@"; false; }
+
+gpc1$(exeext): $(P) $(GPC_GCC_VERSION_DEPS) $(GPC_OBJS) $(LIBDEPS)
+	@grep "@@ PATCHED FOR GPC 20070903 @@" $(srcdir)/stor-layout.c > /dev/null || \
+	 { echo "*** There have been changes in the patch for GCC. Please start with a fresh"; \
+	   echo "*** copy of the GCC sources and do a new build, including configure."; \
+	   exit 1; } >&2
+	rm -f $@
+	$(CC) $(ALL_GPC_FLAGS) $(LDFLAGS) -o $@ $(GPC_OBJS) $(GPC_GCC_VERSION_LINK) $(LIBS) $(EXTRA_LIBS)
+
+p/declarations.o: p/declarations.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/expressions.o: p/expressions.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/gpc-lex.o: p/gpc-lex.c $(srcdir)/p/pascal-lex.c p/gpcpp.h $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/handle-opts.c: $(srcdir)/p/opts.sum $(srcdir)/p/script/mk-handle-opts-c
+	$(srcdir)/p/script/mk-handle-opts-c $(srcdir)/p/opts.sum "$@"
+
+$(srcdir)/p/lang.opt: $(srcdir)/p/opts.sum $(srcdir)/p/script/mk-lang_opt
+	$(srcdir)/p/script/mk-lang_opt $(srcdir)/p/opts.sum "$@"
+
+p/lang.o: p/lang.c $(P_H) p/handle-opts.c p/gpcpp.h
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/module.o: p/module.c $(P_H) p/p-version.h
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) -DTARGET_NAME=\"$(target_alias)\" $<
+
+p/objects.o: p/objects.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/options.o: p/options.c $(P_H) p/lang-options.h p/gpc-options.h p/p-version.h
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/parse.o: $(srcdir)/p/parse.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $(BIG_SWITCHFLAG) $<
+
+p/plant.o: $(srcdir)/p/plant.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/predef.o: p/predef.c $(P_H) $(RTSSRCDIR)/constants.def
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/statements.o: p/statements.c $(P_H) $(RTSSRCDIR)/constants.def $(RTS_VERSION_FILENAME)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) -DRTS_VERSION_CHECK="\"_p_GPC_RTS_VERSION_`cat $(RTSSRCDIR)/rts-version`\"" $<
+
+p/typecheck.o: p/typecheck.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/types.o: p/types.c $(P_H)
+	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
+
+p/convert.o: convert.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/dbxout.o: dbxout.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/dwarf2out.o: dwarf2out.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/diagnostic.o: diagnostic.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/emit-rtl.o: emit-rtl.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/expr.o: expr.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/fold-const.o: fold-const.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/function.o: function.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/gimplify.o: gimplify.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/integrate.o: integrate.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/optabs.o: optabs.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/stmt.o: stmt.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/stor-layout.o: stor-layout.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/toplev.o: toplev.c $(GPC_BE_H) p/lang-options.h
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $(MAYBE_TARGET_DEFAULT) \
+	  $(MAYBE_USE_COLLECT2) -DTARGET_NAME=\"$(target_alias)\" $<
+
+p/tree.o: tree.c tree.def $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/varasm.o: varasm.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) $<
+
+p/version.o: version.c $(GPC_BE_H)
+	$(CC) -o $@ -c $(ALL_GPC_GBE_FLAGS) \
+	 -DBASEVER=$(BASEVER_s) -DDATESTAMP=$(DATESTAMP_s) \
+	 -DDEVPHASE=$(DEVPHASE_s) $<
+
+$(srcdir)/p/pascal-lex.c: $(srcdir)/p/pascal-lex.l
+	if $(GPC_LEX) --version | grep -q '2\.5\.4'; then \
+	  echo "GPC: flex 2.5.4 is very old, working around it" >&2; \
+	  grep -v '^%option noyy[arf]' "$<" | $(GPC_LEX) $(GPC_LEXFLAGS) -t - | \
+	    sed '/^typedef .* yy_size_t;$$/d;s/malloc/xmalloc/g;s/realloc/xrealloc/g' > "$@" || { rm -f "$@"; false; }; \
+	else \
+	  cd $(srcdir)/p && $(GPC_LEX) $(GPC_LEXFLAGS) -opascal-lex.c pascal-lex.l; \
+	fi
+
+$(srcdir)/p/parse.c $(srcdir)/p/parse.h: $(srcdir)/p/parse.y
+	cd $(srcdir)/p && $(BISON) $(BISONFLAGS) -o parse.c parse.y
+
+pascal.utils: xgpc$(exeext) gpc1$(exeext) pascal.rts force
+	$(srcdir)/p/script/mkdir-p p/utils
+	srcdir=`cd $(srcdir) && pwd` && cd ./p/utils && $(MAKE) -f "$$srcdir/p/utils/Makefile" $(UTILS_FLAGS_TO_PASS) GCC_DIR="$$srcdir" all
+
+# Let the RTS Makefile make its generated files. Use `force' here
+# because we don't know their dependencies here. Use Makefile.in in
+# RTS source directory, so this can be run from the GPC source directory.
+#
+# @@ I tried the following (so the RTS make is invoked only once, not once per
+#    RTS generated file), but it doesn't work -- when, e.g. rts/files.pas is
+#    modified, rts/gpc.pas is rebuilt, but doc/generated/gpcpas.texi (which
+#    depends on the latter) is not. Strange make ... :-( -- Frank
+# $(RTS_GENERATED_FILES): rts-generated-files
+# rts-generated-files: force
+$(RTS_GENERATED_FILES): force
+	cd $(RTSSRCDIR) && $(MAKE) -f Makefile.in srcdir=. $(RTS_FLAGS_TO_PASS) generated-files
+
+# The configuration of the Run Time System relies on an autoconf-type
+# configure, not a Cygnus-type one. It needs to be run *after* the
+# appropriate (cross-)compiler has been built, thus depend on GCC_PARTS.
+# dj: Depending on $(GCC_PARTS) here is bad news - very bad news.
+# mk: but it needs $(EXTRA_OBJS) and $(LIBGCC), what to do?
+# fh: $(GCC_PARTS) doesn't include the Pascal compiler, so I added explicit
+# dependencies (for pascal.rts).
+# Depending on `stmp-headers' used to ensure that float.h has been built;
+# now it's only needed by rts/configure, hope that's not so important.
+p/rts/Makefile: $(GCC_PARTS) \
+ $(RTSSRCDIR)/Makefile.in $(RTSSRCDIR)/configure $(RTSSRCDIR)/rts-config.in
+	$(srcdir)/p/script/mkdir-p p/rts
+	src=`cd $(srcdir) && pwd` && \
+	cd ./p/rts && \
+	$(RTS_COMPILERS) CONFIG_SITE=nonexisting-file \
+	$$src/p/rts/configure --silent > /dev/null --srcdir=$$src/p/rts \
+	 `if [ x$(WITH_SHARED) = xyes ]; then echo '--with-shared'; fi`
+
+pascal.rts: p/rts/Makefile xgpc$(exeext) gpc1$(exeext)
+	cd ./p/rts && $(MAKE) $(RTS_COMPILERS) $(RTS_FLAGS_TO_PASS) all
+
+# Build hooks:
+
+pascal.all.build: xgpc$(exeext)
+pascal.all.cross: gpc-cross$(exeext) pascal.rts pascal.utils
+pascal.start.encap:
+pascal.rest.encap: pascal.rts pascal.utils
+
+pascal.info: $(srcdir)/p/doc/info/gpc.info \
+             $(srcdir)/p/doc/info/gpcs.info \
+             $(srcdir)/p/doc/info/gpcs-de.info \
+             $(srcdir)/p/doc/info/gpc-hr.info \
+             $(srcdir)/p/doc/info/gpcs-hr.info \
+             $(srcdir)/p/doc/info/gpc-es.info \
+             $(srcdir)/p/doc/info/gpcs-es.info
+pascal.dvi: gpc.dvi
+
+$(srcdir)/p/doc/info/gpc.info: $(GPC_TEXI_EN)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_EN) -o $(srcdir)/p/doc/info/gpc.info gpc.texi
+
+$(srcdir)/p/doc/info/gpcs.info: $(GPC_TEXI_EN)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_EN) --no-split -o $(srcdir)/p/doc/info/gpcs.info gpcs.texi
+
+$(srcdir)/p/doc/info/gpcs-de.info: $(GPC_TEXI_DE)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_DE) --no-split -o $(srcdir)/p/doc/info/gpcs-de.info gpcs.texi
+
+$(srcdir)/p/doc/info/gpc-hr.info: $(GPC_TEXI_HR)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_HR) -o $(srcdir)/p/doc/info/gpc-hr.info gpc.texi
+
+$(srcdir)/p/doc/info/gpcs-hr.info: $(GPC_TEXI_HR)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_HR) --no-split -o $(srcdir)/p/doc/info/gpcs-hr.info gpcs.texi
+
+$(srcdir)/p/doc/info/gpc-es.info: $(GPC_TEXI_ES)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_ES) -o $(srcdir)/p/doc/info/gpc-es.info gpc.texi
+
+$(srcdir)/p/doc/info/gpcs-es.info: $(GPC_TEXI_ES)
+	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
+	$(MAKEINFO_ES) --no-split -o $(srcdir)/p/doc/info/gpcs-es.info gpcs.texi
+
+gpc.dvi: $(GPC_TEXI_EN)
+	TEXINPUTS=$(srcdir)/p/doc:$(srcdir)/p/doc/images:$$TEXINPUTS \
+	LANG=en_GB LC_ALL=en_GB MAKEINFO="$(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_EN)" \
+	texi2dvi -t "$(GPC_PAGESIZE)" $(GPC_DOC_DIRS_EN) -b $(srcdir)/p/doc/en/gpc.texi > gpc.to # TeX is way too noisy ...
+	if grep -i overfull gpc.to gpc.log; then false; else true; fi
+	cp $(srcdir)/p/doc/images/GnuPascal.eps .
+
+gpc.ps: gpc.dvi
+	dvips -q -o gpc.ps gpc.dvi
+
+# pdftex uses TEXPSHEADERS to search for GnuPascal.pdf -- some versions use TEXINPUTS now ...
+gpc.pdf: $(GPC_TEXI_EN)
+	srcdir=`cd $(srcdir) && pwd` && \
+	TEXINPUTS=$$srcdir/p/doc:$$srcdir/p/doc/images:$$TEXINPUTS \
+	TEXPSHEADERS=$$srcdir/p/doc/images:$$TEXPSHEADERS \
+	LANG=en_GB LC_ALL=en_GB MAKEINFO="$(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_EN)" \
+	texi2pdf -t "$(GPC_PAGESIZE)" $(GPC_DOC_DIRS_EN) -b $(srcdir)/p/doc/en/gpc.texi > gpc.po # TeX is way too noisy ...
+	if grep -i overfull gpc.po gpc.log; then false; else true; fi
+
+gpc.txt: $(GPC_TEXI_EN)
+	$(MAKEINFO_EN) --no-headers --force -o "$@" gpc.texi
+
+HTML_DIR=./p/html
+
+p/stamp-gpc-html: $(GPC_TEXI_EN) $(GPC_TEXI_DE) $(GPC_TEXI_HR) $(GPC_TEXI_ES)
+	$(srcdir)/p/script/mkdir-p $(HTML_DIR)
+	-rm -rf $(HTML_DIR)/gpc $(HTML_DIR)/gpc-hr $(HTML_DIR)/gpc-es
+	$(MAKEINFO_EN) --html --no-split -o $(HTML_DIR)/gpcs-en.html $(srcdir)/p/doc/en/gpcs.texi
+	$(MAKEINFO_DE) --html --no-split -o $(HTML_DIR)/gpcs-de.html $(srcdir)/p/doc/de/gpcs.texi
+	$(MAKEINFO_HR) --html --no-split -o $(HTML_DIR)/gpcs-hr.html $(srcdir)/p/doc/hr/gpcs.texi
+	$(MAKEINFO_ES) --html --no-split -o $(HTML_DIR)/gpcs-es.html $(srcdir)/p/doc/es/gpcs.texi
+	$(MAKEINFO_EN) --html $(GPC_DOC_DIRS_EN) -o $(HTML_DIR)/gpc $(srcdir)/p/doc/en/gpc.texi
+	$(MAKEINFO_HR) --html $(GPC_DOC_DIRS_HR) -o $(HTML_DIR)/gpc-hr $(srcdir)/p/doc/hr/gpc.texi
+	$(MAKEINFO_ES) --html $(GPC_DOC_DIRS_ES) -o $(HTML_DIR)/gpc-es $(srcdir)/p/doc/es/gpc.texi
+	cd $(HTML_DIR) && tar --owner=root --group=root --mode=u=rwX,go=rX --use-compress-program=bzip2 -cf gpc-html.tar.bz2 gpc gpcs-en.html
+	cd $(HTML_DIR) && tar --owner=root --group=root --mode=u=rwX,go=rX --use-compress-program=bzip2 -cf gpc-hr-html.tar.bz2 gpc-hr gpcs-hr.html
+	cd $(HTML_DIR) && tar --owner=root --group=root --mode=u=rwX,go=rX --use-compress-program=bzip2 -cf gpc-es-html.tar.bz2 gpc-es gpcs-es.html
+	$(STAMP) "$@"
+
+pascal.html: p/stamp-pascal-html
+# @@ This rule also depends on $(srcdir)/p/doc/images/* and $(srcdir)/p/demos/*,
+# but wildcards aren't allowed here and I don't want to put the whole list of files
+# there. So, you'll have to force rebuilding when you only change one of those.
+p/stamp-pascal-html: p/stamp-gpc-html gpc.dvi gpc.ps gpc.pdf \
+ $(srcdir)/p/doc/languages \
+ $(srcdir)/p/doc/en/index.html.in $(srcdir)/p/doc/hr/index.html.in $(srcdir)/p/doc/es/index.html.in \
+ $(srcdir)/p/doc/en/homepage.def $(srcdir)/p/doc/hr/homepage.def $(srcdir)/p/doc/es/homepage.def \
+ $(srcdir)/p/COPYING $(srcdir)/p/COPYING.LIB $(srcdir)/p/COPYING.DEMO $(VERSION_FILENAME)
+	cp -f $(srcdir)/p/COPYING $(srcdir)/p/COPYING.LIB $(srcdir)/p/COPYING.DEMO gpc.dvi gpc.ps gpc.pdf $(HTML_DIR)
+	$(srcdir)/p/script/mkdir-p $(HTML_DIR)/images $(HTML_DIR)/demos
+	for f in $(srcdir)/p/doc/images/*; do \
+	  case "$$f" in \
+	    */CVS|*/README) : ;; \
+	    *) cp -f "$$f" $(HTML_DIR)/images || exit 1;; \
+	  esac; \
+	done
+	for f in $(srcdir)/p/demos/*; do \
+	  case "$$f" in \
+	    */CVS|*/README) : ;; \
+	    *) cp -f "$$f" $(HTML_DIR)/demos || exit 1;; \
+	  esac; \
+	done
+	rm -f $(HTML_DIR)/gpc.dvi.bz2 $(HTML_DIR)/gpc.ps.bz2
+	bzip2 $(HTML_DIR)/gpc.dvi $(HTML_DIR)/gpc.ps
+	{ echo 'RedirectMatch (^/$$) http://www.gnu-pascal.de/gpc/h-index.html'; \
+	  echo 'RedirectMatch (^/index.orig.html$) http://www.gnu-pascal.de/gpc/h-index.html'; \
+	  echo 'RedirectMatch (^/todo.html$$) http://www.gnu-pascal.de/gpc/h-todo.html'; } > $(HTML_DIR)/.htaccess
+	echo '<meta http-equiv="refresh" content="0; url=gpc/h-index.html">' > $(HTML_DIR)/index.html
+	echo '<meta http-equiv="refresh" content="0; url=gpc/h-todo.html">' > $(HTML_DIR)/todo.html
+	$(srcdir)/p/script/make-homepage $(gpc_version) $(srcdir)/p/doc $(HTML_DIR) en gpc
+	$(srcdir)/p/script/make-homepage $(gpc_version) $(srcdir)/p/doc $(HTML_DIR) hr gpc-hr
+	$(srcdir)/p/script/make-homepage $(gpc_version) $(srcdir)/p/doc $(HTML_DIR) es gpc-es
+	$(srcdir)/p/script/make-homepage-gpcs $(srcdir)/p/doc $(HTML_DIR) en
+	$(srcdir)/p/script/make-homepage-gpcs $(srcdir)/p/doc $(HTML_DIR) hr
+	$(srcdir)/p/script/make-homepage-gpcs $(srcdir)/p/doc $(HTML_DIR) es
+	$(srcdir)/p/script/make-homepage-gpcs $(srcdir)/p/doc $(HTML_DIR) de
+	chmod -R go+rX $(HTML_DIR)
+	$(STAMP) "$@"
+
+pascal.html-dist: p/stamp-pascal-html
+	r=$(gpc_version) && cd ./p && tar $(GPC_TARFLAGS) ../gpc-html-$$r.tar.gz html
+
+# Install hooks:
+# gpc1 is installed elsewhere as part of $(COMPILERS).
+
+pascal.install-info-man-dirs:
+	for directory in $(infodir) $(man1dir); do \
+	  $(srcdir)/p/script/mkdir-p -m a+rx $(DESTDIR)$$directory || exit 1; \
+	done
+
+pascal.install-dir:
+	for directory in $(prefix) $(bindir) $(unitsubdir) $(libsubdir)/include $(LIBEXECSUBDIR) \
+	                 $(infodir) $(p_inst_docdir) $(p_inst_demodir) $(p_inst_docdemodir) $(man1dir); do \
+	  $(srcdir)/p/script/mkdir-p -m a+rx $(DESTDIR)$$directory || exit 1; \
+	done
+
+# Install the driver program as $(target)-gpc
+# and also as either gpc (if native) or $(tooldir)/bin/gpc.
+pascal.install-common: pascal.install-dir xgpc$(exeext) gpc-run
+	if [ -f gpc-cross$(exeext) ]; then \
+	  rm -f $(DESTDIR)$(bindir)/$(GPC_CROSS_NAME)$(exeext); \
+	  $(INSTALL_PROGRAM) gpc-cross$(exeext) $(DESTDIR)$(bindir)/$(GPC_CROSS_NAME)$(exeext) && \
+	  chmod a+x $(DESTDIR)$(bindir)/$(GPC_CROSS_NAME)$(exeext); \
+	else \
+	  rm -f $(DESTDIR)$(bindir)/$(GPC_INSTALL_NAME)$(exeext); \
+	  $(INSTALL_PROGRAM) xgpc$(exeext) $(DESTDIR)$(bindir)/$(GPC_INSTALL_NAME)$(exeext) && \
+	  chmod a+x $(DESTDIR)$(bindir)/$(GPC_INSTALL_NAME)$(exeext); \
+	fi
+	rm -f $(DESTDIR)$(bindir)/gpc-run
+	$(INSTALL_PROGRAM) gpc-run $(DESTDIR)$(bindir)/gpc-run
+	chmod a+x $(DESTDIR)$(bindir)/gpc-run
+
+pascal.install-utils: pascal.utils
+	srcdir=`cd $(srcdir) && pwd` && \
+	bindir=`cd "$(DESTDIR)$(bindir)"; pwd` && \
+	man1dir=`cd "$(DESTDIR)$(man1dir)"; pwd` && \
+	cd ./p/utils && $(MAKE) -f "$$srcdir/p/utils/Makefile" $(UTILS_FLAGS_TO_PASS) GCC_DIR="$$srcdir" bindir="$$bindir" man1dir="$$man1dir" install
+
+pascal.install-lib: pascal.install-dir pascal.rts
+	if [ -f libgpc.a ]; then \
+	  rm -f $(DESTDIR)$(libsubdir)/libgpc.a; \
+	  $(INSTALL_DATA) libgpc.a $(DESTDIR)$(libsubdir)/libgpc.a && \
+	  chmod a-x $(DESTDIR)$(libsubdir)/libgpc.a || exit 1; \
+	  $(RANLIB_FOR_TARGET) $(DESTDIR)$(libsubdir)/libgpc.a 2> /dev/null || true; \
+	fi
+	for f in .. $(GPC_EXTRA_INSTALL_LIBS); do \
+	  if [ x"$$f" != x.. ]; then \
+	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(libsubdir)/`echo "$$f" | sed -e 's,.*/,,'`" || exit 1; \
+	  fi; \
+	done
+	if [ x$(WITH_SHARED) = xyes ] && [ -f $(GPCSOLIBNAME) ]; then \
+	  $(srcdir)/p/script/mkdir-p -m a+rx $(DESTDIR)$(prefix)/$(GPCSOLIBDIR) && \
+	  rm -f $(DESTDIR)$(libsubdir)/$(GPCSOLIBSHORTNAME) $(DESTDIR)$(prefix)/$(GPCSOLIBDIR)/$(GPCSOLIBNAME); \
+	  $(INSTALL_DATA) $(GPCSOLIBNAME) $(DESTDIR)$(prefix)/$(GPCSOLIBDIR)/$(GPCSOLIBNAME) && \
+	  chmod a-x $(DESTDIR)$(prefix)/$(GPCSOLIBDIR)/$(GPCSOLIBNAME) && \
+	  $(SYMLINK) $(prefix)/$(GPCSOLIBDIR)/$(GPCSOLIBNAME) $(DESTDIR)$(libsubdir)/$(GPCSOLIBSHORTNAME); \
+	else \
+	  true; \
+	fi
+
+pascal.install-units: pascal.install-dir $(srcdir)/p/units/crtc.h $(RTSSRCDIR)/gpc.pas
+	$(INSTALL_DATA) p/rts/rts-config.inc $(DESTDIR)$(unitsubdir)/rts-config.inc
+	$(INSTALL_DATA) $(RTSSRCDIR)/gpc.pas $(DESTDIR)$(unitsubdir)/gpc.pas
+	chmod a-x $(DESTDIR)$(unitsubdir)/rts-config.inc $(DESTDIR)$(unitsubdir)/gpc.pas
+	for f in `cd $(srcdir)/p/units && echo *`; do \
+	  if [ "$$f" = gpc-in-c.h ]; then \
+	    rm -f $(DESTDIR)$(libsubdir)/include/"$$f"; \
+	    $(INSTALL_DATA) $(srcdir)/p/units/"$$f" $(DESTDIR)$(libsubdir)/include/"$$f" || exit 1; \
+	    chmod a-x $(DESTDIR)$(libsubdir)/include/"$$f"; \
+	  elif [ "$$f" != CVS ]; then \
+	    rm -f $(DESTDIR)$(unitsubdir)/"$$f"; \
+	    $(INSTALL_DATA) $(srcdir)/p/units/"$$f" $(DESTDIR)$(unitsubdir)/"$$f" || exit 1; \
+	    chmod a-x $(DESTDIR)$(unitsubdir)/"$$f"; \
+	  fi; \
+	done
+
+# AIX has tight command-line length limits which would be exceeded
+# in `rm -f $(p_inst_docdemodir)/*' or `chmod a-x $(p_inst_docdemodir)/*',
+# probably also (soon) in `cd ./p/docdemos && echo *'
+pascal.install-doc: $(PASCAL_INSTALL_DOC)
+pascal.real-install-doc: pascal.install-dir $(srcdir)/p/README \
+ $(srcdir)/p/NEWS $(srcdir)/p/FAQ $(srcdir)/p/AUTHORS \
+ $(srcdir)/p/COPYING $(srcdir)/p/COPYING.LIB $(srcdir)/p/COPYING.DEMO $(srcdir)/p/test/README pascal.docdemos
+	for f in README NEWS INSTALL FAQ AUTHORS COPYING COPYING.LIB COPYING.DEMO; do \
+	  rm -f "$(DESTDIR)$(p_inst_docdir)/$$f"; \
+	  $(INSTALL_DATA) "$(srcdir)/p/$$f" "$(DESTDIR)$(p_inst_docdir)/$$f" || exit 1; \
+	  chmod a-x "$(DESTDIR)$(p_inst_docdir)/$$f"; \
+	done
+	rm -f "$(DESTDIR)$(p_inst_docdir)/BUGS"
+	$(INSTALL_DATA) "$(srcdir)/p/test/README" "$(DESTDIR)$(p_inst_docdir)/BUGS"
+	for f in `cd "$(srcdir)/p/demos" && echo *`; do \
+	  if [ "$$f" != CVS ]; then \
+	    rm -f "$(DESTDIR)$(p_inst_demodir)/$$f"; \
+	    $(INSTALL_DATA) "$(srcdir)/p/demos/$$f" "$(DESTDIR)$(p_inst_demodir)/$$f" || exit 1; \
+	  fi \
+	done
+	chmod a-x "$(DESTDIR)$(p_inst_docdir)/BUGS" "$(DESTDIR)$(p_inst_demodir)"/*
+	if [ "`cd ./p/docdemos && echo a*`" != "a*" ]; then \
+	  (cd "$(DESTDIR)$(p_inst_docdemodir)"; for f in *; do rm -f "$$f"; done) && \
+	  for f in `cd ./p/docdemos && echo *`; do \
+	    rm -f "$(DESTDIR)$(p_inst_docdemodir)/$$f"; \
+	    $(INSTALL_DATA) "p/docdemos/$$f" "$(DESTDIR)$(p_inst_docdemodir)/$$f" && \
+	    chmod a-x "$(DESTDIR)$(p_inst_docdemodir)/$$f" || exit 1; \
+	  done; \
+	fi
+
+pascal.install-info: pascal.install-info-man-dirs pascal.info
+	rm -f $(DESTDIR)$(infodir)/gpc.info* $(DESTDIR)$(infodir)/gpcs.info* $(DESTDIR)$(infodir)/gpcs-de.info* $(DESTDIR)$(infodir)/gpcs-hr.info* $(DESTDIR)$(infodir)/gpcs-es.info*
+	for f in `cd $(srcdir)/p/doc/info && echo gpc.info* gpcs*.info*`; do \
+	  $(INSTALL_DATA) $(srcdir)/p/doc/info/$$f $(DESTDIR)$(infodir)/$$f || exit 1; \
+	done
+	chmod a-x $(DESTDIR)$(infodir)/gpc.info* $(DESTDIR)$(infodir)/gpcs.info* $(DESTDIR)$(infodir)/gpcs-de.info* $(DESTDIR)$(infodir)/gpcs-hr.info* $(DESTDIR)$(infodir)/gpcs-es.info*
+
+pascal.install-man: pascal.install-info-man-dirs $(srcdir)/p/doc/en/gpc.1 $(srcdir)/p/doc/generated/gpc-run.1
+	-if [ -f gpc1$(exeext) ]; then \
+	  if [ -f gpc-cross$(exeext) ]; then \
+	    rm -f $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)$(man1ext); \
+	    $(INSTALL_DATA) $(srcdir)/p/doc/en/gpc.1 $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)$(man1ext); \
+	    chmod a-x $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)$(man1ext); \
+	  else \
+	    rm -f $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)$(man1ext); \
+	    $(INSTALL_DATA) $(srcdir)/p/doc/en/gpc.1 $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)$(man1ext); \
+	    chmod a-x $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)$(man1ext); \
+	  fi; \
+	else \
+	  true; \
+	fi
+	rm -f $(DESTDIR)$(man1dir)/gpc-run$(man1ext)
+	$(INSTALL_DATA) $(srcdir)/p/doc/generated/gpc-run.1 $(DESTDIR)$(man1dir)/gpc-run$(man1ext)
+	chmod a-x $(DESTDIR)$(man1dir)/gpc-run$(man1ext)
+
+pascal.install-hr: pascal.install-info-hr pascal.install-man-hr
+
+pascal.install-info-hr: pascal.install-info-man-dirs pascal.info
+	rm -f $(DESTDIR)$(infodir)/gpc-hr.info* $(DESTDIR)$(infodir)/gpcs-hr.info*
+	for f in `cd $(srcdir)/p/doc/info && echo gpc-hr.info* gpcs-hr.info*`; do \
+	  $(INSTALL_DATA) $(srcdir)/p/doc/info/$$f $(DESTDIR)$(infodir)/$$f || exit 1; \
+	done
+	chmod a-x $(DESTDIR)$(infodir)/gpc-hr.info* $(DESTDIR)$(infodir)/gpcs-hr.info*
+
+pascal.install-man-hr: pascal.install-info-man-dirs $(srcdir)/p/doc/hr/gpc.1
+	-if [ -f gpc1$(exeext) ]; then \
+	  if [ -f gpc-cross$(exeext) ]; then \
+	    rm -f $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)-hr$(man1ext); \
+	    $(INSTALL_DATA) $(srcdir)/p/doc/hr/gpc.1 $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)-hr$(man1ext); \
+	    chmod a-x $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)-hr$(man1ext); \
+	  else \
+	    rm -f $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)-hr$(man1ext); \
+	    $(INSTALL_DATA) $(srcdir)/p/doc/en/gpc.1 $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)-hr$(man1ext); \
+	    chmod a-x $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)-hr$(man1ext); \
+	  fi; \
+	else \
+	  true; \
+	fi
+
+pascal.install-es: pascal.install-info-es
+
+pascal.install-info-es: pascal.install-info-man-dirs pascal.info
+	rm -f $(DESTDIR)$(infodir)/gpc-es.info* $(DESTDIR)$(infodir)/gpcs-es.info*
+	for f in `cd $(srcdir)/p/doc/info && echo gpc-es.info* gpcs-es.info*`; do \
+	  $(INSTALL_DATA) $(srcdir)/p/doc/info/$$f $(DESTDIR)$(infodir)/$$f || exit 1; \
+	done
+	chmod a-x $(DESTDIR)$(infodir)/gpc-es.info* $(DESTDIR)$(infodir)/gpcs-es.info*
+
+pascal.install-compiler34:
+
+# Install gpc1 et.al.
+# Do *not* overwrite files if they exist.
+pascal.install-compiler: pascal.install-dir pascal
+	for file in gpc1$(exeext); do \
+	  if [ -f $$file ]; then \
+	    rm -f $(DESTDIR)$(LIBEXECSUBDIR)/$$file; \
+	    $(INSTALL_PROGRAM) $$file $(DESTDIR)$(LIBEXECSUBDIR)/$$file || exit 1; \
+	  fi; \
+	done; exit 0
+	for file in $(EXTRA_PASSES) $(EXTRA_PROGRAMS) $(USE_COLLECT2) ..; do \
+	  if [ x"$$file" != x.. ] && [ ! -f $(DESTDIR)$(LIBEXECSUBDIR)/$$file ]; then \
+	    $(INSTALL_PROGRAM) $$file $(DESTDIR)$(LIBEXECSUBDIR)/$$file || exit 1; \
+	  fi; \
+	done; exit 0
+	for file in $(EXTRA_PARTS) ..; do \
+	  if [ x"$$file" != x.. ] && [ ! -f $(DESTDIR)$(libsubdir)/$$file ]; then \
+	    $(INSTALL_DATA) $$file $(DESTDIR)$(libsubdir)/$$file && \
+	    chmod a-x $(DESTDIR)$(libsubdir)/$$file || exit 1; \
+	  fi; \
+	done; exit 0
+# Don't mess with specs if it doesn't exist yet.
+	if [ -f specs ] && [ ! -f $(DESTDIR)$(libsubdir)/specs ]; then \
+	  $(INSTALL_DATA) specs $(DESTDIR)$(libsubdir)/specs && \
+	  chmod a-x $(DESTDIR)$(libsubdir)/specs || exit 1; \
+	fi; exit 0
+
+pascal.install-normal: pascal.install-common pascal.install-compiler$(GPC_GCC_34_) \
+ pascal.install-utils pascal.install-lib pascal.install-man \
+ pascal.install-info pascal.install-units pascal.install-doc
+
+# This target will install GPC into an existing GCC installation,
+# without overwriting existing files.
+# The semicolon is to prevent the install.sh -> install default rule
+# from doing anything. Having it run true helps avoid problems and
+# noise from versions of make which don't like to have null commands.
+# @@ Repeating pascal.install-compiler is strange here. But since it's disabled
+#    in pascal.install-normal for gcc-3.4, it would otherwise be missing here.
+pascal.install: pascal.install-normal pascal.install-compiler; @true
+
+pascal.install-with-gcc: $(INSTALL_HEADERS) pascal.install $(INSTALL_LIBGCC)
+	for file in $(GCC_PASSES); do \
+	  if [ x"$$file" != x"xgcc$(exeext)" ]; then \
+	    rm -f $(DESTDIR)$(libsubdir)/$$file; \
+	    $(INSTALL_PROGRAM) $$file $(DESTDIR)$(libsubdir)/$$file || exit 1; \
+	  fi; \
+	done; exit 0
+
+pascal.uninstall:
+	-rm -rf $(DESTDIR)$(bindir)/$(GPC_INSTALL_NAME)$(exeext)
+	-rm -rf $(DESTDIR)$(bindir)/$(GPC_CROSS_NAME)$(exeext)
+	-rm -rf $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)$(man1ext)
+	-rm -rf $(DESTDIR)$(man1dir)/$(GPC_INSTALL_NAME)-hr$(man1ext)
+	-rm -rf $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)$(man1ext)
+	-rm -rf $(DESTDIR)$(man1dir)/$(GPC_CROSS_NAME)-hr$(man1ext)
+	-rm -rf $(DESTDIR)$(man1dir)/gpc-run$(man1ext)
+
+pascal.bindist: pascal
+	tmp_base=`pwd`/tmp && \
+	rm -rf $$tmp_base && \
+	$(MAKE) pascal.install $(GPC_INSTALL_FLAGS_TO_PASS) DESTDIR=$$tmp_base/ && \
+	version=$(gpc_version) && (cd $$tmp_base && $(MAKEGPCBINDIST) *) && \
+	rm -rf $$tmp_base
+
+pascal.bindist-with-gcc: pascal
+	tmp_base=`pwd`/tmp && \
+	rm -rf $$tmp_base && \
+	$(MAKE) pascal.install-with-gcc $(GPC_INSTALL_FLAGS_TO_PASS) DESTDIR=$$tmp_base/ && \
+	version=$(gpc_version) && (cd $$tmp_base && $(MAKEGPCWITHGCCBINDIST) *) && \
+	rm -rf $$tmp_base
+
+# Test targets
+
+CHECK_TARGETS += check-pascal  # @@ Is this meant to be done like this?
+
+check-pascal pascal.check: pascal.check-dejagnu
+pascal.check-dejagnu pascal.check-short pascal.check-long pascal.check-long-nolog: p/stamp-test-Makefile
+	cd ./p/test && $(MAKE) $(TEST_FLAGS_TO_PASS) "$@"
+
+p/stamp-test-Makefile: $(srcdir)/p/test/Makefile
+	$(srcdir)/p/script/mkdir-p p/test
+	{ \
+	  echo "# Automatically generated from $(srcdir)/p/test/Makefile."; \
+	  echo "# Don't change manually."; \
+	  echo ""; \
+	  sed -e "s,^srcdir *=.*,srcdir=`cd $(srcdir)/p/test && pwd`,; \
+	          s,^PC *=.*,PC=`pwd`/xgpc -B`pwd`/,; \
+	          s,^TEST_PATHS *=.*,TEST_PATHS=-I ../rts --no-unit-path --unit-path=`cd $(srcdir)/p/units && pwd`," \
+	          $(srcdir)/p/test/Makefile; \
+	} > p/test/Makefile || { rm -f p/test/Makefile; false; }
+	$(STAMP) "$@"
+
+# Clean hooks: A lot of the ancillary files are deleted by the main makefile.
+# We just have to delete files specific to us.
+
+pascal.mostlyclean:
+	-rm -f p/*.o p/stamp-docdemos p/stamp-pascal-html gpc-html-$(gpc_version).tar.gz
+	-rm -rf p/docdemos $(HTML_DIR)
+	-if [ -d p/rts ]; then rtssrcdir=`cd $(RTSSRCDIR) && pwd` && cd ./p/rts && $(MAKE) -f $$rtssrcdir/Makefile.in $(RTS_FLAGS_TO_PASS) srcdir=$$rtssrcdir mostlyclean; fi
+	-if [ -d p/test ]; then cd ./p/test && $(MAKE) mostlyclean; fi
+
+pascal.clean: pascal.mostlyclean
+	-rm -f xgpc
+	-rm -f p/parse.output p/parse.tab.c
+	-if [ -d p/utils ]; then srcdir=`cd $(srcdir) && pwd` && cd ./p/utils && $(MAKE) -f $$srcdir/p/utils/Makefile $(UTILS_FLAGS_TO_PASS) GCC_DIR="$$srcdir" clean; fi
+	-if [ -d p/rts ]; then rtssrcdir=`cd $(RTSSRCDIR) && pwd` && cd ./p/rts && $(MAKE) -f $$rtssrcdir/Makefile.in $(RTS_FLAGS_TO_PASS) srcdir=$$rtssrcdir clean; fi
+	-if [ -d p/test ]; then cd ./p/test && $(MAKE) clean; fi
+
+pascal.distclean: pascal.clean
+	-rm -f p/gpc-config.h p/config.cache p/config.log p/config.status
+	-rm -f gcc-version.h p/Makefile.in
+	-rm -f gpc.aux gpc.cp gpc.cps gpc.fn gpc.ky gpc.log gpc.pg gpc.toc gpc.tp gpc.vr
+	-rm -f gpc.tmp gpc.po gpc.to gpc.dvi gpc.ps gpc.pdf p/gpc.*aux GnuPascal.eps
+	-if [ -d p/rts ]; then rtssrcdir=`cd $(RTSSRCDIR) && pwd` && cd ./p/rts && $(MAKE) -f $$rtssrcdir/Makefile.in $(RTS_FLAGS_TO_PASS) srcdir=$$rtssrcdir distclean; fi
+	-if [ -d p/test ]; then cd ./p/test && $(MAKE) distclean; fi
+
+# like gcc's extraclean, which cleans p/ for us, but not p/rts.
+pascal.extraclean: pascal.distclean
+	-rm -f p/*/=* p/*/"#"* p/*/*~* p/*/patch* p/*/*.orig p/*/*.rej
+	-rm -f p/*/*.dvi p/*/*.oaux p/*/*.d p/*/*.[zZ] p/*/*.gz
+	-rm -f p/*/*.tar p/*/*.xtar p/*/*.tar.* p/*/*.xtar.*
+	-rm -f p/*/*lose p/*/*.s p/*/*.s[0-9] p/*/*.i
+	-rm -f p/gpc-[0-9]*[0-9].tar.gz
+	-rm -rf p/tmp p/gpc-[0-9]*[0-9]
+	-if [ -d p/rts ]; then rtssrcdir=`cd $(RTSSRCDIR) && pwd` && cd ./p/rts && $(MAKE) -f $$rtssrcdir/Makefile.in $(RTS_FLAGS_TO_PASS) srcdir=$$rtssrcdir extraclean; fi
+	-if [ -d p/test ]; then cd ./p/test && $(MAKE) extraclean; fi
+
+pascal.maintainer-clean: pascal.extraclean
+	-rm -f p/TAGS $(GPC_GENERATED_FILES) $(srcdir)/p/doc/info/gpc*.info*
+	-for d in $(srcdir)/p/doc/*; do if [ -d $$d/info ]; then rmdir $$d/info; fi; done
+	-if [ -d p/rts ]; then rtssrcdir=`cd $(RTSSRCDIR) && pwd` && cd ./p/rts && $(MAKE) -f $$rtssrcdir/Makefile.in $(RTS_FLAGS_TO_PASS) srcdir=$$rtssrcdir maintainer-clean; fi
+	-cd $(RTSSRCDIR) && $(MAKE) -f Makefile.in srcdir=. maintainer-clean
+	-if [ -d p/test ]; then cd ./p/test && $(MAKE) maintainer-clean; fi
+	-rm -f $(srcdir)/p/diffs/gcc-2.95.1.diff $(srcdir)/p/diffs/gcc-2.95.2.diff $(srcdir)/p/diffs/gcc-2.95.3.diff $(srcdir)/p/diffs/gcc-2.95.3-5.diff
+	-rm -f $(srcdir)/p/diffs/gcc-2.95.3-6.diff $(srcdir)/p/diffs/gcc-2.95.3-8.diff $(srcdir)/p/diffs/gcc-2.95.4.diff
+	-rm -f $(srcdir)/p/diffs/gcc-3.2.2.diff $(srcdir)/p/diffs/gcc-3.2.3.diff $(srcdir)/p/diffs/gcc-3.3.1.diff
+
+# Stage hooks: The main makefile has already created stage?/p.
+
+GPCSTAGESTUFF=p/*.o p/stamp-gbe
+
+RTSSTAGESTUFF=p/rts/*.o p/rts/*.lo p/rts/*.gpi p/rts/*.gpd \
+  p/rts/config.cache p/rts/config.log p/rts/config.status p/rts/Makefile \
+  p/rts/rts-config.h p/rts/rts-config.inc p/rts/needed-options \
+  p/rts/stamp-error-gpi
+
+pascal.stage1:
+	$(srcdir)/p/script/mkdir-p stage1/p/rts
+	-mv $(GPCSTAGESTUFF) stage1/p
+	-mv $(RTSSTAGESTUFF) stage1/p/rts
+pascal.stage2:
+	$(srcdir)/p/script/mkdir-p stage2/p/rts
+	-mv $(GPCSTAGESTUFF) stage2/p
+	-mv $(RTSSTAGESTUFF) stage2/p/rts
+pascal.stage3:
+	$(srcdir)/p/script/mkdir-p stage3/p/rts
+	-mv $(GPCSTAGESTUFF) stage3/p
+	-mv $(RTSSTAGESTUFF) stage3/p/rts
+pascal.stage4:
+	$(srcdir)/p/script/mkdir-p stage4/p/rts
+	-mv $(GPCSTAGESTUFF) stage4/p
+	-mv $(RTSSTAGESTUFF) stage4/p/rts
+pascal.stageprofile: stageprofile-start
+	-mv p/*$(objext) stageprofile/p
+pascal.stagefeedback: stageprofile-start
+	-mv p/*$(objext) stagefeedback/p
+
+# Maintenance hooks:
+
+# This target creates the files that can be rebuilt, but go in the
+# distribution anyway. It then copies the files to the distdir directory.
+# This will fail on systems that don't support symlinks. Tough luck ...
+# (The symlinks will disappear after integration into GCC, anyway.)
+pascal.distdir: pascal.extraclean pascal.generated-files
+	$(srcdir)/p/script/mkdir-p tmp/p
+	dest=`cd ./tmp/p && pwd` && \
+	cd $(srcdir)/p && \
+	for file in `find . -type d -print`; do \
+	  script/mkdir-p $$dest/$$file || exit 1; \
+	done && \
+	for file in `find . -type f -print`; do \
+	  ln $$file $$dest/$$file > /dev/null 2>&1 || cp $$file $$dest/$$file || exit 1; \
+	done && \
+	for file in `find . -type l -print`; do \
+	  ln -s `ls -l $$file | sed -e 's/.*-> *//'` $$dest/$$file || exit 1; \
+	done
+
+pascal.dist: pascal.distdir
+	mv tmp gpc-$(gpc_version)
+	tar $(GPC_TARFLAGS) gpc-$(gpc_version).tar.gz gpc-$(gpc_version)
+	rm -rf gpc-$(gpc_version)
+
+# requires GNU tar
+pascal.testsuite-dist: $(srcdir)/p/test/README
+	dest=`pwd` && cd $(srcdir) && \
+	tar --owner=root --group=root --mode=u=rwX,go=rX \
+	 --use-compress-program=bzip2 -cf "$$dest"/gpc-test-$(gpc_version).tar.bz2 p/test
+
+force:

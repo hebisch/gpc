@@ -1,0 +1,7 @@
+#!/bin/sh
+if $1 -Wall -Werror "$SRCDIR/fjf77c.pas" && ./"$A_OUT" && rm -f "$A_OUT" && \
+   $1 $2 -I. && [ -r "$A_OUT" ]; then
+  ./"$A_OUT"
+else
+  echo "failed"
+fi

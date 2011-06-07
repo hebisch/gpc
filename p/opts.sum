@@ -1,0 +1,151 @@
+A::Ignored
+D:Joined Separate:-D<macro>[=<val>]       Define a <macro> with <val> as its value.  If just <macro> is given, <val> is taken to be 1
+E::Preprocess only
+H::Print the name of include files as they are used
+I:Joined Separate:-I <dir>        Add <dir> to the end of the main include path.
+M::Generate make dependencies
+MM::Like -M but ignore system header files
+P::Do not generate #line directives
+U:Joined Separate:-U<macro>       Undefine <macro>
+Wall::
+Wcomment::
+Werror::
+Wmissing-declarations::
+Wmissing-prototypes::
+Wpointer-arith::
+Wundef::
+Wwrite-strings::
+Wfloat-equal::Warn about `=' and `<>' comparisons of real numbers
+Wabsolute::Warn about variables at absolute adresses and `absolute' variable with non-constant addresses (default)
+Wdynamic-arrays::Warn about arrays whose size is determined at run time (including array slices)
+Widentifier-case-local::Warn about an identifier written with varying case within one program/module/unit
+Widentifier-case::Warn about an identifier written with varying case
+Wimplicit-abstract::Warn when an object type not declared `abstract' contains an abstract method (default)
+Wimplicit-io::Warn when `Input' or `Output' are used implicitly
+Winherited-abstract::Warn when an abstract object type inherits from a non-abstract one (default)
+Winterface-file-name::Warn when a unit/module interface differs from the file name
+Wlocal-external::Warn about local `external' declarations
+Wmixed-comments::Warn about mixed comments like `{ ... *)'
+Wnear-far::Warn about use of useless `near' or `far' directives (default)
+Wnested-comments::Warn about nested comments like `{ { } }'
+Wobject-assignment::Warn when when assigning objects or declaring them as value parameters or function results (default)
+Wsemicolon::Warn about a semicolon after `then', `else' or `do' (default)
+Wtyped-const::Warn about misuse of typed constants as initialized variables (default)
+Wunderscore::Warn about double/leading/trailing underscores in identifiers
+Wwarnings::Enable warnings (same as `{$W+}')
+fassertions::Enable assertion checking (default)
+fautobuild::Automatically compile all units/modules/`{$L ...}' files and link the object files provided
+fautolink::Automatically link object files provided by units/modules or `{$L ...}' (default)
+fautomake::Automatically compile changed units/modules/`{$L ...}' files and link the object files provided
+fcase-value-checking::Cause a runtime error if a `case' matches no branch (default in ISO Pascal modes)
+fcstrings-as-strings::Treat CStrings as strings
+fdelphi-comments::Allow Delphi style `//' comments (default)
+fdouble-quoted-strings::Allow strings enclosed in \"\" (default)
+fexact-compare-strings::Do not blank-pad strings for comparisons
+fextended-syntax::same as `--ignore-function-results --pointer-arithmetic --cstrings-as-strings -Wno-absolute' (same as `{$X+}')
+ffield-widths=:Joined RejectNegative:Specify as a colon-separated list the default field widths in write statements for Integer, Real, Boolean, LongInt, LongReal
+ffield-widths::Use default field widths in write statements
+fignore-function-results::Do not complain when a function is called like a procedure
+fignore-garbage-after-dot::Ignore anything after the terminating `.' (default in `--borland-pascal')
+fignore-packed::Ignore `packed' in the source code (default in `--borland-pascal')
+fio-checking::Check I/O operations automatically (same as `{$I+}') (default)
+fiso-goto-restrictions::Do not allow jumps into structured instructions (default)
+flongjmp-all-nonlocal-labels::Use `longjmp' for all nonlocal labels (default for Darwin/PPC)
+fmacros::Expand macros (default except with `--ucsd-pascal', `--borland-pascal' or `--delphi')
+fmethods-always-virtual::Make all methods virtual (default in `--mac-pascal')
+fmixed-comments::Allow comments like `{ ... *)' as required in ISO Pascal (default in ISO 7185/10206 Pascal mode)
+fnested-comments::Allow nested comments like `{ { } }' and `(* (* *) *)'
+fnonlocal-exit::Allow non-local `Exit' statements (default in `--ucsd-pascal' and `--mac-pascal')
+fobject-checking::Check for valid objects on virtual method calls (default)
+fobjects-are-references::Turn objects into references (default in `--mac-pascal')
+fpedantic::Reject everything not allowed in some dialect, e.g. redefinition of its keywords
+fpointer-arithmetic::Enable pointer arithmetic
+fpointer-checking::Validate pointers before dereferencing
+fpointer-checking-user-defined::Use user-defined procedure for validating pointers
+fpreprocessed:RejectNegative:Treat the input file as already preprocessed
+fprogress-bar::Output number of processed lines while compiling
+fprogress-messages::Output source file names and line numbers while compiling
+fpropagate-units::Automalically export all imported identifiers from a unit
+frange-checking::Do automatic range checks (default)
+frange-and-object-checking::Same as `--range-checking --object-checking', same as `{$R+}'
+fread-base-specifier::In read statements, allow input base specifier `n#' (default)
+fread-hex::In read statements, allow hexadecimal input with `$' (default)
+fread-white-space::In read statements, require whitespace after numbers
+fshort-circuit::Guarantee short-circuit Boolean evaluation (default; same as `{$B-}')
+fstack-checking::Enable stack checking (same as `{$S+}')
+ftransparent-file-names::Derive external file names from variable names
+ftruncate-strings::Truncate strings being assigned to other strings of too short capacity
+ftyped-address::Make the result of the address operator typed (same as `{$T+}', default)
+fwrite-capital-exponent::Write real exponents with a capital `E'
+fwrite-clip-strings::In write statements, truncate strings exceeding their field width (`Write (SomeLongString : 3)')
+fwrite-real-blank::Output a blank in front of positive reals in exponential form (default)
+fbig-endian:RejectNegative:Tell GPC that the system is big-endian (for those targets where it can vary)
+fborland-pascal:RejectNegative:Try to emulate Borland Pascal, version 7.0
+fclassic-pascal-level-0:RejectNegative:Reject conformant arrays and anything besides ISO 7185 Pascal
+fclassic-pascal:RejectNegative:Reject anything besides ISO 7185 Pascal
+fdebug-automake:RejectNegative:(For GPC developers.) Give additional information about the actions of automake
+fdebug-gpi:RejectNegative:(For GPC developers.) Show what is written to and read from GPI files (huge output!)
+fdebug-source::Output the source while it is processed to standard error
+fdelphi:RejectNegative:Try to emulate Borland Pascal, version 7.0, with some Delphi extensions
+fextended-pascal:RejectNegative:Reject anything besides ISO 10206 Extended Pascal
+fgnu-pascal:RejectNegative:Undo the effect of previous dialect options, allow all features again
+fimplementation-only:RejectNegative:Do not produce a GPI file; only compile the implementation part
+finterface-only:RejectNegative:Compile only the interface part of a unit/module and exit (creates `.gpi' file, no `.o' file)
+flittle-endian:RejectNegative:Tell GPC that the system is little-endian (for those targets where it can vary)
+fmac-pascal:RejectNegative:Support (some features of) traditional Macintosh Pascal compilers
+fdisable-debug-info:RejectNegative:Inhibit `-g' options (temporary work-around, this option may disappear in the future)
+fdisable-default-paths:RejectNegative:Do not add a default path to the unit and object path
+fobject-pascal:RejectNegative:Reject anything besides (the implemented parts of) ANSI draft Object Pascal
+fpascal-sc:RejectNegative:Be strict about the implemented Pascal-SC extensions
+fprint-needed-options:RejectNegative:Print the needed options
+fstandard-pascal-level-0:RejectNegative:Synonym for `--classic-pascal-level-0'
+fstandard-pascal:RejectNegative:Synonym for `--classic-pascal'
+fsun-pascal:RejectNegative:Support (a few features of) Sun Pascal
+fucsd-pascal:RejectNegative:Try to emulate UCSD Pascal
+fvax-pascal:RejectNegative:Support (a few features of) VAX Pascal
+fobjects-require-override::Require override directive for objects (default in `--mac-pascal')
+fdelphi-method-shadowing::Redefining methods silently shadows old definition (default in `--delphi')
+fborland-objects:RejectNegative:Choose Borland object model
+fmac-objects:RejectNegative:Choose Mac object model
+fooe-objects:RejectNegative:Choose OOE object model
+fgnu-objects:RejectNegative:Reset object model to default state
+famtmpfile=:Joined RejectNegative:(Internal switch used for automake)
+fautomake-g++=:Joined RejectNegative:Set the C++ compiler invoked by automake
+fautomake-gcc=:Joined RejectNegative:Set the C compiler invoked by automake
+fautomake-gpc=:Joined RejectNegative:Set the Pascal compiler invoked by automake
+fcidefine=:Joined RejectNegative:Define a case-insensitive macro
+fcsdefine=:Joined RejectNegative:Define a case-sensitive macro
+fdebug-tree=:Joined RejectNegative:(For GPC developers.) Show the internal representation of a given tree node (name or address)
+fdisable-keyword=:Joined RejectNegative:Disable a keyword, independently of dialect defaults
+fenable-keyword=:Joined RejectNegative:Enable a keyword, independently of dialect defaults
+fdisable-predefined-identifier=:Joined RejectNegative:Disable a predefined identifier, independently of dialect defaults
+fenable-predefined-identifier=:Joined RejectNegative:Enable a predefined identifier, independently of dialect defaults
+fimplicit-result::Enable implicit `Result' for functions (default only in `--delphi')
+fexecutable-file-name=:Joined RejectNegative:Specify the name of the output file
+fexecutable-file-name:RejectNegative:Derive output file name from main source file name
+fexecutable-path::`--no-executable-path': Create the executable file in the directory where the main source is (default)
+fexecutable-path=:Joined RejectNegative:Path where to create the executable file
+fgpc-main=:Joined RejectNegative:External name for the program's entry point (default: `main')
+fgpi-destination-path=:Joined RejectNegative:(Internal switch used for automake)
+finit-modules=:Joined RejectNegative:Initialize the named modules in addition to those imported regularly; kind of a kludge
+fmaximum-field-alignment=:Joined RejectNegative:Set the maximum field alignment in bits if `pack-struct' is in effect
+fobject-destination-path::`--no-object-destination-path': Create additional object files (e.g. of C files, not Pascal units) in the current directory (default)
+fobject-destination-path=:Joined RejectNegative:Path where to create additional object files (e.g. of C files, not Pascal units)
+fobject-path::`--no-object-path': Forget about directories where to look for additional object (and source) files
+fobject-path=:Joined RejectNegative:Directories where to look for additional object (and source) files
+fsetlimit=:Joined RejectNegative:Define the range for `set of Integer' etc.
+funit-destination-path::`--no-unit-destination-path': Create object and GPI files of Pascal units in the current directory (default)
+funit-destination-path=:Joined RejectNegative:Path where to create object and GPI files of Pascal units
+funit-path::`--no-unit-path': Forget about directories where to look for unit/module sources
+funit-path=:Joined RejectNegative:Directories where to look for unit/module sources
+fuses=:Joined RejectNegative:Add an implicit `uses' clause
+idirafter:Joined Separate:`-idirafter <dir>'    Add <dir> to the end of the system include path
+imacros:Joined Separate:-imacros <file> Accept definition of macros in <file>
+include:Joined Separate:-include <file> Include the contents of <file> before other files
+iprefix:Joined Separate:-iprefix <path> Specify <path> as a prefix for next two options
+isystem:Joined Separate:-isystem <dir>  Add <dir> to the start of the system include path
+iwithprefix:Joined Separate:-iwithprefix <dir>      Add <dir> to the end of the system include path
+iwithprefixbefore:Joined Separate:-iwithprefixbefore <dir>        Add <dir> to the end of the main include path
+nostdinc::Do not search standard system include directories (those specified with -isystem will still be used)
+remap::Remap file names when including files
+v::Enable verbose output

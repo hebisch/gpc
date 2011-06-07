@@ -1,0 +1,96 @@
+@c Copyright (C) 1999-2006 Free Software Foundation, Inc.
+@c For copying conditions, see the file gpc.texi.
+@c This file is part of the GPC Manual.
+@c
+@c Author: Frank Heckenbach <frank@pascal.gnu.de>
+@c
+@c Last modification: 2006-02-02 (file up to date)
+
+You will need certain additional libraries when you compile some of
+the units. These can be found in the directory
+@uref{http://www.gnu-pascal.de/libs/}.
+
+Currently, there are the following libraries:
+
+@table @asis
+@item gmp
+Arithmetic for integers, rationals and real numbers with
+arbitrary size and precision. Used by the GMP unit.
+
+@item rx
+Regular expression matching and substitution. Used by the RegEx
+unit.
+
+@item ncurses
+@itemx PDCurses
+Screen handling. Used by the CRT unit. Depending on your system,
+you have the following choices:
+
+Unix: You can compile terminal applications with ncurses and
+applications that run in an X11 window with PDCurses (though
+terminal applications can, of course, also run in an xterm under
+X11). ncurses is used by default. If you want to use PDCurses
+(a.k.a. XCurses), give the option @samp{-DX11} when compiling CRT.
+
+Dos with DJGPP and MS-Windows with mingw: Only PDCurses is
+available and will be used by default.
+
+MS-Windows with Cygwin: PDCurses and ncurses are available.
+PDCurses is used by default. If you want to use ncurses, give
+the option @samp{-DUSE_NCURSES} when compiling CRT.
+
+Other systems: Please see the @file{README}s and installation
+instructions of PDCurses and ncurses to find out which one(s)
+can be built on your system. See the conditionals at the end of
+crt.inc and crtc.h (and change them if necessary) on which
+library is used by default.
+
+@item intl
+Internationalization. Used by the Intl unit. On some systems, it is
+part of the system library (libc).
+
+@item ElectricFence
+This library is not used by any GPC unit. It is a debugging tool to
+assist you in finding memory allocation bugs. To use it, just link
+it to your program, either on the command line (@samp{-lefence}) or
+in the source code (@samp{@{$L efence@}}) which you might want to
+put into an @samp{@{$ifdef DEBUG@}} or similar since using libefence
+is only recommended for debugging.
+@end table
+
+The source code of the libraries is available in the main
+@samp{libs} directory. Most libraries come with one or several
+patches which should be applied before compiling them.
+
+Binaries for some platforms are available in the
+@file{binary/@var{platform}} subdirectories. If you compile the
+libraries for other platforms, be invited to make the binaries
+available to us for distribution on the web site.
+
+There are also the following files:
+
+@table @file
+@item terminfo-linux.tar.gz
+This is a patch to enable ncurses programs to make use of the
+ability of Linux 2.2 and newer kernels to produce a block cursor
+when needed. The present patch can be installed without recompiling
+anything, just by copying some files into place. More details can be
+found in the @file{README} file included in this archive. The patch
+will not do any harm on older kernels. Please note that @strong{not}
+only on Linux machines it is useful to install the patch. Installing
+them on any other machine will allow users who telnet in from a
+Linux console to profit from the block cursor capability. Besides,
+some Unix systems have installed older Linux terminfo entries or
+none at all, so it's a good thing, anyway, to give them a current
+version. The patch is included in the terminfo database of ncurses
+5.0, so if you install ncurses 5.0 (source or binary), you don't
+need to get the patch separately. But you can install it on a system
+with an older ncurses version if you don't feel like upgrading
+ncurses altogether.
+
+@item tsort-2.9i.zip
+A little utility (extracted from util-linux-2.9i, but not Linux
+specific), needed for the configuration of the rx library. You
+need it only if you compile rx yourself (and if it's not
+already present on your system), not when using a rx binary.
+@end table

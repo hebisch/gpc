@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# This scripts resets all possibly time zone related variables so we
+# will not do this test with the local time zone. Things like double
+# summer time make it hard to write general tests of time zone
+# related routines. That does not mean the routines are buggy on
+# other time zones, it's just hard to verify their behaviour in
+# general. If you have an idea how to do this, send us such tests
+# (but please check them on a number of different time zones
+# before).
+
+TZ=UTC
+export TZ
+LANG=""
+export LANG
+LANGUAGE=""
+export LANGUAGE
+LC_TIME=""
+export LC_TIME
+LC_ALL=""
+export LC_ALL
+./"$A_OUT"

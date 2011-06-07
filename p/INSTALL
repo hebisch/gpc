@@ -1,0 +1,589 @@
+This file was generated automatically from install.texi.
+DO NOT CHANGE THIS FILE MANUALLY!
+
+1 Installing GNU Pascal
+***********************
+
+   Contents of this file:
+
+   * Downloading GPC sources or binaries
+
+   * Installation instructions for a GPC binary distribution
+
+   * Compilation of the source distribution on a Unix system
+
+   * Compilation notes for specific platforms
+
+   * Building and installing a cross-compiler
+
+   * Crossbuilding a compiler
+
+   * Getting help
+
+1.1 Where and what to download
+==============================
+
+You can download the source code of the current GNU Pascal release from
+     `http://www.gnu-pascal.de/current/'
+   and binaries for some platforms from
+     `http://www.gnu-pascal.de/binary/'
+
+   The binary archive files are named `gpc-VERSION.PLATFORM.EXTENSION'
+- for example `gpc-2.1.alpha-unknown-linux-gnu.tar.gz' for GPC version
+2.1 on an Alpha workstation running the Linux kernel with GNU C
+Library, or `gpc-20000616.i386-pc-msdosdjgpp' for GPC version 20000616
+on an Intel IA32 compatible PC running DOS with DJGPP.
+
+   After you have downloaded the correct archive file for your
+platform, please read the installation notes on how to install such a
+binary distribution.
+
+   If you are running Dos or MS Windows, you will need additional tools
+- see "What else to download and where" below.
+
+Current snapshots
+-----------------
+
+GNU Pascal is subject to steady development. Alpha and beta snapshots
+(source only, use at your own risk) can be found at:
+
+     `http://www.gnu-pascal.de/alpha/'
+     `http://www.gnu-pascal.de/beta/'
+
+What else to download and where
+-------------------------------
+
+When you are using GNU Pascal on a DOS system, you will need either the
+DJGPP or the EMX development environment (see below). On an OS/2
+system, you will need EMX. On an MS Windows 95/98/NT system you will
+need either the CygWin or the mingw32 ot the MSYS environment.
+
+   GNU Pascal uses the compiler back-end from the GNU Compiler
+Collection, GNU CC or GCC. If you want to compile GPC, you will need
+the source of GCC as well as the source of GPC itself. From the same
+place as GPC, please download GCC `2.8.1, 2.95.x, 3.2.x, 3.3.x or
+3.4.x'. (It is also available from any GNU mirror; see
+`http://www.gnu.org/software/gcc/'.)
+
+Libraries
+---------
+
+For some of GPC's units, you will need some standard libraries. In
+particular:
+
+Unit             Platform              Library
+CRT              Unix/terminal         ncurses >= 5.0 (1), (2)
+CRT              Unix/X11              PDCurses (2)
+CRT              Dos, MS-Windows       PDCurses (3)
+GMP              any                   gmp
+RegEx            any                   rx
+(debugging)      Unix, MS-Windows      ElectricFence (4)
+
+   Notes:
+
+   (1) ncurses version 5.0 or newer is strongly recommended because
+older versions contain a bug that severely affects CRT programs.
+
+   (2) You can install both ncurses and PDCurses on a Unix system, and
+choose at compile time whether to generate a terminal or X11 version of
+your program.
+
+   (3) ncurses also runs under MS-Windows with CygWin (not mingw32,
+however), but doesn't appear to behave much differently from PDCurses
+on that platform.
+
+   (4) ElectricFence is not used by any unit, but can be used for
+debugging memory allocation bugs by simply linking it (see the
+accompanying documentation).
+
+   You can find those libraries on many places on the Net. Also, many
+GNU/Linux distributions, DJGPP mirrors and other OS distributions
+already contain some of the libraries. In any case, you can find the
+sources of the libraries (sometimes together with patches that you
+should apply before building if you choose to build from the sources)
+and binaries for some platforms in
+
+     `http://www.gnu-pascal.de/libs/'
+
+DJGPP
+-----
+
+DJGPP (http://www.delorie.com/djgpp/) is available from any SimTel
+mirror in the `gnu/djgpp' subdirectory; for addresses look into the
+DJGPP FAQ (http://www.delorie.com/djgpp/v2faq/).  To use GNU Pascal you
+need at least
+
+   - the C library, `v2/djdev201.zip', and
+
+   - `binutils' (assembler, etc.), `v2gnu/bnu270b.zip'.
+
+   We also recommend you to get:
+
+   - the `make' utility, `v2gnu/mak375b.zip'
+
+   - the GNU debugger, `v2gnu/gdb416b.zip'
+
+   - the DJGPP FAQ, `v2faq/faq211b.zip'
+
+   - the GRX graphics library, `http://www.gnu.de/software/GRX/'
+
+   - PENG, `http://fjf.gnu.de/peng/', an integrated development
+     environment, similar to BP's one, written in GNU Pascal, or
+
+   - RHIDE, `v2app/rhide.zip', another integrated development
+     environment, or
+
+   - DevPascal, `http://www.bloodshed.net/devpascal.html', an
+     integrated development environment for mingw32.
+
+EMX
+---
+
+EMX is an environment for creating 32-bit applications for DOS and OS/2.
+To develop EMX programs with GNU Pascal you need at least
+
+   - the EMX runtime package, `emxrt.zip',
+
+   - the EMX development system, `emxdev*.zip', and
+
+   - the GNU development tools, `gnudev*.zip'.
+
+   If your DOS box has DPMI (it does if you are using MS Windows or
+OS/2) you will also need RSX, available from the same sites as EMX in
+the subdirectory `rsxnt'.
+
+   The GNU development tools contain the GNU C compiler which is in fact
+not needed to use GNU Pascal. However, the C library _is_ needed.
+
+CygWin
+------
+
+CygWin is an environment which implements a POSIX layer under MS
+Windows, giving it large parts of the functionality of Unix. CygWin
+contains development tools such as an assembler, a linker, etc. GPC
+needs for operation. More information about CygWin can be found at
+     `http://cygwin.com'
+
+mingw32
+-------
+
+The Minimalists' GNU Win32 environment, mingw32, allows a large number
+of Unix programs - including GPC and GCC - to run under MS Windows
+95/98/NT using native MS libraries. mingw32 ressources can be found at
+     `http://www.mingw.org'
+
+1.2 Installation instructions for a GPC binary distribution
+===========================================================
+
+To install a binary distribution, `cd' to the root directory and unpack
+the archive while preserving the stored directory structure. Under a
+Unix compatible system with GNU `tar' installed, the following
+(performed as `root') will do the job:
+
+     # cd /
+     # tar xzf ARCHIVE.tar.gz
+
+   If you are using a `tar' utility other than GNU `tar', it might be
+necessary to do the above in an explicit pipe:
+
+     # cd /
+     # gzip -c -d ARCHIVE.tar.gz | tar xf -
+
+   Some binary distributions are now distributed packed with `bzip2'.
+You can recognize them by their file name suffix `.bz2' instead of
+`.gz'. For such archives, make sure you have `bunzip2' installed and
+then use the following command:
+
+     # cd /
+     # tar xjf ARCHIVE.tar.bz2
+
+   Or:
+
+     # cd /
+     # bunzip2 -c -d ARCHIVE.tar.bz2 | tar xf -
+
+   If you want to install a GPC binary distribution in another directory
+than it was prepared for (for example, if you do not have root access
+to the computer and want to install GPC somewhere under your home
+directory), you can do the following:
+
+   - Unpack the archive file in a directory of your choice (see above).
+
+   - `cd' to the "prefix" directory of the distribution (for instance
+     `usr/local').
+
+   - Run the script `install-gpc-binary', available from
+     `http://www.gnu-pascal.de/binary/'.
+
+   - Follow the instructions in the script.
+
+   To install a ZIP archive under DOS with `PKunzip', `cd' to the
+appropriate directory (usually `\' for EMX, `\DJGPP' for DJGPP), then
+call `PKunzip' with the `-d' option:
+
+     C:\> cd djgpp
+     C:\DJGPP> pkunzip -d ARCHIVE.zip
+
+   where `ARCHIVE.zip' is the name of the distribution file.
+
+   For DJGPP you must edit your `djgpp.env' in the `DJGPP' directory to
+complete the installation: Please copy the entries from `[gcc]' to
+create a new `[gpc]' section. The result may look as follows:
+
+     [gcc]
+     COMPILER_PATH=%/>;COMPILER_PATH%%DJDIR%/bin
+     LIBRARY_PATH=%/>;LIBRARY_PATH%%DJDIR%/lib
+
+     [gpc]
+     COMPILER_PATH=%/>;COMPILER_PATH%%DJDIR%/bin
+     LIBRARY_PATH=%/>;LIBRARY_PATH%%DJDIR%/lib
+
+   If you are using the DJGPP version of GPC but do not have a `DJGPP'
+directory, please download and install DJGPP (see above).
+
+   Binary distributions include `libgcc.a' and `specs', files that are
+normally part of GCC. If you have GCC installed, they will be replaced
+unless you manually install the archive.
+
+1.3 Compiling GPC
+=================
+
+The preferred way to distribute GNU software is distribution of the
+source code. However, it can be a non-trivial exercise to build GNU
+Pascal on some non-Unix systems, so we also provide ready-to-run
+binaries for a number of platforms. (See above for how to install a
+binary distribution.)
+
+   GPC is based on the GNU Compiler Collection, GNU CC or GCC. You will
+need the GCC sources to build it. It must be the same version as the
+one GPC is implemented with - `2.8.1, 2.95.x, 3.2.x, 3.3.x or 3.4.x' as
+of this writing. Although you need GCC to build the GNU Pascal
+compiler, you don't need GCC to compile Pascal programs once GNU Pascal
+is installed. (However, using certain libraries will require compiling
+C wrappers, so it is a good idea to install the C compiler as well.)
+
+   Because GNU Pascal shares its back-end with GCC, it should run on any
+system supported by GCC. A full list of platforms supported by GCC can
+be found in the GCC installation instructions.
+
+   The GCC source can be obtained from any mirror of the GNU FTP site,
+`ftp://ftp.gnu.org/gnu/gcc/'. The "core" distribution is sufficient for
+GPC.
+
+   Here is the generic procedure for installing GNU Pascal on a Unix
+system. See below for extra information needed to install GPC on
+DOS-like platforms.
+
+  1. Checking the prerequisites
+
+     Make sure that GNU make is installed and that you use it in the
+     following steps. When unsure, you can try `make --version' and/or
+     `gmake --version'. It should tell you that it is GNU make. If you
+     don't have it, you can obtain it from
+     `http://www.gnu.org/software/make/'.
+
+     (In the following, we will simply speak of `make' when invoking
+     GNU make; you might need to call `gmake' instead.)
+
+     You also need a `patch' program. If such a program is not
+     installed on your system, you can get GNU patch from
+     `http://www.gnu.org/directory/patch.html'.
+
+     For extracting the example programs from the documentation to the
+     `doc/docdemos' directory a non-crippled `sed' is needed.  GNU sed
+     is known to work.
+
+     If you have downloaded a "minimal" source distribution, most
+     derived files have to be rebuilt. This is done automatically when
+     building GPC, but you need additional tools:
+
+     `bash', `bzip2', *GNU* `sed', GNU `awk', GNU `m4', `bison' (at
+     least version 2.1), `flex' (version 2.5.27), `autoconf' (version
+     2.12), `texinfo' (at least version 4.2), `help2man'.
+
+     Make sure that these are installed. The minimal distributions are
+     compressed with `bzip2' instead of `gzip', so substitute it in the
+     instructions below.
+
+     If your bison and flex programs are installed under different
+     names, you may have to set some or all of the following environment
+     variables before running `configure':
+
+          FLEX=/path/to/flex
+          LEX=/path/to/flex
+          BISON=/path/to/bison
+          YACC=/path/to/bison
+          INTLBISON=/path/to/bison
+
+     If you want to build the GPC WWW pages you will also need a TeX
+     distribution (including `pdftex' and `dvips').
+
+     If you run into trouble during the installation process, please
+     check whether you are using outdated versions of the required
+     utilities and upgrade if necessary.
+
+     The GNU versions of the packages above are available from
+     `http://www.gnu.org/software/', in a subdirectory whose name is
+     the name of the package.
+
+  2. Unpacking the source
+
+     From a directory of your choice (e.g. `/home/fred'), unpack the
+     GCC and GNU Pascal source distributions. This will create separate
+     subdirectories for GCC and GPC. Let us assume `gcc-3.4.3' and
+     `gpc-20041218' in this example.
+          % cd /home/fred
+          % bzip2 -d < gcc-core-3.4.3.tar.bz2 | tar xf -
+          % gzip -c -d gpc-20041218.tar.gz | tar xf -
+
+     `cd' to the GPC directory and move the contents (a subdirectory
+     `p') to the subdirectory `gcc' of the GCC directory:
+
+          % mv /home/fred/gpc-20041218/p /home/fred/gcc-3.4.3/gcc/
+
+     Instead of moving the directory, it is now also possible to make a
+     symbolic link (if the OS supports symlinks). This is useful if you
+     want to build GPC with several different GCC versions:
+
+          % ln -s /home/fred/gpc-20041218/p /home/fred/gcc-3.4.3/gcc/p
+
+     It is recommended, though not required, to use a separate
+     directory for building the compiler, rather than compiling in the
+     source directory. In this example, let us create
+     `/home/fred/gpc-build' for this purpose:
+
+          % mkdir /home/fred/gpc-build
+
+     If you use a separate directory, you do not need to write into the
+     GCC source directory once you have patched the GCC source (see
+     below), and can build GPC for more than one platform from the same
+     source tree.
+
+     In case you are re-using a directory where you have already built
+     GCC and/or GPC for a different target machine, do `make distclean'
+     to delete all files that might be invalid. One of the files this
+     deletes is `Makefile'; if `make distclean' complains that
+     `Makefile' does not exist, it probably means that the directory is
+     already suitably clean.
+
+  3. Configuring and building GCC
+
+     GNU Pascal is automatically configured with GCC. Configuration of
+     GCC is treated in depth in the GCC installation instructions.  The
+     normal procedure is as follows:
+
+     `cd' to the GPC build directory. From there, run the `configure'
+     script in the GCC source directory:
+
+          % cd /home/fred/gpc-build
+          % /home/fred/gcc-3.4.3/configure --enable-languages=pascal
+
+     This creates all the necessary config files, links and Makefile in
+     the GCC object directory.
+
+     Note 1: The configuration will prompt you for patching the GCC
+     source for GPC support, so you need write access to that
+     directory. All changes to GCC are surrounded by `#ifdef GPC ...
+     #endif', so they should not interfere when you build a C compiler
+     from this source tree.
+
+     Note 2: The `--enable-languages=pascal' option means that we only
+     want to build the Pascal compiler and not, for instance, the C++
+     compiler.
+
+     Note 3: The standard base directory for installing GCC and GPC is
+     `/usr/local'. If you want to install files to an alternate
+     directory DIR, specify `--prefix=DIR' when you run `configure'.
+     For installing into a system directory such as `/usr/local' you
+     will, of course, need appropriate permissions (often root).
+     Therefore, if you want to install GPC on a system where you don't
+     have those permissions, you must specify a prefix (e.g.,
+     `$HOME/usr').
+
+  4. Putting other GNU tools in place
+
+     Some environments require other GNU tools (such as the GNU
+     assembler or linker) instead of the standard system tools for GCC
+     to work. (See the GCC installation instructions for details.) If
+     this is the case for your system, install the required tools in
+     the GPC build directory under the names `as', `ld', or whatever is
+     appropriate. This will enable the compiler to find the proper
+     tools for compilation of the program `enquire' (a part of GCC) and
+     to install the GNU tools to a place where they are found by GCC
+     but do not interfere with the standard system tools.
+
+     Alternatively, you can do subsequent compilation using a value of
+     the `PATH' environment variable such that the necessary GNU tools
+     come before the standard system tools.
+
+  5. Compiling GPC
+
+     Once you are satisfied with the configuration as determined by
+     `configure', you can build the compiler:
+
+          % make
+
+     Notice that this procedure will build the C compiler (and maybe
+     some other compilers) too, because that is used to compile the GPC
+     runtime library.
+
+     Optionally, you may supply CFLAGS, LDFLAGS or RTSFLAGS. CFLAGS is
+     used for compiler and RTS, RTSFLAGS are for RTS only, i.e.: `make
+     CFLAGS="-O2" RTSFLAGS=-Wall'
+
+     *Note*: The documentation may fail to build from *.texi sources if
+     GCC 2.95.x tries to use an older version of `makeinfo' supplied in
+     GCC package itself. This can be prevented by supplying explicit
+     instruction to use your system's `makeinfo':
+
+          % make MAKEINFO=`which makeinfo`
+
+     optionally followed by the rest of arguments.
+
+  6. Completing the installation
+
+     When everything has been compiled, you can check the installation
+     process with:
+
+          % make -n install
+
+     To complete the installation, run the command `make install'. You
+     need write access to the target directories (`/usr/local/bin',
+     `/usr/local/lib', `/usr/local/info', `/usr/local/doc', and
+     `/usr/local/man' in this example), so this is usually done as
+     `root':
+
+          % su -c "make install"
+
+     If you want to install _only_ the Pascal compiler (for example if
+     you already have the correct version of GCC installed), `cd' to the
+     `gcc' subdirectory of the build directory (e.g.
+     `/home/fred/gpc-build/gcc') and run `make pascal.install'. This
+     installation process does *not* overwrite existing copies of
+     `libgcc.a' or `specs', should they exist.
+
+     However, if you do not have the exactly matching GCC version
+     installed, you might need some additional files (otherwise GPC will
+     complain about missing files at runtime). You can install them by
+     doing `make pascal.install-with-gcc' in the `gcc' subdirectory of
+     the build directory.
+
+     There is a (partial) translation of the GPC manual into Croatian
+     available now. It is not installed by default. If you want to
+     install it, do a `pascal.install-hr' in the `gcc' directory. This
+     will install the manpage `gpc-hr.1' and the info documentation
+     `gpc-hr.info*'. Other formats like PS, PDF and HTML can be built
+     manually (it's also easy to add appropriate make targets for them
+     when needed).
+
+     Also from the `gcc' subdirectory you can do some more "exotic"
+     builds. For instance, you can build the GPC WWW pages by typing
+     `make pascal.html' or a binary distribution by typing `make
+     pascal.bindist'. See the `Makefile' in that directory for more
+     examples.
+
+1.4 Compilation notes for specific platforms
+============================================
+
+1.4.1 MS-DOS with DJGPP
+-----------------------
+
+The only compiler that is capable of compiling the GNU Compiler
+Collection (GNU CC or GCC) under MS-DOS is GCC itself. In order to
+compile GPC or GCC for MS-DOS with DJGPP you will therefore need either
+a working copy of DJGPP installed, or you will have to cross-build from
+a non-MS-DOS system.
+
+   Building GPC under MS-DOS with DJGPP follows the same scheme as
+building GPC under a Unix-like system: Place the `p' subdirectory in the
+`gcc' directory and follow the instructions for compiling GCC. This
+requires `bash' and many other tools installed, and you must be very
+careful at many places to circumvent the limitations of the DOS
+platform.
+
+   Our preferred way to build GPC for DJGPP is to cross-build it from a
+Unix-like platform - which is much easier. For instructions, see
+"Cross-compilers" and "Crossbuilding" below.
+
+1.4.2 MS-DOS or OS/2 with EMX
+-----------------------------
+
+EMX is a free 32-bit DOS extender which adds some properties of Unix to
+MS-compatible DOS and IBM's OS/2 operating systems.
+
+   As of this writing, we are not aware of current versions of GCC for
+EMX, and EMX support in GPC has not been maintained. Please contact us
+if you know about recent development in EMX and are interested in
+continuing EMX support in GPC.
+
+1.4.3 MS Windows 95/98/NT
+-------------------------
+
+There are two ports of the GNU development tools to MS Windows
+95/98/NT: CygWin and mingw32.
+
+   The CygWin environment implements a POSIX layer under MS Windows,
+giving it large parts of the functionality of Unix. Thus, compiling GCC
+and GPC under the CygWin environment can be done following the
+instructions for compiling it under a Unix-like system (see above).
+
+   The Minimalists' GNU Win32 environment, mingw32, uses the native
+`crtdll.dll' library of MS Windows. It is much smaller than CygWin, but
+it is not self-hosting and must be crossbuilt from another system (see
+below).
+
+1.5 Building and Installing a cross-compiler
+============================================
+
+GNU Pascal can function as a cross-compiler for many machines.
+Information about GNU tools in a cross-configuration can be found at
+`ftp://ftp.cygnus.com/pub/embedded/crossgcc/'.
+
+   If you want a cross-compiler targetting Linux you may use Dan Kegel's
+crosstool from `http://www.kegel.com/crosstool/'
+
+   Since GNU Pascal generates assembler code, you need a cross-assembler
+that GNU Pascal can run, in order to produce object files. If you want
+to link on other than the target machine, you need a cross-linker as
+well. It is straightforward to install the GNU binutils to act as
+cross-tools - see the installation instructions of the GNU binutils for
+details.
+
+   You also need header files and libraries suitable for the target
+machine that you can install on the host machine. Please install them
+under `PREFIX/PLATFORM/include/', for instance
+`/usr/local/i386-pc-msdosdjgpp/include/' for a cross-compiler from a
+typical Unix-like environment to MS-DOS with DJGPP.
+
+   Configuration and compilation of the compiler can then be done using
+the scripts `cfgpc' and `mkgpc' which are included in the source
+distribution in the subdirectory `p/script'. Please call them with the
+`-h' option for instructions.
+
+1.6 Crossbuilding a compiler
+============================
+
+Using a cross-compiler to build GNU Pascal results in a compiler binary
+that runs on the cross-target platform. This is called "crossbuilding".
+A possible reason why anybody would want to do this, is when the
+platform on which you want to run the GNU Pascal compiler is not
+self-hosting. An example is mingw32.
+
+   To crossbuild GNU Pascal, you have to install a cross-compiler for
+your target first, see above.
+
+   As when building a cross-compiler, configuration and compilation of
+the compiler can be done using the scripts `cfgpc' and `mkgpc' which
+are included in the source distribution in the subdirectory `p/script'.
+Please call them with the `-h' option for instructions.
+
+1.7 Getting help
+================
+
+If you have further questions, please ask them on the GPC mailing list,
+<gpc@gnu.de>. To subscribe to the list, write an email containing
+"subscribe gpc" in the body to <majordomo@gnu.de>. (The subject will be
+ignored.)
+
+   Have fun with GPC!
+

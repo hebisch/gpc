@@ -1,0 +1,19 @@
+Hello, World
+"    string in field of 25"
+"1234567890123456789012345"
+Maxint = 2147483647
+Maxi = 32767 Mini = -32768
+Enter lines until eof
+foo
+ Enter:bar
+ Enter:Fld ActualFld
+=== ======...
+  1"32767"
+  2"32767"
+  3"32767"
+  4"32767"
+  5"32767"
+  6" 32767"
+  7"  32767"
+  8"   32767"
+ 32764 32765 32766 32767Runtime error
