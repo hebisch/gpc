@@ -45,8 +45,33 @@
 
 #include "gbe.h"
 
+#ifdef GCC_3_4
+extern location_t pascal_make_location(const char *, long);
+#endif
+
+#ifndef GCC_4_2
+#define pascal_input_filename input_filename
+#else
+extern char * pascal_input_filename;
+extern long lineno;
+#endif
+
 #ifndef GCC_3_3
 #define GTY(x)
+#endif
+
+#ifndef GCC_4_2
+#define TYPE_IS_INTEGER_TYPE(t) (TREE_CODE (t) == INTEGER_TYPE)
+#define TYPE_IS_CHAR_TYPE(t) (TREE_CODE (t) == CHAR_TYPE)
+#else
+#define TYPE_IS_INTEGER_TYPE(t) (TREE_CODE (t) == INTEGER_TYPE && \
+           !PASCAL_CHAR_TYPE (t))
+#define TYPE_IS_CHAR_TYPE(t) (TREE_CODE (t) == INTEGER_TYPE && \
+           PASCAL_CHAR_TYPE (t))
+#endif
+
+#ifndef GCC_4_3
+#define CALL_EXPR_FN(f) TREE_OPERAND (f, 0)
 #endif
 
 #ifdef GCC_4_1
@@ -62,12 +87,19 @@
   } while (0)
 #endif
 
+#ifndef GCC_4_0
+
+#define build2(c, t, o1, o2) (build (c, t, o1, o2))
+#define build3(c, t, o1, o2, o3) (build (c, t, o1, o2, o3))
+#define build4(c, t, o1, o2, o3, o4) (build (c, t, o1, o2, o3, o4))
+
+#endif
+
 #ifdef GCC_4_0
 extern tree xnon_lvalue (tree x);
 /* #define non_lvalue(x) (build1 (NON_LVALUE_EXPR, TREE_TYPE (x), x)) */
 #define non_lvalue(x) (xnon_lvalue (x))
-#define PASCAL_BIT_FIELD_REF_UNSIGNED(x) \
-  (TREE_CHECK2(x, BIT_FIELD_REF, PASCAL_BIT_FIELD_REF)->common.unsigned_flag)
+
 #define fold(x) (pascal_fold1 (x))
 #define build_int_cst_wide(x, y, z) (pascal_build_int_cst ((x), (y), (z)))
 #define usizetype sizetype
@@ -84,7 +116,6 @@ extern tree builtin_function (const char *name, tree type, int function_code,
        enum built_in_class class, const char *library_name, tree dummy);
 #include "plant.h"
 #else
-#define PASCAL_BIT_FIELD_REF_UNSIGNED(x) TREE_UNSIGNED (x)
 #define tcc_exceptional 'x'
 #define tcc_constant 'c'
 #define tcc_type 't'
@@ -385,6 +416,7 @@ union lang_tree_node
 #define IDENTIFIER_NAME(ID) \
   (IDENTIFIER_SPELLING (ID) ? IDENTIFIER_SPELLING (ID) : IDENTIFIER_POINTER (ID))
 
+#ifndef GCC_4_3
 /* Record in each node resulting from a binary operator
    what operator was specified for it. */
 #define EXP_ORIGINAL_CODE(exp) ((enum tree_code) TREE_COMPLEXITY (exp))
@@ -398,12 +430,22 @@ union lang_tree_node
   (IS_EXPR_CODE_CLASS (TREE_CODE_CLASS (TREE_CODE (exp))) \
    && TREE_CODE (exp) != CONSTRUCTOR \
    && TREE_CODE (exp) != PASCAL_SET_CONSTRUCTOR)
+#else
+
+/* FIXME: GCC 4.3 removed TREE_COMPLEXITY, so we have no place to
+   store code ... */
+#define EXP_ORIGINAL_CODE(exp) gcc_unreachable ()
+#define SET_EXP_ORIGINAL_CODE(exp, code) 0
+#define HAS_EXP_ORIGINAL_CODE_FIELD(exp) 0
+
+#endif
 
 #define IS_EXPR_OR_REF_CODE_CLASS(c) (IS_EXPR_CODE_CLASS (c) || \
                                       c == tcc_reference)
 
 #define PROMOTING_INTEGER_TYPE(t) \
-  (TREE_CODE (t) == INTEGER_TYPE && TYPE_PRECISION (t) < TYPE_PRECISION (integer_type_node))
+  (TYPE_IS_INTEGER_TYPE (t) && \
+     TYPE_PRECISION (t) < TYPE_PRECISION (integer_type_node))
 
 /* Some Pascal set constructors do not allow us to derive the set size from
    anywhere. In such cases, the maximum allowed members in the set is defined
@@ -411,8 +453,13 @@ union lang_tree_node
    Users may change this with a `--setlimit=NUMBER' switch at compile time. */
 #define DEFAULT_SET_LIMIT (8 * BITS_PER_WORD)
 
+#ifndef GCC_4_2
 #define ORDINAL_TYPE(code) \
   ((code) == INTEGER_TYPE || (code) == CHAR_TYPE || (code) == BOOLEAN_TYPE || (code) == ENUMERAL_TYPE)
+#else
+#define ORDINAL_TYPE(code) \
+  ((code) == INTEGER_TYPE || (code) == BOOLEAN_TYPE || (code) == ENUMERAL_TYPE)
+#endif
 
 #define ORDINAL_OR_REAL_TYPE(c) (ORDINAL_TYPE (c) || (c) == REAL_TYPE)
 
@@ -420,9 +467,9 @@ union lang_tree_node
 
 #define SCALAR_TYPE(c) (ORDINAL_REAL_OR_COMPLEX_TYPE (c) || (c) == POINTER_TYPE || (c) == REFERENCE_TYPE)
 
-#define INT_REAL(c) ((c) == INTEGER_TYPE || (c) == REAL_TYPE)
+#define INT_REAL(t) (TYPE_IS_INTEGER_TYPE (t) || TREE_CODE (t) == REAL_TYPE)
 
-#define IS_NUMERIC(c) (INT_REAL (c) || (c) == COMPLEX_TYPE)
+#define IS_NUMERIC(t) (INT_REAL (t) || TREE_CODE (t) == COMPLEX_TYPE)
 
 #define RECORD_OR_UNION(c) ((c) == RECORD_TYPE || (c) == UNION_TYPE || (c) == QUAL_UNION_TYPE)
 
@@ -665,6 +712,9 @@ struct lang_decl GTY(())
 /* Set if the variants of a record have initializers. Used in RECORD_TYPE nodes. */
 #define PASCAL_TYPE_INITIALIZER_VARIANTS(type) TYPE_LANG_FLAG_5 (type)
 
+/* Set if INTEGER_TYPE is a character type. */
+#define PASCAL_CHAR_TYPE(type) TYPE_LANG_FLAG_6 (type)
+
 struct lang_type GTY(())
 {
   int code;
@@ -777,7 +827,8 @@ struct lang_type GTY(())
   (TREE_CODE (expr) == STRING_CST && TREE_STRING_LENGTH (expr) == 1)
 
 #define IS_STRING_CST(t) \
-  (TREE_CODE (t) == STRING_CST || (TREE_CODE (t) == INTEGER_CST && TREE_CODE (TREE_TYPE (t)) == CHAR_TYPE))
+  (TREE_CODE (t) == STRING_CST || (TREE_CODE (t) == INTEGER_CST && \
+     TYPE_IS_CHAR_TYPE (TREE_TYPE (t))))
 
 /* Each variable length string has a `Length' field, the length of a char is
    always 1, fixed-length-string length is the size of the domain range. */
@@ -787,7 +838,7 @@ struct lang_type GTY(())
    : PASCAL_TYPE_STRING (TREE_TYPE (expr))                 \
    ? build_component_ref (expr, get_identifier ("length")) \
    : convert (pascal_integer_type_node,                    \
-     TREE_CODE (TREE_TYPE (expr)) == CHAR_TYPE             \
+     TYPE_IS_CHAR_TYPE (TREE_TYPE (expr))                  \
    ? integer_one_node                                      \
    : TREE_CODE (expr) == STRING_CST                        \
    ? build_int_2 (TREE_STRING_LENGTH (expr) - 1, 0)        \
@@ -1348,7 +1399,7 @@ extern tree build_string_constant (const char *, int, int);
 extern tree build_caret_string_constant (int);
 extern tree combine_strings (tree, int);
 extern void constant_expression_warning (tree);
-extern tree build_range_check (tree min, tree max, tree expr, int is_io, int gimplifying);
+extern tree gpc_build_range_check (tree min, tree max, tree expr, int is_io, int gimplifying);
 extern tree range_check_2 (tree, tree, tree);
 extern tree range_check (tree, tree);
 extern tree convert_and_check (tree, tree);
@@ -1434,7 +1485,6 @@ extern tree initializer_constant_valid_p (tree, tree);
 extern tree digest_init (tree, tree, int);
 extern tree build_pascal_initializer (tree, tree, const char *, int);
 extern tree find_variant (tree, tree);
-// extern int allow_packed_addresses;
 
 /* types.c */
 

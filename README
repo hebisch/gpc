@@ -1,0 +1,26 @@
+I have tested build with gcc-3.4.6, gcc-4.1.2, gcc-4.2.4 and gcc-4.3.5.
+Before build copy or symlink the p subdirectry of gpc into gcc-x.y.z/gcc
+subdirectory of gcc tree (that is you should have directory called
+gcc-x.y.z/gcc/p).  To build with gcc-3.4.6 (or earlier) apply backend
+patch and proceed as with previous gpc versions.
+To build with gcc-4.y copy the libgpc subdirectory into toplevel gcc
+directory (that is into gcc-4.y.z) and apply the patch backend patch
+from _toplevel_ directory (that is inside gcc-4.x.y directory) using
+command:
+
+patch -p1 < gcc/p/gcc-4.y.z.diff
+
+Then configure and build.  Using gcc-4.3.5 you need to give 'configure' 
+the '--disable-mapped-location' argument.
+
+Known problems:
+
+1) with gcc-4.y.z testsuite will fail if run immediately after build.
+Either install before running testsuite or copy 'libgpc.a' from libgpc
+build directory to gcc subdirectory and copy rts-confing.inc from libgpc
+build directory to gcc/p/rts subdirectory (you need to create rts
+subdirectiry)
+2) I did not try to build shared libgpc -- it is probably broken.
+You would need to fix Makefiles to build it.
+3) -Wparenthesis does not work with gcc-4.3.z
+4) Utilities (binobj and gpidump) are not build with gcc-4.y.z

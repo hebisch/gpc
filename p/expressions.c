@@ -214,6 +214,28 @@ combine_strings (tree strings, int mode)
   return value;
 }
 
+tree
+gpc_build_call(tree rtype, tree function, tree params)
+#ifndef GCC_4_3
+{
+  return build3 (CALL_EXPR, rtype, function, params, NULL_TREE);
+}
+#else
+{
+  long nargs = list_length (params);
+  tree * argarray = (tree *) alloca (nargs * sizeof (tree));
+  tree * argp;
+  tree tp;
+  for(tp = params, argp = argarray; tp;
+      tp = TREE_CHAIN(tp), argp++)
+      *argp = TREE_VALUE(tp);
+  return
+    fold_builtin_call_array (rtype,
+           function, nargs, argarray);
+}
+#endif
+
+
 /* Print a warning if a constant expression had overflow in folding.
    Invoke this function on every expression that the language
    requires to be a constant expression. */
@@ -227,7 +249,8 @@ constant_expression_warning (tree value)
 }
 
 tree
-build_range_check (tree min, tree max, tree expr, int is_io, int gimplifying)
+gpc_build_range_check (tree min, tree max, tree expr, int is_io,
+                       int gimplifying)
 {
   int chklo = min != NULL_TREE;
   int chkhi = max != NULL_TREE;
@@ -241,9 +264,11 @@ build_range_check (tree min, tree max, tree expr, int is_io, int gimplifying)
               tree cond2 = build_implicit_pascal_binary_op (GT_EXPR, expr, max);
               cond = cond ? build_pascal_binary_op (TRUTH_ORIF_EXPR, cond, cond2) : cond2;
             }
-          t = save_expr (build (COND_EXPR, TREE_TYPE (expr), cond, build (COMPOUND_EXPR,
-            TREE_TYPE (expr), build_predef_call (is_io ? p_IORangeCheckError : p_RangeCheckError,
-            NULL_TREE), expr), expr));
+          t = save_expr (build3 (COND_EXPR, TREE_TYPE (expr),
+                cond, build2 (COMPOUND_EXPR, TREE_TYPE (expr),
+                         build_predef_call (is_io ? p_IORangeCheckError :
+                                            p_RangeCheckError, NULL_TREE),
+                         expr), expr));
           return t;
 #else
           int side_effects = TREE_SIDE_EFFECTS (expr);
@@ -257,20 +282,27 @@ build_range_check (tree min, tree max, tree expr, int is_io, int gimplifying)
 #ifndef GCC_4_0
           gcc_assert(!gimplifying);
 #endif
-          tv = build (MODIFY_EXPR, TREE_TYPE (expr), tmpvar, expr);
+#ifdef GCC_4_0
+          TREE_NO_WARNING (tmpvar) = 1;
+#endif
+          tv = build2 (MODIFY_EXPR, TREE_TYPE (expr), tmpvar, expr);
           TREE_SIDE_EFFECTS (tv) = 1;
           PASCAL_VALUE_ASSIGNED (tmpvar) = 1;
-          cond = chklo ? build_implicit_pascal_binary_op (LT_EXPR, tmpvar, min) : NULL_TREE;
+          cond = chklo ? build_implicit_pascal_binary_op (LT_EXPR,
+                               tmpvar, min) : NULL_TREE;
           if (chkhi)
             {
-              tree cond2 = build_implicit_pascal_binary_op (GT_EXPR, tmpvar, max);
-              cond = cond ? build_pascal_binary_op (TRUTH_ORIF_EXPR, cond, cond2) : cond2;
+              tree cond2 = build_implicit_pascal_binary_op (GT_EXPR,
+                                                            tmpvar, max);
+              cond = cond ? build_pascal_binary_op (TRUTH_ORIF_EXPR,
+                                 cond, cond2) : cond2;
             }
-          t = build (COMPOUND_EXPR, TREE_TYPE (tmpvar),
-                build_predef_call (is_io ? p_IORangeCheckError : p_RangeCheckError,
-                NULL_TREE), tmpvar /* min? min : max */);
-          t = build (COND_EXPR, TREE_TYPE (tmpvar), cond, t, tmpvar);
-          t = build (COMPOUND_EXPR, TREE_TYPE (t), tv, t);
+          t = build2 (COMPOUND_EXPR, TREE_TYPE (tmpvar),
+                build_predef_call (is_io ? p_IORangeCheckError :
+                                   p_RangeCheckError, NULL_TREE),
+                tmpvar /* min? min : max */);
+          t = build3 (COND_EXPR, TREE_TYPE (tmpvar), cond, t, tmpvar);
+          t = build2 (COMPOUND_EXPR, TREE_TYPE (t), tv, t);
           return t;
 #endif
         }
@@ -282,7 +314,7 @@ do_range_error (tree min, const char * msg)
   if (co->pascal_dialect & C_E_O_PASCAL)
     {
       gpc_warning (msg);
-      return build (COMPOUND_EXPR, TREE_TYPE (min), 
+      return build2 (COMPOUND_EXPR, TREE_TYPE (min), 
                build_predef_call (p_RangeCheckError, NULL_TREE), min);
     }
   else
@@ -327,12 +359,12 @@ range_check_2 (tree min, tree max, tree expr)
             max = NULL_TREE;
 
           if (TREE_SIDE_EFFECTS (expr))
-            return build_range_check(min, max, expr, co->range_checking>1, 0);
+            return gpc_build_range_check(min, max, expr, co->range_checking>1, 0);
           else if (co->range_checking>1)
             code = IO_RANGE_CHECK_EXPR;
           else
             code = RANGE_CHECK_EXPR;
-          return build (code, TREE_TYPE (expr), 
+          return build3 (code, TREE_TYPE (expr), 
                       min, max, expr);
         }
     }
@@ -358,7 +390,9 @@ convert_and_check (tree type, tree expr)
   if (TREE_CODE (TREE_TYPE (expr)) == BOOLEAN_TYPE && TREE_CODE (type) == BOOLEAN_TYPE
       && const_lt (TYPE_MAX_VALUE (type), TYPE_MAX_VALUE (TREE_TYPE (expr))))
     expr = build_pascal_binary_op (NE_EXPR, expr, boolean_false_node);
-  if (TREE_CODE (type) == TREE_CODE (TREE_TYPE (expr)) || !ORDINAL_TYPE (TREE_CODE (type)))
+  if (TREE_CODE (type) == TREE_CODE (TREE_TYPE (expr))
+        && PASCAL_CHAR_TYPE (type) == PASCAL_CHAR_TYPE (TREE_TYPE (expr))
+      || !ORDINAL_TYPE (TREE_CODE (type)))
     return convert (type, range_check (type, expr));
   /* Type conversions: Particularly tricky are cases such as casting a value of
      type -100 .. 100 to 'a' .. 'z'. We can neither convert first and check
@@ -395,7 +429,9 @@ discriminant_mismatch_error (tree cond)
   if (TREE_CODE (cond) == INTEGER_CST && !integer_zerop (cond)
       && (pedantic || !(co->pascal_dialect & C_E_O_PASCAL)))
     error ("actual schema discriminants do not match");
-  return fold (build (COND_EXPR, integer_type_node, cond, build_predef_call (p_DiscriminantsMismatchError, NULL_TREE), integer_zero_node));
+  return fold (build3 (COND_EXPR, integer_type_node, cond,
+                 build_predef_call (p_DiscriminantsMismatchError, NULL_TREE),
+                 integer_zero_node));
 }
 
 /* Return an expression to compare actual discriminants and report an error if
@@ -442,6 +478,9 @@ get_op_name (enum tree_code code)
 {
   switch (code)
   {
+#ifdef GCC_4_3
+    case POINTER_PLUS_EXPR:
+#endif
     case PLUS_EXPR:        return "+";
     case MINUS_EXPR:       return "-";
     case MULT_EXPR:        return "*";
@@ -532,7 +571,8 @@ get_operator (const char *op_id, const char *op_name, tree arg1, tree arg2, int 
   if (TREE_CODE_CLASS (TREE_CODE (arg1)) == tcc_constant
        && PASCAL_CST_FRESH (arg1))
     {
-      if (TREE_CODE (arg1) == INTEGER_CST && TREE_CODE (TREE_TYPE (arg1)) == INTEGER_TYPE)
+      if (TREE_CODE (arg1) == INTEGER_CST &&
+          TYPE_IS_INTEGER_TYPE (TREE_TYPE (arg1)))
         {
           found = get_operator (op_id, op_name, pascal_integer_type_node, arg2, new);
           arg1 = long_long_integer_type_node;
@@ -542,7 +582,8 @@ get_operator (const char *op_id, const char *op_name, tree arg1, tree arg2, int 
           found = get_operator (op_id, op_name, double_type_node, arg2, new);
           arg1 = long_double_type_node;
         }
-      if (TREE_CODE (arg1) == INTEGER_CST && TREE_CODE (TREE_TYPE (arg1)) == CHAR_TYPE)
+      if (TREE_CODE (arg1) == INTEGER_CST &&
+          TYPE_IS_CHAR_TYPE (TREE_TYPE (arg1)))
         {
           found = get_operator (op_id, op_name, char_type_node, arg2, new);
           arg1 = string_schema_proto_type;
@@ -560,12 +601,14 @@ get_operator (const char *op_id, const char *op_name, tree arg1, tree arg2, int 
   if (TREE_CODE_CLASS (TREE_CODE (arg2)) == tcc_constant
        && PASCAL_CST_FRESH (arg2))
     {
-      if (TREE_CODE (arg2) == INTEGER_CST && TREE_CODE (TREE_TYPE (arg2)) == INTEGER_TYPE)
+      if (TREE_CODE (arg2) == INTEGER_CST &&
+          TYPE_IS_INTEGER_TYPE (TREE_TYPE (arg2)))
         {
           found = get_operator (op_id, op_name, arg1, pascal_integer_type_node, new);
           arg2 = long_long_integer_type_node;
         }
-      if (TREE_CODE (arg2) == INTEGER_CST && TREE_CODE (TREE_TYPE (arg2)) == CHAR_TYPE)
+      if (TREE_CODE (arg2) == INTEGER_CST &&
+          TYPE_IS_CHAR_TYPE (TREE_TYPE (arg2)))
         {
           found = get_operator (op_id, op_name, arg1, char_type_node, new);
           arg2 = string_schema_proto_type;
@@ -660,6 +703,8 @@ warn_operands (enum tree_code outer, tree exp_inner, int rhs)
    || code == BIT_XOR_EXPR || code == TRUTH_XOR_EXPR)
 #define AND_OP(code) \
   (code == BIT_AND_EXPR || code == TRUTH_AND_EXPR || code == TRUTH_ANDIF_EXPR)
+  /* FIXME: implement for 4.3 */
+#ifndef GCC_4_3
   if (co->warn_parentheses && HAS_EXP_ORIGINAL_CODE_FIELD (exp_inner))
     {
       enum tree_code inner = EXP_ORIGINAL_CODE (exp_inner);
@@ -668,6 +713,7 @@ warn_operands (enum tree_code outer, tree exp_inner, int rhs)
         gpc_warning ("suggest parentheses around `%s' in operand of `%s'",
                  get_op_name (inner), get_op_name (outer));
     }
+#endif
 }
 
 /* @@ Kludge to solve problems with Boolean shortcut operators. (fjf226*.pas)
@@ -811,9 +857,10 @@ const_plus1_lt (tree a, tree b)
 {
   return const_lt (a, b)
     && !(TREE_INT_CST_LOW (a) + 1 == TREE_INT_CST_LOW (b)
-         && tree_int_cst_equal (fold (build (PLUS_EXPR,
-             long_long_integer_type_node, convert (long_long_integer_type_node, a),
-              convert (long_long_integer_type_node, integer_one_node))), b));
+         && tree_int_cst_equal (fold (build2 (PLUS_EXPR,
+             long_long_integer_type_node,
+             convert (long_long_integer_type_node, a),
+             convert (long_long_integer_type_node, integer_one_node))), b));
 }
 
 /* Perform set operations on constant constructors. This function assumes the
@@ -871,11 +918,14 @@ const_set_constructor_binary_op (enum tree_code code, tree e0, tree e1)
         {
           int out1 = mask & (1 << (on[0] + 2 * on[1]));
           if (out1 && !out0)
-            lo = !vc_on ? vc : fold (build (PLUS_EXPR, TREE_TYPE (vc), vc, convert (TREE_TYPE (vc), integer_one_node)));
+            lo = !vc_on ? vc : fold (build2 (PLUS_EXPR, TREE_TYPE (vc),
+               vc, convert (TREE_TYPE (vc), integer_one_node)));
           else if (out0 && !out1)
             {
-              tree hi = vc_on ? vc : fold (build (MINUS_EXPR, TREE_TYPE (vc), vc, convert (TREE_TYPE (vc), integer_one_node)));
-              gcc_assert (TREE_CODE (lo) == INTEGER_CST && TREE_CODE (hi) == INTEGER_CST);
+              tree hi = vc_on ? vc : fold (build2 (MINUS_EXPR, TREE_TYPE (vc),
+                   vc, convert (TREE_TYPE (vc), integer_one_node)));
+              gcc_assert (TREE_CODE (lo) == INTEGER_CST &&
+                          TREE_CODE (hi) == INTEGER_CST);
               res = tree_cons (lo, hi, res);
               lo = NULL_TREE;
             }
@@ -923,7 +973,7 @@ const_set_constructor_binary_op (enum tree_code code, tree e0, tree e1)
 tree
 parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
 {
-  tree result;
+  tree result, tt1, tt2;
   const char *op_name, *op_name2;
   enum tree_code t1, t2;
 
@@ -993,7 +1043,7 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
   if (code == POWER_EXPR)
     {
       chk_dialect_name ("**", E_O_M_PASCAL);
-      if (TREE_CODE (TREE_TYPE (exp2)) == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (TREE_TYPE (exp2)))
         exp2 = convert (TREE_TYPE (real_zero_node), exp2);
       if (TREE_CODE (TREE_TYPE (exp2)) != REAL_TYPE)
         {
@@ -1003,7 +1053,7 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
     }
   else if (code == POW_EXPR)
     {
-      if (TREE_CODE (TREE_TYPE (exp2)) != INTEGER_TYPE)
+      if (!TYPE_IS_INTEGER_TYPE (TREE_TYPE (exp2)))
         {
           error ("`pow' exponent is not of integer type");
           return error_mark_node;
@@ -1011,7 +1061,7 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
     }
   else if (code == TRUTH_OR_EXPR)
     {
-      if (TREE_CODE (TREE_TYPE (exp1)) == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (TREE_TYPE (exp1)))
         {
           code = BIT_IOR_EXPR;
           chk_dialect ("bitwise `or' is", B_D_M_PASCAL);
@@ -1021,7 +1071,7 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
     }
   else if (code == TRUTH_AND_EXPR)
     {
-      if (TREE_CODE (TREE_TYPE (exp1)) == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (TREE_TYPE (exp1)))
         {
           code = BIT_AND_EXPR;
           chk_dialect ("bitwise `and' is", B_D_M_PASCAL);
@@ -1029,14 +1079,17 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
       else if (co->short_circuit)
         code = TRUTH_ANDIF_EXPR;
     }
-  else if (code == TRUTH_XOR_EXPR && TREE_CODE (TREE_TYPE (exp1)) == INTEGER_TYPE)
+  else if (code == TRUTH_XOR_EXPR &&
+           TYPE_IS_INTEGER_TYPE (TREE_TYPE (exp1)))
     {
       code = BIT_XOR_EXPR;
       chk_dialect ("bitwise `xor' is", B_D_M_PASCAL);
     }
 
-  t1 = TREE_CODE (TREE_TYPE (exp1));
-  t2 = TREE_CODE (TREE_TYPE (exp2));
+  tt1 = TREE_TYPE (exp1);
+  t1 = TREE_CODE (tt1);
+  tt2 = TREE_TYPE (exp2);
+  t2 = TREE_CODE (tt2);
 
   if (!co->pointer_arithmetic
       && (t1 == POINTER_TYPE || t2 == POINTER_TYPE)
@@ -1051,8 +1104,8 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
   switch (code)
   {
     case PLUS_EXPR:
-      if (!((IS_NUMERIC (t1) && IS_NUMERIC (t2))
-            || (t1 == POINTER_TYPE && t2 == INTEGER_TYPE)
+      if (!((IS_NUMERIC (tt1) && IS_NUMERIC (tt2))
+            || (t1 == POINTER_TYPE && TYPE_IS_INTEGER_TYPE (tt2))
             || (t1 == SET_TYPE && t2 == SET_TYPE)
             ||  (is_string_compatible_type (exp1, 1) && is_string_compatible_type (exp2, 1))))
         {
@@ -1061,8 +1114,9 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
         }
       break;
     case MINUS_EXPR:
-      if (!((IS_NUMERIC (t1) && IS_NUMERIC (t2))
-            || (t1 == POINTER_TYPE && (t2 == POINTER_TYPE || t2 == INTEGER_TYPE))
+      if (!((IS_NUMERIC (tt1) && IS_NUMERIC (tt2))
+            || (t1 == POINTER_TYPE &&
+                (t2 == POINTER_TYPE || TYPE_IS_INTEGER_TYPE (tt2)))
             || (t1 == SET_TYPE && t2 == SET_TYPE)))
         {
           binary_op_error (code);
@@ -1070,7 +1124,7 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
         }
       break;
     case MULT_EXPR:
-      if (!((IS_NUMERIC (t1) && IS_NUMERIC (t2))
+      if (!((IS_NUMERIC (tt1) && IS_NUMERIC (tt2))
             || (t1 == SET_TYPE && t2 == SET_TYPE)))
         {
           binary_op_error (code);
@@ -1084,7 +1138,7 @@ parser_build_binary_op (enum tree_code code, tree exp1, tree exp2)
     case POWER_EXPR:
     case LSHIFT_EXPR:
     case RSHIFT_EXPR:
-      if (!IS_NUMERIC (t1) || !IS_NUMERIC (t2))
+      if (!IS_NUMERIC (tt1) || !IS_NUMERIC (tt2))
         {
           binary_op_error (code);
           return error_mark_node;
@@ -1110,13 +1164,14 @@ tree
 build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
 {
   enum tree_code t1 = TREE_CODE (exp1), t2 = TREE_CODE (exp2);
+  tree tt1 = TREE_TYPE (exp1), tt2 = TREE_TYPE (exp2);
   tree result;
 
-  CHK_EM (TREE_TYPE (exp1));
-  CHK_EM (TREE_TYPE (exp2));
+  CHK_EM (tt1);
+  CHK_EM (tt2);
 
-  if (TREE_CODE (TREE_TYPE (exp1)) == INTEGER_TYPE
-      && TREE_CODE (TREE_TYPE (exp2)) == INTEGER_TYPE
+  if (TYPE_IS_INTEGER_TYPE (tt1)
+      && TYPE_IS_INTEGER_TYPE (tt2)
       && code != RDIV_EXPR
       && code != RSHIFT_EXPR
       && code != LSHIFT_EXPR
@@ -1136,26 +1191,30 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
 
   /* Convert set constructors to sets. */
   if (t1 == PASCAL_SET_CONSTRUCTOR
-      && TREE_CODE (TREE_TYPE (exp1)) == SET_TYPE)
+      && TREE_CODE (tt1) == SET_TYPE)
     exp1 = construct_set (exp1, NULL_TREE, 1);
   if (t2 == PASCAL_SET_CONSTRUCTOR
-      && TREE_CODE (TREE_TYPE (exp2)) == SET_TYPE && code != IN_EXPR)
+      && TREE_CODE (tt2) == SET_TYPE && code != IN_EXPR)
     exp2 = construct_set (exp2, NULL_TREE, 1);
 
-  CHK_EM (TREE_TYPE (exp1));
-  CHK_EM (TREE_TYPE (exp2));
-  t1 = TREE_CODE (TREE_TYPE (exp1));
-  t2 = TREE_CODE (TREE_TYPE (exp2));
+  tt1 = TREE_TYPE (exp1);
+  tt2 = TREE_TYPE (exp2);
+  CHK_EM (tt1);
+  CHK_EM (tt2);
+  t1 = TREE_CODE (tt1);
+  t2 = TREE_CODE (tt2);
 
   /* @@ Hmm? A left shift may require the last bit of LongestCard -- but
         then again, it might require a sign. At least use an unsigned
         type when we know the left operand is unsigned. In the general
         case (left operand is variable), it may depend on the actual value
         which type (if any) fits. -- Frank */
-  if (code == LSHIFT_EXPR && t1 == INTEGER_TYPE && t2 == INTEGER_TYPE)
+  if (code == LSHIFT_EXPR && TYPE_IS_INTEGER_TYPE (tt1) &&
+      TYPE_IS_INTEGER_TYPE (tt2))
     {
-      tree t = (TYPE_UNSIGNED (TREE_TYPE (exp1))
-                || (TREE_CODE (exp1) == INTEGER_CST && !INT_CST_LT (exp1, integer_zero_node)))
+      tree t = (TYPE_UNSIGNED (tt1)
+                || (TREE_CODE (exp1) == INTEGER_CST &&
+                    !INT_CST_LT (exp1, integer_zero_node)))
                ? long_long_unsigned_type_node
                : long_long_integer_type_node;
       exp1 = convert (t, exp1);
@@ -1176,16 +1235,19 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
       tree c_real = build_unary_op (REALPART_EXPR, c_exp, 1);
       tree c_imag = build_unary_op (IMAGPART_EXPR, c_exp, 1);
       tree r_exp = save_expr (convert (TREE_TYPE (c_real), c_left ? exp2 : exp1));
-      return build (COMPLEX_EXPR, TREE_TYPE (c_exp),
-        minus_rc ? build_pascal_binary_op (code, r_exp, c_real) : build_pascal_binary_op (code, c_real, r_exp),
-        (code == PLUS_EXPR || code == MINUS_EXPR) ? (minus_rc ? build_unary_op (NEGATE_EXPR, c_imag, 1) : c_imag)
+      return build2 (COMPLEX_EXPR, TREE_TYPE (c_exp),
+        minus_rc ? build_pascal_binary_op (code, r_exp, c_real) :
+                   build_pascal_binary_op (code, c_real, r_exp),
+        (code == PLUS_EXPR || code == MINUS_EXPR) ?
+          (minus_rc ? build_unary_op (NEGATE_EXPR, c_imag, 1) : c_imag)
           : build_pascal_binary_op (code, c_imag, r_exp));
     }
 
   /* All string and char types are compatible in Extended Pascal. */
   if (is_string_compatible_type (exp1, 1)
       && is_string_compatible_type (exp2, 1)
-      && (t1 != CHAR_TYPE || t2 != CHAR_TYPE || code == PLUS_EXPR))
+      && (!TYPE_IS_CHAR_TYPE (tt1) || !TYPE_IS_CHAR_TYPE (tt2)
+          || code == PLUS_EXPR))
     {
       int rts_code = 0;
       switch (code)
@@ -1224,25 +1286,45 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
             tree sval = PASCAL_STRING_VALUE (nstr);
             tree str_addr = build_unary_op (ADDR_EXPR, sval, 0);
 
+            DECL_ARTIFICIAL (nstr) = 1;
+            DECL_IGNORED_P (nstr) = 1;
+#ifdef GCC_4_0
+            TREE_NO_WARNING (nstr) = 1;
+#endif
+
             /* Assign the first string to the new object */
-            if (t1 == CHAR_TYPE)
+            if (TYPE_IS_CHAR_TYPE (tt1))
               expand_expr_stmt1 (
-                build_modify_expr (build_array_ref (sval, integer_one_node), NOP_EXPR, exp1));
+                build_modify_expr (build_array_ref (sval, integer_one_node),
+                                      NOP_EXPR, exp1));
             else
               expand_expr_stmt1 (build_memcpy (
-                str_addr, build1 (ADDR_EXPR, cstring_type_node, PASCAL_STRING_VALUE (exp1)), len1));
+                str_addr, build1 (ADDR_EXPR, cstring_type_node,
+                                  PASCAL_STRING_VALUE (exp1)), len1));
 
             /* Catenate the second string to the first */
-            if (t2 == CHAR_TYPE)
+            if (TYPE_IS_CHAR_TYPE (tt2))
               expand_expr_stmt1 (build_modify_expr (
-                build_array_ref (sval, build_pascal_binary_op (PLUS_EXPR, len1, integer_one_node)), NOP_EXPR, exp2));
+                build_array_ref (sval, build_pascal_binary_op (PLUS_EXPR,
+                   len1, integer_one_node)), NOP_EXPR, exp2));
             else
+#ifndef GCC_4_3
               expand_expr_stmt1 (build_memcpy (
-                build (PLUS_EXPR, cstring_type_node, str_addr, len1),
-                build1 (ADDR_EXPR, cstring_type_node, PASCAL_STRING_VALUE (exp2)), len2));
+                build2 (PLUS_EXPR, cstring_type_node, str_addr, len1),
+                build1 (ADDR_EXPR, cstring_type_node,
+                        PASCAL_STRING_VALUE (exp2)), len2));
+#else
+              expand_expr_stmt1 (build_memcpy (
+                build2 (POINTER_PLUS_EXPR, cstring_type_node, 
+                        convert (cstring_type_node, str_addr), 
+                        convert (sizetype, len1)),
+                build1 (ADDR_EXPR, cstring_type_node,
+                        PASCAL_STRING_VALUE (exp2)), len2));
+#endif
 
             /* Store the combined length of strings */
-            expand_expr_stmt1 (build_modify_expr (PASCAL_STRING_LENGTH (nstr), NOP_EXPR, length));
+            expand_expr_stmt1 (build_modify_expr (
+                PASCAL_STRING_LENGTH (nstr), NOP_EXPR, length));
             return non_lvalue (nstr);
           }
         }
@@ -1250,13 +1332,13 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
 
   if (code == IN_EXPR)
     {
-      if (!ORDINAL_TYPE (TREE_CODE (TREE_TYPE (exp1))))
+      if (!ORDINAL_TYPE (t1))
         {
           error ("left operand to `in' must be of ordinal type");
           return error_mark_node;
         }
 
-      if (TREE_CODE (TREE_TYPE (exp2)) != SET_TYPE)
+      if (TREE_CODE (tt2) != SET_TYPE)
         {
           error ("right operand to `in' must be a set");
           return error_mark_node;
@@ -1337,7 +1419,7 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
       int r_num = 0, negate = 0, empty1, empty2;
       tree result, temp;
 
-      if (!comptypes (TYPE_MAIN_VARIANT (TREE_TYPE (exp1)), TYPE_MAIN_VARIANT (TREE_TYPE (exp2))))
+      if (!comptypes (TYPE_MAIN_VARIANT (tt1), TYPE_MAIN_VARIANT (tt2)))
         {
           error ("operation on incompatible sets");
           return error_mark_node;
@@ -1525,20 +1607,20 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
             tree temp2 = save_expr (build_binary_op (code,
                            convert (tu1, build_unary_op (NEGATE_EXPR, exp1, 0)), e2u));
             /* exp1 >= 0 ? exp1 mod exp2 : temp2 == 0 ? 0 : exp2 - temp2 */
-            temp = build (COND_EXPR, tu2,
+            temp = build3 (COND_EXPR, tu2,
                     build_binary_op (GE_EXPR, exp1, integer_zero_node),
                     convert (tu2, temp),
-                    build (COND_EXPR, tu2,
+                    build3 (COND_EXPR, tu2,
                      build_binary_op (EQ_EXPR, temp2, integer_zero_node),
                       convert (tu2, integer_zero_node),
                       convert (tu2, build_binary_op (MINUS_EXPR, e2u, temp2))));
             TREE_SIDE_EFFECTS (temp) = side_effects;
-            temp = build (COMPOUND_EXPR, tu2, exp2, temp);
+            temp = build2 (COMPOUND_EXPR, tu2, exp2, temp);
           }
         if (!const_lt (integer_zero_node, exp2))
-          temp = build (COND_EXPR, TREE_TYPE (temp),
+          temp = build3 (COND_EXPR, TREE_TYPE (temp),
                         build_binary_op (LE_EXPR, exp2, integer_zero_node),
-                        build (COMPOUND_EXPR, TREE_TYPE (temp),
+                        build2 (COMPOUND_EXPR, TREE_TYPE (temp),
                           build_predef_call (p_ModRangeError, NULL_TREE),
                           integer_zero_node),
                         temp);
@@ -1561,14 +1643,14 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
           int side_effects = TREE_SIDE_EFFECTS (exp1) || TREE_SIDE_EFFECTS (exp2);
           exp1 = save_expr (exp1);
           exp2 = save_expr (exp2);
-          result = build (COND_EXPR, ts1,
+          result = build3 (COND_EXPR, ts1,
                      build_binary_op (GE_EXPR, exp1, integer_zero_node),
                      convert (ts1, build_binary_op (code, convert (tu1, exp1), exp2)),
                      build_unary_op (NEGATE_EXPR,
                        convert (ts1, build_binary_op (code, convert (tu1,
                          build_unary_op (NEGATE_EXPR, exp1, 0)), exp2)), 0));
           /* Make sure exp2 is evaluated before the branch */
-          result = build (COMPOUND_EXPR, TREE_TYPE (result), exp2, result);
+          result = build2 (COMPOUND_EXPR, TREE_TYPE (result), exp2, result);
           TREE_SIDE_EFFECTS (result) = side_effects;
           return result;
         }
@@ -1586,8 +1668,8 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
     case GE_EXPR:
     case LT_EXPR:
     case GT_EXPR:
-      if (t1 == INTEGER_TYPE && t2 == INTEGER_TYPE
-          && TYPE_UNSIGNED (TREE_TYPE (exp1)) != TYPE_UNSIGNED (TREE_TYPE (exp2)))
+      if (TYPE_IS_INTEGER_TYPE (tt1) && TYPE_IS_INTEGER_TYPE (tt2)
+          && TYPE_UNSIGNED (tt1) != TYPE_UNSIGNED (tt2))
         {
           tree unsigned_type, signed_exp;
           int lz;  /* 1: signed_exp < 0 means always True; 0: ... means always False */
@@ -1671,14 +1753,15 @@ build_pascal_unary_op (enum tree_code code, tree xarg)
   if (TREE_CODE (TREE_TYPE (t)) == FUNCTION_TYPE)
     t = probably_call_function (t);
 
-  if (code == TRUTH_NOT_EXPR && TREE_CODE (TREE_TYPE (t)) == INTEGER_TYPE)
+  if (code == TRUTH_NOT_EXPR && TYPE_IS_INTEGER_TYPE (TREE_TYPE (t)))
     {
       chk_dialect ("bitwise `not' is", B_D_M_PASCAL);
       code = BIT_NOT_EXPR;
       noconvert = 1;
     }
 
-  if (code == NEGATE_EXPR && TREE_CODE (t) == INTEGER_CST && TREE_CODE (TREE_TYPE (t)) == INTEGER_TYPE)
+  if (code == NEGATE_EXPR && TREE_CODE (t) == INTEGER_CST &&
+      TYPE_IS_INTEGER_TYPE (TREE_TYPE (t)))
     {
       if (tree_int_cst_sgn (t) < 0)
         {
@@ -1776,10 +1859,11 @@ build_pascal_pointer_reference (tree pointer)
         }
       if (co->pointer_checking && co->pointer_checking_user_defined)
         {
-          tree check = build (CALL_EXPR, void_type_node, validate_pointer_ptr_node,
-            build_tree_list (NULL_TREE, pointer), NULL_TREE);
+          tree check =
+              gpc_build_call (void_type_node, validate_pointer_ptr_node,
+                              build_tree_list (NULL_TREE, pointer));
           TREE_SIDE_EFFECTS (check) = 1;
-          pointer = build (COMPOUND_EXPR, TREE_TYPE (pointer), check, pointer);
+          pointer = build2 (COMPOUND_EXPR, TREE_TYPE (pointer), check, pointer);
         }
       else if (co->pointer_checking)
         {
@@ -1790,7 +1874,7 @@ build_pascal_pointer_reference (tree pointer)
                    && (pedantic || !(co->pascal_dialect & C_E_O_PASCAL)))
             error ("nil pointer dereference");
           else
-            pointer = fold (build (COND_EXPR, TREE_TYPE (pointer), cond,
+            pointer = fold (build3 (COND_EXPR, TREE_TYPE (pointer), cond,
               convert (TREE_TYPE (pointer), build_predef_call (p_NilPointerError, NULL_TREE)), pointer));
         }
       result = build_indirect_ref (pointer, "`^'");
@@ -1835,9 +1919,13 @@ build_pascal_address_expression (tree factor, int untyped)
 
   /* Undo a function call without parameters. Note: The first operand
      of the CALL_EXPR is already the address of the function. */
+#ifndef GCC_4_3
   if (TREE_CODE (factor) == CALL_EXPR && !TREE_OPERAND (factor, 1))
+#else
+  if (TREE_CODE (factor) == CALL_EXPR && call_expr_nargs (factor) == 0)
+#endif
     {
-      result = TREE_OPERAND (factor, 0);
+      result = CALL_EXPR_FN (factor);
       if (TREE_CODE (result) == ADDR_EXPR)
         /* build_routine_call does not do it, intentionally */
         mark_addressable (TREE_OPERAND (result, 0));
@@ -2283,7 +2371,7 @@ truthvalue_conversion (tree expr)
     case TRUTH_XOR_EXPR:
     case TRUTH_NOT_EXPR:
       if (TREE_TYPE (expr) != boolean_type_node)
-        return fold (build (TREE_CODE (expr), boolean_type_node,
+        return fold (build2 (TREE_CODE (expr), boolean_type_node,
                               truthvalue_conversion (TREE_OPERAND (expr, 0)),
                               truthvalue_conversion (TREE_OPERAND (expr, 1))));
 //      gcc_assert (TREE_TYPE (expr) == boolean_type_node);
@@ -2315,7 +2403,7 @@ truthvalue_conversion (tree expr)
 
     case COND_EXPR:
       /* Distribute the conversion into the arms of a COND_EXPR. */
-      return fold (build (COND_EXPR, boolean_type_node, TREE_OPERAND (expr, 0),
+      return fold (build3 (COND_EXPR, boolean_type_node, TREE_OPERAND (expr, 0),
                           truthvalue_conversion (TREE_OPERAND (expr, 1)),
                           truthvalue_conversion (TREE_OPERAND (expr, 2))));
 
@@ -2372,7 +2460,9 @@ static int
 compatible_types_p (tree type0, tree type1)
 {
   return TREE_CODE (type0) == TREE_CODE (type1)
-         && (TREE_CODE (type0) != ENUMERAL_TYPE || base_type (type0) == base_type (type1));
+         && PASCAL_CHAR_TYPE (type0) == PASCAL_CHAR_TYPE (type1)
+         && (TREE_CODE (type0) != ENUMERAL_TYPE ||
+             base_type (type0) == base_type (type1));
 }
 
 static int
@@ -2380,10 +2470,12 @@ compatible_relop_p (tree type0, tree type1)
 {
   enum tree_code code0 = TREE_CODE (type0), code1 = TREE_CODE (type1);
   return compatible_types_p (type0, type1)
-         || (code0 == REAL_TYPE && code1 == INTEGER_TYPE)
-         || (code0 == INTEGER_TYPE && code1 == REAL_TYPE)
-         || (code0 == COMPLEX_TYPE && (code1 == REAL_TYPE || code1 == INTEGER_TYPE))
-         || ((code0 == REAL_TYPE || code0 == INTEGER_TYPE) && code1 == COMPLEX_TYPE);
+         || (code0 == REAL_TYPE && TYPE_IS_INTEGER_TYPE(type1))
+         || (TYPE_IS_INTEGER_TYPE (type0) && code1 == REAL_TYPE)
+         || (code0 == COMPLEX_TYPE && (code1 == REAL_TYPE ||
+               TYPE_IS_INTEGER_TYPE (type1)))
+         || ((code0 == REAL_TYPE || TYPE_IS_INTEGER_TYPE (type0)) &&
+            code1 == COMPLEX_TYPE);
 }
 
 /* Build a binary-operation expression without default conversions.
@@ -2466,9 +2558,9 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
   {
     case PLUS_EXPR:
       /* Handle the pointer + int case. */
-      if (code0 == POINTER_TYPE && code1 == INTEGER_TYPE)
+      if (code0 == POINTER_TYPE && TYPE_IS_INTEGER_TYPE (type1))
         return pointer_int_sum (PLUS_EXPR, op0, op1);
-      else if (code1 == POINTER_TYPE && code0 == INTEGER_TYPE)
+      else if (code1 == POINTER_TYPE && TYPE_IS_INTEGER_TYPE (type0))
         return pointer_int_sum (PLUS_EXPR, op1, op0);
       else
         common = 1;
@@ -2477,10 +2569,11 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
     case MINUS_EXPR:
       /* Subtraction of two similar pointers.
          We must subtract them as integers, then divide by object size. */
-      if (code0 == POINTER_TYPE && code1 == POINTER_TYPE && comp_target_types (type0, type1))
+      if (code0 == POINTER_TYPE && code1 == POINTER_TYPE &&
+          comp_target_types (type0, type1))
         return pointer_diff (op0, op1);
       /* Handle pointer minus int. Just like pointer plus int. */
-      else if (code0 == POINTER_TYPE && code1 == INTEGER_TYPE)
+      else if (code0 == POINTER_TYPE && TYPE_IS_INTEGER_TYPE (type1))
         return pointer_int_sum (MINUS_EXPR, op0, op1);
       else
         common = 1;
@@ -2491,7 +2584,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
       break;
 
     case RDIV_EXPR:
-      if (INT_REAL (code0) && INT_REAL (code1))
+      if (INT_REAL (type0) && INT_REAL (type1))
         {
           if ((code0 == REAL_TYPE && TYPE_PRECISION (type0) > TYPE_PRECISION (double_type_node))
               || (code1 == REAL_TYPE && TYPE_PRECISION (type1) > TYPE_PRECISION (double_type_node)))
@@ -2501,7 +2594,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
           /* This is wrong, e.g., if exactly one operand is LongReal (fjf237.pas)
           converted = code0 != INTEGER_TYPE && code1 != INTEGER_TYPE; */
         }
-      else if (IS_NUMERIC (code0) && IS_NUMERIC (code1))
+      else if (IS_NUMERIC (type0) && IS_NUMERIC (type1))
         {
           result_type = complex_type_node;
           /* This is wrong if one operand is real and the other one is complex (maur4.pas)
@@ -2514,7 +2607,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
     case FLOOR_DIV_EXPR:
     case ROUND_DIV_EXPR:
     case EXACT_DIV_EXPR:
-      if (code0 == INTEGER_TYPE && code1 == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type0) && TYPE_IS_INTEGER_TYPE (type1))
         {
           /* Although it would be tempting to shorten always here, that
              loses on some targets, since the modulo instruction is
@@ -2533,7 +2626,8 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
 #endif
     case BIT_IOR_EXPR:
     case BIT_XOR_EXPR:
-      if (code0 == INTEGER_TYPE && code1 == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type0) &&
+          TYPE_IS_INTEGER_TYPE (type1))
         shorten = -1;
       /* If one operand is a constant, and the other is a short type
          that has been converted to an int,
@@ -2567,7 +2661,8 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
 
     case TRUNC_MOD_EXPR:
     case FLOOR_MOD_EXPR:
-      if (code0 == INTEGER_TYPE && code1 == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type0) &&
+          TYPE_IS_INTEGER_TYPE (type1))
         {
           /* Although it would be tempting to shorten always here, that loses
              on some targets, since the modulo instruction is undefined if the
@@ -2599,7 +2694,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
        Also set SHORT_SHIFT if shifting rightward. */
 
     case RSHIFT_EXPR:
-      if (code0 == INTEGER_TYPE && code1 == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type0) && TYPE_IS_INTEGER_TYPE (type1))
         {
           if (TREE_CODE (op1) == INTEGER_CST)
             {
@@ -2624,7 +2719,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
       break;
 
     case LSHIFT_EXPR:
-      if (code0 == INTEGER_TYPE && code1 == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type0) && TYPE_IS_INTEGER_TYPE (type1))
         {
           result_type = TYPE_UNSIGNED (TREE_TYPE (op0)) ? long_long_unsigned_type_node : long_long_integer_type_node;
           op0 = convert (result_type, op0);
@@ -2970,7 +3065,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
     build_type = result_type;
 
   {
-    tree result = build (resultcode, build_type, op0, op1);
+    tree result = build2 (resultcode, build_type, op0, op1);
     tree folded = fold (result);
     if (folded == result)
       TREE_CONSTANT (folded) = TREE_CONSTANT (op0) && TREE_CONSTANT (op1);
@@ -3011,7 +3106,15 @@ c_size_in_bytes (tree type)
 #endif
 #ifdef GCC_4_0
   if (TREE_CODE (t) == INTEGER_CST)
-    force_fit_type (t, 0, 0, 0);
+    {
+#ifndef GCC_4_3
+      force_fit_type (t, 0, 0, 0);
+#else
+      tree ttype = TREE_TYPE (t);
+      force_fit_type_double (ttype, TREE_INT_CST_LOW (t),
+                             TREE_INT_CST_HIGH (t), 0, 0);
+#endif
+    }
 #else
   force_fit_type (t, 0);
 #endif
@@ -3032,11 +3135,17 @@ pointer_int_sum (enum tree_code code, tree ptrop, tree intop)
   else
     size_exp = c_size_in_bytes (TREE_TYPE (result_type));
   /* Replace the integer argument with a suitable product by the object size. */
-  intop = convert (result_type, build_pascal_binary_op (MULT_EXPR,
+  intop = convert (sizetype, build_pascal_binary_op (MULT_EXPR,
     convert (ptrsize_unsigned_type_node, intop),
     convert (ptrsize_unsigned_type_node, size_exp)));
   /* Create the sum or difference. */
-  result = build (code, result_type, ptrop, intop);
+#ifndef GCC_4_3
+  result = build2 (code, result_type, ptrop, intop);
+#else
+  if (code == MINUS_EXPR)
+    intop = fold (build1 (NEGATE_EXPR, sizetype, intop));
+  result = build2 (POINTER_PLUS_EXPR, result_type, ptrop, intop);
+#endif
   folded = fold (result);
   if (folded == result)
     TREE_CONSTANT (folded) = TREE_CONSTANT (ptrop) & TREE_CONSTANT (intop);
@@ -3062,7 +3171,7 @@ pointer_diff (tree op0, tree op1)
   /* This generates an error if op0 is pointer to incomplete type. */
   op1 = c_size_in_bytes (target_type);
   /* Divide by the size, in easiest possible way. */
-  result = build (EXACT_DIV_EXPR, restype, op0, convert (restype, op1));
+  result = build2 (EXACT_DIV_EXPR, restype, op0, convert (restype, op1));
   folded = fold (result);
   if (folded == result)
     TREE_CONSTANT (folded) = TREE_CONSTANT (op0) & TREE_CONSTANT (op1);
@@ -3079,11 +3188,11 @@ tree
 build_unary_op (enum tree_code code, tree xarg, int noconvert)
 {
   /* No default_conversion here. It causes trouble for ADDR_EXPR. */
-  tree arg = xarg, addr, argtype;
-  enum tree_code typecode = TREE_CODE (TREE_TYPE (arg));
+  tree arg = xarg, addr, argtype = TREE_TYPE (arg);
+  enum tree_code typecode = TREE_CODE (argtype);
   const char *errstring = NULL;
 
-  CHK_EM (TREE_TYPE (arg));
+  CHK_EM (argtype);
 
   switch (code)
   {
@@ -3091,26 +3200,26 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
       /* This is used for unary plus, because a CONVERT_EXPR
          is enough to prevent anybody from looking inside for
          associativity, but won't generate any code. */
-      if (!IS_NUMERIC (typecode))
+      if (!IS_NUMERIC (argtype))
         errstring = "wrong type of argument to unary `+'";
       else if (!noconvert)
         arg = default_conversion (arg);
       break;
 
     case NEGATE_EXPR:
-      if (!IS_NUMERIC (typecode))
+      if (!IS_NUMERIC (argtype))
         errstring = "wrong type of argument to unary `-'";
       else
         {
           if (!noconvert)
             arg = default_conversion (arg);
-          if (typecode == INTEGER_TYPE)
+          if (TYPE_IS_INTEGER_TYPE (argtype))
             arg = convert (select_signed_integer_type (TREE_TYPE (arg)), arg);
         }
       break;
 
     case BIT_NOT_EXPR:
-      if (typecode != INTEGER_TYPE)
+      if (!TYPE_IS_INTEGER_TYPE (argtype))
         errstring = "wrong type of argument to bitwise `not'";
       else
         if (!noconvert)
@@ -3118,7 +3227,7 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
       break;
 
     case ABS_EXPR:
-      if (!IS_NUMERIC (typecode))
+      if (!IS_NUMERIC (argtype))
         errstring = "wrong type of argument to `Abs'";
       else if (!noconvert)
         arg = default_conversion (arg);
@@ -3126,7 +3235,7 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
 
     case CONJ_EXPR:
       /* Conjugating a real value is a no-op, but allow it anyway. */
-      if (!IS_NUMERIC (typecode))
+      if (!IS_NUMERIC (argtype))
         errstring = "wrong type of argument to conjugation";
       else if (!noconvert)
         arg = default_conversion (arg);
@@ -3186,7 +3295,7 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
 
           /* Pascal arrays are not pointers. */
           index = default_conversion (TREE_OPERAND (arg, 1));
-          if (TREE_CODE (TREE_TYPE (index)) != INTEGER_TYPE
+          if (!TYPE_IS_INTEGER_TYPE (TREE_TYPE (index))
               && ORDINAL_TYPE (TREE_CODE (TREE_TYPE (index))))
             index = convert (pascal_integer_type_node, index);
 
@@ -3196,17 +3305,22 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
 
       if (TREE_CODE (arg) == COND_EXPR)
         {
-          tree op1 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1), noconvert);
-          tree op2 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 2), noconvert);
+          tree op1 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1),
+                                     noconvert);
+          tree op2 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 2),
+                                     noconvert);
           CHK_EM (op1);
           CHK_EM (op2);
-          return build (COND_EXPR, TREE_TYPE (op1), TREE_OPERAND (arg, 0), op1, op2);
+          return build3 (COND_EXPR, TREE_TYPE (op1), TREE_OPERAND (arg, 0),
+                         op1, op2);
         }
 
       if (TREE_CODE (arg) == COMPOUND_EXPR)
         {
-          tree real_result = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1), noconvert);
-          return build (COMPOUND_EXPR, TREE_TYPE (real_result), TREE_OPERAND (arg, 0), real_result);
+          tree real_result = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1),
+                                             noconvert);
+          return build2 (COMPOUND_EXPR, TREE_TYPE (real_result),
+                         TREE_OPERAND (arg, 0), real_result);
         }
 
       /* Addresses of constructors are needed for parameters. */
@@ -3274,11 +3388,18 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
             {
               tree offset = size_binop (EXACT_DIV_EXPR, bit_position (field), bitsize_int (BITS_PER_UNIT));
               /* int flag = TREE_CONSTANT (addr); */
-              addr = fold (build (PLUS_EXPR, argtype, addr, convert (argtype, offset)));
+              addr = fold (build2 (PLUS_EXPR, argtype, addr,
+                                   convert (argtype, offset)));
               /* TREE_CONSTANT (addr) = flag; */
             }
 #else
-          addr = fold (build (PLUS_EXPR, argtype, addr, convert (argtype, byte_position (field))));
+#ifndef GCC_4_3
+          addr = fold (build2 (PLUS_EXPR, argtype, addr,
+                               convert (argtype, byte_position (field))));
+#else
+          addr = fold (build2 (POINTER_PLUS_EXPR, argtype, addr,
+                               convert (sizetype, byte_position (field))));
+#endif
 #endif
         }
       else
@@ -3366,9 +3487,9 @@ build_type_cast (tree type, tree value)
 
   if (TYPE_PRECISION (type) != TYPE_PRECISION (otype) && !TREE_CONSTANT (value))
     {
-      if (TREE_CODE (type) == INTEGER_TYPE && TREE_CODE (otype) == POINTER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type) && TREE_CODE (otype) == POINTER_TYPE)
         gpc_warning ("cast from pointer to integer of different size");
-      if (TREE_CODE (type) == POINTER_TYPE && TREE_CODE (otype) == INTEGER_TYPE
+      if (TREE_CODE (type) == POINTER_TYPE && TYPE_IS_INTEGER_TYPE (otype)
           && TREE_CODE (value) != PLUS_EXPR && TREE_CODE (value) != MINUS_EXPR)
         gpc_warning ("cast to pointer from integer of different size");
     }
@@ -3385,8 +3506,8 @@ build_type_cast (tree type, tree value)
          being 1-padded.
          Examples: Integer --> Cardinal --> LongCard
                    Byte --> Cardinal --> Integer */
-      if (TREE_CODE (type) == INTEGER_TYPE
-          && TREE_CODE (TREE_TYPE (value)) == INTEGER_TYPE
+      if (TYPE_IS_INTEGER_TYPE (type)
+          && TYPE_IS_INTEGER_TYPE (TREE_TYPE (value))
           && TYPE_UNSIGNED (type) != TYPE_UNSIGNED (TREE_TYPE (value))
           && TYPE_PRECISION (type) != TYPE_PRECISION (TREE_TYPE (value)))
         value = convert_and_check (signed_or_unsigned_type (1,
@@ -3410,15 +3531,18 @@ build_type_cast (tree type, tree value)
   else
     {
       /* Variable type cast. Convert a pointer internally. */
+
+      /* @@ GPC allows `@'...'' as an extension, but we don't want that here. */
+      if (TREE_CODE (value) == STRING_CST)
+        error ("reference expected, value given");
+
       if (TREE_CODE (otype) != VOID_TYPE
           && TREE_CODE (type) != VOID_TYPE
           && !tree_int_cst_equal (TYPE_SIZE (otype), TYPE_SIZE (type)))
         gpc_warning ("cast to type of different size");
-      /* @@ GPC allows `@'...'' as an extension, but we don't want that here. */
-      if (TREE_CODE (value) == STRING_CST)
-        error ("reference expected, value given");
+
       value = build_indirect_ref (convert (build_pointer_type (type),
-        build_pascal_unary_op (ADDR_EXPR, value)), NULL);
+            build_pascal_unary_op (ADDR_EXPR, value)), NULL);
     }
   return value;
 }
@@ -3579,11 +3703,15 @@ probably_call_function (tree fun)
 tree
 build_iocheck (void)
 {
-  tree t = build (CALL_EXPR, void_type_node, checkinoutres_routine_node, NULL_TREE, NULL_TREE);
+  tree t =
+      gpc_build_call (void_type_node, checkinoutres_routine_node,
+               NULL_TREE);
+  tree pz = convert(pascal_integer_type_node, integer_zero_node);
   TREE_SIDE_EFFECTS (t) = 1;
-  return build (COND_EXPR, pascal_integer_type_node, build_pascal_binary_op (NE_EXPR,
-    inoutres_variable_node, integer_zero_node),
-    build (COMPOUND_EXPR, pascal_integer_type_node, t, integer_zero_node), integer_zero_node);
+  return build3 (COND_EXPR, pascal_integer_type_node, 
+      build_pascal_binary_op (NE_EXPR, inoutres_variable_node, pz),
+      build2 (COMPOUND_EXPR, pascal_integer_type_node, t, pz),
+      pz);
 }
 
 /* Build a function call to routine FUNCTION with parameters params.
@@ -3645,7 +3773,8 @@ build_routine_call (tree function, tree params)
   if (coerced_params)
     CHK_EM (coerced_params);
 
-  result = build (CALL_EXPR, TREE_TYPE (fntype), function, coerced_params, NULL_TREE);
+  result =  gpc_build_call (TREE_TYPE (fntype), function, coerced_params);
+
   TREE_SIDE_EFFECTS (result) = side_effects;
 
   if (PASCAL_TYPE_STRING (TREE_TYPE (result)))
@@ -3658,22 +3787,31 @@ build_routine_call (tree function, tree params)
       tree temp_string = make_new_variable ("string_result", TREE_TYPE (fntype));
       result = build_modify_expr (temp_string, NOP_EXPR, result);
       if (co->io_checking && PASCAL_TYPE_IOCRITICAL (orig_type))
-        result = build (COMPOUND_EXPR, pascal_integer_type_node, result, build_iocheck ());
-      result = build (COMPOUND_EXPR, TREE_TYPE (fntype), save_expr (result), non_lvalue (temp_string));
+        result = build2 (COMPOUND_EXPR, pascal_integer_type_node,
+                         result, build_iocheck ());
+      result = build2 (COMPOUND_EXPR, TREE_TYPE (fntype), save_expr (result),
+                       non_lvalue (temp_string));
       TREE_USED (result) = 1;
+#ifdef GCC_4_0
+      TREE_NO_WARNING (result) = 1;
+#endif
     }
   else if (co->io_checking && PASCAL_TYPE_IOCRITICAL (orig_type))
     {
       if (TREE_CODE (TREE_TYPE (result)) == VOID_TYPE || EM (TREE_TYPE (result)))
         {
-          result = build1 (CONVERT_EXPR, void_type_node, save_expr (build (COMPOUND_EXPR, pascal_integer_type_node, result, build_iocheck ())));
+          result = build1 (CONVERT_EXPR, void_type_node, save_expr (
+               build2 (COMPOUND_EXPR, pascal_integer_type_node,
+               result, build_iocheck ())));
           PASCAL_TREE_IGNORABLE (result) = 1;
         }
       else
         {
           result = save_expr (result);
-          result = save_expr (build (COMPOUND_EXPR, TREE_TYPE (result), result,
-                              build (COMPOUND_EXPR, TREE_TYPE (result), build_iocheck (), result)));
+          result = build2 (COMPOUND_EXPR, TREE_TYPE (result), result,
+                           build2 (COMPOUND_EXPR, TREE_TYPE (result),
+                                   build_iocheck (), result));
+          result = save_expr (result);
         }
     }
   PASCAL_TREE_IGNORABLE (result) |= PASCAL_TREE_IGNORABLE (orig_type) || co->ignore_function_results;
@@ -3915,12 +4053,14 @@ build_modify_expr (tree lhs, enum tree_code modifycode, tree rhs)
                 TYPE_MAX_VALUE (packed_array_unsigned_short_type_node)));
       brush = convert (packed_array_unsigned_short_type_node, brush);
       brush = build_modify_expr (low_lhs, BIT_IOR_EXPR, brush);
-      low_assignment = build (COMPOUND_EXPR, TREE_TYPE (brush), save_rhs_stmt,
-                         build (COMPOUND_EXPR, TREE_TYPE (brush), eraser, brush));
+      low_assignment = build2 (COMPOUND_EXPR, TREE_TYPE (brush), save_rhs_stmt,
+                         build2 (COMPOUND_EXPR, TREE_TYPE (brush),
+                                 eraser, brush));
 
       /* Now do the same for the higher part and high_lhs. Prepare shifted_mask
          to access the higher half. Clear the bits in the target. */
-      shifted_mask = build (RSHIFT_EXPR, TREE_TYPE (shifted_mask), shifted_mask, TYPE_SIZE (TREE_TYPE (low_lhs)));
+      shifted_mask = build2 (RSHIFT_EXPR, TREE_TYPE (shifted_mask),
+                             shifted_mask, TYPE_SIZE (TREE_TYPE (low_lhs)));
       eraser = build_modify_expr (high_lhs, BIT_AND_EXPR,
                  convert (packed_array_unsigned_short_type_node,
                      build_unary_op (BIT_NOT_EXPR, shifted_mask, 0)));
@@ -3933,16 +4073,18 @@ build_modify_expr (tree lhs, enum tree_code modifycode, tree rhs)
       brush = convert (packed_array_unsigned_short_type_node, brush);
       brush = build_modify_expr (high_lhs, BIT_IOR_EXPR, brush);
       /* Construct a COMPOUND_EXPR holding both. */
-      high_assignment = build (COMPOUND_EXPR, TREE_TYPE (brush), eraser, brush);
+      high_assignment = build2 (COMPOUND_EXPR, TREE_TYPE (brush),
+                                eraser, brush);
       /* Return another COMPOUND_EXPR holding both halfs. */
-      return build (COMPOUND_EXPR, TREE_TYPE (high_assignment), low_assignment, high_assignment);
+      return build2 (COMPOUND_EXPR, TREE_TYPE (high_assignment),
+                     low_assignment, high_assignment);
     }
   if (TREE_CODE (lhs) == COMPOUND_EXPR)
     {
       /* COMPOUND_EXPRs are generated by some "magic" functions. */
       newrhs = build_modify_expr (TREE_OPERAND (lhs, 1), modifycode, rhs);
       CHK_EM (newrhs);
-      return build (COMPOUND_EXPR, lhstype, TREE_OPERAND (lhs, 0), newrhs);
+      return build2 (COMPOUND_EXPR, lhstype, TREE_OPERAND (lhs, 0), newrhs);
     }
 
   /* If a binary op has been requested, combine the old LHS value with the RHS
@@ -3997,7 +4139,7 @@ build_modify_expr (tree lhs, enum tree_code modifycode, tree rhs)
   /* If storing into a structure or union member, it has probably been given type `int'.
      Compute the type that would go with the actual amount of storage the member occupies. */
   if (TREE_CODE (lhs) == COMPONENT_REF
-      && (TREE_CODE (lhstype) == INTEGER_TYPE || TREE_CODE (lhstype) == REAL_TYPE))
+      && (TYPE_IS_INTEGER_TYPE (lhstype) || TREE_CODE (lhstype) == REAL_TYPE))
     lhstype = TREE_TYPE (get_unwidened (lhs, 0));
 
   /* If storing in a field that is in actuality a short or narrower than one,
@@ -4012,7 +4154,7 @@ build_modify_expr (tree lhs, enum tree_code modifycode, tree rhs)
   newrhs = convert_for_assignment (lhstype, newrhs, "assignment", NULL_TREE, 0);
   CHK_EM (newrhs);
 
-  result = build (MODIFY_EXPR, lhstype, lhs, newrhs);
+  result = build2 (MODIFY_EXPR, lhstype, lhs, newrhs);
   TREE_SIDE_EFFECTS (result) = 1;
 
   /* If we got the LHS in a different type for storing in,

@@ -1,0 +1,8 @@
+AC_INIT
+AC_PREREQ([2.59])
+
+AC_CONFIG_SRCDIR([Makefile.in])
+
+AC_CONFIG_FILES([Makefile])
+
+AC_OUTPUT

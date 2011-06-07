@@ -1,3 +1,4 @@
+{ FLAG -fno-strict-aliasing }
 Program Test;
 
 Type

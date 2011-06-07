@@ -115,13 +115,12 @@ pascal_expand_asm_operands (tree string, tree outputs, tree inputs, tree clobber
      asm ('foo') and asm('foo':) */
   if (outputs || inputs || clobbers)
 #ifndef GCC_3_4
-    expand_asm_operands (string, outputs, inputs, clobbers, vol, input_filename, lineno);
+    expand_asm_operands (string, outputs, inputs, clobbers, vol,
+                         pascal_input_filename, lineno);
 #else
     {
-      location_t loc_aux;
-      loc_aux.file = input_filename;
-      loc_aux.line = lineno;
-      expand_asm_operands (string, outputs, inputs, clobbers, vol, loc_aux);
+      expand_asm_operands (string, outputs, inputs, clobbers, vol,
+                    pascal_make_location(pascal_input_filename, lineno));
     }
 #endif
   else
@@ -308,7 +307,8 @@ expand_return_statement (tree retval)
       tree t = convert_for_assignment (valtype, retval, "`Return'", NULL_TREE, 0);
       if (EM (t))
         return;
-      t = build (MODIFY_EXPR, TREE_TYPE (res), res, convert (TREE_TYPE (res), t));
+      t = build2 (MODIFY_EXPR, TREE_TYPE (res), res,
+                  convert (TREE_TYPE (res), t));
       TREE_SIDE_EFFECTS (t) = 1;
       expand_return (t);
     }
@@ -396,9 +396,9 @@ pascal_pushcase (tree constants)
                     {
                       tree elo = lo, ehi = hi, nlo = NULL_TREE, nhi = NULL_TREE;
                       if (const_lt (lo, clo))
-                        nhi = fold (build (MINUS_EXPR, TREE_TYPE (clo), (elo = clo), convert (TREE_TYPE (clo), integer_one_node)));
+                        nhi = fold (build2 (MINUS_EXPR, TREE_TYPE (clo), (elo = clo), convert (TREE_TYPE (clo), integer_one_node)));
                       if (const_lt (chi, hi))
-                        nlo = fold (build (PLUS_EXPR, TREE_TYPE (chi), (ehi = chi), convert (TREE_TYPE (chi), integer_one_node)));
+                        nlo = fold (build2 (PLUS_EXPR, TREE_TYPE (chi), (ehi = chi), convert (TREE_TYPE (chi), integer_one_node)));
                       if (tree_int_cst_equal (elo, ehi))
                         gpc_warning ("duplicate `case' element %ld", (long) TREE_INT_CST_LOW (elo));
                       else
@@ -548,7 +548,8 @@ start_for_loop (tree counter, tree low, tree high, enum tree_code direction)
   expand_start_loop (1);
   expand_start_cond (tempvar, 0);
   expand_exit_loop_if_false (0, fold (build_pascal_binary_op (NE_EXPR, counter, high)));
-  if (TREE_CODE (TREE_TYPE (counter)) != POINTER_TYPE && TREE_CODE (TREE_TYPE (counter)) != INTEGER_TYPE)
+  if (TREE_CODE (TREE_TYPE (counter)) != POINTER_TYPE &&
+      !TYPE_IS_INTEGER_TYPE (TREE_TYPE (counter)))
     counter = convert (type_for_size (TYPE_PRECISION (TREE_TYPE (counter)), TYPE_UNSIGNED (TREE_TYPE (counter))), counter);
   expand_expr_stmt (build_modify_expr (counter, direction == GE_EXPR ? MINUS_EXPR : PLUS_EXPR, integer_one_node));
   expand_end_cond ();
@@ -571,7 +572,8 @@ finish_for_loop (tree counter_and_high, enum tree_code direction ATTRIBUTE_UNUSE
 #ifdef FOR_BUG_OK
   expand_loop_continue_here ();
   expand_exit_loop_if_false (0, fold (build_implicit_pascal_binary_op (direction == LE_EXPR ? LT_EXPR : GT_EXPR, counter, TREE_PURPOSE (counter_and_high))));
-  if (TREE_CODE (TREE_TYPE (counter)) != POINTER_TYPE && TREE_CODE (TREE_TYPE (counter)) != INTEGER_TYPE)
+  if (TREE_CODE (TREE_TYPE (counter)) != POINTER_TYPE &&
+      !TYPE_IS_INTEGER_TYPE (TREE_TYPE (counter)))
     counter = convert (type_for_size (TYPE_PRECISION (TREE_TYPE (counter)), TYPE_UNSIGNED (TREE_TYPE (counter))), counter);
   expand_expr_stmt (build_modify_expr (counter, direction == GE_EXPR ? MINUS_EXPR : PLUS_EXPR, integer_one_node));
 #endif
@@ -640,7 +642,8 @@ start_for_set_loop (tree counter, tree expr)
       expand_exit_loop_if_false (0, fold (build_pascal_binary_op (NE_EXPR, counter,
         convert (TREE_TYPE (set_type), TYPE_MAX_VALUE (set_domain)))));
       counter1 = counter;
-      if (TREE_CODE (TREE_TYPE (counter1)) != POINTER_TYPE && TREE_CODE (TREE_TYPE (counter1)) != INTEGER_TYPE)
+      if (TREE_CODE (TREE_TYPE (counter1)) != POINTER_TYPE &&
+          !TYPE_IS_INTEGER_TYPE (TREE_TYPE (counter1)))
         counter1 = convert (type_for_size (TYPE_PRECISION (TREE_TYPE (counter1)),
           TYPE_UNSIGNED (TREE_TYPE (counter1))), counter1);
       expand_expr_stmt (build_modify_expr (counter1, PLUS_EXPR, integer_one_node));
@@ -668,7 +671,8 @@ finish_for_set_loop (tree counter, tree set_type)
       expand_loop_continue_here ();
       expand_exit_loop_if_false (0, fold (build_implicit_pascal_binary_op (LT_EXPR, counter,
         convert (TREE_TYPE (set_type), TYPE_MAX_VALUE (TYPE_DOMAIN (set_type))))));
-      if (TREE_CODE (TREE_TYPE (counter)) != POINTER_TYPE && TREE_CODE (TREE_TYPE (counter)) != INTEGER_TYPE)
+      if (TREE_CODE (TREE_TYPE (counter)) != POINTER_TYPE &&
+          !TYPE_IS_INTEGER_TYPE (TREE_TYPE (counter)))
         counter = convert (type_for_size (TYPE_PRECISION (TREE_TYPE (counter)), TYPE_UNSIGNED (TREE_TYPE (counter))), counter);
       expand_expr_stmt (build_modify_expr (counter, PLUS_EXPR, integer_one_node));
 #endif
@@ -729,7 +733,7 @@ assign_tags (tree record, tree tags)
           if (!expr)
             expr = new_expr;
           else
-            expr = build (COMPOUND_EXPR, TREE_TYPE (new_expr), expr, new_expr);
+            expr = build2 (COMPOUND_EXPR, TREE_TYPE (new_expr), expr, new_expr);
         }
       tags = TREE_CHAIN (tags);
       field = next_field;
@@ -886,7 +890,7 @@ init_any (tree thing, int the_end, int implicit)
         tree domain = TYPE_DOMAIN (type), type = base_type (domain);
         tree index = make_new_variable ("init_index", type), index_as_integer = index;
         /* build_modify_expr requires an integer type. */
-        if (TREE_CODE (type) != INTEGER_TYPE)
+        if (!TYPE_IS_INTEGER_TYPE (type))
           index_as_integer = convert (type_for_size (TYPE_PRECISION (type), TYPE_UNSIGNED (type)), index);
         expand_expr_stmt (build_modify_expr (index, NOP_EXPR, TYPE_MIN_VALUE (domain)));
         expand_start_loop (1);
@@ -1147,11 +1151,15 @@ expand_call_statement (tree t)
           error ("missing arguments in routine call");
           return;
         }
-      else if (TREE_TYPE (t) != void_type_node
+      else
+        {
+           tree fn;
+           if (TREE_TYPE (t) != void_type_node
                && !(TREE_CODE (t) == CALL_EXPR
-                    && TREE_CODE (TREE_OPERAND (t, 0)) == ADDR_EXPR
-                    && PASCAL_CONSTRUCTOR_METHOD (TREE_OPERAND (TREE_OPERAND (t, 0), 0))))
-        error ("function call used as a statement");
+                    && TREE_CODE ((fn = CALL_EXPR_FN (t))) == ADDR_EXPR
+                    && PASCAL_CONSTRUCTOR_METHOD (TREE_OPERAND (fn, 0))))
+             error ("function call used as a statement");
+        }
       expand_expr_stmt (t);
     }
 }
@@ -1247,7 +1255,7 @@ expand_pascal_assignment2 (tree target, tree source, int is_init)
       return;
     }
 
-  if (TREE_CODE (TREE_TYPE (target)) == CHAR_TYPE)
+  if (TYPE_IS_CHAR_TYPE (TREE_TYPE (target)))
     source = string_may_be_char (source, 1);
   if (TYPE_MAIN_VARIANT (TREE_TYPE (target)) == cstring_type_node)
     source = char_may_be_string (source);
@@ -1265,11 +1273,11 @@ expand_pascal_assignment2 (tree target, tree source, int is_init)
               || !mark_lvalue (schema_target, is_init ? "initialization" 
                                                 : "assignment", is_init))
             return;
-          stmt = build (MODIFY_EXPR, TREE_TYPE (schema_target),
+          stmt = build2 (MODIFY_EXPR, TREE_TYPE (schema_target),
                           schema_target, schema_source);
           TREE_SIDE_EFFECTS (stmt) = 1;
           if (TREE_CODE (schema_check) != INTEGER_CST)
-            stmt = build (COMPOUND_EXPR, TREE_TYPE (stmt), schema_check, stmt);
+            stmt = build2 (COMPOUND_EXPR, TREE_TYPE (stmt), schema_check, stmt);
         }
       else
         stmt = build_modify_expr (target,
@@ -1340,7 +1348,10 @@ assign_string2 (tree target, tree source, int is_init)
 
   switch (TREE_CODE (s_type))
   {
+#ifndef GCC_4_2
     case CHAR_TYPE:
+#endif
+      char_case:
       /* target must be a string-type since source is a char */
       length = integer_one_node;
       expr1 = PASCAL_STRING_VALUE (target);
@@ -1352,7 +1363,7 @@ assign_string2 (tree target, tree source, int is_init)
       if (is_string_type (source, 1)
           && (is_string_compatible_type (target, 1) || TYPE_MAIN_VARIANT (t_type) == cstring_type_node))
         {
-          if (TREE_CODE (t_type) == CHAR_TYPE)
+          if (TYPE_IS_CHAR_TYPE (t_type))
             {
               if (pedantic || !(co->pascal_dialect & E_O_PASCAL))
                 gpc_warning ("assignment of string value to char variable");
@@ -1404,13 +1415,14 @@ assign_string2 (tree target, tree source, int is_init)
                             build1 (ADDR_EXPR, cstring_type_node,
                                     PASCAL_STRING_VALUE (source)),
                             length);
-                  expr1 = build (COMPOUND_EXPR, TREE_TYPE (expr1), las, expr1);
+                  expr1 = build2 (COMPOUND_EXPR, TREE_TYPE (expr1), las, expr1);
                 }
             }
           break;
         }
       /* FALLTHROUGH */
     default:
+      if (TYPE_IS_CHAR_TYPE (s_type)) goto char_case;
       error ("only Pascal string type, array of char, and char type");
       error (" are assignment compatible with a string");
       return error_mark_node;
@@ -1437,7 +1449,8 @@ assign_string2 (tree target, tree source, int is_init)
   if (expr1)
     {
       CHK_EM (expr1);
-      expr = expr2 ? build (COMPOUND_EXPR, TREE_TYPE (expr2), expr1, expr2) : expr1;
+      expr = expr2 ? build2 (COMPOUND_EXPR, TREE_TYPE (expr2), expr1, expr2)
+                   : expr1;
     }
   else
     /* The only case where both expr1 and expr2 could be NULL are
@@ -1468,12 +1481,14 @@ call_no_args (tree id, int external)
 static const char *
 start_dummy_file_name (void)
 {
-  const char *tmp = input_filename;
-  input_filename = "<implicit code>";
+  const char *tmp = pascal_input_filename;
+#ifndef GCC_4_2
+  pascal_input_filename = "<implicit code>";
+#endif
 #ifdef EGCS97
-  (*debug_hooks->start_source_file) (lineno, input_filename);
+  (*debug_hooks->start_source_file) (lineno, pascal_input_filename);
 #else
-  debug_start_source_file (input_filename);
+  debug_start_source_file (pascal_input_filename);
 #endif
   return tmp;
 }
@@ -1483,10 +1498,12 @@ end_dummy_file_name (const char *name)
 {
 #ifdef EGCS97
   (*debug_hooks->end_source_file) (lineno);
-  input_filename = name;
+#ifndef GCC_4_2
+  pascal_input_filename = name;
+#endif
 #else
   debug_end_source_file (lineno);
-  input_filename = (char *) name;
+  pascal_input_filename = (char *) name;
 #endif
 }
 

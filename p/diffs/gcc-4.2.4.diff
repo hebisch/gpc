@@ -1,0 +1,1391 @@
+diff -ru gcc-4.2.4.orig/Makefile.def gcc-4.2.4.nn1/Makefile.def
+--- gcc-4.2.4.orig/Makefile.def	2006-12-29 17:47:06.000000000 +0000
++++ gcc-4.2.4.nn1/Makefile.def	2011-02-24 02:24:06.000000000 +0000
+@@ -138,6 +138,7 @@
+ target_modules = { module= qthreads; };
+ target_modules = { module= rda; };
+ target_modules = { module= libada; };
++target_modules = { module= libgpc; };
+ target_modules = { module= libgomp; lib_path=.libs; };
+ 
+ // These are (some of) the make targets to be done in each subdirectory.
+diff -ru gcc-4.2.4.orig/Makefile.in gcc-4.2.4.nn1/Makefile.in
+--- gcc-4.2.4.orig/Makefile.in	2006-12-29 17:47:06.000000000 +0000
++++ gcc-4.2.4.nn1/Makefile.in	2011-02-24 17:45:54.000000000 +0000
+@@ -661,6 +661,7 @@
+     maybe-configure-target-qthreads \
+     maybe-configure-target-rda \
+     maybe-configure-target-libada \
++    maybe-configure-target-libgpc \
+     maybe-configure-target-libgomp
+ 
+ # The target built for a native non-bootstrap build.
+@@ -805,6 +806,7 @@
+ all-target: maybe-all-target-qthreads
+ all-target: maybe-all-target-rda
+ all-target: maybe-all-target-libada
++all-target: maybe-all-target-libgpc
+ all-target: maybe-all-target-libgomp
+ 
+ # Do a target for all the subdirectories.  A ``make do-X'' will do a
+@@ -913,6 +915,7 @@
+ info-target: maybe-info-target-qthreads
+ info-target: maybe-info-target-rda
+ info-target: maybe-info-target-libada
++info-target: maybe-info-target-libgpc
+ info-target: maybe-info-target-libgomp
+ 
+ .PHONY: do-dvi
+@@ -1016,6 +1019,7 @@
+ dvi-target: maybe-dvi-target-qthreads
+ dvi-target: maybe-dvi-target-rda
+ dvi-target: maybe-dvi-target-libada
++dvi-target: maybe-dvi-target-libgpc
+ dvi-target: maybe-dvi-target-libgomp
+ 
+ .PHONY: do-pdf
+@@ -1119,6 +1123,7 @@
+ pdf-target: maybe-pdf-target-qthreads
+ pdf-target: maybe-pdf-target-rda
+ pdf-target: maybe-pdf-target-libada
++pdf-target: maybe-pdf-target-libgpc
+ pdf-target: maybe-pdf-target-libgomp
+ 
+ .PHONY: do-html
+@@ -1222,6 +1227,7 @@
+ html-target: maybe-html-target-qthreads
+ html-target: maybe-html-target-rda
+ html-target: maybe-html-target-libada
++html-target: maybe-html-target-libgpc
+ html-target: maybe-html-target-libgomp
+ 
+ .PHONY: do-TAGS
+@@ -1325,6 +1331,7 @@
+ TAGS-target: maybe-TAGS-target-qthreads
+ TAGS-target: maybe-TAGS-target-rda
+ TAGS-target: maybe-TAGS-target-libada
++TAGS-target: maybe-TAGS-target-libgpc
+ TAGS-target: maybe-TAGS-target-libgomp
+ 
+ .PHONY: do-install-info
+@@ -1428,6 +1435,7 @@
+ install-info-target: maybe-install-info-target-qthreads
+ install-info-target: maybe-install-info-target-rda
+ install-info-target: maybe-install-info-target-libada
++install-info-target: maybe-install-info-target-libgpc
+ install-info-target: maybe-install-info-target-libgomp
+ 
+ .PHONY: do-install-html
+@@ -1531,6 +1539,7 @@
+ install-html-target: maybe-install-html-target-qthreads
+ install-html-target: maybe-install-html-target-rda
+ install-html-target: maybe-install-html-target-libada
++install-html-target: maybe-install-html-target-libgpc
+ install-html-target: maybe-install-html-target-libgomp
+ 
+ .PHONY: do-installcheck
+@@ -1634,6 +1643,7 @@
+ installcheck-target: maybe-installcheck-target-qthreads
+ installcheck-target: maybe-installcheck-target-rda
+ installcheck-target: maybe-installcheck-target-libada
++installcheck-target: maybe-installcheck-target-libgpc
+ installcheck-target: maybe-installcheck-target-libgomp
+ 
+ .PHONY: do-mostlyclean
+@@ -1737,6 +1747,7 @@
+ mostlyclean-target: maybe-mostlyclean-target-qthreads
+ mostlyclean-target: maybe-mostlyclean-target-rda
+ mostlyclean-target: maybe-mostlyclean-target-libada
++mostlyclean-target: maybe-mostlyclean-target-libgpc
+ mostlyclean-target: maybe-mostlyclean-target-libgomp
+ 
+ .PHONY: do-clean
+@@ -1840,6 +1851,7 @@
+ clean-target: maybe-clean-target-qthreads
+ clean-target: maybe-clean-target-rda
+ clean-target: maybe-clean-target-libada
++clean-target: maybe-clean-target-libgpc
+ clean-target: maybe-clean-target-libgomp
+ 
+ .PHONY: do-distclean
+@@ -1943,6 +1955,7 @@
+ distclean-target: maybe-distclean-target-qthreads
+ distclean-target: maybe-distclean-target-rda
+ distclean-target: maybe-distclean-target-libada
++distclean-target: maybe-distclean-target-libgpc
+ distclean-target: maybe-distclean-target-libgomp
+ 
+ .PHONY: do-maintainer-clean
+@@ -2046,6 +2059,7 @@
+ maintainer-clean-target: maybe-maintainer-clean-target-qthreads
+ maintainer-clean-target: maybe-maintainer-clean-target-rda
+ maintainer-clean-target: maybe-maintainer-clean-target-libada
++maintainer-clean-target: maybe-maintainer-clean-target-libgpc
+ maintainer-clean-target: maybe-maintainer-clean-target-libgomp
+ 
+ 
+@@ -2205,6 +2219,7 @@
+     maybe-check-target-qthreads \
+     maybe-check-target-rda \
+     maybe-check-target-libada \
++    maybe-check-target-libgpc \
+     maybe-check-target-libgomp
+ 
+ do-check:
+@@ -2405,6 +2420,7 @@
+     maybe-install-target-qthreads \
+     maybe-install-target-rda \
+     maybe-install-target-libada \
++    maybe-install-target-libgpc \
+     maybe-install-target-libgomp
+ 
+ uninstall:
+@@ -41294,6 +41310,419 @@
+ 
+ 
+ 
++.PHONY: configure-target-libgpc maybe-configure-target-libgpc
++maybe-configure-target-libgpc:
++@if gcc-bootstrap
++configure-target-libgpc: stage_current
++@endif gcc-bootstrap
++@if target-libgpc
++maybe-configure-target-libgpc: configure-target-libgpc
++configure-target-libgpc: 
++	@: $(MAKE); $(unstage)
++	@r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	echo "Checking multilib configuration for libgpc..."; \
++	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/libgpc ; \
++	$(CC_FOR_TARGET) --print-multi-lib > $(TARGET_SUBDIR)/libgpc/multilib.tmp 2> /dev/null ; \
++	if test -r $(TARGET_SUBDIR)/libgpc/multilib.out; then \
++	  if cmp -s $(TARGET_SUBDIR)/libgpc/multilib.tmp $(TARGET_SUBDIR)/libgpc/multilib.out; then \
++	    rm -f $(TARGET_SUBDIR)/libgpc/multilib.tmp; \
++	  else \
++	    rm -f $(TARGET_SUBDIR)/libgpc/Makefile; \
++	    mv $(TARGET_SUBDIR)/libgpc/multilib.tmp $(TARGET_SUBDIR)/libgpc/multilib.out; \
++	  fi; \
++	else \
++	  mv $(TARGET_SUBDIR)/libgpc/multilib.tmp $(TARGET_SUBDIR)/libgpc/multilib.out; \
++	fi; \
++	test ! -f $(TARGET_SUBDIR)/libgpc/Makefile || exit 0; \
++	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/libgpc ; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo Configuring in $(TARGET_SUBDIR)/libgpc; \
++	cd "$(TARGET_SUBDIR)/libgpc" || exit 1; \
++	case $(srcdir) in \
++	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
++	  *) topdir=`echo $(TARGET_SUBDIR)/libgpc/ | \
++		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
++	esac; \
++	srcdiroption="--srcdir=$${topdir}/libgpc"; \
++	libsrcdir="$$s/libgpc"; \
++	rm -f no-such-file || : ; \
++	CONFIG_SITE=no-such-file $(SHELL) $${libsrcdir}/configure \
++	  $(TARGET_CONFIGARGS) $${srcdiroption}  \
++	  || exit 1
++@endif target-libgpc
++
++
++
++
++
++.PHONY: all-target-libgpc maybe-all-target-libgpc
++maybe-all-target-libgpc:
++@if gcc-bootstrap
++all-target-libgpc: stage_current
++@endif gcc-bootstrap
++@if target-libgpc
++TARGET-target-libgpc=all
++maybe-all-target-libgpc: all-target-libgpc
++all-target-libgpc: configure-target-libgpc
++	@: $(MAKE); $(unstage)
++	@r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(TARGET_FLAGS_TO_PASS)  $(TARGET-target-libgpc))
++@endif target-libgpc
++
++
++
++
++
++.PHONY: check-target-libgpc maybe-check-target-libgpc
++maybe-check-target-libgpc:
++@if target-libgpc
++maybe-check-target-libgpc: check-target-libgpc
++
++check-target-libgpc:
++	@: $(MAKE); $(unstage)
++	@r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(TARGET_FLAGS_TO_PASS)   check)
++
++@endif target-libgpc
++
++.PHONY: install-target-libgpc maybe-install-target-libgpc
++maybe-install-target-libgpc:
++@if target-libgpc
++maybe-install-target-libgpc: install-target-libgpc
++
++install-target-libgpc: installdirs
++	@: $(MAKE); $(unstage)
++	@r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(TARGET_FLAGS_TO_PASS)  install)
++
++@endif target-libgpc
++
++# Other targets (info, dvi, pdf, etc.)
++
++.PHONY: maybe-info-target-libgpc info-target-libgpc
++maybe-info-target-libgpc:
++@if target-libgpc
++maybe-info-target-libgpc: info-target-libgpc
++
++info-target-libgpc: \
++    configure-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing info in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           info) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-dvi-target-libgpc dvi-target-libgpc
++maybe-dvi-target-libgpc:
++@if target-libgpc
++maybe-dvi-target-libgpc: dvi-target-libgpc
++
++dvi-target-libgpc: \
++    configure-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing dvi in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           dvi) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-pdf-target-libgpc pdf-target-libgpc
++maybe-pdf-target-libgpc:
++@if target-libgpc
++maybe-pdf-target-libgpc: pdf-target-libgpc
++
++pdf-target-libgpc: \
++    configure-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing pdf in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           pdf) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-html-target-libgpc html-target-libgpc
++maybe-html-target-libgpc:
++@if target-libgpc
++maybe-html-target-libgpc: html-target-libgpc
++
++html-target-libgpc: \
++    configure-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing html in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           html) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-TAGS-target-libgpc TAGS-target-libgpc
++maybe-TAGS-target-libgpc:
++@if target-libgpc
++maybe-TAGS-target-libgpc: TAGS-target-libgpc
++
++TAGS-target-libgpc: \
++    configure-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing TAGS in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           TAGS) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-install-info-target-libgpc install-info-target-libgpc
++maybe-install-info-target-libgpc:
++@if target-libgpc
++maybe-install-info-target-libgpc: install-info-target-libgpc
++
++install-info-target-libgpc: \
++    configure-target-libgpc \
++    info-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing install-info in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           install-info) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-install-html-target-libgpc install-html-target-libgpc
++maybe-install-html-target-libgpc:
++@if target-libgpc
++maybe-install-html-target-libgpc: install-html-target-libgpc
++
++install-html-target-libgpc: \
++    configure-target-libgpc \
++    html-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing install-html in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           install-html) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-installcheck-target-libgpc installcheck-target-libgpc
++maybe-installcheck-target-libgpc:
++@if target-libgpc
++maybe-installcheck-target-libgpc: installcheck-target-libgpc
++
++installcheck-target-libgpc: \
++    configure-target-libgpc 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing installcheck in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           installcheck) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-mostlyclean-target-libgpc mostlyclean-target-libgpc
++maybe-mostlyclean-target-libgpc:
++@if target-libgpc
++maybe-mostlyclean-target-libgpc: mostlyclean-target-libgpc
++
++mostlyclean-target-libgpc: 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing mostlyclean in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           mostlyclean) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-clean-target-libgpc clean-target-libgpc
++maybe-clean-target-libgpc:
++@if target-libgpc
++maybe-clean-target-libgpc: clean-target-libgpc
++
++clean-target-libgpc: 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing clean in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           clean) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-distclean-target-libgpc distclean-target-libgpc
++maybe-distclean-target-libgpc:
++@if target-libgpc
++maybe-distclean-target-libgpc: distclean-target-libgpc
++
++distclean-target-libgpc: 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing distclean in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           distclean) \
++	  || exit 1
++
++@endif target-libgpc
++
++.PHONY: maybe-maintainer-clean-target-libgpc maintainer-clean-target-libgpc
++maybe-maintainer-clean-target-libgpc:
++@if target-libgpc
++maybe-maintainer-clean-target-libgpc: maintainer-clean-target-libgpc
++
++maintainer-clean-target-libgpc: 
++	@: $(MAKE); $(unstage)
++	@[ -f $(TARGET_SUBDIR)/libgpc/Makefile ] || exit 0 ; \
++	r=`${PWD_COMMAND}`; export r; \
++	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
++	$(NORMAL_TARGET_EXPORTS) \
++	echo "Doing maintainer-clean in $(TARGET_SUBDIR)/libgpc" ; \
++	for flag in $(EXTRA_TARGET_FLAGS); do \
++	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
++	done; \
++	(cd $(TARGET_SUBDIR)/libgpc && \
++	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
++	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
++	          "RANLIB=$${RANLIB}" \
++	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" \
++	           maintainer-clean) \
++	  || exit 1
++
++@endif target-libgpc
++
++
++
++
++
+ .PHONY: configure-target-libgomp maybe-configure-target-libgomp
+ maybe-configure-target-libgomp:
+ @if gcc-bootstrap
+@@ -43189,6 +43618,7 @@
+ configure-target-qthreads: stage_last
+ configure-target-rda: stage_last
+ configure-target-libada: stage_last
++configure-target-libgpc: stage_last
+ configure-target-libgomp: stage_last
+ @endif gcc-bootstrap
+ 
+@@ -43212,6 +43642,7 @@
+ configure-target-qthreads: maybe-all-gcc
+ configure-target-rda: maybe-all-gcc
+ configure-target-libada: maybe-all-gcc
++configure-target-libgpc: maybe-all-gcc
+ configure-target-libgomp: maybe-all-gcc
+ @endif gcc-no-bootstrap
+ 
+Only in gcc-4.2.4.nn1: autom4te.cache
+diff -ru gcc-4.2.4.orig/configure gcc-4.2.4.nn1/configure
+--- gcc-4.2.4.orig/configure	2007-09-15 00:42:24.000000000 +0000
++++ gcc-4.2.4.nn1/configure	2011-06-06 12:10:15.000000000 +0000
+@@ -940,6 +940,7 @@
+ 		${libgcj} \
+ 		target-libobjc \
+ 		target-libada \
++		target-libgpc \
+ 		target-libgomp"
+ 
+ # these tools are built using the target libraries, and are intended to
+diff -ru gcc-4.2.4.orig/configure.in gcc-4.2.4.nn1/configure.in
+--- gcc-4.2.4.orig/configure.in	2007-09-15 00:42:24.000000000 +0000
++++ gcc-4.2.4.nn1/configure.in	2011-02-24 17:54:55.000000000 +0000
+@@ -152,6 +152,7 @@
+ 		${libgcj} \
+ 		target-libobjc \
+ 		target-libada \
++		target-libgpc \
+ 		target-libgomp"
+ 
+ # these tools are built using the target libraries, and are intended to
+diff -ru gcc-4.2.4.orig/gcc/config/i386/i386.c gcc-4.2.4.nn1/gcc/config/i386/i386.c
+--- gcc-4.2.4.orig/gcc/config/i386/i386.c	2007-12-13 09:25:46.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/config/i386/i386.c	2011-02-24 01:11:10.000000000 +0000
+@@ -3081,6 +3081,30 @@
+ 	    }
+ 	  break;
+ 
++	case SET_TYPE:
++          if (bytes <= 4)
++            {
++              classes[0] = X86_64_INTEGERSI_CLASS;
++              return 1;
++            }
++          else if (bytes <= 8)
++            {
++              classes[0] = X86_64_INTEGER_CLASS;
++              return 1;
++            }
++          else if (bytes <= 12)
++            {
++              classes[0] = X86_64_INTEGER_CLASS;
++              classes[1] = X86_64_INTEGERSI_CLASS;
++              return 2;
++            }
++          else
++            {
++              classes[0] = X86_64_INTEGER_CLASS;
++              classes[1] = X86_64_INTEGER_CLASS;
++              return 2;
++            }
++
+ 	default:
+ 	  gcc_unreachable ();
+ 	}
+Only in gcc-4.2.4.nn1/gcc/config/i386: i386.c.orig
+diff -ru gcc-4.2.4.orig/gcc/config/ia64/ia64.c gcc-4.2.4.nn1/gcc/config/ia64/ia64.c
+--- gcc-4.2.4.orig/gcc/config/ia64/ia64.c	2008-01-24 17:18:54.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/config/ia64/ia64.c	2011-02-24 01:11:10.000000000 +0000
+@@ -3871,6 +3871,7 @@
+     case BOOLEAN_TYPE:	case POINTER_TYPE:
+     case OFFSET_TYPE:	case REFERENCE_TYPE:	case METHOD_TYPE:
+     case LANG_TYPE:		case FUNCTION_TYPE:
++    case SET_TYPE:
+       return VOIDmode;
+ 
+       /* Fortran complex types are supposed to be HFAs, so we need to handle
+Only in gcc-4.2.4.nn1/gcc/config/ia64: ia64.c.orig
+diff -ru gcc-4.2.4.orig/gcc/config/sparc/sparc.c gcc-4.2.4.nn1/gcc/config/sparc/sparc.c
+--- gcc-4.2.4.orig/gcc/config/sparc/sparc.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/config/sparc/sparc.c	2011-02-24 01:17:35.000000000 +0000
+@@ -7106,6 +7106,7 @@
+ 
+ 	case VECTOR_TYPE:
+ 	case BOOLEAN_TYPE:	/* Boolean truth value type.  */
++	case SET_TYPE:          /* GNU Pascal SET type.  */
+ 	case LANG_TYPE:		/* ? */
+ 	  return qualifiers;
+   
+Only in gcc-4.2.4.nn1/gcc/config/sparc: sparc.c.orig
+Only in gcc-4.2.4.nn1/gcc/config/sparc: sparc.c.rej
+diff -ru gcc-4.2.4.orig/gcc/dbxout.c gcc-4.2.4.nn1/gcc/dbxout.c
+--- gcc-4.2.4.orig/gcc/dbxout.c	2007-09-24 09:17:10.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/dbxout.c	2011-02-24 01:58:54.000000000 +0000
+@@ -1915,12 +1915,31 @@
+       stabstr_S (";0;");
+       break;
+ 
++#if 0
++    case CHAR_TYPE:
++      if (use_gnu_debug_info_extensions)
++        {
++          stabstr_S ("@s");
++          stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
++          stabstr_S (";-20");
++        }
++      else
++        {
++          /* Output the type `char' as a subrange of itself.
++             That is what pcc seems to do.  */
++          stabstr_C ('r');
++          dbxout_type_index (char_type_node);
++          stabstr_S (TYPE_UNSIGNED (type) ? ";0;255;" : ";0;127;");
++        }
++      break;
++#endif
++
+     case BOOLEAN_TYPE:
+       if (use_gnu_debug_info_extensions)
+ 	{
+ 	  stabstr_S ("@s");
+ 	  stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
+-	  stabstr_S (";-16;");
++	  stabstr_S (";-16");
+ 	}
+       else /* Define as enumeral type (False, True) */
+ 	stabstr_S ("eFalse:0,True:1,;");
+@@ -1959,6 +1978,22 @@
+ 	}
+       break;
+ 
++    case SET_TYPE:
++      if (use_gnu_debug_info_extensions)
++	{
++	  stabstr_S ("@s");
++          stabstr_D (BITS_PER_UNIT * int_size_in_bytes (type));
++          stabstr_C (';');
++
++	  /* Check if a bitstring type, which in Chill is
++	     different from a [power]set.  */
++	  if (TYPE_STRING_FLAG (type))
++	    stabstr_S ("@S;");
++	}
++      stabstr_C ('S');
++      dbxout_type (TYPE_DOMAIN (type), 0);
++      break;
++
+     case ARRAY_TYPE:
+       /* Make arrays of packed bits look like bitstrings for chill.  */
+       if (TYPE_PACKED (type) && use_gnu_debug_info_extensions)
+@@ -2503,7 +2538,7 @@
+          we see following the TREE_TYPE chain.  */
+ 
+       t = type;
+-      while (POINTER_TYPE_P (t))
++      while (POINTER_TYPE_P (t) && !TYPE_NAME (t))
+         t = TREE_TYPE (t);
+ 
+       /* RECORD_TYPE, UNION_TYPE, QUAL_UNION_TYPE, and ENUMERAL_TYPE
+Only in gcc-4.2.4.nn1/gcc: dbxout.c.orig
+Only in gcc-4.2.4.nn1/gcc: dbxout.c.rej
+diff -ru gcc-4.2.4.orig/gcc/dwarf2out.c gcc-4.2.4.nn1/gcc/dwarf2out.c
+--- gcc-4.2.4.orig/gcc/dwarf2out.c	2007-10-10 09:29:13.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/dwarf2out.c	2011-02-24 01:11:10.000000000 +0000
+@@ -8293,6 +8293,7 @@
+     case OFFSET_TYPE:
+     case LANG_TYPE:
+     case VECTOR_TYPE:
++    case SET_TYPE:
+       return 0;
+ 
+     default:
+@@ -9465,6 +9466,19 @@
+       }
+       break;
+ 
++#ifdef GPC
++    case REAL_CST:
++    case FLOAT_EXPR:
++    case RDIV_EXPR:
++    case STRING_CST:
++      /* In Pascal it's possible for array bounds to contain floating point
++         expressions (e.g., p/test/emil11c.pas). I don't know if it's
++         possible to represent them in dwarf2, but it doesn't seem terribly
++         important since this occurs quite rarely. -- Frank */
++      return 0;
++#endif
++
++
+     case FIX_TRUNC_EXPR:
+     case FIX_CEIL_EXPR:
+     case FIX_FLOOR_EXPR:
+@@ -11301,6 +11315,16 @@
+   add_type_attribute (array_die, element_type, 0, 0, context_die);
+ }
+ 
++static void
++gen_set_type_die (tree type, dw_die_ref context_die)
++{
++  dw_die_ref type_die
++    = new_die (DW_TAG_set_type, scope_die_for (type, context_die), type);
++
++  equate_type_number_to_die (type, type_die);
++  add_type_attribute (type_die, TREE_TYPE (type), 0, 0, context_die);
++}
++
+ #if 0
+ static void
+ gen_entry_point_die (tree decl, dw_die_ref context_die)
+@@ -12676,6 +12700,11 @@
+       gen_ptr_to_mbr_type_die (type, context_die);
+       break;
+ 
++    case SET_TYPE:
++      gen_type_die (TYPE_DOMAIN (type), context_die);
++      gen_set_type_die (type, context_die);
++      break;
++
+     case FUNCTION_TYPE:
+       /* Force out return type (in case it wasn't forced out already).  */
+       gen_type_die (TREE_TYPE (type), context_die);
+Only in gcc-4.2.4.nn1/gcc: dwarf2out.c.orig
+diff -ru gcc-4.2.4.orig/gcc/expr.c gcc-4.2.4.nn1/gcc/expr.c
+--- gcc-4.2.4.orig/gcc/expr.c	2008-02-04 22:03:09.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/expr.c	2011-02-24 01:11:10.000000000 +0000
+@@ -4796,6 +4796,10 @@
+     case REFERENCE_TYPE:
+       return 1;
+ 
++    case SET_TYPE:
++      /* @@@@@@ return something more accurate ... */
++      return -1;
++
+     case VOID_TYPE:
+     case METHOD_TYPE:
+     case FUNCTION_TYPE:
+@@ -5755,9 +5759,19 @@
+ 	       index, then convert to sizetype and multiply by the size of
+ 	       the array element.  */
+ 	    if (! integer_zerop (low_bound))
++#ifdef GPC
++            /* I think that address arithmetic should always be done on
++               sizetype or its variants -- for Pascal signed seems to be the
++               correct choice (and generates slightly better code). -- Waldek */
++              index = convert (sizetype, convert (bitsizetype,
++                      size_binop (MINUS_EXPR,
++                        convert (sbitsizetype, index),
++                        convert (sbitsizetype, low_bound))));
++#else
++
+ 	      index = fold_build2 (MINUS_EXPR, TREE_TYPE (index),
+ 				   index, low_bound);
+-
++#endif
+ 	    offset = size_binop (PLUS_EXPR, offset,
+ 			         size_binop (MULT_EXPR,
+ 					     fold_convert (sizetype, index),
+@@ -8937,7 +8951,7 @@
+ tree
+ string_constant (tree arg, tree *ptr_offset)
+ {
+-  tree array, offset;
++  tree array, offset, lb = size_zero_node;
+   STRIP_NOPS (arg);
+ 
+   if (TREE_CODE (arg) == ADDR_EXPR)
+@@ -8951,6 +8965,7 @@
+ 	{
+ 	  array = TREE_OPERAND (arg, 0);
+ 	  offset = size_zero_node;
++          goto do_lb;
+ 	}
+       else if (TREE_CODE (TREE_OPERAND (arg, 0)) == ARRAY_REF)
+ 	{
+@@ -8959,6 +8974,7 @@
+ 	  if (TREE_CODE (array) != STRING_CST
+ 	      && TREE_CODE (array) != VAR_DECL)
+ 	    return 0;
++          lb = array_ref_low_bound (TREE_OPERAND (arg, 0));
+ 	}
+       else
+ 	return 0;
+@@ -8987,10 +9003,26 @@
+ 	}
+       else
+ 	return 0;
++  do_lb:    
++      if (TREE_TYPE (array) && TREE_CODE (TREE_TYPE (array)) == ARRAY_TYPE)
++        {
++          tree domain_type = TYPE_DOMAIN (TREE_TYPE (array));
++          if (domain_type && TYPE_MIN_VALUE (domain_type))
++#if 0
++            lb = SUBSTITUTE_PLACEHOLDER_IN_EXPR (
++                   TYPE_MIN_VALUE (domain_type), array);
++#else
++          lb = TYPE_MIN_VALUE (domain_type);
++#endif
++        }
+     }
+   else
+     return 0;
+ 
++  if (! integer_zerop (lb))
++    offset = size_diffop (fold_convert (sizetype, offset),
++                          fold_convert (sizetype, lb));
++
+   if (TREE_CODE (array) == STRING_CST)
+     {
+       *ptr_offset = fold_convert (sizetype, offset);
+Only in gcc-4.2.4.nn1/gcc: expr.c.orig
+diff -ru gcc-4.2.4.orig/gcc/fold-const.c gcc-4.2.4.nn1/gcc/fold-const.c
+--- gcc-4.2.4.orig/gcc/fold-const.c	2008-05-12 18:04:51.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/fold-const.c	2011-06-04 01:39:49.000000000 +0000
+@@ -223,10 +223,15 @@
+     prec = POINTER_SIZE;
+   else
+     prec = TYPE_PRECISION (TREE_TYPE (t));
++
++#if 0
+   /* Size types *are* sign extended.  */
+   sign_extended_type = (!TYPE_UNSIGNED (TREE_TYPE (t))
+ 			|| (TREE_CODE (TREE_TYPE (t)) == INTEGER_TYPE
+ 			    && TYPE_IS_SIZETYPE (TREE_TYPE (t))));
++#else
++  sign_extended_type = !TYPE_UNSIGNED (TREE_TYPE (t));
++#endif
+ 
+   /* First clear all bits that are beyond the type's precision.  */
+ 
+@@ -6303,6 +6308,10 @@
+   bool neg_overflow;
+   int overflow;
+ 
++  /* Overflow check does not work for unsigned numbers */
++  if (TYPE_UNSIGNED (TREE_TYPE (arg0)))
++    return NULL_TREE;
++
+   /* We have to do this the hard way to detect unsigned overflow.
+      prod = int_const_binop (MULT_EXPR, arg01, arg1, 0);  */
+   overflow = mul_double_with_sign (TREE_INT_CST_LOW (arg01),
+Only in gcc-4.2.4.nn1/gcc: fold-const.c.orig
+diff -ru gcc-4.2.4.orig/gcc/function.c gcc-4.2.4.nn1/gcc/function.c
+--- gcc-4.2.4.orig/gcc/function.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/function.c	2011-02-24 01:11:10.000000000 +0000
+@@ -3143,7 +3143,11 @@
+   if (TYPE_P (t))
+     {
+       if (POINTER_TYPE_P (t))
++#ifndef GPC
+ 	*walk_subtrees = 1;
++#else
++        *walk_subtrees = 0;
++#endif
+       else if (TYPE_SIZE (t) && !TREE_CONSTANT (TYPE_SIZE (t))
+ 	       && !TYPE_SIZES_GIMPLIFIED (t))
+ 	{
+Only in gcc-4.2.4.nn1/gcc: function.c.orig
+diff -ru gcc-4.2.4.orig/gcc/gcc.c gcc-4.2.4.nn1/gcc/gcc.c
+--- gcc-4.2.4.orig/gcc/gcc.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/gcc.c	2011-02-24 01:11:10.000000000 +0000
+@@ -799,8 +799,8 @@
+ "%{pg:%{fomit-frame-pointer:%e-pg and -fomit-frame-pointer are incompatible}}\
+  %1 %{!Q:-quiet} -dumpbase %B %{d*} %{m*} %{a*}\
+  %{c|S:%{o*:-auxbase-strip %*}%{!o*:-auxbase %b}}%{!c:%{!S:-auxbase %b}}\
+- %{g*} %{O*} %{W*&pedantic*} %{w} %{std*&ansi&trigraphs}\
+- %{v:-version} %{pg:-p} %{p} %{f*} %{undef}\
++ %{g*} %{O*} %{f*&W*&pedantic*&w} %{std*&ansi&trigraphs}\
++ %{v:-version} %{pg:-p} %{p} %{undef}\
+  %{Qn:-fno-ident} %{--help:--help}\
+  %{--target-help:--target-help}\
+  %{!fsyntax-only:%{S:%W{o*}%{!o*:-o %b.s}}}\
+Only in gcc-4.2.4.nn1/gcc: gcc.c.orig
+diff -ru gcc-4.2.4.orig/gcc/gimplify.c gcc-4.2.4.nn1/gcc/gimplify.c
+--- gcc-4.2.4.orig/gcc/gimplify.c	2008-05-01 11:15:32.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/gimplify.c	2011-03-18 14:20:31.000000000 +0000
+@@ -1800,8 +1800,15 @@
+ 		= size_int (DECL_OFFSET_ALIGN (field) / BITS_PER_UNIT);
+ 
+ 	      /* Divide the offset by its alignment.  */
+-	      offset = size_binop (EXACT_DIV_EXPR, offset, factor);
+-
++	      tree offset2 = size_binop (EXACT_DIV_EXPR, offset, factor);
++              if (!offset2) {
++                  fprintf(stderr, "offset is:\n");
++                  debug_tree(offset);
++                  fprintf(stderr, "factor is:\n");
++                  debug_tree(factor);
++                  gcc_assert(0);
++              }
++              offset = offset2;
+ 	      if (!is_gimple_min_invariant (offset))
+ 		{
+ 	          TREE_OPERAND (t, 2) = offset;
+@@ -2940,6 +2947,10 @@
+   if (TREE_CODE (ctor) != CONSTRUCTOR)
+     return GS_UNHANDLED;
+ 
++  ret = lang_hooks.gimplify_expr (&TREE_OPERAND (*expr_p, 1), pre_p, post_p);
++  if (ret != GS_UNHANDLED)
++    return ret;
++  
+   ret = gimplify_expr (&TREE_OPERAND (*expr_p, 0), pre_p, post_p,
+ 		       is_gimple_lvalue, fb_lvalue);
+   if (ret == GS_ERROR)
+Only in gcc-4.2.4.nn1/gcc: gimplify.c.orig
+Only in gcc-4.2.4.nn1/gcc: gimplify.c.rej
+diff -ru gcc-4.2.4.orig/gcc/ipa-type-escape.c gcc-4.2.4.nn1/gcc/ipa-type-escape.c
+--- gcc-4.2.4.orig/gcc/ipa-type-escape.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/ipa-type-escape.c	2011-02-24 02:20:39.000000000 +0000
+@@ -259,9 +259,23 @@
+ type_to_consider (tree type)
+ {
+   /* Strip the *'s off.  */
++  tree otype = type;
++  long cnt = 0;
++  long ocnt = 0;
+   type = TYPE_MAIN_VARIANT (type);
+   while (POINTER_TYPE_P (type) || TREE_CODE (type) == ARRAY_TYPE)
+-    type = TYPE_MAIN_VARIANT (TREE_TYPE (type));
++    {
++      type = TYPE_MAIN_VARIANT (TREE_TYPE (type));
++      if (type == otype)
++        return false;
++      if (cnt > ocnt)
++        {
++          ocnt += cnt;
++          otype = type;
++        }
++      else
++        cnt ++;
++    }
+ 
+   switch (TREE_CODE (type))
+     {
+@@ -331,6 +345,9 @@
+ ipa_type_escape_star_count_of_interesting_type (tree type) 
+ {
+   int count = 0;
++  long ocnt = 0;
++  tree otype = type;
++
+   /* Strip the *'s off.  */
+   if (!type)
+     return -1;
+@@ -338,6 +355,13 @@
+   while (POINTER_TYPE_P (type))
+     {
+       type = TYPE_MAIN_VARIANT (TREE_TYPE (type));
++      if (type == otype)
++        return -1;
++      if (count > ocnt)
++        {
++          ocnt += count;
++          otype = type;
++        }
+       count++;
+     }
+ 
+Only in gcc-4.2.4.nn1/gcc: ipa-type-escape.c.orig
+Only in gcc-4.2.4.nn1/gcc: p
+diff -ru gcc-4.2.4.orig/gcc/print-tree.c gcc-4.2.4.nn1/gcc/print-tree.c
+--- gcc-4.2.4.orig/gcc/print-tree.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/print-tree.c	2011-02-24 01:11:10.000000000 +0000
+@@ -614,7 +614,7 @@
+ 
+       if (TREE_CODE (node) == ENUMERAL_TYPE)
+ 	print_node (file, "values", TYPE_VALUES (node), indent + 4);
+-      else if (TREE_CODE (node) == ARRAY_TYPE)
++      else if (TREE_CODE (node) == ARRAY_TYPE || TREE_CODE (node) == SET_TYPE)
+ 	print_node (file, "domain", TYPE_DOMAIN (node), indent + 4);
+       else if (TREE_CODE (node) == VECTOR_TYPE)
+ 	fprintf (file, " nunits %d", (int) TYPE_VECTOR_SUBPARTS (node));
+Only in gcc-4.2.4.nn1/gcc: print-tree.c.orig
+diff -ru gcc-4.2.4.orig/gcc/stor-layout.c gcc-4.2.4.nn1/gcc/stor-layout.c
+--- gcc-4.2.4.orig/gcc/stor-layout.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/stor-layout.c	2011-02-24 01:11:10.000000000 +0000
+@@ -19,6 +19,7 @@
+ along with GCC; see the file COPYING3.  If not see
+ <http://www.gnu.org/licenses/>.  */
+ 
++/* @@ PATCHED FOR GPC 20070903 @@ */
+ 
+ #include "config.h"
+ #include "system.h"
+@@ -53,6 +54,21 @@
+    called only by a front end.  */
+ static int reference_types_internal = 0;
+ 
++/* If nonzero, the alignment of a bitstring or (power-)set value, in bits.
++   May be overridden by front-ends.  */
++unsigned int set_alignment = 0;
++
++/* The word size of a bitstring or (power-)set value, in bits.
++   Must be non-zero.
++   May be overridden by front-ends.  */
++unsigned int set_word_size = BITS_PER_UNIT;
++
++/* If non-zero, bits in (power-)sets start with the highest bit.
++   May be overridden by front-ends.
++   In order to be backward-compatible, the Chill frontend should
++   initialize this to BYTES_BIG_ENDIAN.  */
++unsigned int set_words_big_endian = 0;
++
+ static void finalize_record_size (record_layout_info);
+ static void finalize_type_size (tree);
+ static void place_union_field (record_layout_info, tree);
+@@ -1847,6 +1863,50 @@
+       }
+       break;
+ 
++    case SET_TYPE:  /* Used by Chill and Pascal.  */
++      if (TREE_CODE (TYPE_MAX_VALUE (TYPE_DOMAIN (type))) != INTEGER_CST
++          || TREE_CODE (TYPE_MIN_VALUE (TYPE_DOMAIN (type))) != INTEGER_CST)
++        abort ();
++      else
++        {
++          int alignment = set_alignment ? set_alignment : set_word_size;
++          tree lower_bound = convert (sbitsizetype,
++                        TYPE_MIN_VALUE (TYPE_DOMAIN (type)));
++          tree upper_bound = convert (sbitsizetype,
++                        TYPE_MAX_VALUE (TYPE_DOMAIN (type)));
++          tree size_in_bits, rounded_size;
++          if (set_alignment)
++            {
++              lower_bound = round_down (lower_bound, alignment);
++            }
++          size_in_bits = size_binop (PLUS_EXPR,
++                                size_binop (MINUS_EXPR,
++                                        upper_bound,
++                                        lower_bound),
++                                sbitsize_int(1));
++          rounded_size = round_up (size_in_bits, alignment);
++
++          if ( TREE_INT_CST_HIGH (rounded_size)
++                || TREE_INT_CST_LOW (rounded_size) > (unsigned) alignment)
++            {
++                TYPE_MODE (type) = BLKmode;
++            }
++          else
++            {
++                TYPE_MODE (type) = mode_for_size (alignment, MODE_INT, 1);
++            }
++
++          TYPE_SIZE (type) = convert (bitsizetype, rounded_size);
++          TYPE_SIZE_UNIT (type) = convert (sizetype,
++                                size_binop ( CEIL_DIV_EXPR,
++                                        rounded_size,
++                                        sbitsize_int (BITS_PER_UNIT)));
++          TYPE_ALIGN (type) = alignment;
++          TYPE_USER_ALIGN (type) = 0;
++          TYPE_PRECISION (type) = TREE_INT_CST_LOW (size_in_bits);
++        }
++      break;
++
+     default:
+       gcc_unreachable ();
+     }
+Only in gcc-4.2.4.nn1/gcc: stor-layout.c.orig
+diff -ru gcc-4.2.4.orig/gcc/toplev.c gcc-4.2.4.nn1/gcc/toplev.c
+--- gcc-4.2.4.orig/gcc/toplev.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/toplev.c	2011-02-24 01:11:10.000000000 +0000
+@@ -1154,6 +1154,27 @@
+ void
+ print_version (FILE *file, const char *indent)
+ {
++#ifdef GPC
++  extern const char *lang_version_string;
++  static const char fmt1[] =
++#ifdef __GNUC__
++    N_("%s%s%s version %s%s (%s)\n%s\tcompiled by GNU C version %s.\n")
++#else
++    N_("%s%s%s version %s%s (%s) compiled by CC.\n")
++#endif
++    ;
++  static const char fmt2[] =
++    N_("%s%sGGC heuristics: --param ggc-min-expand=%d --param ggc-min-heapsize=%d\n");
++#ifndef __VERSION__
++#define __VERSION__ "[?]"
++#endif
++
++  fprintf (file,
++           file == stderr ? _(fmt1) : fmt1,
++           indent, *indent != 0 ? " " : "",
++           lang_hooks.name, lang_version_string, version_string, TARGET_NAME,
++           indent, __VERSION__);
++#else
+   static const char fmt1[] =
+ #ifdef __GNUC__
+     N_("%s%s%s version %s (%s)\n%s\tcompiled by GNU C version %s.\n")
+@@ -1166,11 +1187,13 @@
+ #ifndef __VERSION__
+ #define __VERSION__ "[?]"
+ #endif
++
+   fprintf (file,
+ 	   file == stderr ? _(fmt1) : fmt1,
+ 	   indent, *indent != 0 ? " " : "",
+ 	   lang_hooks.name, version_string, TARGET_NAME,
+ 	   indent, __VERSION__);
++#endif
+   fprintf (file,
+ 	   file == stderr ? _(fmt2) : fmt2,
+ 	   indent, *indent != 0 ? " " : "",
+Only in gcc-4.2.4.nn1/gcc: toplev.c.orig
+diff -ru gcc-4.2.4.orig/gcc/tree-flow-inline.h gcc-4.2.4.nn1/gcc/tree-flow-inline.h
+--- gcc-4.2.4.orig/gcc/tree-flow-inline.h	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree-flow-inline.h	2011-02-24 02:08:47.000000000 +0000
+@@ -1560,7 +1560,8 @@
+     return false;
+ 
+   /* Aggregates can have subvars.  */
+-  if (AGGREGATE_TYPE_P (TREE_TYPE (v)))
++  if (AGGREGATE_TYPE_P (TREE_TYPE (v)) &&
++      TREE_CODE (TREE_TYPE (v)) != SET_TYPE)
+     return true;
+ 
+   /* Complex types variables which are not also a gimple register can
+Only in gcc-4.2.4.nn1/gcc: tree-flow-inline.h.orig
+Only in gcc-4.2.4.nn1/gcc: tree-flow-inline.h.rej
+diff -ru gcc-4.2.4.orig/gcc/tree-nested.c gcc-4.2.4.nn1/gcc/tree-nested.c
+--- gcc-4.2.4.orig/gcc/tree-nested.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree-nested.c	2011-02-24 01:11:10.000000000 +0000
+@@ -1570,6 +1570,8 @@
+   if (!elt)
+     return NULL_TREE;
+   new_label = elt->new;
++  DECL_CONTEXT (new_label) = DECL_CONTEXT (label);
++//  mark_decl_referenced (new_label);
+ 
+   /* If there's any possibility that the previous statement falls through,
+      then we must branch around the new non-local label.  */
+Only in gcc-4.2.4.nn1/gcc: tree-nested.c.orig
+diff -ru gcc-4.2.4.orig/gcc/tree-sra.c gcc-4.2.4.nn1/gcc/tree-sra.c
+--- gcc-4.2.4.orig/gcc/tree-sra.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree-sra.c	2011-02-24 01:11:10.000000000 +0000
+@@ -1468,6 +1468,9 @@
+ 	      && (!can_completely_scalarize_p (elt)
+ 		  || !type_can_instantiate_all_elements (elt->type)))
+ 	    use_block_copy = true;
++          if (TREE_TYPE (elt->type)
++              && full_size != full_count*TYPE_PRECISION (TREE_TYPE (elt->type)))
++            use_block_copy = true;
+ 	}
+ 
+       elt->use_block_copy = use_block_copy;
+Only in gcc-4.2.4.nn1/gcc: tree-sra.c.orig
+diff -ru gcc-4.2.4.orig/gcc/tree-ssa-dom.c gcc-4.2.4.nn1/gcc/tree-ssa-dom.c
+--- gcc-4.2.4.orig/gcc/tree-ssa-dom.c	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree-ssa-dom.c	2011-02-24 01:11:10.000000000 +0000
+@@ -1666,12 +1666,26 @@
+       val_type = TREE_TYPE (val);
+ 
+       /* While both types are pointers, get the type of the object
+-	 pointed to.  */
+-      while (POINTER_TYPE_P (op_type) && POINTER_TYPE_P (val_type))
+-	{
+-	  op_type = TREE_TYPE (op_type);
+-	  val_type = TREE_TYPE (val_type);
+-	}
++	 pointed to. Do not get trapped in cycles.  */
++      {
++        long cnt = 0, maxcnt = 11;
++        tree op_type0 = op_type;
++        while (POINTER_TYPE_P (op_type) && POINTER_TYPE_P (val_type))
++	  {
++	    op_type = TREE_TYPE (op_type);
++	    val_type = TREE_TYPE (val_type);
++            if (op_type == op_type0)
++              return false;
++            cnt ++;
++            if (cnt > maxcnt)
++              {
++                op_type0 = op_type;
++                maxcnt += maxcnt;
++                if (maxcnt < 0)
++                  return false;
++              }
++	  }
++      }
+ 
+       /* Make sure underlying types match before propagating a constant by
+ 	 converting the constant to the proper type.  Note that convert may
+Only in gcc-4.2.4.nn1/gcc: tree-ssa-dom.c.orig
+diff -ru gcc-4.2.4.orig/gcc/tree.c gcc-4.2.4.nn1/gcc/tree.c
+--- gcc-4.2.4.orig/gcc/tree.c	2008-02-02 20:42:10.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree.c	2011-02-24 01:11:10.000000000 +0000
+@@ -2274,6 +2274,7 @@
+ 	      || CONTAINS_PLACEHOLDER_P (TYPE_MAX_VALUE (type)));
+ 
+     case ARRAY_TYPE:
++    case SET_TYPE:
+       /* We're already checked the component type (TREE_TYPE), so just check
+ 	 the index type.  */
+       return type_contains_placeholder_p (TYPE_DOMAIN (type));
+@@ -3248,7 +3249,8 @@
+   if (EXPR_LOCUS (node)
+       && EXPR_LINENO (node) == line
+       && (EXPR_FILENAME (node) == file
+-	  || !strcmp (EXPR_FILENAME (node), file)))
++         || (EXPR_FILENAME (node) &&  file
++                && ! strcmp (EXPR_FILENAME (node), file))))
+     {
+       last_annotated_node = EXPR_LOCUS (node);
+       return;
+@@ -3260,7 +3262,8 @@
+   if (last_annotated_node
+       && last_annotated_node->line == line
+       && (last_annotated_node->file == file
+-	  || !strcmp (last_annotated_node->file, file)))
++         || (last_annotated_node->file &&  file
++                && ! strcmp (last_annotated_node->file, file))))
+     {
+       SET_EXPR_LOCUS (node, last_annotated_node);
+       return;
+@@ -5163,6 +5166,7 @@
+   TYPE_SIZE_UNIT (itype) = TYPE_SIZE_UNIT (type);
+   TYPE_ALIGN (itype) = TYPE_ALIGN (type);
+   TYPE_USER_ALIGN (itype) = TYPE_USER_ALIGN (type);
++  TYPE_UNSIGNED (itype) = TYPE_UNSIGNED (type);
+ 
+   if (host_integerp (lowval, 0) && highval != 0 && host_integerp (highval, 0))
+     return type_hash_canon (tree_low_cst (highval, 0)
+Only in gcc-4.2.4.nn1/gcc: tree.c.orig
+diff -ru gcc-4.2.4.orig/gcc/tree.def gcc-4.2.4.nn1/gcc/tree.def
+--- gcc-4.2.4.orig/gcc/tree.def	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree.def	2011-02-24 01:11:10.000000000 +0000
+@@ -249,6 +249,12 @@
+    includes the hidden argument for "self".  */
+ DEFTREECODE (METHOD_TYPE, "method_type", tcc_type, 0)
+ 
++/* Types of sets for Pascal.  Special fields are the same as
++   in an array type.  The target type is always a boolean type.
++   Used for both bitstrings and powersets in Chill;
++   TYPE_STRING_FLAG indicates a bitstring.  */
++DEFTREECODE (SET_TYPE, "set_type", tcc_type, 0)
++
+ /* This is a language-specific kind of type.
+    Its meaning is defined by the language front end.
+    layout_type does not know how to lay this out,
+Only in gcc-4.2.4.nn1/gcc: tree.def.orig
+diff -ru gcc-4.2.4.orig/gcc/tree.h gcc-4.2.4.nn1/gcc/tree.h
+--- gcc-4.2.4.orig/gcc/tree.h	2007-09-01 15:28:30.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/tree.h	2011-02-24 01:11:10.000000000 +0000
+@@ -861,6 +861,9 @@
+ #define NOT_RECORD_OR_UNION_CHECK(T) \
+   TREE_NOT_CHECK3 (T, RECORD_TYPE, UNION_TYPE, QUAL_UNION_TYPE)
+ 
++#define ARRAY_OR_SET_CHECK(T)            \
++  TREE_CHECK2 (T, ARRAY_TYPE, SET_TYPE)
++
+ #define NUMERICAL_TYPE_CHECK(T)					\
+   TREE_CHECK4 (T, INTEGER_TYPE, ENUMERAL_TYPE, BOOLEAN_TYPE, REAL_TYPE)
+ 
+@@ -977,7 +980,8 @@
+ 
+ #define AGGREGATE_TYPE_P(TYPE) \
+   (TREE_CODE (TYPE) == ARRAY_TYPE || TREE_CODE (TYPE) == RECORD_TYPE \
+-   || TREE_CODE (TYPE) == UNION_TYPE || TREE_CODE (TYPE) == QUAL_UNION_TYPE)
++   || TREE_CODE (TYPE) == UNION_TYPE || TREE_CODE (TYPE) == QUAL_UNION_TYPE \
++   || TREE_CODE (TYPE) == SET_TYPE)
+ 
+ /* Nonzero if TYPE represents a pointer or reference type.
+    (It should be renamed to INDIRECT_TYPE_P.)  Keep these checks in
+@@ -1898,7 +1902,7 @@
+ #define TYPE_SIZE_UNIT(NODE) (TYPE_CHECK (NODE)->type.size_unit)
+ #define TYPE_MODE(NODE) (TYPE_CHECK (NODE)->type.mode)
+ #define TYPE_VALUES(NODE) (ENUMERAL_TYPE_CHECK (NODE)->type.values)
+-#define TYPE_DOMAIN(NODE) (ARRAY_TYPE_CHECK (NODE)->type.values)
++#define TYPE_DOMAIN(NODE) (ARRAY_OR_SET_CHECK (NODE)->type.values)
+ #define TYPE_FIELDS(NODE) (RECORD_OR_UNION_CHECK (NODE)->type.values)
+ #define TYPE_CACHED_VALUES(NODE) (TYPE_CHECK(NODE)->type.values)
+ #define TYPE_ORIG_SIZE_TYPE(NODE)			\
+@@ -3928,6 +3932,15 @@
+ /* and its original value in bytes, specified via -fpack-struct=<value>.  */
+ extern unsigned int initial_max_fld_align;
+ 
++/* If nonzero, the alignment of a bitstring or (power-)set value, in bits.  */
++extern unsigned int set_alignment;
++
++/* The word size of a bitstring or (power-)set value, in bits.  */
++extern unsigned int set_word_size;
++
++/* If non-zero, bits in (power-)sets start with the highest bit.  */
++extern unsigned int set_words_big_endian;
++
+ /* Concatenate two lists (chains of TREE_LIST nodes) X and Y
+    by making the last node in X point to Y.
+    Returns X, except if X is 0 returns Y.  */
+Only in gcc-4.2.4.nn1/gcc: tree.h.orig
+diff -ru gcc-4.2.4.orig/gcc/varasm.c gcc-4.2.4.nn1/gcc/varasm.c
+--- gcc-4.2.4.orig/gcc/varasm.c	2008-02-02 01:42:03.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/varasm.c	2011-02-24 01:11:20.000000000 +0000
+@@ -3839,7 +3839,12 @@
+ 	/* Allow conversions to struct or union types if the value
+ 	   inside is okay.  */
+ 	if (TREE_CODE (dest_type) == RECORD_TYPE
+-	    || TREE_CODE (dest_type) == UNION_TYPE)
++	    || TREE_CODE (dest_type) == UNION_TYPE
++#ifdef GPC
++            || TREE_CODE (TREE_TYPE (value)) == ARRAY_TYPE
++#endif
++           )
++
+ 	  return initializer_constant_valid_p (src, endtype);
+       }
+       break;
+Only in gcc-4.2.4.nn1/gcc: varasm.c.orig
+Only in gcc-4.2.4.nn1/gcc: varasm.c.rej
+diff -ru gcc-4.2.4.orig/gcc/version.c gcc-4.2.4.nn1/gcc/version.c
+--- gcc-4.2.4.orig/gcc/version.c	2005-03-16 06:04:10.000000000 +0000
++++ gcc-4.2.4.nn1/gcc/version.c	2011-02-24 01:11:20.000000000 +0000
+@@ -17,7 +17,7 @@
+    forward us bugs reported to you, if you determine that they are
+    not bugs in your modifications.)  */
+ 
+-const char bug_report_url[] = "<URL:http://gcc.gnu.org/bugs.html>";
++const char bug_report_url[] = "<URL:http://www.gnu-pascal.de/todo.html>";
+ 
+ /* The complete version string, assembled from several pieces.
+    BASEVER, DATESTAMP, and DEVPHASE are defined by the Makefile.  */
+Only in gcc-4.2.4.nn1: libgpc

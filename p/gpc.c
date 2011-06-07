@@ -6841,11 +6841,6 @@ is_directory (const char *path1, const char *path2, int linker)
   char *cp;
   struct stat st;
 
-#ifndef SMALL_ARG_MAX
-  if (! linker)
-    return 1;
-#endif
-
   /* Construct the path from the two parts.  Ensure the string ends with "/.".
      The resulting path will be a directory even if the given path is a
      symbolic link.  */

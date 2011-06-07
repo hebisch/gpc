@@ -196,9 +196,8 @@ static void locations (YYLTYPE *, const union yyGLRStackItem *, int);
 #else
 #define LOCATION_NOTE(LOC) if (current_function_decl) \
   { \
-    location_t loc_aux; \
-    loc_aux.file = (LOC).first_file; \
-    loc_aux.line = (LOC).first_line; \
+    location_t loc_aux = \
+        pascal_make_location ((LOC).first_file, (LOC).first_line); \
     emit_line_note (loc_aux); \
   }
 #endif
@@ -2437,7 +2436,7 @@ locations (YYLTYPE *dest, const /*YYLTYPE*/ union yyGLRStackItem *src, int n)
   for (i = n; i > 0 && !YYRHSLOC (src, i).first_line; i--) ;
   if (i == 0)
     {
-      input_filename = compiler_filename;
+      pascal_input_filename = compiler_filename;
       lineno = compiler_lineno;
       column = compiler_column;
       dest->first_file = dest->last_file = NULL;
@@ -2445,7 +2444,8 @@ locations (YYLTYPE *dest, const /*YYLTYPE*/ union yyGLRStackItem *src, int n)
     }
   else
     {
-      input_filename = compiler_filename = dest->last_file = YYRHSLOC (src, i).last_file;
+      pascal_input_filename = compiler_filename =
+          dest->last_file = YYRHSLOC (src, i).last_file;
       lineno = compiler_lineno = dest->last_line = YYRHSLOC (src, i).last_line;
       column = compiler_column = dest->last_column = YYRHSLOC (src, i).last_column;
       for (i = 1; i <= n && !YYRHSLOC (src, i).first_line; i++) ;
@@ -2462,9 +2462,8 @@ locations (YYLTYPE *dest, const /*YYLTYPE*/ union yyGLRStackItem *src, int n)
         emit_line_note (dest->first_file, dest->first_line);
 #else
         {
-          location_t loc_aux;
-          loc_aux.file = dest->first_file;
-          loc_aux.line = dest->first_line;
+          location_t loc_aux =
+              pascal_make_location (dest->first_file, dest->first_line);
           emit_line_note (loc_aux);
         }
 #endif

@@ -1,0 +1,73 @@
+
+SHELL = @SHELL@
+srcdir = @srcdir@
+WITH_SHARED = @with_shared@
+target_alias = undef_var
+gcc_version := $(shell cat $(srcdir)/../gcc/BASE-VER)
+
+RTS_SHARED_FLAG = `if [ x$(WITH_SHARED) = xyes ]; then echo '--with-shared'; fi`
+
+MPREFIX = .
+
+RTSSRCDIR=$(srcdir)/../gcc/p/rts
+
+OP = build
+
+all: do_multidirs
+
+$(MPREFIX)/p/rts/Makefile: $(RTSSRCDIR)/Makefile.in \
+    $(RTSSRCDIR)/configure $(RTSSRCDIR)/rts-config.in
+	$(srcdir)/../gcc/p/script/mkdir-p $(MPREFIX)/p/rts
+	src=`cd $(RTSSRCDIR) && pwd` && \
+	cd $(MPREFIX)/p/rts && \
+	CONFIG_SITE=nonexisting-file \
+	$$src/configure --silent > /dev/null --srcdir=$$src \
+	  $(RTS_SHARED_FLAG)
+
+$(MPREFIX)/pascal.rts: $(MPREFIX)/p/rts/Makefile
+	cd $(MPREFIX)/p/rts && $(MAKE) all
+
+build: $(MPREFIX)/pascal.rts
+
+do_multidirs: alias_file
+	for i in `$(CC) --print-multi-lib 2>/dev/null`; do \
+            dir=`echo $$i | sed -e 's/;.*$$//'`; \
+            flags=`echo $$i | sed -e 's/^[^;]*;//' -e 's/@/ -/g'`; \
+            $(MAKE) CFLAGS="$(CFLAGS) $${flags}" MPREFIX=$${dir} $(OP) ; \
+        done
+
+# This kludge is needed to get hand of target info at install time
+alias_file:
+	$(CC) -dumpmachine > $(@) 2>/dev/null
+
+libsubdir = $(libdir)/gcc/$(target_alias)/$(gcc_version)
+unitsubdir = $(libsubdir)/units
+
+install: alias_file
+	$(MAKE) target_alias=`cat alias_file` install_rts-config.inc
+	$(MAKE) OP=do_install target_alias=`cat alias_file` do_multidirs
+
+install_rts-config.inc:
+	$(INSTALL_DATA) p/rts/rts-config.inc \
+            $(DESTDIR)$(unitsubdir)/rts-config.inc
+	chmod a-x $(DESTDIR)$(unitsubdir)/rts-config.inc
+
+do_install:
+	if [ -f $(MPREFIX)/p/rts/libgpc.a ]; then \
+          rm -f $(DESTDIR)$(libsubdir)/$(MPREFIX)/libgpc.a; \
+          $(INSTALL_DATA) $(MPREFIX)/p/rts/libgpc.a \
+             $(DESTDIR)$(libsubdir)/$(MPREFIX)/libgpc.a && \
+          chmod a-x $(DESTDIR)$(libsubdir)/$(MPREFIX)/libgpc.a || exit 1; \
+          $(RANLIB_FOR_TARGET) $(DESTDIR)$(libsubdir)/$(MPREFIX)/libgpc.a \
+              2> /dev/null || true; \
+        fi
+
+# Rules for rebuilding this Makefile.
+Makefile: $(srcdir)/Makefile.in config.status
+	CONFIG_FILES=$@ ; \
+	CONFIG_HEADERS= ; \
+	$(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+

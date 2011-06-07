@@ -165,7 +165,7 @@ init_predef (void)
   tree temp;
   int i;
 
-  lexer_filename = compiler_filename = input_filename;
+  lexer_filename = compiler_filename = pascal_input_filename;
   lexer_lineno = compiler_lineno = lineno;
   lexer_column = compiler_column = column;
 
@@ -477,7 +477,8 @@ get_string_length_plus_1 (tree string, int nopad)
   l = TREE_INT_CST_LOW (t);
   if (nopad)
     return l + 1;
-  if (TREE_CODE (string) == INTEGER_CST && TREE_CODE (TREE_TYPE (string)) == CHAR_TYPE)
+  if (TREE_CODE (string) == INTEGER_CST &&
+      TYPE_IS_CHAR_TYPE (TREE_TYPE (string)))
     return TREE_INT_CST_LOW (string) == ' ' ? 1 : 2;
   if (TREE_CODE (string) != STRING_CST)
     return 0;
@@ -508,7 +509,8 @@ save_expr_string (tree string)
       t = TREE_OPERAND (t, 0);
     else if (TREE_CODE (t) == COMPOUND_EXPR)
       {
-        stmts = stmts ? build (COMPOUND_EXPR, void_type_node, TREE_OPERAND (t, 0), stmts) : TREE_OPERAND (t, 0);
+        stmts = stmts ? build2 (COMPOUND_EXPR, void_type_node,
+                          TREE_OPERAND (t, 0), stmts) : TREE_OPERAND (t, 0);
         t = TREE_OPERAND (t, 1);
       }
     else
@@ -520,7 +522,7 @@ save_expr_string (tree string)
   else
     return string;
   if (stmts)
-    addr = build (COMPOUND_EXPR, TREE_TYPE (addr), stmts, addr);
+    addr = build2 (COMPOUND_EXPR, TREE_TYPE (addr), stmts, addr);
   return build_indirect_ref (save_expr (addr), NULL);
 }
 
@@ -533,7 +535,7 @@ string_par (tree *str)
     {
       tree t = save_expr_string (*str);
       tree ptype = cstring_type_node;
-      if (TREE_CODE (TREE_TYPE (t)) == CHAR_TYPE)
+      if (TYPE_IS_CHAR_TYPE (TREE_TYPE (t)))
         ptype = build_pointer_type (TREE_TYPE (t));
       *str = build1 (ADDR_EXPR, ptype, PASCAL_STRING_VALUE (t));
       *str = convert (cstring_type_node, *str);
@@ -640,11 +642,16 @@ build_read (int r_num, tree params, const char *r_name)
       switch (TREE_CODE (type))
       {
         case INTEGER_TYPE:
-          r_num2 = TYPE_UNSIGNED (type) ? p_Read_Cardinal : p_Read_Integer;
+          if (TYPE_IS_CHAR_TYPE (type))
+            r_num2 = p_Read_Char;
+          else
+            r_num2 = TYPE_UNSIGNED (type) ? p_Read_Cardinal : p_Read_Integer;
           break;
+#ifndef GCC_4_2
         case CHAR_TYPE:
           r_num2 = p_Read_Char;
           break;
+#endif
         case REAL_TYPE:
           {
             if (TYPE_PRECISION (type) > TYPE_PRECISION (double_type_node))
@@ -712,14 +719,14 @@ build_val (tree params)
       return error_mark_node;
     }
   res_pos = TREE_VALUE (TREE_CHAIN (TREE_CHAIN (params)));
-  if (TREE_CODE (TREE_TYPE (res_pos)) != INTEGER_TYPE)
+  if (!TYPE_IS_INTEGER_TYPE (TREE_TYPE (res_pos)))
     {
       error ("argument 3 to `Val' must be an integer");
       return error_mark_node;
     }
   target = TREE_VALUE (TREE_CHAIN (params));
   type = TREE_TYPE (target);
-  if (TREE_CODE (type) == INTEGER_TYPE)
+  if (TYPE_IS_INTEGER_TYPE (type))
     r_num = TYPE_UNSIGNED (type) ? p_Read_Cardinal : p_Read_Integer;
   else if (TREE_CODE (type) == REAL_TYPE)
     {
@@ -920,8 +927,8 @@ build_write (int r_num, tree params, const char *r_name)
             STRIP_TYPE_NOPS (field1);
           if (field2)
             STRIP_TYPE_NOPS (field2);
-          if (TREE_CODE (TREE_TYPE (field1)) != INTEGER_TYPE
-              || (field2 && TREE_CODE (TREE_TYPE (field2)) != INTEGER_TYPE))
+          if (!TYPE_IS_INTEGER_TYPE (TREE_TYPE (field1))
+              || (field2 && !TYPE_IS_INTEGER_TYPE (TREE_TYPE (field2))))
             {
               error ("field width and precision must be of integer type");
               field1 = NULL_TREE;
@@ -944,13 +951,23 @@ build_write (int r_num, tree params, const char *r_name)
         }
       if (field2 && code != REAL_TYPE)
         error ("number of fractional digits allowed only when writing values of real type");
-      if (r_num == p_Str && code != INTEGER_TYPE && code != REAL_TYPE)
+      if (r_num == p_Str && !TYPE_IS_INTEGER_TYPE (type) && code != REAL_TYPE)
         chk_dialect_1 ("`%s' with non-numeric values is", GNU_PASCAL, r_name);
       switch (code)
       {
         case ERROR_MARK:
           return error_mark_node;
+#ifndef GCC_4_2
+        case CHAR_TYPE:
+          r_num2 = p_Write_Char;
+          break;
+#endif
         case INTEGER_TYPE:
+          if (TYPE_IS_CHAR_TYPE (type))
+            {
+              r_num2 = p_Write_Char;
+              break;
+            }
           if (TREE_CODE (p) == INTEGER_CST)
             {
               if (int_fits_type_p (p, pascal_integer_type_node))
@@ -973,9 +990,6 @@ build_write (int r_num, tree params, const char *r_name)
         case BOOLEAN_TYPE:
           use_write_width_index = 2;
           r_num2 = p_Write_Boolean;
-          break;
-        case CHAR_TYPE:
-          r_num2 = p_Write_Char;
           break;
         case RECORD_TYPE:
         case ARRAY_TYPE:
@@ -1061,8 +1075,8 @@ pascal_unpack_and_pack (int unpack_flag, tree unpacked, tree packed, tree ustart
     expand_expr_stmt (convert (void_type_node, schema_check));
   else if (!strictly_comp_types (cutype, cptype))
     {
-      if ((TREE_CODE (cutype) == CHAR_TYPE || is_of_string_type (cutype, 0)) &&
-          (TREE_CODE (cptype) == CHAR_TYPE || is_of_string_type (cptype, 0)))
+      if ((TYPE_IS_CHAR_TYPE (cutype) || is_of_string_type (cutype, 0)) &&
+          (TYPE_IS_CHAR_TYPE (cptype) || is_of_string_type (cptype, 0)))
         is_string = 1;
       else
         {
@@ -1123,7 +1137,7 @@ pascal_unpack_and_pack (int unpack_flag, tree unpacked, tree packed, tree ustart
   else
     {
       /* Not really packed; elements have same size. Just copy the memory. */
-      tree length = fold (build (MULT_EXPR, pascal_integer_type_node,
+      tree length = fold (build2 (MULT_EXPR, pascal_integer_type_node,
              convert (pascal_integer_type_node, size_in_bytes (cutype)), len));
       tree adr_u = build_unary_op (ADDR_EXPR, build_array_ref (unpacked, ustart), 0);
       tree adr_p = build_unary_op (ADDR_EXPR, packed, 0);
@@ -1186,11 +1200,24 @@ check_argument (tree arg, const char *r_name, int n, const char **pargtypes, tre
     argtype_lower = 'w';
   switch (argtype_lower)
   {
-    case 'i': case 'l': case 'h': case 'n': if (code != INTEGER_TYPE)   errstr = "argument %d to `%s' must be an integer"; break;
-    case 'r': case 'e': if (!INT_REAL (code))                           errstr = "argument %d to `%s' must be a real or an integer"; break;
-    case 'z': if (!IS_NUMERIC (code))                                   errstr = "argument %d to `%s' must be an integer, real or complex number"; break;
+    case 'i': case 'l': case 'h': case 'n':
+      if (!TYPE_IS_INTEGER_TYPE (type))
+        errstr = "argument %d to `%s' must be an integer";
+      break;
+    case 'r': case 'e':
+      if (!INT_REAL (type))
+        errstr = "argument %d to `%s' must be a real or an integer";
+      break;
+    case 'z': 
+      if (!IS_NUMERIC (type))
+        errstr = "argument %d to `%s' must be an integer, real"
+                 "or complex number";
+      break;
     case 'b': if (code != BOOLEAN_TYPE)                                 errstr = "argument %d to `%s' must be a Boolean"; break;
-    case 'c': if (code != CHAR_TYPE)                                    errstr = "argument %d to `%s' must be a char"; break;
+    case 'c':
+      if (!TYPE_IS_CHAR_TYPE (type))
+        errstr = "argument %d to `%s' must be a char";
+      break;
     case 's': if (!is_string_compatible_type (val, 1))                  errstr = "argument %d to `%s' must be a string or char"; break;
     case 'q': if (!(code == POINTER_TYPE && integer_zerop (val)) && TYPE_MAIN_VARIANT (type) != cstring_type_node && !is_string_compatible_type (val, 1))
                                                                         errstr = "argument %d to `%s' must be a `CString' (`PChar')"; break;
@@ -1402,7 +1429,7 @@ build_predef_call (int r_num, tree apar)
       break;
 
     case p_pow:
-      if (code == INTEGER_TYPE)
+      if (TYPE_IS_INTEGER_TYPE (type))
         r_num = p_Integer_Pow;
       else if (code == COMPLEX_TYPE)
         r_num = p_Complex_Pow;
@@ -1431,7 +1458,7 @@ build_predef_call (int r_num, tree apar)
       if (argcount >= 1)
         {
           TREE_VALUE (apar) = string_may_be_char (TREE_VALUE (apar), 0);
-          if (TREE_CODE (TREE_TYPE (TREE_VALUE (apar))) == CHAR_TYPE)
+          if (TYPE_IS_CHAR_TYPE (TREE_TYPE (TREE_VALUE (apar))))
             r_num = p_PosChar;
         }
       break;
@@ -1620,7 +1647,7 @@ build_predef_call (int r_num, tree apar)
 
   case p_Trunc:
   case p_Round:
-    if (code == INTEGER_TYPE)
+    if (TYPE_IS_INTEGER_TYPE (type))
       {
         if (co->pascal_dialect & C_E_O_PASCAL)
           error ("argument to `%s' must be of real type", r_name);
@@ -1636,7 +1663,7 @@ build_predef_call (int r_num, tree apar)
             tree t = TYPE_PRECISION (type) > TYPE_PRECISION (double_type_node)
                      ? long_double_type_node : double_type_node;
             val = save_expr (val);
-            val = build (COND_EXPR, t,
+            val = build3 (COND_EXPR, t,
                          build_pascal_binary_op (GE_EXPR, val, real_zero_node),
                          convert (t, build_pascal_binary_op (PLUS_EXPR, val, real_half_node)),
                          convert (t, build_pascal_binary_op (MINUS_EXPR, val, real_half_node)));
@@ -1670,7 +1697,7 @@ build_predef_call (int r_num, tree apar)
     break;
 
   case p_FillChar:
-    if (code3 != CHAR_TYPE)
+    if (!TYPE_IS_CHAR_TYPE (type3))
       chk_dialect_1 ("non-`Char' values for argument 3 to `%s' are", B_D_M_PASCAL, r_name);
     retval = build_memset (build_unary_op (ADDR_EXPR, undo_schema_dereference (val), 0),
       val2, convert_and_check (byte_unsigned_type_node, val3));
@@ -1739,7 +1766,7 @@ build_predef_call (int r_num, tree apar)
     }
 
   case p_Ord:
-    if (code == INTEGER_TYPE)
+    if (TYPE_IS_INTEGER_TYPE (type))
       {
         gpc_warning ("`%s' applied to integers has no effect", r_name);
         retval = val;
@@ -1842,7 +1869,7 @@ build_predef_call (int r_num, tree apar)
       if (!TYPE_UNSIGNED (type))
         condition = build_pascal_binary_op (TRUTH_ORIF_EXPR,
                       build_pascal_binary_op (LT_EXPR, val, integer_zero_node), condition);
-      val = build (COND_EXPR, cstring_type_node, condition, null_pointer_node,
+      val = build3 (COND_EXPR, cstring_type_node, condition, null_pointer_node,
                    build_indirect_ref (build_pascal_binary_op (PLUS_EXPR, paramstr_variable_node, val), NULL));
       type = TREE_TYPE (val);
       code = TREE_CODE (type);
@@ -1858,7 +1885,7 @@ build_predef_call (int r_num, tree apar)
 
         /* (val = nil) ? 0 : strlen|Length (val) */
         if (TYPE_MAIN_VARIANT (type) == cstring_type_node)
-          strlength = build (COND_EXPR, pascal_integer_type_node,
+          strlength = build3 (COND_EXPR, pascal_integer_type_node,
             build_pascal_binary_op (EQ_EXPR, val, null_pointer_node),
             convert (pascal_integer_type_node, integer_zero_node),
             convert (pascal_integer_type_node,
@@ -1890,13 +1917,13 @@ build_predef_call (int r_num, tree apar)
         val = convert (complex, val);
       if (type2 != complex)
         val2 = convert (complex, val2);
-      retval = build (COMPLEX_EXPR, complex_type_node, val, val2);
+      retval = build2 (COMPLEX_EXPR, complex_type_node, val, val2);
       break;
     }
 
   case p_Re:
   case p_Conjugate:
-    if (INT_REAL (code))
+    if (INT_REAL (type))
       {
         gpc_warning ("`%s' applied to real numbers has no effect", r_name);
         retval = val;
@@ -1908,7 +1935,7 @@ build_predef_call (int r_num, tree apar)
     break;
 
   case p_Im:
-    if (INT_REAL (code))
+    if (INT_REAL (type))
       {
         gpc_warning ("`%s' applied to real numbers always yields 0.", r_name);
         if (TREE_SIDE_EFFECTS (val))
@@ -1921,9 +1948,9 @@ build_predef_call (int r_num, tree apar)
 
   case p_Max:
   case p_Min:
-    if (code == INTEGER_TYPE && code2 == REAL_TYPE)
+    if (TYPE_IS_INTEGER_TYPE (type) && code2 == REAL_TYPE)
       val = convert ((type = type2), val);
-    else if (code == REAL_TYPE && code2 == INTEGER_TYPE)
+    else if (code == REAL_TYPE && TYPE_IS_INTEGER_TYPE (type2))
       val2 = convert (type, val2);
     retval = convert (type, build_pascal_binary_op (r_num == p_Max ? MAX_EXPR : MIN_EXPR, val, val2));
     break;
@@ -1935,8 +1962,9 @@ build_predef_call (int r_num, tree apar)
         errstr = "argument 3 to `%s' must be a packed array";
       else if (code != ARRAY_TYPE || PASCAL_TYPE_PACKED (type))
         errstr = "argument 1 to `%s' must be an unpacked array";
+        /* XXXX FIXME is it correct ???? */
       else if (code2 != TREE_CODE (unpacked_domain)
-               && (TREE_CODE (unpacked_domain) != INTEGER_TYPE
+               && (!TYPE_IS_INTEGER_TYPE (unpacked_domain)
                    || code2 != TREE_CODE (TREE_TYPE (unpacked_domain))))
         errstr = "argument 2 to `%s' must be of unpacked array index type";
       else
@@ -1951,8 +1979,9 @@ build_predef_call (int r_num, tree apar)
         errstr = "argument 2 to `%s' must be an unpacked array";
       else if (code != ARRAY_TYPE || !PASCAL_TYPE_PACKED (type))
         errstr = "argument 1 to `%s' must be a packed array";
+        /* XXXX FIXME is it correct ???? */
       else if (code3 != TREE_CODE (unpacked_domain)
-               && (TREE_CODE (unpacked_domain) != INTEGER_TYPE
+               && (!TYPE_IS_INTEGER_TYPE (unpacked_domain)
                    || code3 != TREE_CODE (TREE_TYPE (unpacked_domain))))
         errstr = "argument 3 to `%s' must be of unpacked array index type";
       else
@@ -1961,7 +1990,7 @@ build_predef_call (int r_num, tree apar)
     }
 
   case p_Assigned:
-    retval = build (NE_EXPR, boolean_type_node, val,
+    retval = build2 (NE_EXPR, boolean_type_node, val,
                       convert (TREE_TYPE (val), integer_zero_node));
     break;
 
@@ -2168,7 +2197,7 @@ build_predef_call (int r_num, tree apar)
         argcount = 1;
         TREE_CHAIN (apar) = NULL_TREE;
       }
-    expand_start_cond (build (NE_EXPR, boolean_type_node, val, 
+    expand_start_cond (build2 (NE_EXPR, boolean_type_node, val, 
                         convert (TREE_TYPE (val), integer_zero_node)), 0);
     init_any (build_indirect_ref (val, NULL), 1, 1);
     if (co->pascal_dialect & C_E_O_PASCAL)
@@ -2264,7 +2293,7 @@ build_predef_call (int r_num, tree apar)
     break;
 
   case p_Int:
-    if (code == INTEGER_TYPE)
+    if (TYPE_IS_INTEGER_TYPE (type))
       {
         gpc_warning ("`%s' applied to integers has no effect", r_name);
         retval = val;
@@ -2272,7 +2301,7 @@ build_predef_call (int r_num, tree apar)
     break;
 
   case p_Frac:
-    if (code == INTEGER_TYPE)
+    if (TYPE_IS_INTEGER_TYPE (type))
       {
         gpc_warning ("`%s' applied to integers always yields 0.", r_name);
         if (TREE_SIDE_EFFECTS (val))
@@ -2302,7 +2331,7 @@ build_predef_call (int r_num, tree apar)
         {
           if (is_string_compatible_type (val2, 1))
             file_name = val2;
-          else if (code2 == INTEGER_TYPE)
+          else if (TYPE_IS_INTEGER_TYPE (type2))
             buffer_size = val2;
           else
             errstr = "type mismatch in optional argument to `%s'";
@@ -2609,14 +2638,14 @@ build_predef_call (int r_num, tree apar)
               {
                 if (y & 1)
                   {
-                    retval = fold (build (MULT_EXPR, t, retval, val));
+                    retval = fold (build2 (MULT_EXPR, t, retval, val));
                     gcc_assert (TREE_CODE (retval) == INTEGER_CST);
                     overflow |= TREE_OVERFLOW (retval);
                   }
                 y >>= 1;
                 if (y)
                   {
-                    val = fold (build (MULT_EXPR, t, val, val));
+                    val = fold (build2 (MULT_EXPR, t, val, val));
                     gcc_assert (TREE_CODE (val) == INTEGER_CST);
                     overflow |= TREE_OVERFLOW (val);
                   }
@@ -3016,7 +3045,7 @@ build_predef_call (int r_num, tree apar)
       if (actual_result)
         /* save_expr so the actual RTS call is only done once even if the
            result is used multiple times (e.g. in `s := Copy (...)'). */
-        retval = non_lvalue (build (COMPOUND_EXPR, TREE_TYPE (actual_result),
+        retval = non_lvalue (build2 (COMPOUND_EXPR, TREE_TYPE (actual_result),
                    save_expr (retval), actual_result));
       else if (!EM (retval))
         {

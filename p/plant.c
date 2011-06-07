@@ -80,7 +80,7 @@ plant_decl_init (tree decl)
 void
 plant_decl (tree decl)
 {
-  tree de = build (DECL_EXPR, void_type_node, decl);
+  tree de = build1 (DECL_EXPR, void_type_node, decl);
         {
           tree id = DECL_NAME (decl);
           const char * n = IDENTIFIER_POINTER (id);
@@ -106,7 +106,7 @@ plant_nop (void)
 void
 plant_asm (tree string, int vol)
 {
-  tree ae = build (ASM_EXPR, void_type_node, string, 
+  tree ae = build4 (ASM_EXPR, void_type_node, string, 
                    NULL_TREE, NULL_TREE, NULL_TREE);
   ASM_INPUT_P (ae) = 1;
   ASM_VOLATILE_P (ae) = vol;
@@ -117,8 +117,8 @@ void
 plant_asm_operands (tree string, tree outputs,
       tree inputs, tree clobbers, int vol, location_t loc_aux)
 {
-//  gcc_assert (0);
-  tree ae = build (ASM_EXPR, void_type_node, string, outputs, inputs, clobbers);
+  tree ae = build4 (ASM_EXPR, void_type_node, string, outputs,
+                    inputs, clobbers);
   ASM_VOLATILE_P (ae) = vol;
   plant_expr_stmt (ae);
 }
@@ -214,7 +214,9 @@ pascal_gimplify_function (tree fndecl)
                 case INTEGER_TYPE:
                 case ENUMERAL_TYPE:
                 case BOOLEAN_TYPE:
+#ifndef GCC_4_2
                 case CHAR_TYPE:
+#endif
                 case REAL_TYPE:
                   TYPE_MIN_VALUE (t) = TYPE_MIN_VALUE (type);
                   TYPE_MAX_VALUE (t) = TYPE_MAX_VALUE (type);
@@ -267,11 +269,8 @@ pascal_dump_tree (tree t, int indent)
 void
 plant_function_end (void)
 {
-  // gcc_assert (0);
-  location_t loc_aux;
   tree the_fun = current_function_decl;
-  loc_aux.file = input_filename;
-  loc_aux.line = lineno;
+  location_t loc_aux = pascal_make_location (pascal_input_filename, lineno);
 
 // fprintf (stderr, "plant_function_end\n");
 //  fflush (0);
@@ -282,26 +281,17 @@ plant_function_end (void)
 #endif
 //  pascal_dump_tree (current_statement_list, 0);
   DECL_SAVED_TREE (current_function_decl) = current_statement_list;
-/*  DECL_SOURCE_LOCATION (current_function_decl) = loc_aux; */
+  /* DECL_SOURCE_LOCATION (current_function_decl) = loc_aux; */
+
   cfun->function_end_locus = loc_aux;
-#if 0
-  gimplify_function_tree (the_fun);
-  current_function_decl = NULL_TREE;
-  cfun = NULL;
-  (void)cgraph_node (the_fun);
-  cgraph_finalize_function (the_fun, false);
-#else
+
   current_function_decl = DECL_CONTEXT (the_fun);
-  cfun = NULL;
 
   if (!DECL_CONTEXT (the_fun)
       || TREE_CODE (DECL_CONTEXT (the_fun)) != FUNCTION_DECL)
     {
-//      current_function_decl = NULL_TREE;
       current_function_decl = the_fun;
-//      allow_packed_addresses = 1;
       pascal_gimplify_function (the_fun);
-//      allow_packed_addresses = 0;
       cgraph_finalize_function (the_fun, false);
       current_function_decl = NULL_TREE;
     }
@@ -309,7 +299,13 @@ plant_function_end (void)
     /* Register this function with cgraph just far enough to get it
        added to our parent's nested function list.  */
     (void) cgraph_node (the_fun);
+
+#ifndef GCC_4_3
+  cfun = NULL;
+#else
+  set_cfun (NULL);
 #endif
+
   current_statement_list = plant_stack->statement_list;
   plant_stack = plant_stack->next;
 }
@@ -469,7 +465,7 @@ plant_end_case (tree expr)
     {
       tree label = LABEL_EXPR_LABEL (plant_stack->arg2);
 //      body = build (COMPOUND_EXPR, void_type_node, plant_stack->arg2, body);
-      body = build (COMPOUND_EXPR, void_type_node, body, plant_stack->arg2);
+      body = build2 (COMPOUND_EXPR, void_type_node, body, plant_stack->arg2);
       pushdecl_nocheck (label);
       PASCAL_LABEL_SET (label) = 1;
       TREE_USED (label) = 1;
@@ -682,7 +678,7 @@ plant_end_loop (void)
   gcc_assert (plant_stack && plant_stack->code == LOOP_EXPR);
   if (plant_stack->arg0 && LABEL_EXPR_LABEL (plant_stack->arg0) 
       && !(LOOP_HAS_CONTINUE & plant_stack->flags))
-     body = build (COMPOUND_EXPR, void_type_node, plant_stack->arg0, body);
+     body = build2 (COMPOUND_EXPR, void_type_node, plant_stack->arg0, body);
   if (plant_stack->arg0 && !LABEL_EXPR_LABEL (plant_stack->arg0))
     LABEL_EXPR_LABEL (plant_stack->arg0) = create_artificial_label ();
   body = build1 (LOOP_EXPR, void_type_node, body);
@@ -740,7 +736,7 @@ plant_expr_stmt (tree expr)
        && plant_locus_initialized) 
     SET_EXPR_LOCATION (expr, plant_locus);
   if (current_statement_list)
-    current_statement_list = build (COMPOUND_EXPR, 
+    current_statement_list = build2 (COMPOUND_EXPR, 
                                   TREE_TYPE (expr),
                                   current_statement_list,
                                   expr);

@@ -765,7 +765,7 @@ build_formal_param_list (tree list, tree object_type, tree *decls)
                 parms = add_parm_decl (parms, open_array_index_type_node,
                   get_unique_identifier ("open_array_length"));
                 gcc_assert (TREE_CODE (parms) == PARM_DECL);
-                TREE_PRIVATE (parms) = 1;
+                /* TREE_PRIVATE (parms) = 1; */
                 immediate_size_expand = 0;
                 size_volatile++;
 
@@ -1585,13 +1585,13 @@ set_identifier_spelling (tree id, const char *spelling, const char *filename, in
           warning_with_file_and_line (IDENTIFIER_SPELLING_FILE (id), IDENTIFIER_SPELLING_LINENO (id),
                                       " previous capitalisation `%s'", IDENTIFIER_SPELLING (id));
 #else
-          location_t loc_aux;
-          loc_aux.file = filename;
-          loc_aux.line = line;
-          gpc_warning ("%Hcapitalisation of identifier `%s' doesn't match", &loc_aux, spelling);
-          loc_aux.file = IDENTIFIER_SPELLING_FILE (id);
-          loc_aux.line = IDENTIFIER_SPELLING_LINENO (id);
-          gpc_warning ("%H previous capitalisation `%s'", &loc_aux, IDENTIFIER_SPELLING (id));
+          location_t loc_aux = pascal_make_location (filename, line);
+          gpc_warning ("%Hcapitalisation of identifier `%s' doesn't match",
+                       &loc_aux, spelling);
+          loc_aux = pascal_make_location (IDENTIFIER_SPELLING_FILE (id),
+                                          IDENTIFIER_SPELLING_LINENO (id));
+          gpc_warning ("%H previous capitalisation `%s'", &loc_aux,
+                       IDENTIFIER_SPELLING (id));
 #endif
         }
     }
@@ -1650,7 +1650,7 @@ make_identifier (const char *buf, int length)
   *t = 0;
   id = get_identifier (s);
   memcpy (s, buf, length);  /* keep the 0 terminator */
-  set_identifier_spelling (id, s, input_filename, lineno, column);
+  set_identifier_spelling (id, s, pascal_input_filename, lineno, column);
   return id;
 }
 
@@ -1886,9 +1886,15 @@ init_decl_processing (void)
   byte_unsigned_type_node = make_unsigned_type (CHAR_TYPE_SIZE);
   set_sizetype (lookup_c_type (SIZE_TYPE));
   ptrdiff_type_node = lookup_c_type (PTRDIFF_TYPE);
-  TREE_SET_CODE (char_type_node, CHAR_TYPE);  /* must be done after set_sizetype */
+  /* must be done after set_sizetype */
   wchar_type_node = make_unsigned_type (WCHAR_TYPE_SIZE);
+#ifndef GCC_4_2
+  TREE_SET_CODE (char_type_node, CHAR_TYPE);
   TREE_SET_CODE (wchar_type_node, CHAR_TYPE);
+#else
+  PASCAL_CHAR_TYPE (char_type_node) = 1;
+  PASCAL_CHAR_TYPE (wchar_type_node) = 1;
+#endif
   build_common_tree_nodes_2 (0);
 #else
   integer_type_node = make_signed_type (INT_TYPE_SIZE);
@@ -2086,7 +2092,9 @@ init_decl_processing (void)
   pedantic_lvalues = pedantic;
 
 #ifdef EGCS97
+#ifndef GCC_4_2
   set_lang_adjust_rli (&pascal_adjust_rli);
+#endif
 #else
   start_identifier_warnings ();
 #endif
@@ -2494,7 +2502,7 @@ type_attributes (tree *d, tree attributes)
   tree *tt = &attributes;
   while (*tt)
     if (IDENTIFIER_IS_BUILT_IN (TREE_PURPOSE (*tt), p_size)
-        && (TREE_CODE (*d) == INTEGER_TYPE || TREE_CODE (*d) == BOOLEAN_TYPE))
+        && (TYPE_IS_INTEGER_TYPE (*d) || TREE_CODE (*d) == BOOLEAN_TYPE))
       {
         if (!TREE_VALUE (*tt) || list_length (TREE_VALUE (*tt)) != 1)
           error ("`%s' attribute must have one argument", IDENTIFIER_NAME (TREE_PURPOSE (*tt)));
@@ -2503,7 +2511,8 @@ type_attributes (tree *d, tree attributes)
             tree b = TREE_VALUE (TREE_VALUE (*tt));
             STRIP_TYPE_NOPS (b);
             b = fold (b);
-            if (TREE_CODE (b) != INTEGER_CST || TREE_CODE (TREE_TYPE (b)) != INTEGER_TYPE)
+            if (TREE_CODE (b) != INTEGER_CST ||
+                !TYPE_IS_INTEGER_TYPE (TREE_TYPE (b)))
               error ("integer bit specification must be an integer constant");
             else
               {
@@ -3163,6 +3172,9 @@ start_routine (tree heading, tree directive)
           if (PASCAL_STRUCTOR_METHOD (decl))
             expand_expr_stmt (build_modify_expr (t, NOP_EXPR, boolean_true_node));
           DECL_LANG_RESULT_VARIABLE (decl) = t;
+#ifdef GCC_4_0
+          TREE_NO_WARNING (t) = !resvar;
+#endif
         }
     }
 
@@ -3191,8 +3203,12 @@ start_routine (tree heading, tree directive)
           tree v = IDENTIFIER_VALUE (TREE_PURPOSE (t));
           gcc_assert (TREE_CODE (v) == COMPONENT_REF);
           v = TREE_OPERAND (v, 1);
+#ifndef GCC_4_0
           DECL_SOURCE_FILE (dummy) = DECL_SOURCE_FILE (v);
           DECL_SOURCE_LINE (dummy) = DECL_SOURCE_LINE (v);
+#else
+          DECL_SOURCE_LOCATION (dummy) = DECL_SOURCE_LOCATION (v);
+#endif
           pushdecl_nocheck (dummy);
           DECL_CONTEXT (dummy) = current_function_decl;
         }
@@ -3300,14 +3316,14 @@ finish_routine (tree shadowed)
   /* Must mark the RESULT_DECL as being in this function. */
   DECL_CONTEXT (DECL_RESULT (fndecl)) = fndecl;
 
+#ifndef GCC_4_0
   /* Obey `register' declarations if `setjmp' is called in this fn. */
   if (current_function_calls_setjmp)
     {
-#ifndef GCC_4_0
       setjmp_protect (DECL_INITIAL (fndecl));
       setjmp_protect_args ();
-#endif
     }
+#endif
 
   /* Generate rtl for function exit. */
 #ifndef GCC_3_4
@@ -3358,7 +3374,7 @@ finish_routine (tree shadowed)
       DECL_ARGUMENTS (fndecl) = NULL_TREE;
     }
 #endif
-  if (outer_function_chain)
+  if (!pascal_global_bindings_p ())
     pop_function_context ();
   else
     current_function_decl = NULL;
@@ -3394,6 +3410,7 @@ build_enum_type (tree ids)
     }
   TYPE_MIN_VALUE (r) = TREE_VALUE (ids);
   TYPE_VALUES (r) = ids;
+  /* TREE_TYPE (r) = pascal_integer_type_node; */
   if (!current_type_list)
     rest_of_type_compilation (r, current_binding_level == global_binding_level);
   return r;
@@ -3749,7 +3766,7 @@ declare_variables (tree name_list, tree type, tree init, int qualifiers, tree at
       init = fold (init);
       if (TREE_CODE (init) == INTEGER_CST)
         {
-          if (TREE_CODE (TREE_TYPE (init)) != INTEGER_TYPE)
+          if (!TYPE_IS_INTEGER_TYPE (TREE_TYPE (init)))
             {
               error ("type mismatch in absolute address specification");
               return NULL_TREE;

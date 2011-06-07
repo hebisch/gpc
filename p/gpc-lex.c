@@ -49,6 +49,12 @@ int LEX_LINE_DIRECTIVE = MIN_EXTRA_SYMBOL - 4;
 typedef size_t yy_size_t;
 #include "pascal-lex.c"
 
+/* USE_MAPPED_LOCATION */
+#ifdef GCC_4_2
+char * pascal_input_filename;
+long lineno;
+#endif
+
 filename_t lexer_filename = NULL, compiler_filename = NULL;
 int column = 0;
 int lexer_lineno = 0, lexer_column = 0, compiler_lineno = 0, compiler_column = 0;
@@ -69,6 +75,21 @@ static int preprocessed_lineno = 0;
 
 static void handle_progress_messages (int);
 static void do_directive (char *, int);
+
+#ifdef GCC_3_4
+location_t
+pascal_make_location (const char * fname, long line)
+{
+#if !defined(GCC_4_2) || !defined(USE_MAPPED_LOCATION)
+  location_t loc_aux;
+  loc_aux.file = fname;
+  loc_aux.line = line;
+  return loc_aux;
+#else
+  UNKNOWN_LOCATION;
+#endif
+}
+#endif
 
 #ifdef HAVE_SIGALRM
 /* Triggers for periodic progress output; set every
@@ -97,14 +118,15 @@ handle_progress_messages (int ending)
   if (ending || progress_message_alarm)
     {
       if (flag_progress_messages)
-        fprintf (stderr, "\001#progress# %s (%d)\n", input_filename, lineno);
+        fprintf (stderr, "\001#progress# %s (%d)\n", pascal_input_filename,
+                 lineno);
       if (flag_progress_bar)
         fprintf (stderr, "\001#progress-bar# %d\n", preprocessed_lineno);
       progress_message_alarm = 0;
     }
 #else
   if (flag_progress_messages && (ending || (lineno % 16 == 0 && lineno > 0)))
-    fprintf (stderr, "\001#progress# %s (%d)\n", input_filename, lineno);
+    fprintf (stderr, "\001#progress# %s (%d)\n", pascal_input_filename, lineno);
   if (flag_progress_bar && (ending || preprocessed_lineno % 16 == 0))
     fprintf (stderr, "\001#progress-bar# %d\n", preprocessed_lineno);
 #endif
@@ -283,10 +305,10 @@ void set_old_input_filename (const char *s)
 void
 SetFileName (int v)
 {
-  input_filename = NewPos.SrcName;
+  pascal_input_filename = NewPos.SrcName;
 #ifndef EGCS97
   if (!main_input_filename)
-    main_input_filename = input_filename;
+    main_input_filename = pascal_input_filename;
 #endif
   if (v == 1)
     {
@@ -294,10 +316,9 @@ SetFileName (int v)
       struct file_stack *p = (struct file_stack *) xmalloc (sizeof (struct file_stack));
 #ifndef GCC_3_4
       input_file_stack->line = LexPos.Line;
-      p->name = input_filename;
+      p->name = pascal_input_filename;
 #else
-      p->location.line = LexPos.Line;
-      p->location.file = old_input_filename;
+      p->location = pascal_make_location (old_input_filename, LexPos.Line);
 #endif
       p->next = input_file_stack;
       input_file_stack = p;
@@ -305,9 +326,9 @@ SetFileName (int v)
 #ifdef EGCS97
       /* Can use backend only after initialization (see err1.pas) */
       if (main_input_filename)
-        (*debug_hooks->start_source_file) (LexPos.Line, input_filename);
+        (*debug_hooks->start_source_file) (LexPos.Line, pascal_input_filename);
 #else
-      debug_start_source_file (input_filename);
+      debug_start_source_file (pascal_input_filename);
 #endif
     }
   else if (v == 2)
@@ -326,7 +347,9 @@ SetFileName (int v)
 #ifndef GCC_3_4
           (*debug_hooks->end_source_file) (input_file_stack->line);
 #else
+#ifndef GCC_4_2
           (*debug_hooks->end_source_file) (p->location.line);
+#endif
 #endif
 #else
           debug_end_source_file (input_file_stack->line);
@@ -338,15 +361,15 @@ SetFileName (int v)
     }
 #ifdef EGCS97
   if (!main_input_filename)
-    main_input_filename = input_filename;
+    main_input_filename = pascal_input_filename;
 #endif
   /* Now that we've pushed or popped the input stack,
      update the name in the top element. */
 #ifndef GCC_3_4
   if (input_file_stack)
-    input_file_stack->name = input_filename;
+    input_file_stack->name = pascal_input_filename;
 #else
-  old_input_filename = input_filename;
+  old_input_filename = pascal_input_filename;
 #endif
 }
 
@@ -365,9 +388,7 @@ yyerror (const char *string)
     buf = "%s before `%s'";
   error_with_file_and_line (lexer_filename, lexer_lineno, buf, string, s, c0);
 #else
-  location_t loc_aux;
-  loc_aux.file = lexer_filename;
-  loc_aux.line = lexer_lineno;
+  location_t loc_aux = pascal_make_location (lexer_filename, lexer_lineno);
   if (!s)
     buf = "%H%s at end of input";
   else if (c0 < 0x20 || c0 >= 0x7f)
@@ -386,9 +407,9 @@ yyerror_id (tree id, const YYLTYPE *location)
   error_with_file_and_line (location->last_file, location->last_line,
                             "syntax error before `%s'", IDENTIFIER_NAME (id));
 #else
-  location_t loc_aux;
-  loc_aux.file = location->last_file;
-  loc_aux.line = location->last_line;
+  location_t loc_aux = 
+     pascal_make_location (location->last_file, location->last_line);
+
   error ("%Hsyntax error before `%s'", &loc_aux, IDENTIFIER_NAME (id));
 #endif
   syntax_errors++;
@@ -459,11 +480,11 @@ yylex (void)
   static int last_token = 0;
   int value;
 
-  input_filename = lexer_filename;
+  pascal_input_filename = lexer_filename;
   lineno = lexer_lineno;
   column = lexer_column;
   activate_options (lexer_options, 1);
-  yylloc.first_file = input_filename;
+  yylloc.first_file = pascal_input_filename;
   yylloc.first_line = lineno;
   yylloc.first_column = column;
 
@@ -697,10 +718,10 @@ yylex (void)
   yylloc.last_line = NewPos.Line;
   yylloc.last_column = NewPos.Column;
   yylloc.option_id = lexer_options->counter;
-  lexer_filename = input_filename;
+  lexer_filename = pascal_input_filename;
   lexer_lineno = lineno;
   lexer_column = column;
-  input_filename = compiler_filename;
+  pascal_input_filename = compiler_filename;
   lineno = compiler_lineno;
   column = compiler_column;
   activate_options (compiler_options, 1);

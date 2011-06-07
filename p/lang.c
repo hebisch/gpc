@@ -118,7 +118,7 @@ pascal_expand_expr (tree t, rtx r, enum machine_mode mm, enum expand_modifier em
   else if (code == RANGE_CHECK_EXPR 
             || code == IO_RANGE_CHECK_EXPR)
     return expand_expr (
-             build_range_check (
+             gpc_build_range_check (
                TREE_OPERAND (t, 0),
                TREE_OPERAND (t, 1),
                TREE_OPERAND (t, 2),
@@ -162,7 +162,7 @@ pascal_gimplify_expr (tree *expr_p, tree *pre_p ATTRIBUTE_UNUSED,
 
     case RANGE_CHECK_EXPR:
     case IO_RANGE_CHECK_EXPR:
-      res = build_range_check (
+      res = gpc_build_range_check (
                TREE_OPERAND (t, 0),
                TREE_OPERAND (t, 1),
                TREE_OPERAND (t, 2),
@@ -175,7 +175,7 @@ pascal_gimplify_expr (tree *expr_p, tree *pre_p ATTRIBUTE_UNUSED,
         tree save_statement_list = current_statement_list;
         current_statement_list = NULL_TREE;
         res = build_predef_call (p_New, TREE_OPERAND (t, 0));
-        res = build (COMPOUND_EXPR, TREE_TYPE (res),
+        res = build2 (COMPOUND_EXPR, TREE_TYPE (res),
                        current_statement_list, res);
         current_statement_list = save_statement_list;
         res = unshare_expr (res);
@@ -200,7 +200,11 @@ pascal_gimplify_expr (tree *expr_p, tree *pre_p ATTRIBUTE_UNUSED,
           DECL_INITIAL (new_var) = TREE_OPERAND (t, 0);
 
           TREE_OPERAND (t, 0) = new_var;
+#ifndef GCC_4_2
           recompute_tree_invarant_for_addr_expr (t);
+#else
+          recompute_tree_invariant_for_addr_expr (t);
+#endif
           return GS_ALL_DONE;
         }
       return GS_UNHANDLED;
@@ -899,14 +903,14 @@ lang_init (void)
 
   if (co->option_big_endian == 0 && BYTES_BIG_ENDIAN)
     {
-      input_filename = NULL;
+      pascal_input_filename = NULL;
       lineno = column = 0;
       error ("`--little-endian' given, but target system is big endian");
       exit (FATAL_EXIT_CODE);
     }
   if (co->option_big_endian > 0 && !BYTES_BIG_ENDIAN)
     {
-      input_filename = NULL;
+      pascal_input_filename = NULL;
       lineno = column = 0;
       error ("`--big-endian' given, but target system is little endian");
       exit (FATAL_EXIT_CODE);
@@ -1544,8 +1548,10 @@ pascal_clear_binding_stack (void)
 #define LANG_HOOKS_PRINT_IDENTIFIER print_lang_identifier
 #undef LANG_HOOKS_SET_YYDEBUG
 #define LANG_HOOKS_SET_YYDEBUG set_yydebug
+
 #undef LANG_HOOKS_GET_ALIAS_SET
-#define LANG_HOOKS_GET_ALIAS_SET hook_get_alias_set_0
+#define LANG_HOOKS_GET_ALIAS_SET pascal_get_alias_set
+
 #undef LANG_HOOKS_PRINT_XNODE
 #define LANG_HOOKS_PRINT_XNODE lang_print_xnode
 
@@ -1732,8 +1738,9 @@ get_set_constructor_bytes (tree init, unsigned char *buffer, int wd_size)
   return non_const_bits;
 }
 
+extern tree pascal_expand_constant (tree t);
 
-static tree
+tree
 pascal_expand_constant (tree t)
 {
   tree nt;
@@ -1797,6 +1804,17 @@ pascal_expand_function (tree fndecl)
   tree_rest_of_compilation (fndecl);
 }
 #endif
+
+
+#ifndef GCC_4_3
+HOST_WIDE_INT
+#else
+alias_set_type
+#endif
+pascal_get_alias_set (tree t)
+{
+  return 0;
+}
 
 #ifdef GCC_3_3
 bool

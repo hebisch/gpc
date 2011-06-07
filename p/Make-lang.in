@@ -120,6 +120,17 @@ LIBEXECSUBDIR_34=$(libexecsubdir)
 LIBEXECSUBDIR_=$(libsubdir)
 LIBEXECSUBDIR=$(LIBEXECSUBDIR_$(GPC_GCC_34_))
 
+# TREE_GIMPLE_H is defined only for 4.0 and up, so we use it to
+# distinguish backed versions. For 4.x we build libgpc in
+# toplevel directory.
+ifdef TREE_GIMPLE_H
+pascal.maybe_rts:
+pascal.install_rts-config.inc:
+else
+pascal.install_rts-config.inc: pascal.do_install_rts-config.inc
+pascal.maybe_rts: pascal.rts pascal.utils
+endif
+
 # gcc<3 doesn't set $(STAMP) and $(man1ext).
 # gcc-3 does, but it should not matter to set them here again.
 STAMP=echo timestamp >
@@ -233,7 +244,7 @@ RTS_FLAGS_TO_PASS_ALL=\
   PFLAGS="$(PFLAGS)" \
   AR_FLAGS="$(AR_FLAGS)" \
   RTSFLAGS="$(RTSFLAGS)" \
-  DESTDIR="../.."
+  GPC_DESTDIR="../.."
 
 RTS_FLAGS_TO_PASS_28=\
   AR="$(AR)" \
@@ -415,7 +426,7 @@ MAKEINFO_ES=LANG=es_ES LC_ALL=es_ES $(MAKEINFO) $(MAKEINFOFLAGS) $(GPC_DOC_DIRS_
 # @@ Removing "pascal.rts pascal.utils" here fails for a cross-built compiler
 Pascal pascal: xgpc$(exeext) gpc1$(exeext) gpc-run \
                specs pascal.generated-files pascal.docdemos \
-               pascal.rts pascal.utils
+               pascal.maybe_rts
 
 # Tell GNU make to ignore these if they exist.
 .PHONY: Pascal pascal
@@ -637,7 +648,7 @@ gpc1$(exeext): $(P) $(GPC_GCC_VERSION_DEPS) $(GPC_OBJS) $(LIBDEPS)
 	   echo "*** copy of the GCC sources and do a new build, including configure."; \
 	   exit 1; } >&2
 	rm -f $@
-	$(CC) $(ALL_GPC_FLAGS) $(LDFLAGS) -o $@ $(GPC_OBJS) $(GPC_GCC_VERSION_LINK) $(LIBS) $(EXTRA_LIBS)
+	$(CC) $(ALL_GPC_FLAGS) $(LDFLAGS) -o $@ $(GPC_OBJS) $(GPC_GCC_VERSION_LINK) $(LIBS) $(EXTRA_LIBS) $(GMPLIBS)
 
 p/declarations.o: p/declarations.c $(P_H)
 	$(CC) -o $@ -c $(ALL_GPC_FLAGS) $<
@@ -791,9 +802,9 @@ pascal.rts: p/rts/Makefile xgpc$(exeext) gpc1$(exeext)
 # Build hooks:
 
 pascal.all.build: xgpc$(exeext)
-pascal.all.cross: gpc-cross$(exeext) pascal.rts pascal.utils
+pascal.all.cross: gpc-cross$(exeext) pascal.maybe_rts
 pascal.start.encap:
-pascal.rest.encap: pascal.rts pascal.utils
+pascal.rest.encap: pascal.maybe_rts
 
 pascal.info: $(srcdir)/p/doc/info/gpc.info \
              $(srcdir)/p/doc/info/gpcs.info \
@@ -930,7 +941,8 @@ pascal.install-dir:
 
 # Install the driver program as $(target)-gpc
 # and also as either gpc (if native) or $(tooldir)/bin/gpc.
-pascal.install-common: pascal.install-dir xgpc$(exeext) gpc-run
+pascal.install-common: pascal.install-dir xgpc$(exeext) gpc-run \
+                       pascal.install-units
 	if [ -f gpc-cross$(exeext) ]; then \
 	  rm -f $(DESTDIR)$(bindir)/$(GPC_CROSS_NAME)$(exeext); \
 	  $(INSTALL_PROGRAM) gpc-cross$(exeext) $(DESTDIR)$(bindir)/$(GPC_CROSS_NAME)$(exeext) && \
@@ -972,10 +984,15 @@ pascal.install-lib: pascal.install-dir pascal.rts
 	  true; \
 	fi
 
+pascal.do_install_rts-config.inc: p/rts/rts-config.inc
+	$(INSTALL_DATA) p/rts/rts-config.inc \
+           $(DESTDIR)$(unitsubdir)/rts-config.inc
+	chmod a-x $(DESTDIR)$(unitsubdir)/rts-config.inc
+
 pascal.install-units: pascal.install-dir $(srcdir)/p/units/crtc.h $(RTSSRCDIR)/gpc.pas
-	$(INSTALL_DATA) p/rts/rts-config.inc $(DESTDIR)$(unitsubdir)/rts-config.inc
+	echo "Running pascal.install-units"
 	$(INSTALL_DATA) $(RTSSRCDIR)/gpc.pas $(DESTDIR)$(unitsubdir)/gpc.pas
-	chmod a-x $(DESTDIR)$(unitsubdir)/rts-config.inc $(DESTDIR)$(unitsubdir)/gpc.pas
+	chmod a-x $(DESTDIR)$(unitsubdir)/gpc.pas
 	for f in `cd $(srcdir)/p/units && echo *`; do \
 	  if [ "$$f" = gpc-in-c.h ]; then \
 	    rm -f $(DESTDIR)$(libsubdir)/include/"$$f"; \
@@ -1019,6 +1036,7 @@ pascal.real-install-doc: pascal.install-dir $(srcdir)/p/README \
 	fi
 
 pascal.install-info: pascal.install-info-man-dirs pascal.info
+	echo Running pascal.install-info
 	rm -f $(DESTDIR)$(infodir)/gpc.info* $(DESTDIR)$(infodir)/gpcs.info* $(DESTDIR)$(infodir)/gpcs-de.info* $(DESTDIR)$(infodir)/gpcs-hr.info* $(DESTDIR)$(infodir)/gpcs-es.info*
 	for f in `cd $(srcdir)/p/doc/info && echo gpc.info* gpcs*.info*`; do \
 	  $(INSTALL_DATA) $(srcdir)/p/doc/info/$$f $(DESTDIR)$(infodir)/$$f || exit 1; \
@@ -1107,6 +1125,7 @@ pascal.install-compiler: pascal.install-dir pascal
 pascal.install-normal: pascal.install-common pascal.install-compiler$(GPC_GCC_34_) \
  pascal.install-utils pascal.install-lib pascal.install-man \
  pascal.install-info pascal.install-units pascal.install-doc
+	echo "pascal.install-normal done"
 
 # This target will install GPC into an existing GCC installation,
 # without overwriting existing files.
@@ -1115,7 +1134,8 @@ pascal.install-normal: pascal.install-common pascal.install-compiler$(GPC_GCC_34
 # noise from versions of make which don't like to have null commands.
 # @@ Repeating pascal.install-compiler is strange here. But since it's disabled
 #    in pascal.install-normal for gcc-3.4, it would otherwise be missing here.
-pascal.install: pascal.install-normal pascal.install-compiler; @true
+pascal.install: pascal.install-normal pascal.install-compiler
+	echo "pascal.install done" ; @true
 
 pascal.install-with-gcc: $(INSTALL_HEADERS) pascal.install $(INSTALL_LIBGCC)
 	for file in $(GCC_PASSES); do \

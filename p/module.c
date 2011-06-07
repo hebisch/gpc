@@ -1975,10 +1975,21 @@ load_string (MEMFILE *s)
 #endif
 #define DECL_EXTRA_STORED(t) DECL_FRAME_SIZE (t)
 #endif
+
 #ifndef GCC_4_0
-#define FLAGS_OFFSET 2
+#define FLAGS_OFFSET (2*sizeof(tree *))
 #else
-#define FLAGS_OFFSET 3
+#ifndef GCC_4_3
+#define FLAGS_OFFSET (3*sizeof(tree *))
+#else
+#define FLAGS_OFFSET 2
+#endif
+#endif
+
+#ifndef GCC_4_3
+#define FLAGS_SIZE 4
+#else
+#define FLAGS_SIZE 6
 #endif
 
 static void
@@ -1989,10 +2000,10 @@ store_flags (tree t)
      where it refers to debug info (see ../tree.h). */
   if (TYPE_P (t))
     TREE_ASM_WRITTEN (t) = 0;
-  store_length ((tree *) t + FLAGS_OFFSET, 4);
+  store_length ((char *) t + FLAGS_OFFSET, FLAGS_SIZE);
   TREE_ASM_WRITTEN (t) = save;
 }
-#define load_flags(t) LOAD_LENGTH ((tree *) t + FLAGS_OFFSET, 4)
+#define load_flags(t) LOAD_LENGTH ((char *) t + FLAGS_OFFSET, FLAGS_SIZE)
 
 /* Store the fields of a node in a stream. */
 static void
@@ -2054,7 +2065,8 @@ store_node_fields (tree t, int uid)
                    (unsigned long int) INTERFACE_TABLE (t)->gpi_checksum);
         }
       else
-        debug_tree (t);
+        /* debug_tree (t); */
+        fprintf(stderr, "<%s>\n", tree_code_name[code]);
     }
   if (code != IDENTIFIER_NODE && code != INTERFACE_NAME_NODE && code != TREE_LIST)
     store_flags (t);
@@ -2075,7 +2087,9 @@ store_node_fields (tree t, int uid)
       {
         gpi_int n;
         store_length ((&DECL_SIZE (t)) + 1, DECL_FLAGS_SIZE);
+#ifndef GCC_4_2
         STORE_ANY (DECL_EXTRA_STORED (t));
+#endif
 #ifdef  GCC_4_1
         if (CODE_CONTAINS_STRUCT (code, TS_DECL_MINIMAL))
 #endif
@@ -2174,7 +2188,9 @@ store_node_fields (tree t, int uid)
     case REAL_TYPE:
     case COMPLEX_TYPE:
     case BOOLEAN_TYPE:
+#ifndef GCC_4_2
     case CHAR_TYPE:
+#endif
     case INTEGER_TYPE:
     case ENUMERAL_TYPE:
       store_node (TREE_TYPE (t));
@@ -2225,6 +2241,7 @@ store_node_fields (tree t, int uid)
                     || lang_code == PASCAL_LANG_FAKE_ARRAY);
         for (f = TYPE_FIELDS (t); f; f = TREE_CHAIN (f))
           {
+            HOST_WIDE_INT n;
             store_node (f);
 #ifndef EGCS97
             store_node (bit_position (f));
@@ -2304,6 +2321,7 @@ store_node_fields (tree t, int uid)
     case FIELD_DECL:
       {
         tree f;
+        HOST_WIDE_INT n;
         /* Necessary under DJGPP when compiling a program that uses
            a unit first without, then with `-g' (e.g. fjf684.pas). */
         store_string (DECL_ASSEMBLER_NAME_SET_P (t) ? IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (t)) : "");
@@ -2313,6 +2331,8 @@ store_node_fields (tree t, int uid)
 #else
         store_node (DECL_FIELD_BIT_OFFSET (t));
         store_node (DECL_FIELD_OFFSET (t));
+        n = DECL_OFFSET_ALIGN (t);
+        STORE_ANY (n);
 #endif
         store_node (DECL_BIT_FIELD_TYPE (t));
         f = DECL_LANG_SPECIFIC (t) ? DECL_LANG_FIXUPLIST (t) : NULL_TREE;
@@ -2357,6 +2377,7 @@ store_node_fields (tree t, int uid)
         unsigned HOST_WIDE_INT ix;
         store_node (TREE_TYPE (t));
         ix = VEC_length (constructor_elt, elts);
+        /* fprintf(stderr, "constructor with %ld elements\n", ix); */
         STORE_ANY (ix);
         FOR_EACH_CONSTRUCTOR_ELT (elts, ix, index, value)
           {
@@ -2509,9 +2530,13 @@ load_node (void)
   /* Check whether the node number n has already been loaded
      (this includes the special nodes). */
   LOAD_ANY (uid);
+  /* fprintf(stderr, "uid = %ld, ", uid); */
   if (uid == 0 || rb.nodes[uid])
-    return rb.nodes[uid];
-
+    {
+      /* fprintf(stderr, "done "); */
+      return rb.nodes[uid];
+    }
+  
   /* If not, seek file for reading the node */
   save_pos = mtell (rb.infile);
   mseek (rb.infile, rb.offsets[uid]);
@@ -2555,7 +2580,7 @@ load_node (void)
   else if (code == STRING_CST)
     {
         char *s;
-        struct {char c[4];} pp;
+        struct {char c[FLAGS_SIZE];} pp;
         gpi_int l;
         tree ty;
         LOAD_ANY(pp);
@@ -2564,7 +2589,7 @@ load_node (void)
         s = xmalloc (l + 1);
         LOAD_LENGTH (s, l);
         t = build_string (l, s);
-        memcpy ((tree *) t + FLAGS_OFFSET, &pp, 4);
+        memcpy (((char *) t) + FLAGS_OFFSET, &pp, FLAGS_SIZE);
         TREE_TYPE (t) = ty;
         free (s);
     }
@@ -2576,6 +2601,15 @@ load_node (void)
   if (code != IDENTIFIER_NODE && code != INTERFACE_NAME_NODE
       && code != STRING_CST)
     load_flags (t);
+#if 0
+  if (co->debug_gpi)
+    {
+      fprintf (stderr, "GPI loading <%i>: ", (int) uid);
+      /* debug_tree (t); */
+      fprintf (stderr, "<%s>\n", tree_code_name[code]);
+    }
+#endif
+
   switch (TREE_CODE_CLASS (code))
   {
     case tcc_type:
@@ -2613,16 +2647,23 @@ load_node (void)
         gpi_int n;
         char *s;
         LOAD_LENGTH ((&DECL_SIZE (t)) + 1, DECL_FLAGS_SIZE);
+#ifndef GCC_4_2
         LOAD_ANY (DECL_EXTRA_STORED (t));
+#endif
 #ifdef  GCC_4_1
         if (CODE_CONTAINS_STRUCT (code, TS_DECL_MINIMAL))
 #endif
           DECL_NAME (t) = load_node ();
         s = load_string (rb.infile);
-        DECL_SOURCE_FILE (t) = PERMANENT_STRING (s);
-        free (s);
         LOAD_ANY (n);
+#ifndef GCC_3_4
+        DECL_SOURCE_FILE (t) = PERMANENT_STRING (s);
         DECL_SOURCE_LINE (t) = n;
+#else
+        DECL_SOURCE_LOCATION (t) =
+           pascal_make_location(PERMANENT_STRING (s), n);
+#endif
+        free (s);
         LOAD_ANY (n);
         /* @@ DECL_SOURCE_COLUMN (t) = n; */
         DECL_SIZE (t) = load_node ();
@@ -2742,7 +2783,9 @@ load_node (void)
     case REAL_TYPE:
     case COMPLEX_TYPE:
     case BOOLEAN_TYPE:
+#ifndef GCC_4_2
     case CHAR_TYPE:
+#endif
     case INTEGER_TYPE:
     case ENUMERAL_TYPE:
       TREE_TYPE (t) = load_node ();
@@ -2876,6 +2919,7 @@ load_node (void)
       {
         char *assembler_name_str;
         tree f;
+        HOST_WIDE_INT n;
         assembler_name_str = load_string (rb.infile);
         if (*assembler_name_str)
           SET_DECL_ASSEMBLER_NAME (t, get_identifier (assembler_name_str));
@@ -2886,6 +2930,8 @@ load_node (void)
 #else
         DECL_FIELD_BIT_OFFSET (t) = load_node ();
         DECL_FIELD_OFFSET (t) = load_node ();
+        LOAD_ANY (n);
+        SET_DECL_OFFSET_ALIGN (t, n);
 #endif
         DECL_BIT_FIELD_TYPE (t) = load_node ();
         f = load_node ();
@@ -2958,8 +3004,9 @@ load_node (void)
   }
   if (co->debug_gpi)
     {
-      fprintf (stderr, "GPI loaded <%i>:\n", (int) uid);
+      fprintf (stderr, "GPI loaded <%i>: ", (int) uid);
       debug_tree (t);
+      /* fprintf (stderr, "<%s>\n", tree_code_name[code]); */
     }
   mseek (rb.infile, save_pos);
   return t;

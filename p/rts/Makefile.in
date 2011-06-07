@@ -42,7 +42,7 @@ AR=@AR@
 AR_FLAGS=rc
 RANLIB=@RANLIB@
 RTSFLAGS=
-DESTDIR=.
+GPC_DESTDIR=.
 GCC_VERSION=unknown
 
 WITH_SHARED=@with_shared@
@@ -52,13 +52,14 @@ gpc_minor=1
 rts_version=`cat $(VERSION_FILENAME)`
 GPCSOLIBSHORTNAME=libgpc.so
 GPCSOLIBNAME=$(GPCSOLIBSHORTNAME).$(gpc_major).$(gpc_minor).$(rts_version)
-GPCLIB=$(DESTDIR)/libgpc.a
-GPCSOLIB=$(DESTDIR)/$(GPCSOLIBNAME)
+GPCLIB=$(GPC_DESTDIR)/libgpc.a
+GPCSOLIB=$(GPC_DESTDIR)/$(GPCSOLIBNAME)
 ifdef TARGET_MACHO
        GPCSOLIBOPTIONS = -dynamiclib -dylib_install_name,$(GPCSOLIBNAME)
 else
        GPCSOLIBOPTIONS = -shared -Wl,-soname=$(GPCSOLIBNAME)
 endif
+# PFLAGS1=--unit-path=$(VPATH) --automake -fno-strict-aliasing
 PFLAGS1=--unit-path=$(VPATH) --automake
 RTS_WARN=-W -Wall -Wmissing-prototypes -Wmissing-declarations
 RTS_CFLAGS=-I. $(RTS_WARN) $(CFLAGS) $(RTSFLAGS)# -DDEBUG
@@ -169,6 +170,12 @@ error.o: error.pas heap.o
 
 error.lo: error.pas heap.lo
 	$(PC) -c $(RTS_PFLAGS) --no-automake --implementation-only "$<" -fPIC -o "$@"
+
+endian.o: endian.pas error.o
+	$(PC) -c $(RTS_PFLAGS) --no-automake -fno-strict-aliasing "$<"
+
+endian.lo: endian.pas error.lo
+	$(PC) -c $(RTS_PFLAGS) --no-automake -fno-strict-aliasing -fPIC -o "$@" "$<"
 
 .pas.o:
 	$(PC) -c $(RTS_PFLAGS) "$<"

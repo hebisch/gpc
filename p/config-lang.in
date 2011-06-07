@@ -28,6 +28,8 @@ compilers="gpc1\$(exeext)"
 stagestuff="gpc\$(exeext) gpc-cross\$(exeext) gpc1\$(exeext) gpcpp\$(exeext) libgpc.a"
 gtfiles="\$(srcdir)/p/gpc.h \$(srcdir)/p/declarations.c \$(srcdir)/p/module.c \$(srcdir)/p/predef.c \$(srcdir)/p/plant.c"
 
+target_libs=target-libgpc
+
 #echo "in p/config-lang.in"
 #echo "srcdir=$srcdir"
 #echo "pwd=`pwd`"
@@ -83,7 +85,24 @@ if echo $version | grep '^2\.9' > /dev/null || echo $version | grep '^3\.[1-9]' 
           fi
           if echo $version | grep '^4\.[2-9]' > /dev/null; then
             echo '#define GCC_4_2' >> "$gcc_version_h"
-            echo "*** The GPC port for GCC > 4.1.x does not work." >&2
+          fi
+          if echo $version | grep '^4\.[3-9]' > /dev/null; then
+            echo '#define GCC_4_3' >> "$gcc_version_h"
+          fi
+          if echo $version | grep '^4\.[4-9]' > /dev/null; then
+            echo '#define GCC_4_4' >> "$gcc_version_h"
+          fi
+          if echo $version | grep '^4\.[5-9]' > /dev/null; then
+                  echo '#define GCC_4_5' >> "$gcc_version_h"
+          fi
+          if echo $version | grep '^4\.[6-9]' > /dev/null; then
+                    echo '#define GCC_4_6' >> "$gcc_version_h"
+          fi
+          if echo $version | grep '^4\.[7-9]' > /dev/null; then
+                      echo '#define GCC_4_7' >> "$gcc_version_h"
+          fi
+          if echo $version | grep '^4\.[4-9]' > /dev/null; then
+            echo "*** The GPC port for GCC > 4.3.x does not work." >&2
             echo "*** You can proceed now if you want to work on it." >&2
             echo "***" >&2
           else
@@ -96,7 +115,7 @@ if echo $version | grep '^2\.9' > /dev/null || echo $version | grep '^3\.[1-9]' 
           echo "***" >&2
           echo "*** Press ENTER to continue, Ctrl-C to abort." >&2
           echo "***" >&2
-          read junk
+          # read junk
         fi
       fi
     fi

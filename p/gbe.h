@@ -118,7 +118,13 @@ extern char *libiberty_concat_ptr;
 #ifdef GCC_3_4
 #define CONCAT2(a,b) a##b
 #define STRINGX(s) #s
+
+#ifdef GCC_4_2
+extern long lineno;
+#else
 #define lineno input_line
+#endif
+
 #define warning_with_decl(x, y) (gpc_warning ("%H" y, &DECL_SOURCE_LOCATION (x), \
         DECL_NAME (x) ? IDENTIFIER_POINTER (DECL_NAME (x)) : NULL))
 #define error_with_decl(x, y) (error ("%H" y, &DECL_SOURCE_LOCATION (x), \

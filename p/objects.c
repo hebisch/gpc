@@ -64,7 +64,8 @@ get_vmt_field (tree obj)
   if (TREE_CODE (obj) == COMPOUND_EXPR)
     {
       tree value = get_vmt_field (TREE_OPERAND (obj, 1));
-      return build (COMPOUND_EXPR, TREE_TYPE (value), TREE_OPERAND (obj, 0), value);
+      return build2 (COMPOUND_EXPR, TREE_TYPE (value),
+                     TREE_OPERAND (obj, 0), value);
     }
   vmt_field = TYPE_LANG_VMT_FIELD (TREE_TYPE (obj));
 #ifndef GCC_4_0
@@ -212,9 +213,9 @@ call_method (tree cref, tree args)
 #endif
       /* In the VMT, only generic pointers are stored to avoid
          confusion in GPI files. Repair them here. */
-      TREE_TYPE (fun) = build_pointer_type (type_save);
+      fun = convert (build_pointer_type (type_save), fun);
       if (co->object_checking)
-        fun = fold (build (COND_EXPR, TREE_TYPE (fun),
+        fun = fold (build3 (COND_EXPR, TREE_TYPE (fun),
           build_pascal_binary_op (TRUTH_ORIF_EXPR,
             build_pascal_binary_op (EQ_EXPR, vmt, null_pointer_node),
             build_pascal_binary_op (NE_EXPR, build_component_ref (vmt_deref, get_identifier ("Size")),
@@ -235,7 +236,7 @@ call_method (tree cref, tree args)
     {
       if (!cmeth || !PASCAL_CONSTRUCTOR_METHOD (cmeth))
         fun = integer_zero_node;
-      return build (PASCAL_CONSTRUCTOR_CALL, TYPE_POINTER_TO (type),
+      return build2 (PASCAL_CONSTRUCTOR_CALL, TYPE_POINTER_TO (type),
                    constructor_call, fun);
     }
       
@@ -435,7 +436,7 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
         tree method_name = get_method_name (object_type_name, name);
         tree args, argtypes = build_formal_param_list (DECL_ARGUMENTS (heading), type, &args);
         int virtual = 0, nv = 0, na = 0, override = 0, reintroduce = 0;
-        filename_t save_input_filename = input_filename;
+        filename_t save_input_filename = pascal_input_filename;
         int save_lineno = lineno, save_column = column;
         if (!t)
           error ("result type of method function `%s' undefined", IDENTIFIER_NAME (name));
@@ -444,8 +445,14 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
         if (co->methods_always_virtual && !(PASCAL_STRUCTOR_METHOD (heading) && t == boolean_type_node))
           virtual = 1;
         method = build_decl (FUNCTION_DECL, method_name, build_function_type (t, argtypes));
-        input_filename = DECL_SOURCE_FILE (method) = DECL_SOURCE_FILE (heading);
-        lineno = DECL_SOURCE_LINE (method) = DECL_SOURCE_LINE (heading);
+        pascal_input_filename = DECL_SOURCE_FILE (heading);
+        lineno = DECL_SOURCE_LINE (heading);
+#ifndef GCC_3_4
+        DECL_SOURCE_FILE (method) = DECL_SOURCE_FILE (heading);
+        DECL_SOURCE_LINE (method) = DECL_SOURCE_LINE (heading);
+#else
+        DECL_SOURCE_LOCATION (method) = DECL_SOURCE_LOCATION (heading);
+#endif
         /*@@ column = DECL_SOURCE_COLUMN (method) = DECL_SOURCE_COLUMN (heading); */
         while (TREE_CHAIN (cp) && TREE_CODE (TREE_CHAIN (cp)) == TREE_LIST
                && TREE_CODE (TREE_VALUE (TREE_CHAIN (cp))) == IDENTIFIER_NODE
@@ -463,7 +470,8 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
                     tree t = TREE_PURPOSE (cp);
                     STRIP_TYPE_NOPS (t);
                     t = fold (t);
-                    if (TREE_CODE (t) != INTEGER_CST || TREE_CODE (TREE_TYPE (t)) != INTEGER_TYPE)
+                    if (TREE_CODE (t) != INTEGER_CST ||
+                        !TYPE_IS_INTEGER_TYPE (TREE_TYPE (t)))
                       error ("dynamic method index must be an integer constant");
                     else if (const_lt (t, integer_one_node)
                              || TREE_INT_CST_HIGH (t) != 0 || TREE_INT_CST_LOW (t) > 65535)
@@ -541,7 +549,7 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
         DECL_LANG_METHOD_DECL (method_field) = method;
         *pmethods = method_field;
         pmethods = &TREE_CHAIN (method_field);
-        input_filename = save_input_filename;
+        pascal_input_filename = save_input_filename;
         lineno = save_lineno;
         column = save_column;
       }
@@ -1028,8 +1036,8 @@ build_is_as (tree left, tree right, int op)
                  `if foo is bar then something (foo as bar)'. */
               p_right = build_pointer_type (right);
               res = save_expr (
-                       build (COMPOUND_EXPR, p_right,
-                         build (COND_EXPR, void_type_node, res,
+                       build2 (COMPOUND_EXPR, p_right,
+                         build3 (COND_EXPR, void_type_node, res,
                                 convert (void_type_node, integer_zero_node),
                                 build_predef_call (p_as, NULL_TREE)),
                          convert (p_right, build_pascal_unary_op (ADDR_EXPR, left))));
