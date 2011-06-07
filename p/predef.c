@@ -188,7 +188,7 @@ init_predef (void)
 
   untyped_file_type_node = build_file_type (void_type_node, NULL_TREE, 1);
   /* This decl is needed in parse.y: variable_or_routine_access_no_builtin_function. */
-  temp = build_decl (TYPE_DECL, get_identifier ("File"), untyped_file_type_node);
+  temp = gpc_build_decl (TYPE_DECL, get_identifier ("File"), untyped_file_type_node);
   DECL_ARTIFICIAL (temp) = 1;
   TREE_PUBLIC (temp) = 1;
   TYPE_NAME (untyped_file_type_node) = temp;
@@ -334,7 +334,7 @@ build1 (ADDR_EXPR, build_pointer_type (
           if (kind == bk_const)
             {
               tree v = *predef_table[i].value;
-              decl = build_decl (CONST_DECL, id, TREE_TYPE (v));
+              decl = gpc_build_decl (CONST_DECL, id, TREE_TYPE (v));
               DECL_INITIAL (decl) = v;
               if (TREE_CODE_CLASS (TREE_CODE (v)) == tcc_constant)
                 PASCAL_CST_FRESH (v) = 1;
@@ -344,7 +344,7 @@ build1 (ADDR_EXPR, build_pointer_type (
               tree type = *predef_table[i].value, orig = NULL_TREE;
               if (TYPE_NAME (type))
                 type = build_type_copy ((orig = type));
-              TYPE_NAME (type) = decl = build_decl (TYPE_DECL, id, type);
+              TYPE_NAME (type) = decl = gpc_build_decl (TYPE_DECL, id, type);
               DECL_ORIGINAL_TYPE (decl) = NULL_TREE  /* orig @@ dwarf-2 and gcc-3.3 */;
               /* necessary to get debug info (e.g. fjf910.pas, tested with gcc-2.8.1, stabs) */
 #ifndef GCC_4_0
@@ -422,7 +422,7 @@ static tree
 actual_set_parameters (tree val, int reference)
 {
   tree domain = TYPE_DOMAIN (TREE_TYPE (val)), addr;
-  int addressable = mark_addressable (val);
+  int addressable = mark_addressable0 (val);
   gcc_assert (addressable);
 
   /* Callers now handle the constant empty set. */
@@ -509,8 +509,7 @@ save_expr_string (tree string)
       t = TREE_OPERAND (t, 0);
     else if (TREE_CODE (t) == COMPOUND_EXPR)
       {
-        stmts = stmts ? build2 (COMPOUND_EXPR, void_type_node,
-                          TREE_OPERAND (t, 0), stmts) : TREE_OPERAND (t, 0);
+        stmts = stmts ? build2 (COMPOUND_EXPR, void_type_node, TREE_OPERAND (t, 0), stmts) : TREE_OPERAND (t, 0);
         t = TREE_OPERAND (t, 1);
       }
     else
@@ -1311,7 +1310,8 @@ build_predef_call (int r_num, tree apar)
       else if (!(current_function_decl && !obn
                  && id == DECL_NAME (current_function_decl)))
         {
-          struct function *p = outer_function_chain;
+          struct function *p = 0 /* outer_function_chain */;
+#if 0
           while (p)
             {
               if (!obn && DECL_NAME (p->decl) == id)
@@ -1337,6 +1337,7 @@ build_predef_call (int r_num, tree apar)
               p = p->next;
 #endif
             }
+#endif
           if (!p)
             error ("invalid argument `%s' to `Exit'", IDENTIFIER_NAME (id));
           else if (DECL_LANG_SPECIFIC (p->decl) && DECL_LANG_NONLOCAL_EXIT_LABEL (p->decl))

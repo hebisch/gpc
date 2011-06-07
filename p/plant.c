@@ -27,7 +27,7 @@
 #include <varray.h>
 
 /* Made unconditional for 3.3 to avoid Makefile tricks */
-typedef struct plant_nesting GTY(()) {
+typedef struct GTY(()) plant_nesting {
   enum tree_code code;
   int flags;
   struct plant_nesting * next;
@@ -50,7 +50,7 @@ static GTY(()) varray_type gimplified_size_addrs = 0;
 
 #ifdef GCC_4_0
 #include "cgraph.h"
-#include "tree-gimple.h"
+#include "gimple.h"
 #include "tree-dump.h"
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@ */
@@ -117,8 +117,8 @@ void
 plant_asm_operands (tree string, tree outputs,
       tree inputs, tree clobbers, int vol, location_t loc_aux)
 {
-  tree ae = build4 (ASM_EXPR, void_type_node, string, outputs,
-                    inputs, clobbers);
+//  gcc_assert (0);
+  tree ae = build4 (ASM_EXPR, void_type_node, string, outputs, inputs, clobbers);
   ASM_VOLATILE_P (ae) = vol;
   plant_expr_stmt (ae);
 }
@@ -269,8 +269,13 @@ pascal_dump_tree (tree t, int indent)
 void
 plant_function_end (void)
 {
+  // gcc_assert (0);
   tree the_fun = current_function_decl;
-  location_t loc_aux = pascal_make_location (pascal_input_filename, lineno);
+#ifndef GCC_4_2
+  location_t loc_aux;
+  loc_aux.file = input_filename;
+  loc_aux.line = lineno;
+#endif
 
 // fprintf (stderr, "plant_function_end\n");
 //  fflush (0);
@@ -281,17 +286,31 @@ plant_function_end (void)
 #endif
 //  pascal_dump_tree (current_statement_list, 0);
   DECL_SAVED_TREE (current_function_decl) = current_statement_list;
-  /* DECL_SOURCE_LOCATION (current_function_decl) = loc_aux; */
+  /* debug_tree (current_statement_list); */
+/*  DECL_SOURCE_LOCATION (current_function_decl) = loc_aux; */
 
+#ifndef GCC_4_2
   cfun->function_end_locus = loc_aux;
+#endif
 
+#if 0
+  gimplify_function_tree (the_fun);
+  current_function_decl = NULL_TREE;
+  cfun = NULL;
+  (void)cgraph_node (the_fun);
+  cgraph_finalize_function (the_fun, false);
+#else
   current_function_decl = DECL_CONTEXT (the_fun);
+  set_cfun(NULL);
 
   if (!DECL_CONTEXT (the_fun)
       || TREE_CODE (DECL_CONTEXT (the_fun)) != FUNCTION_DECL)
     {
+//      current_function_decl = NULL_TREE;
       current_function_decl = the_fun;
+//       allow_packed_addresses = 1;
       pascal_gimplify_function (the_fun);
+//      allow_packed_addresses = 0;
       cgraph_finalize_function (the_fun, false);
       current_function_decl = NULL_TREE;
     }
@@ -299,13 +318,7 @@ plant_function_end (void)
     /* Register this function with cgraph just far enough to get it
        added to our parent's nested function list.  */
     (void) cgraph_node (the_fun);
-
-#ifndef GCC_4_3
-  cfun = NULL;
-#else
-  set_cfun (NULL);
 #endif
-
   current_statement_list = plant_stack->statement_list;
   plant_stack = plant_stack->next;
 }
@@ -351,7 +364,7 @@ plant_end_cond (void)
 //  fflush (0);
   gcc_assert (plant_stack && plant_stack->code == COND_EXPR);
   if (!current_statement_list)
-    current_statement_list = build_empty_stmt ();
+    current_statement_list = build_empty_stmt (UNKNOWN_LOCATION);
   if (plant_stack->arg1)
     {
       st1 = plant_stack->arg1;
@@ -360,7 +373,7 @@ plant_end_cond (void)
   else
     {
       st1 = current_statement_list;
-      st2 = build_empty_stmt ();
+      st2 = build_empty_stmt (UNKNOWN_LOCATION);
     }
   st1 = build3 (COND_EXPR, void_type_node, plant_stack->arg0, st1, st2);
   SET_EXPR_LOCATION (st1, plant_stack->locus);
@@ -383,7 +396,7 @@ plant_start_else (void)
       current_statement_list = NULL_TREE;
     }
   else
-    plant_stack->arg1 = build_empty_stmt ();
+    plant_stack->arg1 = build_empty_stmt (UNKNOWN_LOCATION);
 }
 
 void
@@ -420,7 +433,7 @@ plant_exit_something (void)
   if (!plant_stack->arg2)
     {
       tree id = get_unique_identifier ("exit_something");
-      tree label = build_decl (LABEL_DECL, id, void_type_node);
+      tree label = gpc_build_decl (LABEL_DECL, id, void_type_node);
       plant_stack->arg2 = build1 (LABEL_EXPR, void_type_node, label);
     }
   gcc_assert (TREE_CODE (plant_stack->arg2) == LABEL_EXPR);
@@ -680,7 +693,7 @@ plant_end_loop (void)
       && !(LOOP_HAS_CONTINUE & plant_stack->flags))
      body = build2 (COMPOUND_EXPR, void_type_node, plant_stack->arg0, body);
   if (plant_stack->arg0 && !LABEL_EXPR_LABEL (plant_stack->arg0))
-    LABEL_EXPR_LABEL (plant_stack->arg0) = create_artificial_label ();
+    LABEL_EXPR_LABEL (plant_stack->arg0) = create_artificial_label (UNKNOWN_LOCATION);
   body = build1 (LOOP_EXPR, void_type_node, body);
   SET_EXPR_LOCATION (body, plant_stack->locus);
   current_statement_list = plant_stack->statement_list;
@@ -778,7 +791,7 @@ plant_bind_block (tree block)
 #endif
 
       if (!statement_list)
-        statement_list = build_empty_stmt ();
+        statement_list = build_empty_stmt (UNKNOWN_LOCATION);
 #if 1
       statement_list = build3 (BIND_EXPR,
                                void_type_node,

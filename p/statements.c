@@ -115,8 +115,7 @@ pascal_expand_asm_operands (tree string, tree outputs, tree inputs, tree clobber
      asm ('foo') and asm('foo':) */
   if (outputs || inputs || clobbers)
 #ifndef GCC_3_4
-    expand_asm_operands (string, outputs, inputs, clobbers, vol,
-                         pascal_input_filename, lineno);
+    expand_asm_operands (string, outputs, inputs, clobbers, vol, pascal_input_filename, lineno);
 #else
     {
       expand_asm_operands (string, outputs, inputs, clobbers, vol,
@@ -307,8 +306,7 @@ expand_return_statement (tree retval)
       tree t = convert_for_assignment (valtype, retval, "`Return'", NULL_TREE, 0);
       if (EM (t))
         return;
-      t = build2 (MODIFY_EXPR, TREE_TYPE (res), res,
-                  convert (TREE_TYPE (res), t));
+      t = build2 (MODIFY_EXPR, TREE_TYPE (res), res, convert (TREE_TYPE (res), t));
       TREE_SIDE_EFFECTS (t) = 1;
       expand_return (t);
     }
@@ -430,7 +428,7 @@ pascal_pushcase (tree constants)
                 hi = TYPE_MAX_VALUE (type);
               if (!const_lt (hi, lo))
                 {
-                  tree label = build_decl (LABEL_DECL, NULL_TREE, NULL_TREE), duplicate;
+                  tree label = gpc_build_decl (LABEL_DECL, NULL_TREE, NULL_TREE), duplicate;
                   int success = pushcase_range (lo, hi, convert_and_check, label, &duplicate);
                   if (success == 2)
                     {
@@ -989,7 +987,7 @@ init_any (tree thing, int the_end, int implicit)
           gcc_assert (vmt_field && vmt);
           if (TYPE_LANG_CODE (TREE_TYPE (thing)) == PASCAL_LANG_ABSTRACT_OBJECT)
             error ("trying to instantiate an abstract object type");
-          mark_addressable (thing);
+          mark_addressable0 (thing);
           /* Assign the address of the VMT to the object's VMT field. */
           expand_expr_stmt (build_modify_expr (get_vmt_field (thing),
             INIT_EXPR, build_pascal_unary_op (ADDR_EXPR, vmt)));
@@ -1010,7 +1008,7 @@ init_any (tree thing, int the_end, int implicit)
               tree c = TREE_PURPOSE (variant);
               if (!c)  /* otherwise */
                 {
-                  tree label = build_decl (LABEL_DECL, NULL_TREE, NULL_TREE);
+                  tree label = gpc_build_decl (LABEL_DECL, NULL_TREE, NULL_TREE);
                   int r = pushcase (NULL_TREE, NULL, label, &duplicate);
                   gcc_assert (!r);
                   have_otherwise = 1;
@@ -1018,7 +1016,7 @@ init_any (tree thing, int the_end, int implicit)
               else
                 for (; c; c= TREE_CHAIN (c))
                   {
-                    tree label = build_decl (LABEL_DECL, NULL_TREE, NULL_TREE);
+                    tree label = gpc_build_decl (LABEL_DECL, NULL_TREE, NULL_TREE);
                     int r = TREE_PURPOSE (c)
                       ? pushcase_range (TREE_VALUE (c), TREE_PURPOSE (c), convert_and_check, label, &duplicate)
                       : pushcase (TREE_VALUE (c), convert_and_check, label, &duplicate);
@@ -1035,7 +1033,7 @@ init_any (tree thing, int the_end, int implicit)
             }
           if (!have_otherwise)
             {
-              int r = pushcase (NULL_TREE, NULL, build_decl (LABEL_DECL, NULL_TREE, NULL_TREE), &duplicate);
+              int r = pushcase (NULL_TREE, NULL, gpc_build_decl (LABEL_DECL, NULL_TREE, NULL_TREE), &duplicate);
               gcc_assert (!r);
             }
           expand_end_case (selector);
@@ -1203,7 +1201,8 @@ expand_pascal_assignment2 (tree target, tree source, int is_init)
         {
           struct function *p;
 #ifdef EGCS97
-          for (p = outer_function_chain; p && p->decl != target; p = p->outer) ;
+          /* XXX FIXME */
+          /* for (p = outer_function_chain; p && p->decl != target; p = p->outer) ; */
 #else
           for (p = outer_function_chain; p && p->decl != target; p = p->next) ;
 #endif
@@ -1449,8 +1448,7 @@ assign_string2 (tree target, tree source, int is_init)
   if (expr1)
     {
       CHK_EM (expr1);
-      expr = expr2 ? build2 (COMPOUND_EXPR, TREE_TYPE (expr2), expr1, expr2)
-                   : expr1;
+      expr = expr2 ? build2 (COMPOUND_EXPR, TREE_TYPE (expr2), expr1, expr2) : expr1;
     }
   else
     /* The only case where both expr1 and expr2 could be NULL are
@@ -1749,7 +1747,7 @@ finish_constructor (void)
 {
   poplevel_expand (0, 1);
   expand_end_cond ();  /* close the open `if' from start_constructor */
-  mark_addressable (current_function_decl);
+  mark_addressable0 (current_function_decl);
   finish_routine (NULL_TREE);
 }
 

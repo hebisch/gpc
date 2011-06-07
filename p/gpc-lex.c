@@ -55,6 +55,15 @@ char * pascal_input_filename;
 long lineno;
 #endif
 
+struct file_stack
+{
+  struct file_stack *next;
+  location_t location;
+};
+
+int input_file_stack_tick = 0;
+struct file_stack * input_file_stack = NULL;
+
 filename_t lexer_filename = NULL, compiler_filename = NULL;
 int column = 0;
 int lexer_lineno = 0, lexer_column = 0, compiler_lineno = 0, compiler_column = 0;
@@ -78,19 +87,18 @@ static void do_directive (char *, int);
 
 #ifdef GCC_3_4
 location_t
-pascal_make_location (const char * fname, long line)
+pascal_make_location(const char * fname, long line)
 {
-#if !defined(GCC_4_2) || !defined(USE_MAPPED_LOCATION)
+#ifndef GCC_4_2
   location_t loc_aux;
-  loc_aux.file = fname;
-  loc_aux.line = line;
+  loc_aux.file = pascal_input_filename;
+  loc_aux.line = lineno;
   return loc_aux;
 #else
-  UNKNOWN_LOCATION;
+  return UNKNOWN_LOCATION;
 #endif
 }
 #endif
-
 #ifdef HAVE_SIGALRM
 /* Triggers for periodic progress output; set every
    PROGRESS_TIME_INTERVAL microseconds. */
@@ -118,8 +126,7 @@ handle_progress_messages (int ending)
   if (ending || progress_message_alarm)
     {
       if (flag_progress_messages)
-        fprintf (stderr, "\001#progress# %s (%d)\n", pascal_input_filename,
-                 lineno);
+        fprintf (stderr, "\001#progress# %s (%d)\n", pascal_input_filename, lineno);
       if (flag_progress_bar)
         fprintf (stderr, "\001#progress-bar# %d\n", preprocessed_lineno);
       progress_message_alarm = 0;
@@ -388,7 +395,13 @@ yyerror (const char *string)
     buf = "%s before `%s'";
   error_with_file_and_line (lexer_filename, lexer_lineno, buf, string, s, c0);
 #else
-  location_t loc_aux = pascal_make_location (lexer_filename, lexer_lineno);
+  location_t loc_aux;
+#ifndef GCC_4_2
+  loc_aux.file = lexer_filename;
+  loc_aux.line = lexer_lineno;
+#else
+  loc_aux = UNKNOWN_LOCATION;
+#endif
   if (!s)
     buf = "%H%s at end of input";
   else if (c0 < 0x20 || c0 >= 0x7f)
@@ -407,8 +420,13 @@ yyerror_id (tree id, const YYLTYPE *location)
   error_with_file_and_line (location->last_file, location->last_line,
                             "syntax error before `%s'", IDENTIFIER_NAME (id));
 #else
-  location_t loc_aux = 
-     pascal_make_location (location->last_file, location->last_line);
+  location_t loc_aux;
+#ifndef GCC_4_2
+  loc_aux.file = location->last_file;
+  loc_aux.line = location->last_line;
+#else
+  loc_aux = UNKNOWN_LOCATION;
+#endif
 
   error ("%Hsyntax error before `%s'", &loc_aux, IDENTIFIER_NAME (id));
 #endif

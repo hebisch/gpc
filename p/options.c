@@ -581,7 +581,7 @@ pascal_decode_option (int argc ATTRIBUTE_UNUSED, const char *const *argv)
       if (warn_uninitialized != 1)
         warn_uninitialized = 2;
 #ifdef EGCS97
-      set_Wunused (1);
+      /* set_Wunused (1); */
 #else
       warn_unused = 1;
 #endif
@@ -674,7 +674,7 @@ process_pascal_directive (char *name, int length)
   if (PEDANTIC (U_B_D_M_PASCAL) && !notified)
     {
       notified = 1;
-      pedwarn ("compiler directives are a UCSD Pascal extension");
+      gpc_pedwarn ("compiler directives are a UCSD Pascal extension");
     }
   while (length > 0 &&
          (name[length - 1] == ' ' || name[length - 1] == '\t'

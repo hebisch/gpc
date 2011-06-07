@@ -343,7 +343,7 @@ build_set_constructor (tree elements)
   SET_CONSTRUCTOR_ELTS (t) = elements;
   TREE_CONSTANT (t) = TREE_STATIC (t) = is_constant;
 #ifdef GCC_4_0
-  TREE_INVARIANT (t) = is_constant;
+  /* TREE_INVARIANT (t) = is_constant; */
 #endif
   PASCAL_CONSTRUCTOR_INT_CST (t) = is_intcst;
   TREE_SIDE_EFFECTS (t) = side_effects;
@@ -450,8 +450,7 @@ construct_set (tree constructor, tree target_or_type, int arg_type)
                 set_high = hi;
             }
           if (set_low && set_high)
-            size = fold (build2 (PLUS_EXPR, pascal_integer_type_node,
-                     integer_one_node,
+            size = fold (build2 (PLUS_EXPR, pascal_integer_type_node, integer_one_node,
                      fold (build2 (MINUS_EXPR, pascal_integer_type_node,
                                   convert (pascal_integer_type_node, set_high),
                                   convert (pascal_integer_type_node, set_low)))));
@@ -593,8 +592,7 @@ convert_to_cstring (tree val)
     if (TREE_CODE (val) == COMPOUND_EXPR)
       {
         if (stmts)
-          stmts = build2 (COMPOUND_EXPR, void_type_node,
-                          TREE_OPERAND (val, 0), stmts);
+          stmts = build2 (COMPOUND_EXPR, void_type_node, TREE_OPERAND (val, 0), stmts);
         else
           stmts = TREE_OPERAND (val, 0);
         val = TREE_OPERAND (val, 1);
@@ -628,8 +626,7 @@ convert_to_cstring (tree val)
      compile-time, e.g., if it's a reference parameter). If val is a
      temporary variable just created above, we don't need the extra check. */
   if (need_cond)
-    z = build3 (COND_EXPR, char_type_node,
-                build_pascal_binary_op (EQ_EXPR, chr, ch0), ch0, z);
+    z = build3 (COND_EXPR, char_type_node, build_pascal_binary_op (EQ_EXPR, chr, ch0), ch0, z);
   if (stmts)
     z = build2 (COMPOUND_EXPR, void_type_node, stmts, z);
   val = build2 (COMPOUND_EXPR, TREE_TYPE (orig_val), z, val);
@@ -655,7 +652,7 @@ string_may_be_char (tree expr, int assignment_compatibility)
           /* Assigning an empty string to a char.
              According to Extended Pascal this is allowed. (Ouch!) */
           if (pedantic || !(co->pascal_dialect & E_O_PASCAL))
-            pedwarn ("assignment of empty string to a char yields a space");
+            gpc_pedwarn ("assignment of empty string to a char yields a space");
           ch = ' ';
         }
 #ifndef GCC_4_0
@@ -849,12 +846,12 @@ build_discriminants (tree names, tree type, tree stype)
          in the TREE_PURPOSE fields of the id_list. */
       tree id = TREE_VALUE (t);
 #if 0
-      tree decl = TREE_VALUE (t) = build_decl (VAR_DECL, id, type);
+      tree decl = TREE_VALUE (t) = gpc_build_decl (VAR_DECL, id, type);
       SET_DECL_ASSEMBLER_NAME (decl, id);
       allocate_decl_lang_specific (decl);
       PASCAL_TREE_DISCRIMINANT (decl) = 1;
 #else
-      tree decl = build_decl (CONST_DECL, id, type);
+      tree decl = gpc_build_decl (CONST_DECL, id, type);
 #endif
       tree field = build_field (id, type);
 #ifdef GCC_4_0
@@ -862,7 +859,7 @@ build_discriminants (tree names, tree type, tree stype)
             build0 (PLACEHOLDER_EXPR, stype), field, NULL_TREE);
 #else
       tree val = build (COMPONENT_REF, TREE_TYPE (field),
-            build (PLACEHOLDER_EXPR, stype), field);
+            build0 (PLACEHOLDER_EXPR, stype), field);
 #endif
       DECL_INITIAL (decl) = val;
       TREE_PURPOSE (t) = IDENTIFIER_VALUE (id);
@@ -1232,7 +1229,7 @@ build_field (tree name, tree type)
     }
   if (PASCAL_TYPE_ANYFILE (type))
     error ("field type must not be `AnyFile'");
-  decl = build_decl (FIELD_DECL, name, type);
+  decl = gpc_build_decl (FIELD_DECL, name, type);
   TREE_READONLY (decl) |= TYPE_READONLY (type);
   TREE_SIDE_EFFECTS (decl) |= TYPE_VOLATILE (type);
   TREE_THIS_VOLATILE (decl) |= TYPE_VOLATILE (type);
@@ -1477,7 +1474,7 @@ pack_type (tree type)
 #ifdef GCC_4_0
       /* @@@@@@ Maybe */
       /* TYPE_NO_FORCE_BLK (type) = 1; */
-      TYPE_MODE (type) = BLKmode;
+      SET_TYPE_MODE (type, BLKmode);
 #endif
     }
   else if (ORDINAL_TYPE (TREE_CODE (type)))
@@ -1832,7 +1829,7 @@ check_subrange (tree lo, tree hi)
               build_implicit_pascal_binary_op (LT_EXPR, hi, lo),
               build2 (COMPOUND_EXPR, pascal_integer_type_node,
                 build_predef_call (p_SubrangeError, NULL_TREE), pz),
-                pz));
+              pz));
         }
     }
   return 1;
@@ -2135,8 +2132,7 @@ build_component_ref_no_schema_dereference (tree datum, tree component, int impli
   if (TREE_CODE (datum) == COMPOUND_EXPR)
     {
       tree value = build_component_ref (TREE_OPERAND (datum, 1), component);
-      return build2 (COMPOUND_EXPR, TREE_TYPE (value),
-                     TREE_OPERAND (datum, 0), value);
+      return build2 (COMPOUND_EXPR, TREE_TYPE (value), TREE_OPERAND (datum, 0), value);
     }
 
   /* See if there is a field or component with name COMPONENT. */
@@ -2652,11 +2648,21 @@ build_pascal_array_ref (tree array, tree index_list)
                   array = build3 (BIT_FIELD_REF, TREE_TYPE (array_type),
                                   array, convert (bitsizetype, bits),
                                   convert (bitsizetype, index));
+#if 0
                   BIT_FIELD_REF_UNSIGNED (array) = 
                       TYPE_UNSIGNED (TREE_TYPE (array_type));
+#endif
                 }
               else
                 array = build3 (PASCAL_BIT_FIELD_REF, TREE_TYPE (array_type), array, bits, index);
+#if 0
+#if 1
+              PASCAL_BIT_FIELD_REF_UNSIGNED (array) =
+                TYPE_UNSIGNED (TREE_TYPE (array_type));
+#else
+              BIT_FIELD_REF_UNSIGNED (array) = TYPE_UNSIGNED (TREE_TYPE (array_type));
+#endif
+#endif
             }
         }
       if (EM (array))
@@ -2754,9 +2760,9 @@ build_array_ref (tree array, tree index)
       if (pedantic && !lvalue)
         {
           if (DECL_REGISTER (array))
-            pedwarn ("indexing of `register' array");
+            gpc_pedwarn ("indexing of `register' array");
           else
-            pedwarn ("indexing of non-lvalue array");
+            gpc_pedwarn ("indexing of non-lvalue array");
         }
 
       if (pedantic)
@@ -2765,7 +2771,7 @@ build_array_ref (tree array, tree index)
           while (TREE_CODE (foo) == COMPONENT_REF)
             foo = TREE_OPERAND (foo, 0);
           if (TREE_CODE (foo) == VAR_DECL && DECL_REGISTER (foo))
-            pedwarn ("indexing of non-lvalue array");
+            gpc_pedwarn ("indexing of non-lvalue array");
         }
 
       type = TYPE_MAIN_VARIANT (TREE_TYPE (TREE_TYPE (array)));
@@ -2825,15 +2831,8 @@ convert (tree type, tree e)
   if (code = INTEGER_TYPE || code == ENUMERAL_TYPE)
     e = copy_node (e);
 */
-  /* Move NON_LVALUE outside to allow better constant folding */
-  if (TREE_CODE (e) == NON_LVALUE_EXPR)
-    {
-      return build1 (NON_LVALUE_EXPR, type,
-                     convert (type, TREE_OPERAND (e, 0)));
-    }
   if (TYPE_MAIN_VARIANT (type) == TYPE_MAIN_VARIANT (TREE_TYPE (e)))
     return fold (build1 (NOP_EXPR, type, e));
-  /* FIXME Why we do nothing here ??? */
   if (code == SET_TYPE && TREE_CODE (TREE_TYPE (e)) == SET_TYPE)
     return e;
   if (TREE_CODE (TREE_TYPE (e)) == VOID_TYPE)
@@ -2917,7 +2916,7 @@ convert (tree type, tree e)
 tree
 build_simple_array_type (tree elt_type, tree index_type)
 {
-  tree t;
+  tree t, ts;
   CHK_EM (elt_type);
   CHK_EM (index_type);
   t = make_node (ARRAY_TYPE);
@@ -2925,7 +2924,8 @@ build_simple_array_type (tree elt_type, tree index_type)
   TYPE_DOMAIN (t) = index_type;
   gcc_assert (index_type);
   layout_type (t);
-  if (!TYPE_SIZE (t) || TREE_OVERFLOW (TYPE_SIZE (t))
+  ts = TYPE_SIZE (t);
+  if (!ts || (CONSTANT_CLASS_P (ts) && TREE_OVERFLOW (ts))
       || (integer_zerop (TYPE_SIZE (t)) && !integer_zerop (TYPE_SIZE (elt_type))))
     {
       error ("size of array is too large");

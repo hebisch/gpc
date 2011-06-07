@@ -136,7 +136,9 @@ extern long lineno;
 #include "tree.h"
 #ifdef EGCS97
 #include "debug.h"
+#if 0
 #include "errors.h"
+#endif
 #include "target.h"
 #include "diagnostic.h"
 #include "ggc.h"

@@ -22,6 +22,15 @@
   Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA
   02111-1307, USA. */
 
+#define EGCS
+#define GCC_2_95_3
+#define EGCS97
+#define GCC_3_3
+#define GCC_3_4
+#define GCC_4_0
+#define GCC_4_1
+#define GCC_4_2
+
 #ifdef GCC_4_0
 DEFTREECODE (OPERATOR_DECL, "operator_decl", tcc_declaration, 0)
 /* The field `gpi_int checksum' might be larger than a pointer, so

@@ -194,12 +194,18 @@ static void locations (YYLTYPE *, const union yyGLRStackItem *, int);
 #ifndef GCC_3_4
 #define LOCATION_NOTE(LOC) if (current_function_decl) emit_line_note ((LOC).first_file, (LOC).first_line)
 #else
+/* USE_MAPPED_LOCATION */
+#ifdef GCC_4_2
+#define LOCATION_NOTE(LOC) emit_line_note(UNKNOWN_LOCATION)
+#else
 #define LOCATION_NOTE(LOC) if (current_function_decl) \
   { \
-    location_t loc_aux = \
-        pascal_make_location ((LOC).first_file, (LOC).first_line); \
+    location_t loc_aux; \
+    loc_aux.file = (LOC).first_file; \
+    loc_aux.line = (LOC).first_line; \
     emit_line_note (loc_aux); \
   }
+#endif
 #endif
 #define COPYLOC(D, S) /* @@ ? (* (YYLTYPE *) memcpy (&(D), &(S), sizeof (YYLTYPE))) */ (S)
 
@@ -1538,7 +1544,10 @@ unlabelled_statement:
         if (!EM (current_case_values))
           {
             tree duplicate;
-            int res = pushcase (NULL_TREE, NULL, build_decl (LABEL_DECL, NULL_TREE, NULL_TREE), &duplicate);
+            int res = pushcase (NULL_TREE, NULL,
+                        build_decl (UNKNOWN_LOCATION, LABEL_DECL,
+                                    NULL_TREE, NULL_TREE),
+                        &duplicate);
             gcc_assert (!res);
           }
       }
@@ -2436,7 +2445,7 @@ locations (YYLTYPE *dest, const /*YYLTYPE*/ union yyGLRStackItem *src, int n)
   for (i = n; i > 0 && !YYRHSLOC (src, i).first_line; i--) ;
   if (i == 0)
     {
-      pascal_input_filename = compiler_filename;
+      // input_filename = compiler_filename;
       lineno = compiler_lineno;
       column = compiler_column;
       dest->first_file = dest->last_file = NULL;
@@ -2444,8 +2453,7 @@ locations (YYLTYPE *dest, const /*YYLTYPE*/ union yyGLRStackItem *src, int n)
     }
   else
     {
-      pascal_input_filename = compiler_filename =
-          dest->last_file = YYRHSLOC (src, i).last_file;
+      // input_filename = compiler_filename = dest->last_file = YYRHSLOC (src, i).last_file;
       lineno = compiler_lineno = dest->last_line = YYRHSLOC (src, i).last_line;
       column = compiler_column = dest->last_column = YYRHSLOC (src, i).last_column;
       for (i = 1; i <= n && !YYRHSLOC (src, i).first_line; i++) ;
@@ -2461,11 +2469,16 @@ locations (YYLTYPE *dest, const /*YYLTYPE*/ union yyGLRStackItem *src, int n)
 #ifndef GCC_3_4
         emit_line_note (dest->first_file, dest->first_line);
 #else
+#ifdef GCC_4_2
+        emit_line_note (UNKNOWN_LOCATION);
+#else
         {
-          location_t loc_aux =
-              pascal_make_location (dest->first_file, dest->first_line);
+          location_t loc_aux;
+          loc_aux.file = dest->first_file;
+          loc_aux.line = dest->first_line;
           emit_line_note (loc_aux);
         }
+#endif
 #endif
     }
   dest->option_id = 0;
@@ -2511,8 +2524,8 @@ yyparse (void)
         decl = TREE_CHAIN (decl);
       }
   }
-  cgraph_finalize_compilation_unit ();
-  cgraph_optimize ();
+  /* cgraph_finalize_compilation_unit (); */
+  /* cgraph_optimize (); */
 #endif
   return res;
 }

@@ -291,7 +291,7 @@ static char *automake_gpc_options = NULL;
 
 /* A table holding the nodes imported from all GPI files
    together with their UIDs, so duplicates can be identified. */
-struct interface_table_t GTY(())
+struct GTY(()) interface_table_t
 {
   tree interface_name;
   tree module_name;
@@ -481,7 +481,7 @@ initialize_module (tree id, tree par, int kind)
   current_module = find_module (id, 1);
   current_module->bp_qualids = id && (kind == 1 || (kind == 0 && (co->pascal_dialect & B_D_PASCAL)));
   if (current_module->bp_qualids)
-    pushdecl (build_decl (NAMESPACE_DECL, id, void_type_node));
+    pushdecl (gpc_build_decl (NAMESPACE_DECL, id, void_type_node));
   current_module->assembler_name = NULL;
   if (kind == 0)
     {
@@ -1637,7 +1637,7 @@ store_tree (tree name, FILE *s, tree main_node)
     wb.hash_table[n] = -1;
 
   /* If this ever fails, the type for storing tree codes in GPI files must be enlarged. */
-  gcc_assert (LAST_AND_UNUSED_PASCAL_TREE_CODE < 255);
+  /* gcc_assert (LAST_AND_UNUSED_PASCAL_TREE_CODE < 255); */
 
   /* Put the special nodes in the hash table.
      The reason for the backward loop is only that the "more common"
@@ -1699,7 +1699,7 @@ store_tree (tree name, FILE *s, tree main_node)
                   TREE_VALUE (*tt) = rename;
                   if (TREE_CODE (value) == CONST_DECL && PASCAL_CST_PRINCIPAL_ID (value))
                     {
-                      tree nd = build_decl (CONST_DECL, rename, TREE_TYPE (value));
+                      tree nd = gpc_build_decl (CONST_DECL, rename, TREE_TYPE (value));
                       DECL_INITIAL (nd) = DECL_INITIAL (value);
                       value = nd;
                     }
@@ -1975,23 +1975,13 @@ load_string (MEMFILE *s)
 #endif
 #define DECL_EXTRA_STORED(t) DECL_FRAME_SIZE (t)
 #endif
-
 #ifndef GCC_4_0
-#define FLAGS_OFFSET (2*sizeof(tree *))
-#else
-#ifndef GCC_4_3
-#define FLAGS_OFFSET (3*sizeof(tree *))
-#else
 #define FLAGS_OFFSET 2
-#endif
-#endif
-
-#ifndef GCC_4_3
-#define FLAGS_SIZE 4
 #else
-#define FLAGS_SIZE 6
+#define FLAGS_OFFSET 3
 #endif
 
+#ifndef GCC_4_2
 static void
 store_flags (tree t)
 {
@@ -2000,16 +1990,33 @@ store_flags (tree t)
      where it refers to debug info (see ../tree.h). */
   if (TYPE_P (t))
     TREE_ASM_WRITTEN (t) = 0;
-  store_length ((char *) t + FLAGS_OFFSET, FLAGS_SIZE);
+  store_length ((tree *) t + FLAGS_OFFSET, 4);
   TREE_ASM_WRITTEN (t) = save;
 }
-#define load_flags(t) LOAD_LENGTH ((char *) t + FLAGS_OFFSET, FLAGS_SIZE)
+#define load_flags(t) LOAD_LENGTH ((tree *) t + FLAGS_OFFSET, 4)
+
+#else
+static void
+store_flags (tree t)
+{
+  int save = TREE_ASM_WRITTEN (t);
+  /* Reset TREE_ASM_WRITTEN in the GPI file for types
+ *      where it refers to debug info (see ../tree.h). */
+  if (TYPE_P (t))
+    TREE_ASM_WRITTEN (t) = 0;
+  store_length ((char *) t + 2, 6);
+  TREE_ASM_WRITTEN (t) = save;
+}
+#define load_flags(t) LOAD_LENGTH ((char *) t + 2, 6)
+#endif
+
+#define GPI_CODE_TYPE unsigned short
 
 /* Store the fields of a node in a stream. */
 static void
 store_node_fields (tree t, int uid)
 {
-  unsigned char code;
+  GPI_CODE_TYPE code;
   int class_done = 0;
 
 #ifdef USE_GPI_DEBUG_KEY
@@ -2050,7 +2057,7 @@ store_node_fields (tree t, int uid)
         }
     }
 
-  code = (unsigned char) TREE_CODE (t);
+  code = (GPI_CODE_TYPE) TREE_CODE (t);
   STORE_ANY (code);
   if (co->debug_gpi)
     {
@@ -2094,8 +2101,11 @@ store_node_fields (tree t, int uid)
         if (CODE_CONTAINS_STRUCT (code, TS_DECL_MINIMAL))
 #endif
           store_node (DECL_NAME (t));
+#ifndef GCC_4_2
         store_string (DECL_SOURCE_FILE (t));
         n = DECL_SOURCE_LINE (t);
+#endif
+        n = 0;
         STORE_ANY (n);
         n = /* @@ DECL_SOURCE_COLUMN (t) */ 0;
         STORE_ANY (n);
@@ -2241,7 +2251,6 @@ store_node_fields (tree t, int uid)
                     || lang_code == PASCAL_LANG_FAKE_ARRAY);
         for (f = TYPE_FIELDS (t); f; f = TREE_CHAIN (f))
           {
-            HOST_WIDE_INT n;
             store_node (f);
 #ifndef EGCS97
             store_node (bit_position (f));
@@ -2321,7 +2330,6 @@ store_node_fields (tree t, int uid)
     case FIELD_DECL:
       {
         tree f;
-        HOST_WIDE_INT n;
         /* Necessary under DJGPP when compiling a program that uses
            a unit first without, then with `-g' (e.g. fjf684.pas). */
         store_string (DECL_ASSEMBLER_NAME_SET_P (t) ? IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (t)) : "");
@@ -2331,8 +2339,6 @@ store_node_fields (tree t, int uid)
 #else
         store_node (DECL_FIELD_BIT_OFFSET (t));
         store_node (DECL_FIELD_OFFSET (t));
-        n = DECL_OFFSET_ALIGN (t);
-        STORE_ANY (n);
 #endif
         store_node (DECL_BIT_FIELD_TYPE (t));
         f = DECL_LANG_SPECIFIC (t) ? DECL_LANG_FIXUPLIST (t) : NULL_TREE;
@@ -2386,6 +2392,17 @@ store_node_fields (tree t, int uid)
           }
       }
       break;
+    case CALL_EXPR:
+     {
+        int i;
+        gpi_int l = call_expr_nargs (t);
+        store_node (TREE_TYPE (t));
+        STORE_ANY (l);
+        for (i = 0; i < l; i++)
+          store_node (TREE_OPERAND (t, i));
+        break;
+      }
+
 #endif
       
     default:
@@ -2522,7 +2539,7 @@ static tree
 load_node (void)
 {
   gpi_int uid, original_uid, count;
-  unsigned char code;
+  GPI_CODE_TYPE code;
   size_t save_pos;
   struct interface_table_t *itab;
   tree interface_node, t = NULL_TREE;
@@ -2580,7 +2597,11 @@ load_node (void)
   else if (code == STRING_CST)
     {
         char *s;
-        struct {char c[FLAGS_SIZE];} pp;
+#ifndef GCC_4_2
+        struct {char c[4];} pp;
+#else
+        struct {char c[6];} pp;
+#endif
         gpi_int l;
         tree ty;
         LOAD_ANY(pp);
@@ -2589,10 +2610,35 @@ load_node (void)
         s = xmalloc (l + 1);
         LOAD_LENGTH (s, l);
         t = build_string (l, s);
-        memcpy (((char *) t) + FLAGS_OFFSET, &pp, FLAGS_SIZE);
+#ifndef GCC_4_2
+        memcpy ((tree *) t + FLAGS_OFFSET, &pp, 4);
+#else
+        memcpy (((char *) t) + 2, &pp, 6);
+#endif
         TREE_TYPE (t) = ty;
         free (s);
     }
+#ifdef GCC_4_2
+  else if (code == CALL_EXPR)
+    {
+        struct {char c[6];} pp;
+        gpi_int l;
+        int i;
+        tree tp;
+        tree * ops;
+        LOAD_ANY(pp);
+        tp = load_node ();
+        LOAD_ANY(l);
+        t = build_vl_exp (CALL_EXPR, l);
+        TREE_TYPE (t) = tp;
+        for (i = 0; i < l; i++)
+          {
+            tp = load_node ();
+            TREE_OPERAND (t, i) = tp;
+          }
+        memcpy (((char *) t) + 2, &pp, 6);
+    }
+#endif
   else
     t = make_node (code);
   itab_store_node (itab, original_uid, t);
@@ -2601,14 +2647,12 @@ load_node (void)
   if (code != IDENTIFIER_NODE && code != INTERFACE_NAME_NODE
       && code != STRING_CST)
     load_flags (t);
-#if 0
-  if (co->debug_gpi)
+ if (co->debug_gpi)
     {
       fprintf (stderr, "GPI loading <%i>: ", (int) uid);
       /* debug_tree (t); */
       fprintf (stderr, "<%s>\n", tree_code_name[code]);
     }
-#endif
 
   switch (TREE_CODE_CLASS (code))
   {
@@ -2654,16 +2698,15 @@ load_node (void)
         if (CODE_CONTAINS_STRUCT (code, TS_DECL_MINIMAL))
 #endif
           DECL_NAME (t) = load_node ();
+#ifndef GCC_4_2
         s = load_string (rb.infile);
-        LOAD_ANY (n);
-#ifndef GCC_3_4
         DECL_SOURCE_FILE (t) = PERMANENT_STRING (s);
-        DECL_SOURCE_LINE (t) = n;
-#else
-        DECL_SOURCE_LOCATION (t) =
-           pascal_make_location(PERMANENT_STRING (s), n);
-#endif
         free (s);
+#endif
+        LOAD_ANY (n);
+#ifndef GCC_4_2
+        DECL_SOURCE_LINE (t) = n;
+#endif
         LOAD_ANY (n);
         /* @@ DECL_SOURCE_COLUMN (t) = n; */
         DECL_SIZE (t) = load_node ();
@@ -2677,10 +2720,12 @@ load_node (void)
             LOAD_ANY (n);
             DECL_ALIGN (t) = n;
           }
+#if 0
 #ifdef GCC_4_1
         if (CODE_CONTAINS_STRUCT (code, TS_DECL_WITH_VIS))
 #endif
           DECL_IN_SYSTEM_HEADER (t) = 1;
+#endif
         break;
       }
     case tcc_constant:
@@ -2794,7 +2839,7 @@ load_node (void)
       if (code == ENUMERAL_TYPE)
         {
           TYPE_VALUES (t) = load_node ();
-          TYPE_STUB_DECL (t) = build_decl (TYPE_DECL, NULL_TREE, t);
+          TYPE_STUB_DECL (t) = gpc_build_decl (TYPE_DECL, NULL_TREE, t);
         }
       break;
 
@@ -2847,7 +2892,7 @@ load_node (void)
               p = &TREE_CHAIN (*p);
             TYPE_LANG_VMT_VAR (t) = load_node ();
           }
-        TYPE_STUB_DECL (t) = build_decl (TYPE_DECL, NULL_TREE, t);
+        TYPE_STUB_DECL (t) = gpc_build_decl (TYPE_DECL, NULL_TREE, t);
         sort_fields (t);  /* Since the array depends on the ordering of
                              pointers, we must not store it in GPI files */
         break;
@@ -2919,7 +2964,6 @@ load_node (void)
       {
         char *assembler_name_str;
         tree f;
-        HOST_WIDE_INT n;
         assembler_name_str = load_string (rb.infile);
         if (*assembler_name_str)
           SET_DECL_ASSEMBLER_NAME (t, get_identifier (assembler_name_str));
@@ -2930,8 +2974,6 @@ load_node (void)
 #else
         DECL_FIELD_BIT_OFFSET (t) = load_node ();
         DECL_FIELD_OFFSET (t) = load_node ();
-        LOAD_ANY (n);
-        SET_DECL_OFFSET_ALIGN (t, n);
 #endif
         DECL_BIT_FIELD_TYPE (t) = load_node ();
         f = load_node ();
@@ -3005,8 +3047,8 @@ load_node (void)
   if (co->debug_gpi)
     {
       fprintf (stderr, "GPI loaded <%i>: ", (int) uid);
-      debug_tree (t);
-      /* fprintf (stderr, "<%s>\n", tree_code_name[code]); */
+      /* debug_tree (t); */
+      fprintf (stderr, "<%s>\n", tree_code_name[code]);
     }
   mseek (rb.infile, save_pos);
   return t;
@@ -3720,7 +3762,7 @@ import_interface (tree interface, tree import_qualifier, import_type qualified, 
       error ("interface `%s' has already been imported", IDENTIFIER_NAME (interface));
       return;
     }
-  import_decl = build_decl (NAMESPACE_DECL, interface, void_type_node);
+  import_decl = gpc_build_decl (NAMESPACE_DECL, interface, void_type_node);
   pushdecl (import_decl);
   for (imported = current_module->imports; imported; imported = TREE_CHAIN (imported))
     if (interface == IMPORT_INTERFACE (TREE_VALUE (imported)))

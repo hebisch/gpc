@@ -167,7 +167,7 @@ tree void_list_node;
      for the main level of statements.
    - one (transparent) for each structured statement, see pushlevel_expand */
 
-struct binding_level GTY(())
+struct GTY(()) binding_level
 {
   /* A chain of declarations. These are in the reverse of the order supplied. */
   tree names;
@@ -942,7 +942,7 @@ add_parm_decl (tree list, tree type, tree name)
   /* Don't try computing parameter sizes now -- wait till routine is called. */
   int old_immediate_size_expand = immediate_size_expand;
   immediate_size_expand = 0;
-  decl = build_decl (PARM_DECL, name, type);
+  decl = gpc_build_decl (PARM_DECL, name, type);
   immediate_size_expand = old_immediate_size_expand;
   DECL_CONTEXT (decl) = current_function_decl;
   TREE_READONLY (decl) |= TYPE_READONLY (type);
@@ -1094,7 +1094,7 @@ pushdecl (tree x)
       TREE_TYPE (x) = TREE_TYPE (t);
       DECL_SIZE (x) = DECL_SIZE (t);
       DECL_SECTION_NAME (x) = DECL_SECTION_NAME (t);
-      DECL_INLINE (x) = DECL_INLINE (t);
+      DECL_DECLARED_INLINE_P (x) = DECL_DECLARED_INLINE_P (t);
       COPY_DECL_RTL (t, x);
       SET_DECL_ASSEMBLER_NAME (x, DECL_ASSEMBLER_NAME (t));
 
@@ -1125,8 +1125,10 @@ pushdecl (tree x)
 #else
           DECL_SAVED_TREE (x) = DECL_SAVED_TREE (t);
           /* Set DECL_INLINE on the declaration if we've got a body from which to instantiate. */
-          if (DECL_INLINE (x) && !DECL_UNINLINABLE (x))
+#if 1
+          if (DECL_DECLARED_INLINE_P (x) && !DECL_UNINLINABLE (x))
             DECL_ABSTRACT_ORIGIN (x) = DECL_ABSTRACT_ORIGIN (t);
+#endif
 #endif
         }
 
@@ -1285,7 +1287,7 @@ numeric_label (tree num)
 tree
 declare_label (tree id)
 {
-  tree label = pushdecl (build_decl (LABEL_DECL, id, void_type_node));
+  tree label = pushdecl (gpc_build_decl (LABEL_DECL, id, void_type_node));
   gcc_assert (!EM (label));
   if (!current_function_decl || co->longjmp_all_nonlocal_labels)
     /* Create a jmp_buf variable for non-local gotos to this label.
@@ -1585,13 +1587,19 @@ set_identifier_spelling (tree id, const char *spelling, const char *filename, in
           warning_with_file_and_line (IDENTIFIER_SPELLING_FILE (id), IDENTIFIER_SPELLING_LINENO (id),
                                       " previous capitalisation `%s'", IDENTIFIER_SPELLING (id));
 #else
-          location_t loc_aux = pascal_make_location (filename, line);
-          gpc_warning ("%Hcapitalisation of identifier `%s' doesn't match",
-                       &loc_aux, spelling);
-          loc_aux = pascal_make_location (IDENTIFIER_SPELLING_FILE (id),
-                                          IDENTIFIER_SPELLING_LINENO (id));
-          gpc_warning ("%H previous capitalisation `%s'", &loc_aux,
-                       IDENTIFIER_SPELLING (id));
+#ifndef GCC_4_2
+          location_t loc_aux;
+          loc_aux.file = filename;
+          loc_aux.line = line;
+          gpc_warning ("%Hcapitalisation of identifier `%s' doesn't match", &loc_aux, spelling);
+          loc_aux.file = IDENTIFIER_SPELLING_FILE (id);
+          loc_aux.line = IDENTIFIER_SPELLING_LINENO (id);
+          gpc_warning ("%H previous capitalisation `%s'", &loc_aux, IDENTIFIER_SPELLING (id));
+#else
+          gpc_warning ("capitalisation of identifier `%s' doesn't match"
+                       "previous capitalisation `%s'",
+                       spelling, IDENTIFIER_SPELLING (id));
+#endif
 #endif
         }
     }
@@ -1746,7 +1754,7 @@ check_identifier (tree id)
   else if (DECL_P (decl) && DECL_CONTEXT (decl) && DECL_CONTEXT (decl) != current_function_decl)
     {
       DECL_NONLOCAL (decl) = 1;
-      mark_addressable (decl);
+      mark_addressable0 (decl);
     }
   if (TREE_CODE (TREE_TYPE (decl)) == REFERENCE_TYPE && !PASCAL_PROCEDURAL_TYPE (TREE_TYPE (decl)))
     decl = build_indirect_ref (decl, NULL);
@@ -1915,8 +1923,8 @@ init_decl_processing (void)
 
   /* Define `integer' and `char' first (required by dbx).
      Lower-case to avoid conflicts with the real Pascal identifiers (predef.c) */
-  TYPE_NAME (integer_type_node) = build_decl (TYPE_DECL, get_identifier ("integer"), integer_type_node);
-  TYPE_NAME (char_type_node) = build_decl (TYPE_DECL, get_identifier ("char"), char_type_node);
+  TYPE_NAME (integer_type_node) = gpc_build_decl (TYPE_DECL, get_identifier ("integer"), integer_type_node);
+  TYPE_NAME (char_type_node) = gpc_build_decl (TYPE_DECL, get_identifier ("char"), char_type_node);
 
 #ifndef EGCS97
 #ifdef EGCS
@@ -2108,7 +2116,7 @@ init_decl_processing (void)
 static tree
 gpc_builtin_routine (const char *name, const char *library_name, int function_code, tree resulttype, tree args, tree attributes)
 {
-  tree decl = build_decl (FUNCTION_DECL, get_identifier (name), build_function_type (resulttype, args));
+  tree decl = gpc_build_decl (FUNCTION_DECL, get_identifier (name), build_function_type (resulttype, args));
   DECL_EXTERNAL (decl) = 1;
   TREE_PUBLIC (decl) = 1;
   if (library_name)
@@ -2220,7 +2228,7 @@ start_struct (enum tree_code code)
   /* Create a fake nameless TYPE_DECL node whose TREE_TYPE is the structure
      just started. This fake decl helps dwarfout.c to know when it needs to
      output a representation of a type not yet finished. */
-  TYPE_STUB_DECL (t) = build_decl (TYPE_DECL, NULL_TREE, t);
+  TYPE_STUB_DECL (t) = gpc_build_decl (TYPE_DECL, NULL_TREE, t);
   return t;
 }
 
@@ -2606,7 +2614,7 @@ routine_attributes (tree *d, tree attributes, tree *assembler_name)
           gpc_warning ("inline declaration ignored for routine with `...'");
         else if (!flag_no_inline && optimize > 0)
           /* Assume that otherwise the function can be inlined. */
-          DECL_INLINE (*d) = 1;
+          DECL_DECLARED_INLINE_P (*d) = 1;
         *tt = TREE_CHAIN (*tt);
       }
 #ifdef EGCS97
@@ -2662,7 +2670,7 @@ declare_routine (tree heading, tree directives, int interface)
   if (!t || EM (t))
     return error_mark_node;
 
-  d = build_decl (FUNCTION_DECL, name, build_function_type (t, argtypes));
+  d = gpc_build_decl (FUNCTION_DECL, name, build_function_type (t, argtypes));
   allocate_decl_lang_specific (d);
 
   for (dir = directives; dir; dir = TREE_CHAIN (dir))
@@ -2755,7 +2763,7 @@ declare_routine (tree heading, tree directives, int interface)
 
   /* Prevent the optimizer from removing it if it is public. */
   if (TREE_PUBLIC (d))
-    mark_addressable (d);
+    mark_addressable0 (d);
 
   t = DECL_INITIAL (heading);
   SET_DECL_LANG_OPERATOR_DECL (d, t);
@@ -2774,7 +2782,7 @@ build_implicit_routine_decl (tree id, tree res_type, tree args, int attributes)
       t = build_type_copy (t);
       PASCAL_TYPE_IOCRITICAL (t) = 1;
     }
-  d = build_decl (FUNCTION_DECL, id, t);
+  d = gpc_build_decl (FUNCTION_DECL, id, t);
   DECL_ARTIFICIAL (d) = 1;
   SET_DECL_ASSEMBLER_NAME (d, id);
   TREE_PUBLIC (d) = !(attributes & ER_STATIC);
@@ -2783,7 +2791,7 @@ build_implicit_routine_decl (tree id, tree res_type, tree args, int attributes)
     TREE_THIS_VOLATILE (d) = 1;
   if (attributes & ER_CONST)
     TREE_READONLY (d) = 1;
-  mark_addressable (d);
+  mark_addressable0 (d);
 #ifndef GCC_4_0
   rest_of_decl_compilation (d, NULL, 1, 1);
 #endif
@@ -2853,7 +2861,7 @@ build_operator_heading (tree name, tree parameters, tree resultvar, tree resultt
      operator usage, so do shadow them when they're defined as an operator.
      OPERATOR_DECL is currently only used for these placeholders.
      In the future, it should point to the actual functions. */
-  placeholder_decl = build_decl (OPERATOR_DECL, name, void_type_node);
+  placeholder_decl = gpc_build_decl (OPERATOR_DECL, name, void_type_node);
   DECL_IGNORED_P (placeholder_decl) = 1;
   if ((IDENTIFIER_IS_BUILT_IN (name, p_and_then)
        || IDENTIFIER_IS_BUILT_IN (name, p_or_else)
@@ -3033,7 +3041,7 @@ start_routine (tree heading, tree directive)
 
   /* Don't expand any sizes in the return type of the function. */
   immediate_size_expand = 0;
-  decl = build_decl (FUNCTION_DECL, name, build_function_type (type, argtypes));
+  decl = gpc_build_decl (FUNCTION_DECL, name, build_function_type (type, argtypes));
   immediate_size_expand = old_immediate_size_expand;
 
   DECL_CONTEXT (decl) = current_function_decl;
@@ -3114,13 +3122,13 @@ start_routine (tree heading, tree directive)
 #endif
 #endif
   immediate_size_expand = 0;
-  DECL_RESULT (decl) = build_decl (RESULT_DECL, NULL_TREE,
+  DECL_RESULT (decl) = gpc_build_decl (RESULT_DECL, NULL_TREE,
     PROMOTING_INTEGER_TYPE (type) ? integer_type_node : type);
   immediate_size_expand = old_immediate_size_expand;
 
   if (context)
     DECL_CONTEXT (decl) = context;  /* for object methods */
-  DECL_NO_STATIC_CHAIN (decl) |= old && DECL_NO_STATIC_CHAIN (old);
+  /* DECL_NO_STATIC_CHAIN (decl) |= old && DECL_NO_STATIC_CHAIN (old); */
 
 #ifndef EGCS97
   if (!local)
@@ -3172,9 +3180,7 @@ start_routine (tree heading, tree directive)
           if (PASCAL_STRUCTOR_METHOD (decl))
             expand_expr_stmt (build_modify_expr (t, NOP_EXPR, boolean_true_node));
           DECL_LANG_RESULT_VARIABLE (decl) = t;
-#ifdef GCC_4_0
           TREE_NO_WARNING (t) = !resvar;
-#endif
         }
     }
 
@@ -3187,7 +3193,7 @@ start_routine (tree heading, tree directive)
           tree stp = TYPE_POINTER_TO (TREE_TYPE (TREE_TYPE (self)));
           if (stp && PASCAL_TYPE_CLASS (stp))
             {
-              tree d = build_decl (CONST_DECL, self_id, stp);
+              tree d = gpc_build_decl (CONST_DECL, self_id, stp);
               DECL_INITIAL (d) = convert (stp, self);
               IDENTIFIER_VALUE (self_id) = d;
               pushdecl_nocheck (d);
@@ -3199,11 +3205,11 @@ start_routine (tree heading, tree directive)
       /* Mark the fields as declared in the current scope (fjf280b.pas) */
       for (t = shadowed; t; t = TREE_CHAIN (t))
         {
-          tree dummy = build_decl (CONST_DECL, TREE_PURPOSE (t), void_type_node);
+          tree dummy = gpc_build_decl (CONST_DECL, TREE_PURPOSE (t), void_type_node);
           tree v = IDENTIFIER_VALUE (TREE_PURPOSE (t));
           gcc_assert (TREE_CODE (v) == COMPONENT_REF);
           v = TREE_OPERAND (v, 1);
-#ifndef GCC_4_0
+#ifndef GCC_4_2
           DECL_SOURCE_FILE (dummy) = DECL_SOURCE_FILE (v);
           DECL_SOURCE_LINE (dummy) = DECL_SOURCE_LINE (v);
 #else
@@ -3237,7 +3243,7 @@ start_implicit_routine (tree decl, tree id, tree result, tree args)
       tree a = NULL_TREE;
       for (t = args; t; t = TREE_CHAIN (t))
         a = chainon (a, build_tree_list (NULL_TREE, TREE_TYPE (t)));
-      decl = build_decl (FUNCTION_DECL, id, build_function_type (result,
+      decl = gpc_build_decl (FUNCTION_DECL, id, build_function_type (result,
         chainon (a, void_list_node)));
       DECL_ARTIFICIAL (decl) = 1;
       TREE_PUBLIC (decl) = 1;
@@ -3249,7 +3255,7 @@ start_implicit_routine (tree decl, tree id, tree result, tree args)
   DECL_UNINLINABLE (decl) = 1;  /* in statements.c: call_no_args(), we treat is as external, so don't let it be inlined */
 #endif
   DECL_ARGUMENTS (decl) = args;
-  DECL_RESULT (decl) = build_decl (RESULT_DECL, NULL_TREE, result);
+  DECL_RESULT (decl) = gpc_build_decl (RESULT_DECL, NULL_TREE, result);
   announce_function (decl);
   pushdecl_nocheck (decl);
   current_function_decl = decl;
@@ -3386,7 +3392,7 @@ build_enum_type (tree ids)
 {
   int c = list_length (ids) - 1;
   tree r = make_node (ENUMERAL_TYPE), id;
-  TYPE_STUB_DECL (r) = build_decl (TYPE_DECL, NULL_TREE, r);
+  TYPE_STUB_DECL (r) = gpc_build_decl (TYPE_DECL, NULL_TREE, r);
   TYPE_UNSIGNED (r) = 1;
   TYPE_MIN_VALUE (r) = integer_zero_node;
   TYPE_MAX_VALUE (r) = build_int_2 (c, 0);
@@ -3398,7 +3404,7 @@ build_enum_type (tree ids)
   layout_type (r);
   for (id = ids, c = 0; id; id = TREE_CHAIN (id), c++)
     {
-      tree decl = build_decl (CONST_DECL, TREE_PURPOSE (id), r);
+      tree decl = gpc_build_decl (CONST_DECL, TREE_PURPOSE (id), r);
       tree v = convert (r, build_int_2 (c, 0));
       PASCAL_CST_FRESH (v) = 1;
       DECL_INITIAL (decl) = TREE_VALUE (id) = v;
@@ -3431,7 +3437,7 @@ build_type_decl (tree name, tree type, tree init)
       type = build_type_copy (type);
       copy_type_lang_specific (type);
     }
-  decl = build_decl (TYPE_DECL, name, type);
+  decl = gpc_build_decl (TYPE_DECL, name, type);
   TYPE_NAME (type) = decl;
   current_type_list = tree_cons (decl, name, current_type_list);
   return decl;
@@ -3671,7 +3677,7 @@ declare_constant (tree name, tree value)
 #endif
 
   value = set_exp_original_code (value, ERROR_MARK);
-  d = build_decl (CONST_DECL, name, TREE_TYPE (value));
+  d = gpc_build_decl (CONST_DECL, name, TREE_TYPE (value));
   DECL_INITIAL (d) = value;
   pushdecl (d);
   handle_autoexport (name);
@@ -3807,7 +3813,7 @@ declare_variables (tree name_list, tree type, tree init, int qualifiers, tree at
         return NULL_TREE;
       for (v = name_list; v; v = TREE_CHAIN (v))
         {
-          d = build_decl (CONST_DECL, TREE_VALUE (v), type);
+          d = gpc_build_decl (CONST_DECL, TREE_VALUE (v), type);
           DECL_INITIAL (d) = init;
 #if 0
           TREE_USED (d) |= !current_module->implementation;
@@ -3831,7 +3837,7 @@ declare_variables (tree name_list, tree type, tree init, int qualifiers, tree at
   if (TYPE_VOLATILE (type))
     {
       if (qualifiers & VQ_VOLATILE)
-        pedwarn ("duplicate `volatile'");
+        gpc_pedwarn ("duplicate `volatile'");
       else
         qualifiers |= VQ_VOLATILE;
     }
@@ -3893,7 +3899,7 @@ declare_variables (tree name_list, tree type, tree init, int qualifiers, tree at
           end_temporary_allocation ();
         }
 #endif
-      d = build_decl (VAR_DECL, TREE_VALUE (v), type);
+      d = gpc_build_decl (VAR_DECL, TREE_VALUE (v), type);
       TREE_USED (d) = TREE_USED (type);
       DECL_CONTEXT (d) = current_function_decl;
       DECL_ARTIFICIAL (d) = !!(qualifiers & VQ_IMPLICIT);
@@ -4126,7 +4132,7 @@ new_string_by_model (tree model, tree data, int copy)
 }
 
 #ifdef GCC_3_3
-struct language_function GTY(())
+struct GTY(()) language_function
 {
   int unused;
 };

@@ -45,9 +45,14 @@
 
 #include "gbe.h"
 
+extern void warning0 (const char *, ...);
+
 #ifdef GCC_3_4
 extern location_t pascal_make_location(const char *, long);
 #endif
+
+#define gpc_build_decl(c, t1, t2) build_decl (UNKNOWN_LOCATION, c, t1, t2)
+#define gpc_pedwarn(s) pedwarn(UNKNOWN_LOCATION, 0, s)
 
 #ifndef GCC_4_2
 #define pascal_input_filename input_filename
@@ -100,6 +105,14 @@ extern tree xnon_lvalue (tree x);
 /* #define non_lvalue(x) (build1 (NON_LVALUE_EXPR, TREE_TYPE (x), x)) */
 #define non_lvalue(x) (xnon_lvalue (x))
 
+#if 0
+#define PASCAL_BIT_FIELD_REF_UNSIGNED(x) \
+  (TREE_CHECK2(x, BIT_FIELD_REF, PASCAL_BIT_FIELD_REF)->common.unsigned_flag)
+
+#define PASCAL_BIT_FIELD_REF_UNSIGNED(x) \
+   TREE_LANG_FLAG_2 (TREE_CHECK2(x, BIT_FIELD_REF, PASCAL_BIT_FIELD_REF))
+#endif
+
 #define fold(x) (pascal_fold1 (x))
 #define build_int_cst_wide(x, y, z) (pascal_build_int_cst ((x), (y), (z)))
 #define usizetype sizetype
@@ -116,6 +129,9 @@ extern tree builtin_function (const char *name, tree type, int function_code,
        enum built_in_class class, const char *library_name, tree dummy);
 #include "plant.h"
 #else
+/*
+#define PASCAL_BIT_FIELD_REF_UNSIGNED(x) TREE_UNSIGNED (x)
+*/
 #define tcc_exceptional 'x'
 #define tcc_constant 'c'
 #define tcc_type 't'
@@ -245,6 +261,7 @@ enum
          dialect_msg (co->pascal_dialect && !(co->pascal_dialect & (DIALECT)), \
            (DIALECT), (MSG), " an extension of", (ARG)); } while (0)
 
+#if 0
 #define DEFTREECODE(SYM, NAME, TYPE, LENGTH) SYM,
 enum pascal_tree_code
 {
@@ -253,6 +270,7 @@ enum pascal_tree_code
   LAST_AND_UNUSED_PASCAL_TREE_CODE
 };
 #undef DEFTREECODE
+#endif
 
 #ifndef GCC_3_4
 #define FIRST_OPERAND(code) ((code) == CONSTRUCTOR ? 1 : 0)
@@ -286,7 +304,7 @@ typedef HOST_WIDE_INT gpi_int;
    often the same). */
 #define PERMANENT_STRING(S) (IDENTIFIER_POINTER (get_identifier (S)))
 
-struct tree_inn GTY(())
+struct GTY(()) tree_inn
 {
   struct tree_common common;
   struct interface_table_t * GTY((skip(""))) table;
@@ -298,7 +316,7 @@ struct tree_inn GTY(())
 
 typedef enum { IMPORT_USES, IMPORT_QUALIFIED, IMPORT_ISO } import_type;
 
-struct tree_import GTY(())
+struct GTY(()) tree_import
 {
   struct tree_common common;
   gpi_int qualified;
@@ -354,7 +372,7 @@ enum built_in_kind
 #define KW_DIRECTIVE 64
 #define KW_INFORMED 128
 
-struct predef GTY(())
+struct GTY(()) predef
 {
   const char *idname;
   const char *rts_idname;
@@ -372,7 +390,7 @@ struct predef GTY(())
 #define PD_ACTIVE(PD) ((PD) && (PD)->user_disabled < (!co->pascal_dialect || (co->pascal_dialect & (PD)->dialect)))
 
 /* Language-dependent contents of an identifier. */
-struct lang_identifier GTY(())
+struct  GTY(()) lang_identifier
 {
   struct tree_identifier ignore;
   tree value;
@@ -384,9 +402,9 @@ struct lang_identifier GTY(())
   int spelling_column;
 };
 
-union lang_tree_node
+union
   GTY((desc ("((TREE_CODE (&%h.generic) == IDENTIFIER_NODE) || (TREE_CODE (&%h.generic) == INTERFACE_NAME_NODE) || (TREE_CODE (&%h.generic) == IMPORT_NODE)) ? TREE_CODE (&%h.generic) : 0"),
-       chain_next ("(union lang_tree_node *) TREE_CHAIN (&%h.generic)")))
+       chain_next ("(union lang_tree_node *) TREE_CHAIN (&%h.generic)"))) lang_tree_node
 {
   union tree_node GTY ((tag ("0"), desc ("tree_node_structure (&%h)"))) generic;
   struct lang_identifier GTY ((tag ("IDENTIFIER_NODE"))) identifier;
@@ -417,6 +435,7 @@ union lang_tree_node
   (IDENTIFIER_SPELLING (ID) ? IDENTIFIER_SPELLING (ID) : IDENTIFIER_POINTER (ID))
 
 #ifndef GCC_4_3
+
 /* Record in each node resulting from a binary operator
    what operator was specified for it. */
 #define EXP_ORIGINAL_CODE(exp) ((enum tree_code) TREE_COMPLEXITY (exp))
@@ -430,10 +449,10 @@ union lang_tree_node
   (IS_EXPR_CODE_CLASS (TREE_CODE_CLASS (TREE_CODE (exp))) \
    && TREE_CODE (exp) != CONSTRUCTOR \
    && TREE_CODE (exp) != PASCAL_SET_CONSTRUCTOR)
+
 #else
 
-/* FIXME: GCC 4.3 removed TREE_COMPLEXITY, so we have no place to
-   store code ... */
+/* GCC 4.3 removed TREE_COMPLEXITY, so we have no place to store code ... */
 #define EXP_ORIGINAL_CODE(exp) gcc_unreachable ()
 #define SET_EXP_ORIGINAL_CODE(exp, code) 0
 #define HAS_EXP_ORIGINAL_CODE_FIELD(exp) 0
@@ -629,7 +648,7 @@ union lang_tree_node
    (see EP 6.10.2). Used in CONST_DECL nodes. */
 #define PASCAL_CST_PRINCIPAL_ID(decl) DECL_LANG_FLAG_7 (decl)
 
-struct lang_decl GTY(())
+struct GTY(()) lang_decl
 {
   tree info1;
   tree info2;
@@ -715,7 +734,7 @@ struct lang_decl GTY(())
 /* Set if INTEGER_TYPE is a character type. */
 #define PASCAL_CHAR_TYPE(type) TYPE_LANG_FLAG_6 (type)
 
-struct lang_type GTY(())
+struct GTY(()) lang_type
 {
   int code;
   tree info;
@@ -959,7 +978,7 @@ typedef struct
 
 /* options.c */
 
-typedef struct string_list GTY(())
+typedef struct GTY(()) string_list
 {
   struct string_list *next;
   char *string;
@@ -1007,7 +1026,6 @@ extern const char *gpc_main;
   BO (warn_unused_parameter) \
   BO (warn_unused_variable) \
   BO (warn_unused_value) \
-  BO (warn_notreached) \
   BO (warn_packed) \
   BO (warn_padded) \
   BO (warn_disabled_optimization) \
@@ -1472,7 +1490,7 @@ extern int comp_target_types (tree, tree);
 extern int comp_object_or_schema_pointer_types (tree, tree, int);
 extern int lvalue_p (tree);
 #ifdef GCC_3_3
-extern bool mark_addressable (tree);
+extern bool mark_addressable0 (tree);
 extern bool mark_addressable2 (tree, int);
 #else
 extern int mark_addressable2 (tree, int);
@@ -1485,6 +1503,7 @@ extern tree initializer_constant_valid_p (tree, tree);
 extern tree digest_init (tree, tree, int);
 extern tree build_pascal_initializer (tree, tree, const char *, int);
 extern tree find_variant (tree, tree);
+// extern int allow_packed_addresses; 
 
 /* types.c */
 
@@ -1589,7 +1608,7 @@ extern tree build_new_dispose (int, tree, tree, tree);
 typedef enum { LF_UNIT, LF_COMPILED_UNIT, LF_OBJECT, LF_COMPILED_OBJECT } locate_file_t;
 
 #define MODULE_T_FIRST_TREE_FIELD imports
-struct module GTY(())
+struct GTY(()) module
 {
   tree imports;  /* TREE_LIST of IMPORT_NODEs of imported interfaces for this module. */
   tree exports;  /* TREE_LIST of interfaces exported from this module

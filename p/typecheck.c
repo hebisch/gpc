@@ -63,6 +63,8 @@ static void output_init_element (tree, tree, tree, int);
 static void output_pending_init_elements (int);
 static void process_init_element (tree);
 
+int allow_packed_addresses = 0;
+
 void
 cstring_inform (void)
 {
@@ -607,7 +609,7 @@ default_conversion (tree exp)
   /* Strip NON_LVALUE_EXPRs and no-op conversions, since we aren't using as an lvalue. */
   orig_exp = exp;
   STRIP_TYPE_NOPS (exp);
-#ifndef GCC_4_3
+#ifndef GCC_4_2
   if (HAS_EXP_ORIGINAL_CODE_FIELD (orig_exp) && HAS_EXP_ORIGINAL_CODE_FIELD (exp))
     SET_EXP_ORIGINAL_CODE (exp, EXP_ORIGINAL_CODE (orig_exp));
 #endif
@@ -656,8 +658,7 @@ convert_array_to_pointer (tree exp)
   if (TREE_CODE (exp) == COMPOUND_EXPR)
     {
       tree op1 = default_conversion (TREE_OPERAND (exp, 1));
-      return build2 (COMPOUND_EXPR, TREE_TYPE (op1),
-                     TREE_OPERAND (exp, 0), op1);
+      return build2 (COMPOUND_EXPR, TREE_TYPE (op1), TREE_OPERAND (exp, 0), op1);
     }
 
   if (!lvalue_p (exp) 
@@ -681,7 +682,7 @@ convert_array_to_pointer (tree exp)
             of the ADDR_EXPR itself.
             Question is, can this lossage be avoided? */
       adr = build1 (ADDR_EXPR, ptrtype, exp);
-      if (!mark_addressable (exp))
+      if (!mark_addressable0 (exp))
         return error_mark_node;
       TREE_CONSTANT (adr) = staticp (exp) != 0;
       TREE_SIDE_EFFECTS (adr) = 0;  /* Default would be, same as EXP. */
@@ -836,8 +837,7 @@ convert_schema (tree * tp, tree val, tree last_val, int var_parm)
             {
               tree schema_check = check_discriminants (last_val, val);
               if (!EM (schema_check) && TREE_CODE (schema_check) != INTEGER_CST)
-                val = build2 (COMPOUND_EXPR, TREE_TYPE (val),
-                              schema_check, val);
+                val = build2 (COMPOUND_EXPR, TREE_TYPE (val), schema_check, val);
             }
         }
       else if (PASCAL_TYPE_STRING (partype))
@@ -956,9 +956,7 @@ convert_arg1 (tree * tp, tree val, struct argument_error_context * errc,
                   val = temp;
                 }
               else
-                val = build2 (COMPOUND_EXPR, partype,
-                              assign_set (temp, construct_set (val, temp, 0)),
-                              temp);
+                val = build2 (COMPOUND_EXPR, partype, assign_set (temp, construct_set (val, temp, 0)), temp);
             }
 #endif
           else if (!var_parm)
@@ -1086,8 +1084,7 @@ copy_val_ref_parm (tree *tp, tree val, int const_parm)
                    || ((PASCAL_TYPE_STRING (TREE_TYPE (type)) || TREE_CODE (TREE_TYPE (type)) == VOID_TYPE)
                        && (TYPE_IS_CHAR_TYPE (TREE_TYPE (val))
                            || (TREE_CODE (TREE_TYPE (val)) == ARRAY_TYPE
-                               && TYPE_IS_CHAR_TYPE (TREE_TYPE (
-                                      TREE_TYPE (val))))))))
+                               && TYPE_IS_CHAR_TYPE (TREE_TYPE (TREE_TYPE (val))))))))
               || PASCAL_TYPE_VAL_REF_PARM (type)))
         {
           if (PASCAL_TYPE_STRING (TREE_TYPE (type))
@@ -1126,8 +1123,7 @@ copy_val_ref_parm (tree *tp, tree val, int const_parm)
                 }
               else if (PASCAL_TYPE_SCHEMA (TREE_TYPE (temp_val)))  /* don't dereference */
                 {
-                  tree t = build2 (MODIFY_EXPR, TREE_TYPE (temp_val),
-                                   temp_val, val);
+                  tree t = build2 (MODIFY_EXPR, TREE_TYPE (temp_val), temp_val, val);
                   TREE_SIDE_EFFECTS (t) = 1;
                   expand_expr_stmt1 (t);
                 }
@@ -1247,23 +1243,19 @@ handle_typed_arg (tree type, tree val, struct argument_error_context * errc,
                             else if (TREE_CODE (val) == COMPOUND_EXPR)
                               {
                                 if (stmts)
-                                  stmts = build2 (COMPOUND_EXPR,
-                                                  void_type_node,
-                                                  TREE_OPERAND (val, 0),
-                                                  stmts);
+                                  stmts = build2 (COMPOUND_EXPR, void_type_node, TREE_OPERAND (val, 0), stmts);
                                 else
                                   stmts = TREE_OPERAND (val, 0);
                                 val = TREE_OPERAND (val, 1);
                               }
                             else
                               break;
-                          if (TREE_CODE (val) == CALL_EXPR && mark_addressable (val))  /* fjf806e.pas */
+                          if (TREE_CODE (val) == CALL_EXPR && mark_addressable0 (val))  /* fjf806e.pas */
                             val = build1 (ADDR_EXPR, build_pointer_type (TREE_TYPE (val)), val);
                           else
                             val = build_unary_op (ADDR_EXPR, val, 0);
                           if (stmts)
-                            val = build2 (COMPOUND_EXPR, TREE_TYPE (val),
-                                          stmts, val);
+                            val = build2 (COMPOUND_EXPR, TREE_TYPE (val), stmts, val);
                         }
                       else
                         val = build_unary_op (ADDR_EXPR, val, 0);
@@ -1951,7 +1943,7 @@ check_simple_pascal_initializer (tree init, tree type)
       if (TREE_CODE (string_length) == INTEGER_CST && const_lt (capacity, string_length))
         {
           if (co->truncate_strings)
-            pedwarn ("string constant exceeds capacity -- truncated");
+            gpc_pedwarn ("string constant exceeds capacity -- truncated");
           else
             error ("string constant exceeds capacity");
           /* Truncate the string. */
@@ -2037,7 +2029,7 @@ check_simple_pascal_initializer (tree init, tree type)
                   > (unsigned HOST_WIDE_INT) TREE_INT_CST_LOW (capacity))
                 {
                   if (co->truncate_strings)
-                    pedwarn ("string constant exceeds capacity -- truncated");
+                    gpc_pedwarn ("string constant exceeds capacity -- truncated");
                   else
                     error ("string constant exceeds capacity");
                 }
@@ -2417,6 +2409,14 @@ re_fold (tree expr, tree stype, tree fields, int *p_foreign_discr)
     }
   return expr;
 }
+
+#if 0
+tree
+copy_expr (tree expr)
+{
+  return re_fold (expr, void_type_node, NULL_TREE, 0);
+}
+#endif
 
 #if 1
 
@@ -2830,7 +2830,7 @@ bool
 #else
 int
 #endif
-mark_addressable (tree exp)
+mark_addressable0 (tree exp)
 {
   return mark_addressable2 (exp, 0);
 }
@@ -2880,7 +2880,7 @@ mark_addressable2 (tree exp, int allow_packed)
                        IDENTIFIER_NAME (DECL_NAME (x)));
                 return 0;
               }
-            pedwarn ("register variable `%s' used in local function",
+            pedwarn (UNKNOWN_LOCATION, 0, "register variable `%s' used in local function",
                      IDENTIFIER_NAME (DECL_NAME (x)));
           }
         else if (DECL_REGISTER (x) && !TREE_ADDRESSABLE (x))
@@ -4081,7 +4081,7 @@ do_build_constructor_rev (tree type, VEC(constructor_elt,gc) *el)
     {
       TREE_CONSTANT (constructor) = 1;
 #ifdef GCC_4_0
-      TREE_INVARIANT (constructor) = 1;
+      /* TREE_INVARIANT (constructor) = 1; */
 #endif
     }
   if (constructor_constant && constructor_simple)
@@ -4299,7 +4299,7 @@ pop_init_level (void)
             {
               TREE_CONSTANT (constructor) = 1;
 #ifdef GCC_4_0
-              TREE_INVARIANT (constructor) = 1;
+              /* TREE_INVARIANT (constructor) = 1; */
 #endif
             }
           if (constructor_constant && constructor_simple)

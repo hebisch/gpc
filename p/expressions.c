@@ -28,9 +28,7 @@
 
 #include "gpc.h"
 
-#ifdef GCC_4_0
-#include "tree-gimple.h"
-#endif
+#include "gimple.h"
 
 
 static int implicit_comparison = 0;
@@ -228,13 +226,12 @@ gpc_build_call(tree rtype, tree function, tree params)
   tree tp;
   for(tp = params, argp = argarray; tp;
       tp = TREE_CHAIN(tp), argp++)
-      *argp = TREE_VALUE(tp);
+    *argp = TREE_VALUE(tp);
   return
-    fold_builtin_call_array (rtype,
-           function, nargs, argarray);
+    fold_builtin_call_array (UNKNOWN_LOCATION, rtype,
+         function, nargs, argarray);
 }
 #endif
-
 
 /* Print a warning if a constant expression had overflow in folding.
    Invoke this function on every expression that the language
@@ -244,13 +241,12 @@ constant_expression_warning (tree value)
 {
   if ((TREE_CODE (value) == INTEGER_CST || TREE_CODE (value) == REAL_CST
        || TREE_CODE (value) == COMPLEX_CST)
-      && TREE_CONSTANT_OVERFLOW (value) && pedantic)
+      && TREE_OVERFLOW (value) && pedantic)
     error ("overflow in constant expression");
 }
 
 tree
-gpc_build_range_check (tree min, tree max, tree expr, int is_io,
-                       int gimplifying)
+gpc_build_range_check (tree min, tree max, tree expr, int is_io, int gimplifying)
 {
   int chklo = min != NULL_TREE;
   int chkhi = max != NULL_TREE;
@@ -265,10 +261,9 @@ gpc_build_range_check (tree min, tree max, tree expr, int is_io,
               cond = cond ? build_pascal_binary_op (TRUTH_ORIF_EXPR, cond, cond2) : cond2;
             }
           t = save_expr (build3 (COND_EXPR, TREE_TYPE (expr),
-                cond, build2 (COMPOUND_EXPR, TREE_TYPE (expr),
-                         build_predef_call (is_io ? p_IORangeCheckError :
-                                            p_RangeCheckError, NULL_TREE),
-                         expr), expr));
+                cond, build2 (COMPOUND_EXPR,
+            TREE_TYPE (expr), build_predef_call (is_io ? p_IORangeCheckError : p_RangeCheckError,
+            NULL_TREE), expr), expr));
           return t;
 #else
           int side_effects = TREE_SIDE_EFFECTS (expr);
@@ -282,25 +277,19 @@ gpc_build_range_check (tree min, tree max, tree expr, int is_io,
 #ifndef GCC_4_0
           gcc_assert(!gimplifying);
 #endif
-#ifdef GCC_4_0
           TREE_NO_WARNING (tmpvar) = 1;
-#endif
           tv = build2 (MODIFY_EXPR, TREE_TYPE (expr), tmpvar, expr);
           TREE_SIDE_EFFECTS (tv) = 1;
           PASCAL_VALUE_ASSIGNED (tmpvar) = 1;
-          cond = chklo ? build_implicit_pascal_binary_op (LT_EXPR,
-                               tmpvar, min) : NULL_TREE;
+          cond = chklo ? build_implicit_pascal_binary_op (LT_EXPR, tmpvar, min) : NULL_TREE;
           if (chkhi)
             {
-              tree cond2 = build_implicit_pascal_binary_op (GT_EXPR,
-                                                            tmpvar, max);
-              cond = cond ? build_pascal_binary_op (TRUTH_ORIF_EXPR,
-                                 cond, cond2) : cond2;
+              tree cond2 = build_implicit_pascal_binary_op (GT_EXPR, tmpvar, max);
+              cond = cond ? build_pascal_binary_op (TRUTH_ORIF_EXPR, cond, cond2) : cond2;
             }
           t = build2 (COMPOUND_EXPR, TREE_TYPE (tmpvar),
-                build_predef_call (is_io ? p_IORangeCheckError :
-                                   p_RangeCheckError, NULL_TREE),
-                tmpvar /* min? min : max */);
+                build_predef_call (is_io ? p_IORangeCheckError : p_RangeCheckError,
+                NULL_TREE), tmpvar /* min? min : max */);
           t = build3 (COND_EXPR, TREE_TYPE (tmpvar), cond, t, tmpvar);
           t = build2 (COMPOUND_EXPR, TREE_TYPE (t), tv, t);
           return t;
@@ -359,7 +348,8 @@ range_check_2 (tree min, tree max, tree expr)
             max = NULL_TREE;
 
           if (TREE_SIDE_EFFECTS (expr))
-            return gpc_build_range_check(min, max, expr, co->range_checking>1, 0);
+            return gpc_build_range_check(min, max, expr,
+                                            co->range_checking>1, 0);
           else if (co->range_checking>1)
             code = IO_RANGE_CHECK_EXPR;
           else
@@ -429,9 +419,7 @@ discriminant_mismatch_error (tree cond)
   if (TREE_CODE (cond) == INTEGER_CST && !integer_zerop (cond)
       && (pedantic || !(co->pascal_dialect & C_E_O_PASCAL)))
     error ("actual schema discriminants do not match");
-  return fold (build3 (COND_EXPR, integer_type_node, cond,
-                 build_predef_call (p_DiscriminantsMismatchError, NULL_TREE),
-                 integer_zero_node));
+  return fold (build3 (COND_EXPR, integer_type_node, cond, build_predef_call (p_DiscriminantsMismatchError, NULL_TREE), integer_zero_node));
 }
 
 /* Return an expression to compare actual discriminants and report an error if
@@ -703,7 +691,6 @@ warn_operands (enum tree_code outer, tree exp_inner, int rhs)
    || code == BIT_XOR_EXPR || code == TRUTH_XOR_EXPR)
 #define AND_OP(code) \
   (code == BIT_AND_EXPR || code == TRUTH_AND_EXPR || code == TRUTH_ANDIF_EXPR)
-  /* FIXME: implement for 4.3 */
 #ifndef GCC_4_3
   if (co->warn_parentheses && HAS_EXP_ORIGINAL_CODE_FIELD (exp_inner))
     {
@@ -843,7 +830,7 @@ set_exp_original_code (tree t, enum tree_code code)
       gcc_assert (TREE_CODE (t) != CONSTRUCTOR);
       t = build1 (NON_LVALUE_EXPR, TREE_TYPE (old), old);
       TREE_CONSTANT (t) = TREE_CONSTANT (old);
-      TREE_OVERFLOW (t) = TREE_OVERFLOW (old);
+      /* TREE_OVERFLOW (t) = TREE_OVERFLOW (old); */
       PASCAL_CST_PARENTHESES (t) = code == NOP_EXPR;
     }
   SET_EXP_ORIGINAL_CODE (t, code);
@@ -858,9 +845,8 @@ const_plus1_lt (tree a, tree b)
   return const_lt (a, b)
     && !(TREE_INT_CST_LOW (a) + 1 == TREE_INT_CST_LOW (b)
          && tree_int_cst_equal (fold (build2 (PLUS_EXPR,
-             long_long_integer_type_node,
-             convert (long_long_integer_type_node, a),
-             convert (long_long_integer_type_node, integer_one_node))), b));
+             long_long_integer_type_node, convert (long_long_integer_type_node, a),
+              convert (long_long_integer_type_node, integer_one_node))), b));
 }
 
 /* Perform set operations on constant constructors. This function assumes the
@@ -918,14 +904,11 @@ const_set_constructor_binary_op (enum tree_code code, tree e0, tree e1)
         {
           int out1 = mask & (1 << (on[0] + 2 * on[1]));
           if (out1 && !out0)
-            lo = !vc_on ? vc : fold (build2 (PLUS_EXPR, TREE_TYPE (vc),
-               vc, convert (TREE_TYPE (vc), integer_one_node)));
+            lo = !vc_on ? vc : fold (build2 (PLUS_EXPR, TREE_TYPE (vc), vc, convert (TREE_TYPE (vc), integer_one_node)));
           else if (out0 && !out1)
             {
-              tree hi = vc_on ? vc : fold (build2 (MINUS_EXPR, TREE_TYPE (vc),
-                   vc, convert (TREE_TYPE (vc), integer_one_node)));
-              gcc_assert (TREE_CODE (lo) == INTEGER_CST &&
-                          TREE_CODE (hi) == INTEGER_CST);
+              tree hi = vc_on ? vc : fold (build2 (MINUS_EXPR, TREE_TYPE (vc), vc, convert (TREE_TYPE (vc), integer_one_node)));
+              gcc_assert (TREE_CODE (lo) == INTEGER_CST && TREE_CODE (hi) == INTEGER_CST);
               res = tree_cons (lo, hi, res);
               lo = NULL_TREE;
             }
@@ -1189,6 +1172,8 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
       exp2 = convert (common_integer_type, exp2);
     }
 
+  
+
   /* Convert set constructors to sets. */
   if (t1 == PASCAL_SET_CONSTRUCTOR
       && TREE_CODE (tt1) == SET_TYPE)
@@ -1213,8 +1198,7 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
       TYPE_IS_INTEGER_TYPE (tt2))
     {
       tree t = (TYPE_UNSIGNED (tt1)
-                || (TREE_CODE (exp1) == INTEGER_CST &&
-                    !INT_CST_LT (exp1, integer_zero_node)))
+                || (TREE_CODE (exp1) == INTEGER_CST && !INT_CST_LT (exp1, integer_zero_node)))
                ? long_long_unsigned_type_node
                : long_long_integer_type_node;
       exp1 = convert (t, exp1);
@@ -1236,10 +1220,8 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
       tree c_imag = build_unary_op (IMAGPART_EXPR, c_exp, 1);
       tree r_exp = save_expr (convert (TREE_TYPE (c_real), c_left ? exp2 : exp1));
       return build2 (COMPLEX_EXPR, TREE_TYPE (c_exp),
-        minus_rc ? build_pascal_binary_op (code, r_exp, c_real) :
-                   build_pascal_binary_op (code, c_real, r_exp),
-        (code == PLUS_EXPR || code == MINUS_EXPR) ?
-          (minus_rc ? build_unary_op (NEGATE_EXPR, c_imag, 1) : c_imag)
+        minus_rc ? build_pascal_binary_op (code, r_exp, c_real) : build_pascal_binary_op (code, c_real, r_exp),
+        (code == PLUS_EXPR || code == MINUS_EXPR) ? (minus_rc ? build_unary_op (NEGATE_EXPR, c_imag, 1) : c_imag)
           : build_pascal_binary_op (code, c_imag, r_exp));
     }
 
@@ -1288,43 +1270,37 @@ build_pascal_binary_op (enum tree_code code, tree exp1, tree exp2)
 
             DECL_ARTIFICIAL (nstr) = 1;
             DECL_IGNORED_P (nstr) = 1;
-#ifdef GCC_4_0
+#ifndef GCC_4_0
             TREE_NO_WARNING (nstr) = 1;
 #endif
 
             /* Assign the first string to the new object */
             if (TYPE_IS_CHAR_TYPE (tt1))
               expand_expr_stmt1 (
-                build_modify_expr (build_array_ref (sval, integer_one_node),
-                                      NOP_EXPR, exp1));
+                build_modify_expr (build_array_ref (sval, integer_one_node), NOP_EXPR, exp1));
             else
               expand_expr_stmt1 (build_memcpy (
-                str_addr, build1 (ADDR_EXPR, cstring_type_node,
-                                  PASCAL_STRING_VALUE (exp1)), len1));
+                str_addr, build1 (ADDR_EXPR, cstring_type_node, PASCAL_STRING_VALUE (exp1)), len1));
 
             /* Catenate the second string to the first */
             if (TYPE_IS_CHAR_TYPE (tt2))
               expand_expr_stmt1 (build_modify_expr (
-                build_array_ref (sval, build_pascal_binary_op (PLUS_EXPR,
-                   len1, integer_one_node)), NOP_EXPR, exp2));
+                build_array_ref (sval, build_pascal_binary_op (PLUS_EXPR, len1, integer_one_node)), NOP_EXPR, exp2));
             else
 #ifndef GCC_4_3
               expand_expr_stmt1 (build_memcpy (
                 build2 (PLUS_EXPR, cstring_type_node, str_addr, len1),
-                build1 (ADDR_EXPR, cstring_type_node,
-                        PASCAL_STRING_VALUE (exp2)), len2));
+                build1 (ADDR_EXPR, cstring_type_node, PASCAL_STRING_VALUE (exp2)), len2));
 #else
               expand_expr_stmt1 (build_memcpy (
                 build2 (POINTER_PLUS_EXPR, cstring_type_node, 
                         convert (cstring_type_node, str_addr), 
                         convert (sizetype, len1)),
-                build1 (ADDR_EXPR, cstring_type_node,
-                        PASCAL_STRING_VALUE (exp2)), len2));
+                build1 (ADDR_EXPR, cstring_type_node, PASCAL_STRING_VALUE (exp2)), len2));
 #endif
 
             /* Store the combined length of strings */
-            expand_expr_stmt1 (build_modify_expr (
-                PASCAL_STRING_LENGTH (nstr), NOP_EXPR, length));
+            expand_expr_stmt1 (build_modify_expr (PASCAL_STRING_LENGTH (nstr), NOP_EXPR, length));
             return non_lvalue (nstr);
           }
         }
@@ -1928,7 +1904,7 @@ build_pascal_address_expression (tree factor, int untyped)
       result = CALL_EXPR_FN (factor);
       if (TREE_CODE (result) == ADDR_EXPR)
         /* build_routine_call does not do it, intentionally */
-        mark_addressable (TREE_OPERAND (result, 0));
+        mark_addressable0 (TREE_OPERAND (result, 0));
       return result;
     }
 
@@ -2003,7 +1979,7 @@ build_pascal_address_expression (tree factor, int untyped)
       /* Mark constant addresses as such (for initialization). */
       if ((TREE_CODE (factor) == VAR_DECL || TREE_CODE (factor) == FUNCTION_DECL)
           && (!DECL_CONTEXT (factor)
-              || (TREE_CODE (factor) == FUNCTION_DECL && DECL_NO_STATIC_CHAIN (factor))))
+              || (TREE_CODE (factor) == FUNCTION_DECL /* && DECL_NO_STATIC_CHAIN (factor) */)))
         TREE_CONSTANT (result) = 1;
 #if 0
       if (string_cst_type)
@@ -2422,7 +2398,7 @@ truthvalue_conversion (tree expr)
 
     case MINUS_EXPR:
       /* With IEEE arithmetic, x - x may not equal 0, so we can't optimize this case. */
-      if (TARGET_FLOAT_FORMAT == IEEE_FLOAT_FORMAT
+      if (1 /* TARGET_FLOAT_FORMAT == IEEE_FLOAT_FORMAT */
           && TREE_CODE (TREE_TYPE (expr)) == REAL_TYPE)
         break;
       /* FALLTHROUGH */
@@ -2461,8 +2437,7 @@ compatible_types_p (tree type0, tree type1)
 {
   return TREE_CODE (type0) == TREE_CODE (type1)
          && PASCAL_CHAR_TYPE (type0) == PASCAL_CHAR_TYPE (type1)
-         && (TREE_CODE (type0) != ENUMERAL_TYPE ||
-             base_type (type0) == base_type (type1));
+         && (TREE_CODE (type0) != ENUMERAL_TYPE || base_type (type0) == base_type (type1));
 }
 
 static int
@@ -2569,8 +2544,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
     case MINUS_EXPR:
       /* Subtraction of two similar pointers.
          We must subtract them as integers, then divide by object size. */
-      if (code0 == POINTER_TYPE && code1 == POINTER_TYPE &&
-          comp_target_types (type0, type1))
+      if (code0 == POINTER_TYPE && code1 == POINTER_TYPE && comp_target_types (type0, type1))
         return pointer_diff (op0, op1);
       /* Handle pointer minus int. Just like pointer plus int. */
       else if (code0 == POINTER_TYPE && TYPE_IS_INTEGER_TYPE (type1))
@@ -2799,7 +2773,7 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
                    && !comp_object_or_schema_pointer_types (TREE_TYPE (type1), TREE_TYPE (type0), 0))
             {
               result_type = ptr_type_node;
-              pedwarn ("comparison of distinct pointer types lacks a cast");
+              gpc_pedwarn ("comparison of distinct pointer types lacks a cast");
             }
         }
       break;
@@ -2821,14 +2795,14 @@ build_binary_op (enum tree_code code, tree op0, tree op1)
               result_type = common_type (type0, type1);
               if (COMPLETE_OR_VOID_TYPE_P (TREE_TYPE (type0))
                   != COMPLETE_OR_VOID_TYPE_P (TREE_TYPE (type1)))
-                pedwarn ("comparison of complete and incomplete pointers");
+                gpc_pedwarn ("comparison of complete and incomplete pointers");
               else if (pedantic && TREE_CODE (TREE_TYPE (type0)) == FUNCTION_TYPE)
                 gpc_warning ("ordered comparision of pointers to routines");
             }
           else
             {
               result_type = ptr_type_node;
-              pedwarn ("comparison of distinct pointer types lacks a cast");
+              gpc_pedwarn ("comparison of distinct pointer types lacks a cast");
             }
         }
       else if (code0 == ARRAY_TYPE && code1 == ARRAY_TYPE)
@@ -3305,22 +3279,17 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
 
       if (TREE_CODE (arg) == COND_EXPR)
         {
-          tree op1 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1),
-                                     noconvert);
-          tree op2 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 2),
-                                     noconvert);
+          tree op1 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1), noconvert);
+          tree op2 = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 2), noconvert);
           CHK_EM (op1);
           CHK_EM (op2);
-          return build3 (COND_EXPR, TREE_TYPE (op1), TREE_OPERAND (arg, 0),
-                         op1, op2);
+          return build3 (COND_EXPR, TREE_TYPE (op1), TREE_OPERAND (arg, 0), op1, op2);
         }
 
       if (TREE_CODE (arg) == COMPOUND_EXPR)
         {
-          tree real_result = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1),
-                                             noconvert);
-          return build2 (COMPOUND_EXPR, TREE_TYPE (real_result),
-                         TREE_OPERAND (arg, 0), real_result);
+          tree real_result = build_unary_op (ADDR_EXPR, TREE_OPERAND (arg, 1), noconvert);
+          return build2 (COMPOUND_EXPR, TREE_TYPE (real_result), TREE_OPERAND (arg, 0), real_result);
         }
 
       /* Addresses of constructors are needed for parameters. */
@@ -3388,14 +3357,12 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
             {
               tree offset = size_binop (EXACT_DIV_EXPR, bit_position (field), bitsize_int (BITS_PER_UNIT));
               /* int flag = TREE_CONSTANT (addr); */
-              addr = fold (build2 (PLUS_EXPR, argtype, addr,
-                                   convert (argtype, offset)));
+              addr = fold (build2 (PLUS_EXPR, argtype, addr, convert (argtype, offset)));
               /* TREE_CONSTANT (addr) = flag; */
             }
 #else
 #ifndef GCC_4_3
-          addr = fold (build2 (PLUS_EXPR, argtype, addr,
-                               convert (argtype, byte_position (field))));
+          addr = fold (build2 (PLUS_EXPR, argtype, addr, convert (argtype, byte_position (field))));
 #else
           addr = fold (build2 (POINTER_PLUS_EXPR, argtype, addr,
                                convert (sizetype, byte_position (field))));
@@ -3406,7 +3373,7 @@ build_unary_op (enum tree_code code, tree xarg, int noconvert)
         addr = build1 (code, argtype, arg);
 
       /* Address of a static or external variable or file-scope function counts as a constant. */
-      if (staticp (arg) && !(TREE_CODE (arg) == FUNCTION_DECL && DECL_CONTEXT (arg) && !DECL_NO_STATIC_CHAIN (arg)))
+      if (staticp (arg) && !(TREE_CODE (arg) == FUNCTION_DECL && DECL_CONTEXT (arg) /* && !DECL_NO_STATIC_CHAIN (arg) */))
         TREE_CONSTANT (addr) = 1;
       return addr;
 
@@ -3470,9 +3437,9 @@ build_type_cast (tree type, tree value)
   if (warn_cast_qual && TREE_CODE (type) == POINTER_TYPE && TREE_CODE (otype) == POINTER_TYPE)
     {
       if (TYPE_VOLATILE (TREE_TYPE (otype)) && !TYPE_VOLATILE (TREE_TYPE (type)))
-        pedwarn ("cast discards `volatile' from pointer target type");
+        gpc_pedwarn ("cast discards `volatile' from pointer target type");
       if (TYPE_READONLY (TREE_TYPE (otype)) && !TYPE_READONLY (TREE_TYPE (type)))
-        pedwarn ("cast discards `const' from pointer target type");
+        gpc_pedwarn ("cast discards `const' from pointer target type");
     }
 #endif
 
@@ -3517,7 +3484,9 @@ build_type_cast (tree type, tree value)
       if (TREE_CODE (value) == INTEGER_CST)
         {
           TREE_OVERFLOW (value) = TREE_OVERFLOW (ovalue);
+#if 0
           TREE_CONSTANT_OVERFLOW (value) = TREE_CONSTANT_OVERFLOW (ovalue);
+#endif
         }
       /* cast to type of different size can't be a variable type-cast */
       if (!tree_int_cst_equal (TYPE_SIZE (otype), TYPE_SIZE (type)))
@@ -3531,18 +3500,15 @@ build_type_cast (tree type, tree value)
   else
     {
       /* Variable type cast. Convert a pointer internally. */
-
-      /* @@ GPC allows `@'...'' as an extension, but we don't want that here. */
-      if (TREE_CODE (value) == STRING_CST)
-        error ("reference expected, value given");
-
       if (TREE_CODE (otype) != VOID_TYPE
           && TREE_CODE (type) != VOID_TYPE
           && !tree_int_cst_equal (TYPE_SIZE (otype), TYPE_SIZE (type)))
         gpc_warning ("cast to type of different size");
-
+      /* @@ GPC allows `@'...'' as an extension, but we don't want that here. */
+      if (TREE_CODE (value) == STRING_CST)
+        error ("reference expected, value given");
       value = build_indirect_ref (convert (build_pointer_type (type),
-            build_pascal_unary_op (ADDR_EXPR, value)), NULL);
+        build_pascal_unary_op (ADDR_EXPR, value)), NULL);
     }
   return value;
 }
@@ -3773,7 +3739,8 @@ build_routine_call (tree function, tree params)
   if (coerced_params)
     CHK_EM (coerced_params);
 
-  result =  gpc_build_call (TREE_TYPE (fntype), function, coerced_params);
+  result =
+      gpc_build_call (TREE_TYPE (fntype), function, coerced_params);
 
   TREE_SIDE_EFFECTS (result) = side_effects;
 
@@ -3787,31 +3754,22 @@ build_routine_call (tree function, tree params)
       tree temp_string = make_new_variable ("string_result", TREE_TYPE (fntype));
       result = build_modify_expr (temp_string, NOP_EXPR, result);
       if (co->io_checking && PASCAL_TYPE_IOCRITICAL (orig_type))
-        result = build2 (COMPOUND_EXPR, pascal_integer_type_node,
-                         result, build_iocheck ());
-      result = build2 (COMPOUND_EXPR, TREE_TYPE (fntype), save_expr (result),
-                       non_lvalue (temp_string));
+        result = build2 (COMPOUND_EXPR, pascal_integer_type_node, result, build_iocheck ());
+      result = build2 (COMPOUND_EXPR, TREE_TYPE (fntype), save_expr (result), non_lvalue (temp_string));
       TREE_USED (result) = 1;
-#ifdef GCC_4_0
-      TREE_NO_WARNING (result) = 1;
-#endif
     }
   else if (co->io_checking && PASCAL_TYPE_IOCRITICAL (orig_type))
     {
       if (TREE_CODE (TREE_TYPE (result)) == VOID_TYPE || EM (TREE_TYPE (result)))
         {
-          result = build1 (CONVERT_EXPR, void_type_node, save_expr (
-               build2 (COMPOUND_EXPR, pascal_integer_type_node,
-               result, build_iocheck ())));
+          result = build1 (CONVERT_EXPR, void_type_node, save_expr (build2 (COMPOUND_EXPR, pascal_integer_type_node, result, build_iocheck ())));
           PASCAL_TREE_IGNORABLE (result) = 1;
         }
       else
         {
           result = save_expr (result);
-          result = build2 (COMPOUND_EXPR, TREE_TYPE (result), result,
-                           build2 (COMPOUND_EXPR, TREE_TYPE (result),
-                                   build_iocheck (), result));
-          result = save_expr (result);
+          result = save_expr (build2 (COMPOUND_EXPR, TREE_TYPE (result), result,
+                              build2 (COMPOUND_EXPR, TREE_TYPE (result), build_iocheck (), result)));
         }
     }
   PASCAL_TREE_IGNORABLE (result) |= PASCAL_TREE_IGNORABLE (orig_type) || co->ignore_function_results;
@@ -4054,13 +4012,11 @@ build_modify_expr (tree lhs, enum tree_code modifycode, tree rhs)
       brush = convert (packed_array_unsigned_short_type_node, brush);
       brush = build_modify_expr (low_lhs, BIT_IOR_EXPR, brush);
       low_assignment = build2 (COMPOUND_EXPR, TREE_TYPE (brush), save_rhs_stmt,
-                         build2 (COMPOUND_EXPR, TREE_TYPE (brush),
-                                 eraser, brush));
+                         build2 (COMPOUND_EXPR, TREE_TYPE (brush), eraser, brush));
 
       /* Now do the same for the higher part and high_lhs. Prepare shifted_mask
          to access the higher half. Clear the bits in the target. */
-      shifted_mask = build2 (RSHIFT_EXPR, TREE_TYPE (shifted_mask),
-                             shifted_mask, TYPE_SIZE (TREE_TYPE (low_lhs)));
+      shifted_mask = build2 (RSHIFT_EXPR, TREE_TYPE (shifted_mask), shifted_mask, TYPE_SIZE (TREE_TYPE (low_lhs)));
       eraser = build_modify_expr (high_lhs, BIT_AND_EXPR,
                  convert (packed_array_unsigned_short_type_node,
                      build_unary_op (BIT_NOT_EXPR, shifted_mask, 0)));
@@ -4073,11 +4029,9 @@ build_modify_expr (tree lhs, enum tree_code modifycode, tree rhs)
       brush = convert (packed_array_unsigned_short_type_node, brush);
       brush = build_modify_expr (high_lhs, BIT_IOR_EXPR, brush);
       /* Construct a COMPOUND_EXPR holding both. */
-      high_assignment = build2 (COMPOUND_EXPR, TREE_TYPE (brush),
-                                eraser, brush);
+      high_assignment = build2 (COMPOUND_EXPR, TREE_TYPE (brush), eraser, brush);
       /* Return another COMPOUND_EXPR holding both halfs. */
-      return build2 (COMPOUND_EXPR, TREE_TYPE (high_assignment),
-                     low_assignment, high_assignment);
+      return build2 (COMPOUND_EXPR, TREE_TYPE (high_assignment), low_assignment, high_assignment);
     }
   if (TREE_CODE (lhs) == COMPOUND_EXPR)
     {

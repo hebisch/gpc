@@ -36,8 +36,22 @@
 #endif
 
 #ifdef GCC_4_0
-#include "tree-gimple.h"
+#include "gimple.h"
 #endif
+
+
+void
+warning0 (const char *gmsgid, ...)
+{
+  diagnostic_info diagnostic;
+  va_list ap;
+
+  va_start (ap, gmsgid);
+  diagnostic_set_info (&diagnostic, gmsgid, &ap, input_location, DK_WARNING);
+  report_diagnostic (&diagnostic);
+  va_end (ap);
+}
+
 
 /* The following functions are not called from GPC, but needed by
    the backend. Depending on the GCC version, they're simply called
@@ -555,6 +569,7 @@ add_pascal_tree_codes (void)
 }
 #else
 
+#if 0
 /* Tree code classes. */
 #define DEFTREECODE(SYM, NAME, TYPE, LENGTH) TYPE,
 #ifdef GCC_4_0
@@ -595,6 +610,7 @@ const char *const tree_code_name[] = {
 };
 #undef DEFTREECODE
 
+#endif
 #endif
 
 extern int debug_no_type_hash;
@@ -749,6 +765,7 @@ pascal_post_options (const char **pfilename)
   else
     *pfilename = filename;
   saved_filename = filename;
+  flag_excess_precision_cmdline = EXCESS_PRECISION_FAST;
   return false;
 }
 
@@ -903,14 +920,18 @@ lang_init (void)
 
   if (co->option_big_endian == 0 && BYTES_BIG_ENDIAN)
     {
-      pascal_input_filename = NULL;
+#ifndef GCC_4_2
+      input_filename = NULL;
+#endif
       lineno = column = 0;
       error ("`--little-endian' given, but target system is big endian");
       exit (FATAL_EXIT_CODE);
     }
   if (co->option_big_endian > 0 && !BYTES_BIG_ENDIAN)
     {
-      pascal_input_filename = NULL;
+#ifndef GCC_4_2
+      input_filename = NULL;
+#endif
       lineno = column = 0;
       error ("`--big-endian' given, but target system is little endian");
       exit (FATAL_EXIT_CODE);
@@ -992,7 +1013,7 @@ init_gpcpp (void)
         builtin_define ("__OPTIMIZE_SIZE__");
       if (optimize)
         builtin_define ("__OPTIMIZE__");
-      TARGET_CPU_CPP_BUILTINS ();
+      /* TARGET_CPU_CPP_BUILTINS (); */
       TARGET_OS_CPP_BUILTINS ();
       TARGET_OBJFMT_CPP_BUILTINS ();
   }
@@ -1805,7 +1826,6 @@ pascal_expand_function (tree fndecl)
 }
 #endif
 
-
 #ifndef GCC_4_3
 HOST_WIDE_INT
 #else
@@ -1875,7 +1895,7 @@ lang_mark_tree (tree t)
 }
 #endif
 
-const struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
+struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
 #endif
 
 #ifndef EGCS97

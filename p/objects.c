@@ -64,8 +64,7 @@ get_vmt_field (tree obj)
   if (TREE_CODE (obj) == COMPOUND_EXPR)
     {
       tree value = get_vmt_field (TREE_OPERAND (obj, 1));
-      return build2 (COMPOUND_EXPR, TREE_TYPE (value),
-                     TREE_OPERAND (obj, 0), value);
+      return build2 (COMPOUND_EXPR, TREE_TYPE (value), TREE_OPERAND (obj, 0), value);
     }
   vmt_field = TYPE_LANG_VMT_FIELD (TREE_TYPE (obj));
 #ifndef GCC_4_0
@@ -82,7 +81,8 @@ current_method (void)
   struct function *p;
   tree decl;
 #ifdef EGCS97
-  for (p = outer_function_chain; p && p->outer; p = p->outer) ;
+  /* XXX fixme */
+  /* for (p = outer_function_chain; p && p->outer; p = p->outer) ; */
 #else
   for (p = outer_function_chain; p && p->next; p = p->next) ;
 #endif
@@ -213,6 +213,7 @@ call_method (tree cref, tree args)
 #endif
       /* In the VMT, only generic pointers are stored to avoid
          confusion in GPI files. Repair them here. */
+      /* TREE_TYPE (fun) = build_pointer_type (type_save); */
       fun = convert (build_pointer_type (type_save), fun);
       if (co->object_checking)
         fun = fold (build3 (COND_EXPR, TREE_TYPE (fun),
@@ -323,7 +324,7 @@ start_object_type (tree name, int is_class)
     res = t;
   if (!pascal_global_bindings_p ())
     error ("object type definition only allowed at top level");
-  TYPE_MODE (t) = BLKmode;  /* may be used as a value parameter within its methods */
+  SET_TYPE_MODE (t, BLKmode);  /* may be used as a value parameter within its methods */
   TYPE_ALIGN (t) = BIGGEST_ALIGNMENT;
   allocate_type_lang_specific (t);
   TYPE_LANG_CODE (t) = PASCAL_LANG_OBJECT;
@@ -444,12 +445,10 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
           continue;
         if (co->methods_always_virtual && !(PASCAL_STRUCTOR_METHOD (heading) && t == boolean_type_node))
           virtual = 1;
-        method = build_decl (FUNCTION_DECL, method_name, build_function_type (t, argtypes));
-        pascal_input_filename = DECL_SOURCE_FILE (heading);
-        lineno = DECL_SOURCE_LINE (heading);
-#ifndef GCC_3_4
-        DECL_SOURCE_FILE (method) = DECL_SOURCE_FILE (heading);
-        DECL_SOURCE_LINE (method) = DECL_SOURCE_LINE (heading);
+        method = gpc_build_decl (FUNCTION_DECL, method_name, build_function_type (t, argtypes));
+#ifndef GCC_4_2
+        input_filename = DECL_SOURCE_FILE (method) = DECL_SOURCE_FILE (heading);
+        lineno = DECL_SOURCE_LINE (method) = DECL_SOURCE_LINE (heading);
 #else
         DECL_SOURCE_LOCATION (method) = DECL_SOURCE_LOCATION (heading);
 #endif
@@ -524,7 +523,7 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
         PASCAL_STRUCTOR_METHOD (method) = PASCAL_STRUCTOR_METHOD (heading);
         TREE_PUBLIC (method) = virtual == 2 || current_module->main_program || !current_module->implementation;
         if (virtual || TREE_PUBLIC (method))
-          mark_addressable (method);
+          mark_addressable0 (method);
         /* Push also abstract methods (for better error messages on attempts to implement them). */
         method = pushdecl (method);
         gcc_assert (!EM (method));
@@ -537,7 +536,7 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
             handle_autoexport (method_name);
           }
         DECL_CONTEXT (method) = type;
-        DECL_NO_STATIC_CHAIN (method) = 1;  /* @@ ? */
+        /* DECL_NO_STATIC_CHAIN (method) = 1; */  /* @@ ? */
         PASCAL_VIRTUAL_METHOD (method) = virtual != 0;
         PASCAL_ABSTRACT_METHOD (method) = virtual == 2;
         if (!is_class && virtual && PASCAL_CONSTRUCTOR_METHOD (method))
@@ -694,13 +693,13 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
     }
   else
     {
-      vmt_field = build_decl (FIELD_DECL, vmt_id, build_pointer_type (void_type_node));
+      vmt_field = gpc_build_decl (FIELD_DECL, vmt_id, build_pointer_type (void_type_node));
       fields = chainon (vmt_field, fields);
     }
 
   TYPE_ALIGN (type) = 0;  /* to avoid blowing up the size unnecessarily */
   type = finish_struct (type, fields, 0);
-  TYPE_MODE (type) = BLKmode;  /* be consistent with what was set in parse.y */
+  SET_TYPE_MODE (type, BLKmode);  /* be consistent with what was set in parse.y */
   TYPE_ALIGN (type) = BIGGEST_ALIGNMENT;
   TYPE_LANG_CODE (type) = abstract ? PASCAL_LANG_ABSTRACT_OBJECT : PASCAL_LANG_OBJECT;
   TYPE_LANG_VMT_FIELD (type) = vmt_field;
@@ -833,7 +832,7 @@ finish_object_type (tree type, tree parent, tree items, int abstract)
 
   for (t = TYPE_MAIN_VARIANT (type); t; t = TYPE_NEXT_VARIANT (t))
     {
-      TYPE_MODE (t) = TYPE_MODE (type);
+      SET_TYPE_MODE (t, TYPE_MODE (type));
       TYPE_LANG_CODE (t) = TYPE_LANG_CODE (type);
       TYPE_LANG_VMT_FIELD (t) = TYPE_LANG_VMT_FIELD (type);
       TYPE_LANG_VMT_VAR (t) = TYPE_LANG_VMT_VAR (type);
