@@ -953,7 +953,7 @@ typedef struct
 #define YYLTYPE_IS_DECLARED
 
 /* parse.c contains the same declarations again */
-#ifndef YYTOKENTYPE
+#ifndef OMIT_PARSE_H
 #include "parse.h"
 #endif
 

@@ -62,6 +62,7 @@
 
 %{
 #define YYMAXDEPTH 200000
+#define OMIT_PARSE_H
 #include "gpc.h"
 #ifdef GCC_4_0
 #include "cgraph.h"
