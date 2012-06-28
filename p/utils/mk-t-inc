@@ -71,6 +71,14 @@ echo ""
 {
   cat "$GCCDIR/tree.def"
   echo 'DEFTREECODE (LAST_AND_UNUSED_C_TREE_CODE, "unused", '"'x', 0)"
-  sed -e '/#ifdef EGCS/,${/#ifdef EGCS/d;/#else/,/#endif/d;}'  "$GCCDIR/p/p-tree.def"
-} | sed -ne ':loop;/\\$/{N;b loop};/^DEFTREECODE/{s,/\*.*\*/,,;s/["'"'"']x["'"'"'].*/'"'x', 0)/;p;};/^#/p"
+  sed -e '/#ifdef EGCS/,${/#ifdef EGCS/d;/#else/,/#endif/d;}' "$GCCDIR/p/p-tree.def"
+} | sed -ne ':loop
+             /\\$/{
+                    N
+                    s/\\\n//
+                    b loop
+                  }
+             /^#\(.*\)/s//{$\1}/p
+             /^DEFTREECODE/{s,/\*.*\*/,,;s/["'"'"']x["'"'"'].*/'"'x'"', 0)/;p;}'
+
 } > "$2" || { rm -f "$2"; false; }

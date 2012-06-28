@@ -1,8 +1,12 @@
 ChangeLog -- Edit History for GPC, the GNU Pascal Compiler, since version 2.1
 =============================================================================
+2012-06-29  Frank Heckenbach  <frank@pascal.gnu.de>
+
+	* utils/mk-t-inc: Make compatible with Mac OSX sed.
+
 2012-06-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
 
-	* p/predef.c: actual_set_parameters(): Avoid too eager
+	* predef.c: actual_set_parameters(): Avoid too eager
 	error checking (fixes scott2.pas).
 
 2012-06-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
