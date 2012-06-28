@@ -1,5 +1,10 @@
 ChangeLog -- Edit History for GPC, the GNU Pascal Compiler, since version 2.1
 =============================================================================
+2012-06-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
+	* typecheck.c: convert_arg1(): Flag 'const var' strings
+	as passed by reference (fixes jsm1.pas).
+
 2007-09-04  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
 
 	* utils/gpidump.pas: Skip version check for 4.x backends.

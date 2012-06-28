@@ -1037,8 +1037,15 @@ convert_arg1 (tree * tp, tree val, struct argument_error_context * errc,
                 type = TREE_TYPE (val);
               else if (!varparm)
                 type = build_pascal_string_schema (PASCAL_STRING_LENGTH (val));
-              if (is_readonly != TYPE_READONLY (type) || is_volatile != TYPE_VOLATILE (type))
-                type = p_build_type_variant (type, is_readonly, is_volatile);
+              if (is_readonly != TYPE_READONLY (type)
+                  || is_volatile != TYPE_VOLATILE (type)
+                  || PASCAL_TYPE_VAL_REF_PARM (type) != val_ref_parm)
+                {
+                  type = build_type_copy (type);
+                  TYPE_READONLY (type) = is_readonly;
+                  TYPE_VOLATILE (type) = is_volatile;
+                  PASCAL_TYPE_VAL_REF_PARM (type) = val_ref_parm;
+                }
               if (varparm && TREE_CODE (type) != REFERENCE_TYPE)
                 {
                   type = build_type_copy (build_reference_type (type));
