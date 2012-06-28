@@ -2,6 +2,11 @@ ChangeLog -- Edit History for GPC, the GNU Pascal Compiler, since version 2.1
 =============================================================================
 2012-06-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
 
+	* p/predef.c: actual_set_parameters(): Avoid too eager
+	error checking (fixes scott2.pas).
+
+2012-06-28  Waldek Hebisch  <hebisch@math.uni.wroc.pl>
+
 	* typecheck.c: convert_arg1(): Flag 'const var' strings
 	as passed by reference (fixes jsm1.pas).
 

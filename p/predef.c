@@ -422,7 +422,10 @@ static tree
 actual_set_parameters (tree val, int reference)
 {
   tree domain = TYPE_DOMAIN (TREE_TYPE (val)), addr;
+  unsigned long save_pascal_dialect = co->pascal_dialect;
   int addressable = mark_addressable (val);
+  co->pascal_dialect = ANY_PASCAL;
+
   gcc_assert (addressable);
 
   /* Callers now handle the constant empty set. */
@@ -435,6 +438,7 @@ actual_set_parameters (tree val, int reference)
     addr = build_pascal_unary_op (ADDR_EXPR, val);
   else
     addr = build1 (ADDR_EXPR, build_pointer_type (TREE_TYPE (val)), val);
+  co->pascal_dialect = save_pascal_dialect;
   return tree_cons (NULL_TREE, addr,
     tree_cons (NULL_TREE, convert (pascal_integer_type_node, TYPE_MIN_VALUE (domain)),
       build_tree_list (NULL_TREE, convert (pascal_integer_type_node, TYPE_MAX_VALUE (domain)))));
