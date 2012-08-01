@@ -1135,7 +1135,7 @@ pascal.install-normal: pascal.install-common pascal.install-compiler$(GPC_GCC_34
 # @@ Repeating pascal.install-compiler is strange here. But since it's disabled
 #    in pascal.install-normal for gcc-3.4, it would otherwise be missing here.
 pascal.install: pascal.install-normal pascal.install-compiler
-	echo "pascal.install done" ; @true
+	echo "pascal.install done"
 
 pascal.install-with-gcc: $(INSTALL_HEADERS) pascal.install $(INSTALL_LIBGCC)
 	for file in $(GCC_PASSES); do \
