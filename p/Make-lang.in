@@ -529,33 +529,42 @@ $(srcdir)/p/doc/generated/windos.texi: $(srcdir)/p/units/windos.pas
 	$(srcdir)/p/script/pas2texi $(srcdir)/p/units/windos.pas $(srcdir)/p/doc/generated/windos.texi
 
 $(srcdir)/p/INSTALL: $(srcdir)/p/doc/en/install.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DINSTALLONLY --no-header --no-split install.texi -o "$@"
+	$(MAKEINFO_EN) -DINSTALLONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/install.texi -o "$@"
 
 $(srcdir)/p/README: $(srcdir)/p/doc/en/welcome.texi $(srcdir)/p/doc/en/purpose.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DREADMEONLY --no-header --no-split welcome.texi -o "$@"
+	$(MAKEINFO_EN) -DREADMEONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/welcome.texi -o "$@"
 
 $(srcdir)/p/NEWS: $(srcdir)/p/doc/en/news.texi $(srcdir)/p/doc/en/welcome.texi \
                   $(srcdir)/p/doc/en/purpose.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DNEWSONLY --no-header --no-split news.texi -o "$@"
+	$(MAKEINFO_EN) -DNEWSONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/news.texi -o "$@"
 
 $(srcdir)/p/FAQ: $(srcdir)/p/doc/en/faq.texi $(srcdir)/p/doc/en/purpose.texi \
                  $(srcdir)/p/doc/en/libs.texi $(srcdir)/p/doc/en/support.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DFAQONLY --no-header --no-split --number-sections faq.texi -o "$@"
+	$(MAKEINFO_EN) -DFAQONLY --no-header --no-split --number-sections \
+	  $(srcdir)/p/doc/en/faq.texi -o "$@"
 
 $(srcdir)/p/AUTHORS: $(srcdir)/p/doc/en/authors.texi $(srcdir)/p/doc/contributors.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DAUTHORSONLY --no-header --no-split authors.texi -o "$@"
+	$(MAKEINFO_EN) -DAUTHORSONLY --no-header --no-split \
+          $(srcdir)/p/doc/en/authors.texi -o "$@"
 
 $(srcdir)/p/COPYING: $(srcdir)/p/doc/en/copying.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split copying.texi -o "$@"
+	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/copying.texi -o "$@"
 
 $(srcdir)/p/COPYING.LIB: $(srcdir)/p/doc/en/copying-lib.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split copying-lib.texi -o "$@"
+	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/copying-lib.texi -o "$@"
 
 $(srcdir)/p/COPYING.DEMO: $(srcdir)/p/doc/en/copying-demo.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split copying-demo.texi -o "$@"
+	$(MAKEINFO_EN) -DCOPYINGONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/copying-demo.texi -o "$@"
 
 $(srcdir)/p/test/README: $(srcdir)/p/doc/en/support.texi $(GPC_GENERAL_TEXI)
-	$(MAKEINFO_EN) -DTESTREADMEONLY --no-header --no-split support.texi -o "$@"
+	$(MAKEINFO_EN) -DTESTREADMEONLY --no-header --no-split \
+	  $(srcdir)/p/doc/en/support.texi -o "$@"
 
 pascal.generated-manpages:
 
@@ -817,31 +826,38 @@ pascal.dvi: gpc.dvi
 
 $(srcdir)/p/doc/info/gpc.info: $(GPC_TEXI_EN)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_EN) -o $(srcdir)/p/doc/info/gpc.info gpc.texi
+	$(MAKEINFO_EN) -o $(srcdir)/p/doc/info/gpc.info \
+	  $(srcdir)/p/doc/en/gpc.texi
 
 $(srcdir)/p/doc/info/gpcs.info: $(GPC_TEXI_EN)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_EN) --no-split -o $(srcdir)/p/doc/info/gpcs.info gpcs.texi
+	$(MAKEINFO_EN) --no-split -o $(srcdir)/p/doc/info/gpcs.info \
+	  $(srcdir)/p/doc/en/gpcs.texi
 
 $(srcdir)/p/doc/info/gpcs-de.info: $(GPC_TEXI_DE)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_DE) --no-split -o $(srcdir)/p/doc/info/gpcs-de.info gpcs.texi
+	$(MAKEINFO_DE) --no-split -o $(srcdir)/p/doc/info/gpcs-de.info \
+	  $(srcdir)/p/doc/de/gpcs.texi
 
 $(srcdir)/p/doc/info/gpc-hr.info: $(GPC_TEXI_HR)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_HR) -o $(srcdir)/p/doc/info/gpc-hr.info gpc.texi
+	$(MAKEINFO_HR) -o $(srcdir)/p/doc/info/gpc-hr.info \
+          $(srcdir)/p/doc/hr/gpc.texi
 
 $(srcdir)/p/doc/info/gpcs-hr.info: $(GPC_TEXI_HR)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_HR) --no-split -o $(srcdir)/p/doc/info/gpcs-hr.info gpcs.texi
+	$(MAKEINFO_HR) --no-split -o $(srcdir)/p/doc/info/gpcs-hr.info \
+	  $(srcdir)/p/doc/hr/gpcs.texi
 
 $(srcdir)/p/doc/info/gpc-es.info: $(GPC_TEXI_ES)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_ES) -o $(srcdir)/p/doc/info/gpc-es.info gpc.texi
+	$(MAKEINFO_ES) -o $(srcdir)/p/doc/info/gpc-es.info \
+	  $(srcdir)/p/doc/es/gpc.texi
 
 $(srcdir)/p/doc/info/gpcs-es.info: $(GPC_TEXI_ES)
 	[ -d "$(srcdir)/p/doc/info" ] || $(srcdir)/p/script/mkdir-p "$(srcdir)/p/doc/info"
-	$(MAKEINFO_ES) --no-split -o $(srcdir)/p/doc/info/gpcs-es.info gpcs.texi
+	$(MAKEINFO_ES) --no-split -o $(srcdir)/p/doc/info/gpcs-es.info \
+	  $(srcdir)/p/doc/es/gpcs.texi
 
 gpc.dvi: $(GPC_TEXI_EN)
 	TEXINPUTS=$(srcdir)/p/doc:$(srcdir)/p/doc/images:$$TEXINPUTS \
@@ -863,7 +879,7 @@ gpc.pdf: $(GPC_TEXI_EN)
 	if grep -i overfull gpc.po gpc.log; then false; else true; fi
 
 gpc.txt: $(GPC_TEXI_EN)
-	$(MAKEINFO_EN) --no-headers --force -o "$@" gpc.texi
+	$(MAKEINFO_EN) --no-headers --force -o "$@" $(srcdir)/p/doc/en/gpc.texi
 
 HTML_DIR=./p/html
 

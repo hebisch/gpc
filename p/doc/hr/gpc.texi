@@ -127,7 +127,7 @@ instead of in the original English.
 @sp 3
 @center Zadnja nadopuna @value{UPDATE-MONTH}
 @sp 1
-@center za version @value{GPCVersion} (GCC {GCCVersion})
+@center za version @value{GPCVersion} (GCC @value{GCCVersion})
 @page
 @vskip 0pt plus 1filll
 Copyright @copyright{} 1988-2006 Free Software Foundation, Inc.
