@@ -1232,8 +1232,9 @@ expand_pascal_assignment2 (tree target, tree source, int is_init)
   schema_target = undo_schema_dereference (target);
   DEREFERENCE_SCHEMA (source);
   DEREFERENCE_SCHEMA (target);
-  CHK_EM (source);
-  CHK_EM (target);
+  if (EM (source)||EM (target)) {
+    return;
+  }
 
   /* Restricted types. @@@@ Maybe this needs further checking */
   if (TREE_CODE (source) == CALL_EXPR && PASCAL_TYPE_RESTRICTED (TREE_TYPE (source)))
