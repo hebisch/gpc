@@ -4003,7 +4003,7 @@ declare_variables (tree name_list, tree type, tree init, int qualifiers, tree at
 
       if (!DECL_ARTIFICIAL (d))
         d = pushdecl (d);
-#if 1 
+#ifdef GCC_3_4 
       /* def GCC_4_0 */
       else
         pushdecl_nocheck (d);
