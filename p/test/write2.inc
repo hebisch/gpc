@@ -168,7 +168,7 @@ begin
   str(s);
   sti('1234567899', SizeOf (MedInt) > SizeOf (Integer));
   str(s);
-  sti('-7890123456789012345',True);
+  sti('-7890123456789012345', SizeOf (Integer) < 8);
   l;
   sti('234',False);
   str(s);
@@ -178,7 +178,7 @@ begin
   str(s);
   sti('2345678902',SizeOf (MedCard) > SizeOf (Cardinal));
   str(s);
-  sti('12345678901234567890',True);
+  sti('12345678901234567890', SizeOf (Integer) < 8);
   l;
 end;
 
