@@ -1,0 +1,79 @@
+diff -ru ../cur2/gcc-3.4.6/gcc/Makefile.in gcc-3.4.6.pp2/gcc/Makefile.in
+--- ../cur2/gcc-3.4.6/gcc/Makefile.in	2005-02-24 09:26:59.000000000 +0000
++++ gcc-3.4.6.pp2/gcc/Makefile.in	2020-05-15 16:58:19.414762304 +0000
+@@ -2350,6 +2350,7 @@
+   -DLOCAL_INCLUDE_DIR=\"$(local_includedir)\" \
+   -DCROSS_INCLUDE_DIR=\"$(CROSS_SYSTEM_HEADER_DIR)\" \
+   -DTOOL_INCLUDE_DIR=\"$(gcc_tooldir)/include\" \
++  -DTARGET_MACHINE=\"@TARGET_TRIPLET@\" \
+   @TARGET_SYSTEM_ROOT_DEFINE@
+ 
+ LIBCPP_OBJS =	cpplib.o cpplex.o cppmacro.o cppexp.o cppfiles.o cpptrad.o \
+diff -ru ../cur2/gcc-3.4.6/gcc/config/linux.h gcc-3.4.6.pp2/gcc/config/linux.h
+--- ../cur2/gcc-3.4.6/gcc/config/linux.h	2003-11-29 03:08:13.000000000 +0000
++++ gcc-3.4.6.pp2/gcc/config/linux.h	2020-05-15 17:02:19.730751731 +0000
+@@ -48,12 +48,12 @@
+    crti.o%s %{!shared:crtbegin.o%s} %{shared:crtbeginS.o%s}"
+ #elif defined HAVE_LD_PIE
+ #define STARTFILE_SPEC \
+-  "%{!shared: %{pg|p|profile:gcrt1.o%s;pie:Scrt1.o%s;:crt1.o%s}} \
+-   crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
++  "%{!shared: %{pg|p|profile:gcrt1.o%s;pie:Scrt1.o%s;:/usr/lib/@TARGET_TRIPLET@/crt1.o%s}} \
++   /usr/lib/@TARGET_TRIPLET@/crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
+ #else
+ #define STARTFILE_SPEC \
+-  "%{!shared: %{pg|p|profile:gcrt1.o%s;:crt1.o%s}} \
+-   crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
++  "%{!shared: %{pg|p|profile:gcrt1.o%s;:/usr/lib/@TARGET_TRIPLET@/crt1.o%s}} \
++   /usr/lib/@TARGET_TRIPLET@/crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
+ #endif
+ 
+ /* Provide a ENDFILE_SPEC appropriate for GNU/Linux.  Here we tack on
+@@ -64,7 +64,7 @@
+ 
+ #undef	ENDFILE_SPEC
+ #define ENDFILE_SPEC \
+-  "%{shared|pie:crtendS.o%s;:crtend.o%s} crtn.o%s"
++  "%{shared|pie:crtendS.o%s;:crtend.o%s} /usr/lib/@TARGET_TRIPLET@/crtn.o%s"
+ 
+ /* This is for -profile to use -lc_p instead of -lc.  */
+ #ifndef CC1_SPEC
+diff -ru ../cur2/gcc-3.4.6/gcc/cppdefault.c gcc-3.4.6.pp2/gcc/cppdefault.c
+--- ../cur2/gcc-3.4.6/gcc/cppdefault.c	2003-03-01 14:31:21.000000000 +0000
++++ gcc-3.4.6.pp2/gcc/cppdefault.c	2020-05-15 16:58:19.286762310 +0000
+@@ -29,6 +29,14 @@
+ #define STANDARD_INCLUDE_DIR "/usr/include"
+ #endif
+ 
++#ifndef MULTIARCH_STANDARD_INCLUDE_DIR
++#define MULTIARCH_STANDARD_INCLUDE_DIR STANDARD_INCLUDE_DIR "/" TARGET_MACHINE
++#endif
++
++#ifndef MULTIARCH_LOCAL_INCLUDE_DIR
++#define MULTIARCH_LOCAL_INCLUDE_DIR LOCAL_INCLUDE_DIR "/" TARGET_MACHINE
++#endif
++
+ #ifndef STANDARD_INCLUDE_COMPONENT
+ #define STANDARD_INCLUDE_COMPONENT 0
+ #endif
+@@ -62,6 +70,10 @@
+     /* /usr/local/include comes before the fixincluded header files.  */
+     { LOCAL_INCLUDE_DIR, 0, 0, 1, 1 },
+ #endif
++#ifdef MULTIARCH_LOCAL_INCLUDE_DIR
++    /* /usr/local/include/$target_alias comes before the fixincluded header files.  */
++    { MULTIARCH_LOCAL_INCLUDE_DIR, 0, 0, 1, 1 },
++#endif
+ #ifdef PREFIX_INCLUDE_DIR
+     { PREFIX_INCLUDE_DIR, 0, 0, 1, 0 },
+ #endif
+@@ -81,6 +93,9 @@
+     /* Some systems have an extra dir of include files.  */
+     { SYSTEM_INCLUDE_DIR, 0, 0, 0, 1 },
+ #endif
++#ifdef MULTIARCH_STANDARD_INCLUDE_DIR
++    { MULTIARCH_STANDARD_INCLUDE_DIR, STANDARD_INCLUDE_COMPONENT, 0, 0, 1 },
++#endif
+ #ifdef STANDARD_INCLUDE_DIR
+     /* /usr/include comes dead last.  */
+     { STANDARD_INCLUDE_DIR, STANDARD_INCLUDE_COMPONENT, 0, 0, 1 },

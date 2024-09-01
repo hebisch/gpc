@@ -1,10 +1,23 @@
+Instruction for old systems:
+
 I have tested build with gcc-3.4.6, gcc-4.1.2, gcc-4.2.4 and gcc-4.3.5.
 Before build copy or symlink the p subdirectry of gpc into gcc-x.y.z/gcc
 subdirectory of gcc tree (that is you should have directory called
 gcc-x.y.z/gcc/p).  To build with gcc-3.4.6 (or earlier) apply backend
-patch and proceed as with previous gpc versions.
+patch.   That is in gcc-3.4.6/gcc do
+
+patch -p1 < p/diff/gcc-3.4.4.diff
+
+Next, create build directory.  In the build directory configure inculuding
+Pascal in list of languages to build like
+
+../gcc-3.4.6/configure  --enable-languages=c,pascal --disable-multilib
+
+Note: GPC does not support multilibs, the '--disable-multilib' provents
+build failure due to this.
+
 To build with gcc-4.y copy the libgpc subdirectory into toplevel gcc
-directory (that is into gcc-4.y.z) and apply the patch backend patch
+directory (that is into gcc-4.y.z) and apply the backend patch
 from _toplevel_ directory (that is inside gcc-4.x.y directory) using
 command:
 
@@ -12,6 +25,46 @@ patch -p1 < gcc/p/gcc-4.y.z.diff
 
 Then configure and build.  Using gcc-4.3.5 you need to give 'configure' 
 the '--disable-mapped-location' argument.
+
+Newer Linux systems:
+
+On newer Debian systems (and possibly other Linux distributions) there
+is changed layout of include files and library files: several include files
+are in platform specific subdirectories like '/usr/include/x86_64-linux-gnu'
+and its subdirectories.  Similarly libraries are in
+'/usr/lib/x86_64-linux-gnu'.  Unpached gcc-3.4.6 can not find system include
+files and as result build fails.  If problem with include files is
+worked around, then gcc-3.4.6 can not find essential library files and
+again build will files.   To work around both problems do the
+following in the toplvel gcc-3.4.6 directory:
+
+sed 's,@TARGET_TRIPLET@,x86_64-linux-gnu,g' gcc/p/multilib-3.4.diff \
+  | patch -p1
+
+Note: you need here "canonical name" of your platform, so if it is
+different replace 'x86_64-linux-gnu' by name of your platform.  You
+can verify if platform name is correct by checking for presence of
+directories like '/usr/include/x86_64-linux-gnu' and
+'/usr/lib/x86_64-linux-gnu'.
+
+Note: Do the above if you build native compiler and your Linux uses
+layout as above.  System using old layout do not need this patch.
+In particular cross compilers seem to continue with old layout.
+
+In recent Linux systems declaration of 'ucontext' changed in incompatible
+way.  If your system uses new declaration then you need to apply extra
+patch in toplevel gcc-3.4.6 directory:
+
+patch -p1 < gcc/p/ucontext.diff
+
+After applying the two patches (if needed) proceed as on older systems.
+
+If you apply the 'multilib-3.4.diff' patch on platform that do not
+need it, it may cause build failure.  If you apply 'ucontext.diff'
+on platform that do not need it, you almost surely will get build
+failure.  So, you need to find out features of you system and
+apply only relevant patches.  Idealy this would be automated,
+but ATM this must be done by hand.
 
 Known problems:
 
